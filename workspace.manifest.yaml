@@ -1,0 +1,104 @@
+# ============================================================
+# workspace.manifest.yaml
+# ============================================================
+# Parseable index of canonical paths and roles for this
+# project workspace. Machine-readable source of truth for
+# tooling, bootstraps, and model adapters. Update whenever
+# structure changes. Do not delete keys — mark deprecated
+# entries with `deprecated: true`.
+# ============================================================
+
+schema_version: 1
+studio: "The Shokunin Crafthouse"
+template_version: "1.1.0"
+
+project:
+  name: "MegCMusic"
+  client: "Meghan Clarisse Cave"
+  kind: "site"            # brand | product | site | app | campaign
+  stage: "01-brief"       # current stage id
+  current_sprint: ""      # active sprint CONTEXT.md path — set before each sprint (mirrors WORKSPACE.md)
+  lead: "Levi Bahn"
+  started: "2026-06-16"    # YYYY-MM-DD
+  target_launch: ""       # YYYY-MM-DD
+  status: "active"        # active | paused | closed
+  production_domain: "megcmusic.com"
+
+identity:
+  workspace: WORKSPACE.md
+  workflow: WORKFLOW.md
+  decisions: decisions/decisions.md
+
+adapters:
+  claude: CLAUDE.md            # repo-root adapter (1.1.0) — adapters/claude/ is a pointer
+  generic: adapters/generic/BOOTSTRAP.md
+
+config:
+  brand: _config/brand/
+  voice: _config/voice/
+  design_system:
+    root: _config/design-system/
+    figma_links: _config/design-system/figma-links.md
+    token_map: _config/design-system/token-map.md       # token documentation
+    token_map_css: _config/design-system/token-map.css  # live token source (client-isolated) consumed by globals.css
+    ui_rules: _config/design-system/ui-rules.md
+
+# Next.js application — headless front-end over the existing
+# WordPress/WooCommerce/The Events Calendar install.
+app:
+  framework: "Next.js (App Router, ISR)"
+  styling: "CSS custom properties + CSS Modules"
+  root: src/app/
+  globals: src/app/globals.css
+  api_clients: src/lib/api/        # wordpress.ts, woocommerce.ts, events.ts
+  scripts: scripts/                # verify-apis.ts
+  ci: .github/workflows/           # deploy.yml, preview-deploy.yml, preview-cleanup.yml
+  env_example: .env.local.example
+  rest_bases:
+    wordpress: "https://megcmusic.com/wp-json/wp/v2"
+    woocommerce: "https://megcmusic.com/wp-json/wc/v3"
+    events: "https://megcmusic.com/wp-json/tribe/events/v1"
+
+stages:
+  - id: "01-brief"
+    path: stages/01-brief/
+    brief: stages/01-brief/CONTEXT.md
+    references: stages/01-brief/references/
+    output: stages/01-brief/output/
+    gate: "concept"
+  - id: "02-design"
+    path: stages/02-design/
+    brief: stages/02-design/CONTEXT.md
+    figma: stages/02-design/figma/
+    claude_design: stages/02-design/claude-design/
+    output: stages/02-design/output/
+    gate: "design"
+  - id: "03-build"
+    path: stages/03-build/
+    brief: stages/03-build/CONTEXT.md
+    references: stages/03-build/references/
+    output: stages/03-build/output/
+    gate: "build"
+  - id: "04-review"
+    path: stages/04-review/
+    brief: stages/04-review/CONTEXT.md
+    references: stages/04-review/references/
+    output: stages/04-review/output/
+    gate: "review"
+  - id: "05-launch"
+    path: stages/05-launch/
+    brief: stages/05-launch/CONTEXT.md
+    references: stages/05-launch/references/
+    output: stages/05-launch/output/
+    gate: "close"
+
+# Canonical read order for any model or agent entering this
+# workspace. Follow in sequence. Do not skip.
+read_order:
+  - CLAUDE.md                            # repo-root adapter; auto-loaded by Claude Code
+  - WORKSPACE.md                         # identity, rules, "Current sprint:" pointer
+  - WORKFLOW.md
+  - stages/<current-sprint>/CONTEXT.md   # active sprint contract + Inputs table
+  # then only the files named in that CONTEXT.md Inputs table —
+  # _config/ sections selectively, never in full
+  - decisions/decisions.md

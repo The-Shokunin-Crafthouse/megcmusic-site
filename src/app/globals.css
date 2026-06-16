@@ -1,0 +1,34 @@
+/* ============================================================
+   globals.css — MegCMusic
+   ------------------------------------------------------------
+   Google Fonts + design tokens + base reset only. All
+   component styling lives in CSS Modules; raw values never
+   appear outside _config/design-system/token-map.css.
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Newsreader:ital,wght@0,400;1,400&family=Open+Sans:wght@400;600;700&family=Praise&display=swap');
+@import '../../_config/design-system/token-map.css';
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--mc-bg);
+  color: var(--mc-text-primary);
+  font-family: var(--mc-font-ui);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}

@@ -1,0 +1,25 @@
+name: Preview Cleanup
+
+# Posts a confirmation comment when a PR to main is closed
+# (merged or abandoned). Vercel retires the preview deployment
+# automatically; this records that on the PR.
+
+on:
+  pull_request:
+    types: [closed]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Post cleanup confirmation
+        uses: marocchino/sticky-pull-request-comment@v2
+        with:
+          header: preview
+          message: |
+            ### 🧹 Preview retired
+
+            PR #${{ github.event.pull_request.number }} is closed — its Vercel preview deployment has been superseded and will be cleaned up automatically.

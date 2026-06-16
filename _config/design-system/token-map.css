@@ -1,0 +1,54 @@
+/* ============================================================
+   token-map.css — MegCMusic design tokens (client-isolated)
+   ------------------------------------------------------------
+   Single source of truth for raw color, type, and spacing
+   values. Mirrors Figma 908TLdOM0e6xRtnzOj2nNv. Raw hex lives
+   ONLY in this file — components reference the tokens, never
+   the literals.
+
+   Client project: does NOT consume the Shokunin shared design
+   system. See decisions/decisions.md (2026-06-16).
+   ============================================================ */
+
+:root {
+  /* Backgrounds */
+  --mc-bg: #241420;
+  --mc-bg-card: #f7eadd;
+  --mc-bg-section: #291724;
+  --mc-bg-quote: #331f2e;
+  --mc-divider: #3f3119;
+
+  /* Text */
+  --mc-text-primary: #e5dcd3;
+  --mc-text-body: #e5d0bc;
+  --mc-text-muted: #caa45f;
+  --mc-text-card: #4f2c3d;
+
+  /* Accents */
+  --mc-accent-pink: #f6849a;
+  --mc-accent-rose: #c38b96;
+  --mc-accent-blush: #d6abb3;
+  --mc-accent-gold: #caa45f;
+  --mc-accent-red: #d13e5b;
+
+  /* Channel triplets for rgba composition (R G B) */
+  --mc-accent-pink-rgb: 246 132 154;
+  --mc-accent-gold-rgb: 202 164 95;
+
+  /* Typography */
+  --mc-font-display: 'Lora', serif;
+  --mc-font-ui: 'Open Sans', sans-serif;
+  --mc-font-drop-cap: 'Praise', cursive;
+  --mc-font-video: 'Newsreader', serif;
+
+  /* Spacing (8pt scale) */
+  --mc-space-1: 4px;
+  --mc-space-2: 8px;
+  --mc-space-3: 16px;
+  --mc-space-4: 24px;
+  --mc-space-5: 32px;
+  --mc-space-6: 48px;
+  --mc-space-7: 64px;
+  --mc-space-8: 96px;
+  --mc-space-9: 128px;
+}

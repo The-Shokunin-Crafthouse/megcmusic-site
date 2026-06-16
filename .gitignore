@@ -1,0 +1,79 @@
+# ============================================================
+# .gitignore — Shokunin Crafthouse project template
+# ============================================================
+
+# dependencies
+node_modules/
+.pnp
+.pnp.js
+.yarn/
+.pnpm-store/
+
+# build outputs
+.next/
+.turbo/
+.svelte-kit/
+.astro/
+dist/
+build/
+out/
+
+# Next.js / TypeScript generated
+next-env.d.ts
+*.tsbuildinfo
+
+# testing / coverage
+coverage/
+.nyc_output/
+playwright-report/
+test-results/
+
+# env files — never commit
+.env
+.env.*
+!.env.example
+!.env.local.example
+
+# secrets
+secrets/
+*.key
+*.pem
+*.p12
+*.mobileprovision
+*.keystore
+credentials.json
+service-account*.json
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# deploy artifacts
+.vercel/
+.netlify/
+.wrangler/
+
+# caches
+.cache/
+.parcel-cache/
+.eslintcache
+.stylelintcache
+
+# Figma bulk exports (keep structure, not assets)
+stages/02-design/figma/exports/
+
+# model-local artifacts
+.claude-cache/
+.cursor-cache/
+.ai-cache/
