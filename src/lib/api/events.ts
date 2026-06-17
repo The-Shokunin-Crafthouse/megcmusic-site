@@ -8,6 +8,12 @@
 const EVENTS_API_URL =
   process.env.EVENTS_API_URL ?? "https://megcmusic.com/wp-json/tribe/events/v1";
 
+// Bound every call so a slow/unreachable WordPress host can never hang a build
+// or an ISR revalidation. From a normal network the API answers in <1s; the
+// build region occasionally cannot reach it, so we fail fast into the caller's
+// empty-state instead of stalling past Next's static-generation timeout.
+const REQUEST_TIMEOUT_MS = 12_000;
+
 export interface TribeVenue {
   venue?: string;
   address?: string;
@@ -48,6 +54,7 @@ export async function getEvents(
       : "?per_page=50&end_date=now";
   const res = await fetch(`${EVENTS_API_URL}/events${query}`, {
     next: { revalidate: 3600 },
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
   if (!res.ok) {
     // The archive endpoint 404s when a date query matches nothing.
@@ -61,6 +68,7 @@ export async function getEvents(
 export async function getEvent(id: number): Promise<TribeEvent | null> {
   const res = await fetch(`${EVENTS_API_URL}/events/${id}`, {
     next: { revalidate: 3600 },
+    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
   });
   if (!res.ok) return null;
   return (await res.json()) as TribeEvent;

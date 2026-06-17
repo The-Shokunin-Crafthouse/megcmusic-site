@@ -157,3 +157,14 @@ Append-only log of non-trivial decisions made on this project. Entries are not e
 **Rationale.** Studio learning #56 — a hue tuned as a fill commonly fails as text; the fix is an additive darker `-ink` for text, not a repaint of the base. Zero cascade: nothing else consumes `--mc-accent-red` yet.
 **Alternatives considered.** (1) Ship `#d13e5b` as text — rejected: sub-AA, violates the non-negotiable. (2) Darken the base `--mc-accent-red` itself — rejected: would silently shift any future fill use; the base stays the brand red. (3) Enlarge/bold the venue to clear large-text AA (3:1) — rejected: fights the Figma type spec.
 **Consequences.** Easier: venue text passes AA; brand red preserved for fills. Harder: one more red token to keep straight (text → `-ink`, fills → base).
+
+## 2026-06-16 — Bound Events API calls so a slow upstream can't fail the ISR build
+**Stage:** 03-build
+**Type:** Architecture
+**Status:** accepted
+
+**Context.** The first Vercel preview build prerendered `/` (now fetching events) and timed out — "took more than 60 seconds", three attempts, then failed. The API answers in <1s from a normal network and at every page size, so query cost is not the issue; the Vercel build region intermittently cannot reach `megcmusic.com` and the fetch hangs to the 60s static-generation wall. ISR prerenders the page at build by default.
+**Decision.** Add a 12s `AbortSignal.timeout` to every Events fetch (`getEvents`, `getEvent`) and raise `staticPageGenerationTimeout` to 120 in `next.config.ts`. The page's existing `try/catch` then renders the empty state instead of hanging.
+**Rationale.** A server fetch must never hang a build. Failing fast into the empty state keeps the build green and lets ISR fill real data at runtime, where the serverless fetch path and timeout differ from the build. The committed snapshots prove the populated UI regardless of build-region connectivity.
+**Alternatives considered.** (1) `force-dynamic` — rejected: drops ISR (WORKSPACE: ISR only). (2) Reduce `per_page` — rejected: the API is fast at all sizes; size is not the cost. (3) Raise the timeout only — rejected: does not bound a genuine hang, just delays the failure.
+**Consequences.** Easier: resilient builds, no new infra coupling, good practice independent of this incident. Harder: if Vercel also cannot reach the WP host at *runtime*, the live preview shows the empty state until connectivity is fixed host-side (datacenter-IP allowlist) — flagged to the lead.
