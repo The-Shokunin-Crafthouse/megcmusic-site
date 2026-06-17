@@ -1,5 +1,5 @@
 # Sprint 02 — Nav + Hero
-**Status:** proposed
+**Status:** approved
 **Figma source:** file `908TLdOM0e6xRtnzOj2nNv`, node `39:2`
 **Breakpoints:** 390 / 768 / 1024 / 1440
 
@@ -21,7 +21,47 @@ This is a Colorado Americana artist site. The hero is not a SaaS landing page. I
 ---
 
 ## Contract
-*(To be filled by Generator after approval)*
+**Approved:** 2026-06-16
+
+### Build
+- `Nav` (`src/components/Nav/`) — floating pink pill, top-right at desktop. Links: Home / Shows / Media / Booking / Shop (semantic `<nav>` + `<a>`). "Home" active: Open Sans Bold + cream bottom-border underline + `aria-current="page"` (static this sprint; dynamic routing later). Five states: default, hover, focus-visible, active; disabled N/A for nav links (documented).
+- `Hero` (`src/components/Hero/`) — full-bleed background photo, `100svh`, `object-fit: cover`, `object-position: top center`. Guitar-pick + name-lockup decoration bleeding off top-left.
+- Mounted in `src/app/page.tsx` + `globals.css`. Fonts this sprint: Lora + Open Sans (600/700) only — Praise/Newsreader deferred (no drop cap in scope).
+- Responsive, mobile-first: 390 / 768 / 1024 / 1440.
+
+### Assets — all local, relative paths, no expiring Figma URLs, no Cloudinary
+- Guitar pick (`39:6`) — vector downloaded as SVG, inlined, fill via token (tintable).
+- Name lockup "Meghan Clarisse" (`39:9`) — **SVG**, downloaded to repo, relative `src`.
+- Hero photo `IMG_3132` (`39:3`) — optimized raster in `public/images/hero/`, relative `src` via plain `<img>`/`<picture>` (not `next/image`, for `/_previews/[N]/` compatibility), source optimized for LCP < 2.5s.
+- All assets resolve at `/` AND `/_previews/[N]/` (relative or assetPrefix-driven — learning #25).
+
+### Token additions to `token-map.css` (logged via sc-adr)
+- `--mc-nav-underline: #fffcdb`
+- `--mc-radius-pill: 9999px`
+- `--mc-motion-micro: 120ms` (+ ease-out) for hover/focus
+- `--mc-focus-ring` sized for AA on the pink pill if the accent fails contrast (learning #32)
+
+### Decisions logged (`decisions/decisions.md`)
+- Mobile nav: full-width floating pill, no hamburger (5 short links fit; avoids AI-default hamburger, keeps poster character).
+- Token source: `token-map.css` (the `.md` is an unfilled studio template).
+- Guitar pick as inline tokenized SVG; name lockup as local SVG.
+- Hero photo via relative `<img>`/`<picture>`, not `next/image`.
+
+### Build infra
+- Author `scripts/preview.ts` + `npm run preview <sprint>` → 4 PNGs at 390/768/1024/1440 (CDP device-metrics, learnings #28/#55; no heavy new dep), aligned to `preview-deploy.yml`.
+
+### Out of scope (later sprints)
+Dates/shows panel (`39:12`+), Body sections, Footer, dynamic nav routing, Praise/Newsreader fonts.
+
+### Verification criteria
+- [ ] Nav renders at 390/768/1024/1440 — no overflow; 5 links; Home Bold + cream underline.
+- [ ] Nav links: default/hover/focus/active visible; keyboard-focusable, focus ring visible & AA.
+- [ ] Hero photo covers full viewport height at 390 and 1440; pick visible, rotated ~-96°; lockup rotated ~-6°.
+- [ ] No raw hex / magic numbers in component CSS — all `var()` tokens; spacing from scale.
+- [ ] All 3 assets local, relative `src`, render at `/` and `/_previews/[N]/`; no expiring Figma URLs.
+- [ ] Reduced-motion: functional path.
+- [ ] `npm run build` exits 0; `npm run preview sprint-02-nav-hero` exits 0 → 4 PNGs showing rendered section.
+- [ ] PR: summary + live preview URL + 4 embedded snapshots; `preview-deploy.yml` watched.
 
 ---
 
