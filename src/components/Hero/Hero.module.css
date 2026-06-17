@@ -1,7 +1,6 @@
-/* Hero — full-bleed photo with the guitar-pick + name-lockup cluster
-   bleeding off the top-left corner. No headline type: the photo, the
-   lockup, and the nav are the hero (Sprint-2 POV). Section is static by
-   intent — see stages/03-build/sprint-02-nav-hero/output/build-notes.md. */
+/* Hero — full-bleed photo with the pick + name-lockup cluster bleeding off
+   the top-left. No headline type: the photo, the lockup, and the nav are the
+   hero (Sprint-2 POV). Static by intent — see output/build-notes.md. */
 
 .hero {
   position: relative;
@@ -18,53 +17,24 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  /* Subject sits in the upper-middle of the portrait source; bias the crop
-     so she stays framed at landscape ratios (literal "top center" from the
-     spec showed only sky on the real asset). See output/build-notes.md. */
-  object-position: center 30%;
+  object-position: center;
   z-index: 0;
 }
 
-/* Decoration geometry (intrinsic size, rotation, corner-bleed offsets) is
-   inherent to the Figma artwork (nodes 39:4–39:9) — not spacing or type —
-   so it is expressed as explicit values. Every color stays tokenized. */
-.pick {
-  position: absolute;
-  top: clamp(-92px, -6vw, -44px);
-  left: clamp(-68px, -4vw, -34px);
-  width: clamp(150px, 24vw, 272px);
-  height: auto;
-  transform: rotate(-96deg);
-  transform-origin: center;
-  /* Pick is the dark plum backing the pink name lockup sits over (Figma
-     39:4) — not a pink shape; the rose tint made it pink-on-pink. */
-  color: var(--mc-bg-quote);
-  z-index: 1;
-  pointer-events: none;
-}
-
+/* Pick + name lockup are a single exported SVG (Figma 39:4): the rotations
+   and relative proportions are baked in, so one width clamp scales the whole
+   cluster and the lettering can never drift outside the pick. */
 .heading {
   position: absolute;
-  top: clamp(28px, 5vw, 54px);
-  left: clamp(16px, 3vw, 40px);
+  top: clamp(-28px, -2.2vw, -10px);
+  left: clamp(-24px, -2vw, -10px);
   margin: 0;
-  z-index: 2;
+  z-index: 1;
   pointer-events: none;
 }
 
 .lockup {
   display: block;
-  width: clamp(150px, 20vw, 210px);
+  width: clamp(230px, 33vw, 460px);
   height: auto;
-  transform: rotate(-6deg);
-  transform-origin: left center;
-}
-
-/* Short, wide hero windows (tablet-landscape and up) need a lower focal
-   point to keep the standing subject in frame — the narrow/tall crops above
-   already include her. Matches Figma's desktop fold (39:3). */
-@media (min-width: 1024px) {
-  .photo {
-    object-position: center 62%;
-  }
 }

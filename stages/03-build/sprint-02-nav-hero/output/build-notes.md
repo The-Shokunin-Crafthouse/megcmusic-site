@@ -5,17 +5,17 @@ Shipped on `feat/sprint-02-nav-hero`.
 
 ## Shipped
 - `src/components/Nav/` — floating pink pill, 5 links (Home/Shows/Media/Booking/Shop), Home active (Bold + cream underline + `aria-current`). Server Component, zero client JS; all five states CSS-only.
-- `src/components/Hero/` — full-bleed photo (`100svh`, `object-fit: cover`), hand-authored guitar-pick SVG + exported name-lockup SVG bleeding off the top-left.
+- `src/components/Hero/` — full-bleed photo (`100svh`, `object-fit: cover`), combined pick + name-lockup SVG bleeding off the top-left.
 - `src/app/page.tsx` / `page.module.css` — mounts Nav + Hero (replaces the Sprint-1 scaffold probe page).
 - `_config/design-system/token-map.css` — added `--mc-nav-underline`, `--mc-radius-pill`, `--mc-motion-micro`, `--mc-ease-out`, `--mc-focus-ring` (ADR 2026-06-16).
-- `public/images/hero/` — `hero.jpg` (optimized), `name-lockup.svg` (vector logo). Pick is inline in the component.
+- `public/images/hero/` — `meghan-hero.jpg` (client landscape photo), `name-pick-lockup.svg` (combined pick + vector logo, one locked SVG).
 - `scripts/preview.ts` + `npm run preview` — CDP breakpoint snapshot pipeline (learning #55).
 
 ## Deviations from the literal spec (with reason)
-- **Photo `object-position`** — spec said `top center`; on the real portrait asset that showed only sky/blossoms (subject cropped out). Adjusted to `center 30%` (narrow/tall crops) and `center 62%` at ≥1024 (short/wide crops) so the artist stays framed at every breakpoint — matching Figma's actual desktop fold (`39:3`).
-- **Guitar-pick color** — the pick is the dark-plum backing the pink name-lockup sits over (Figma `39:4`), not a pink shape; tinted `--mc-bg-quote`, not `--mc-accent-rose`.
-- **Guitar pick is hand-authored**, not the Figma export — the frame export wrapped the path in Figma canvas/page rects; a hand-authored silhouette is clean and `currentColor`-tintable (ADR 2026-06-16).
-- **Decoration geometry** (pick/lockup size, rotation, corner-bleed offsets) is expressed as explicit values, not tokens — it is artwork-intrinsic, not spacing/type. Every color stays tokenized.
+- **Hero photo** — uses the client-provided landscape `meghan-hero.jpg` (2849×1632), `object-fit: cover`, `object-position: center`. Replaces the earlier portrait downscale + per-breakpoint focal-point hack (only needed because the first asset was a tall portrait).
+- **Pick + name lockup are one combined SVG** exported from Figma `39:4` (pick `#4F2C3D` + pink gradient lettering, rotations baked, single viewBox). One width clamp scales the cluster so the lettering can never drift outside the pick. Supersedes the earlier hand-authored pick + separate lockup, which drifted at some sizes (client feedback).
+- **Nav underline** — spring/overshoot on hover (back-out easing `--mc-ease-overshoot`, 360ms) rather than a linear fade; reduced-motion off-ramp retained.
+- **Decoration geometry** (cluster bleed offsets, clamp bounds) is artwork-intrinsic, expressed as explicit values; every color stays tokenized.
 
 ## Motion — written reason for a static section
 WORKSPACE §3 requires a written reason for any static section. The Sprint-2 hero is intentionally still: the POV is a worn concert poster — stillness is the character. Scene motion (GSAP scroll, Three.js atmosphere) is pending Gate 2 and lands in a later sprint. The only motion this sprint is the nav-link hover/focus micro-transition, which has a `prefers-reduced-motion` off-ramp.

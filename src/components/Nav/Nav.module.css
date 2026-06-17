@@ -28,6 +28,7 @@
 }
 
 .link {
+  position: relative;
   display: inline-block;
   padding: var(--mc-space-1);
   font-family: var(--mc-font-ui);
@@ -36,16 +37,28 @@
   line-height: 1.2;
   white-space: nowrap;
   color: var(--mc-text-card);
-  /* reserve the 2px rule so hover/active never shifts layout */
-  border-bottom: 2px solid transparent;
-  transition:
-    color var(--mc-motion-micro) var(--mc-ease-out),
-    border-color var(--mc-motion-micro) var(--mc-ease-out),
-    opacity var(--mc-motion-micro) var(--mc-ease-out);
+  transition: color var(--mc-motion-micro) var(--mc-ease-out);
 }
 
-.link:hover {
-  border-bottom-color: var(--mc-nav-underline);
+/* Spring underline: scales in from the centre and overshoots its resting
+   width before settling (back-out easing) for a fluid, springy feel. */
+.link::after {
+  content: "";
+  position: absolute;
+  left: var(--mc-space-1);
+  right: var(--mc-space-1);
+  bottom: 0;
+  height: 2px;
+  background: var(--mc-nav-underline);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--mc-motion-underline) var(--mc-ease-overshoot);
+}
+
+.link:hover::after,
+.link:focus-visible::after,
+.active::after {
+  transform: scaleX(1);
 }
 
 .link:focus-visible {
@@ -60,7 +73,6 @@
 
 .active {
   font-weight: 700;
-  border-bottom-color: var(--mc-nav-underline);
 }
 
 /* Tablet and up: pill stops being full-width and floats in from the right. */
@@ -86,7 +98,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .link {
+  .link,
+  .link::after {
     transition: none;
   }
 }

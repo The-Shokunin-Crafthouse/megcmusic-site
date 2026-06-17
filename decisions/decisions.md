@@ -102,3 +102,14 @@ Append-only log of non-trivial decisions made on this project. Entries are not e
 **Rationale.** The lockup exports as true vector (one gradient-filled compound path) — satisfies "logo as SVG" with full scalability. The pick is a generic decorative shape whose Figma export came wrapped in page-frame junk; hand-authoring yields a clean `currentColor`-tintable path with no artifacts. Local files remove the Cloudinary dependency and expiring-URL risk entirely.
 **Alternatives considered.** (1) Cloudinary — rejected per client direction. (2) Figma raster export of the logo — rejected: not a true SVG. (3) Cleaning the pick's frame-export SVG — rejected: more fragile than a hand-authored silhouette.
 **Consequences.** Easier: no external image service, no expiring URLs, tintable pick. Harder: the hand-authored pick is not pixel-identical to the Noun Project source (acceptable for decoration; swap later if needed); the photo is a single JPEG — a `<picture>`/WebP responsive pass is deferred to the Gate-3 perf review.
+
+## 2026-06-16 — Hero decoration: one combined pick+lockup SVG + client landscape photo (supersedes parts of the asset-strategy entry)
+**Stage:** 03-build
+**Type:** UX / design tradeoff
+**Status:** accepted
+
+**Context.** In review the hand-authored pick and the separate name-lockup were independent elements with independent size clamps, so the pink lettering drifted outside the pick at some viewport sizes. The client also supplied a landscape hero photo (`meghan-hero.jpg`) and asked for the logo to sit locked inside the pick.
+**Decision.** Replace the two separate decoration elements with a single SVG exported from Figma `39:4` (pick `#4F2C3D` + pink gradient lettering in one viewBox, rotations baked), scaled by one width clamp; and use the client's landscape `meghan-hero.jpg` with `object-position: center` instead of the portrait downscale + per-breakpoint focal point. Supersedes the hand-authored-pick and portrait-photo parts of the 2026-06-16 "Sprint-2 asset strategy" entry.
+**Rationale.** One SVG locks the lettering inside the pick at every size with zero drift and is fully faithful to Figma's composition. The landscape photo frames the subject across all breakpoints without focal-point hacks.
+**Alternatives considered.** (1) Keep two elements, lock proportions via a fixed-aspect percentage container — workable but less faithful and still two elements. (2) Keep the hand-authored pick — rejected: it caused the drift and is less faithful than the real artwork.
+**Consequences.** Easier: locked, faithful composition; simpler Hero markup (one decoration image). Harder: the combined SVG bakes its colors (`#4F2C3D`, the pink gradient) as an asset rather than tokens — acceptable for a brand decoration, but a token change will not propagate into it.
