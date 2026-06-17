@@ -25,6 +25,9 @@ export interface TribeEvent {
   url: string;
   start_date: string;
   end_date: string;
+  /** WordPress publish datetime ("YYYY-MM-DD HH:MM:SS"). Orders the
+   *  "Just Added" tab newest-first; optional — absent on some payloads. */
+  date?: string;
   all_day: boolean;
   image?: { url: string } | false;
   venue?: TribeVenue;

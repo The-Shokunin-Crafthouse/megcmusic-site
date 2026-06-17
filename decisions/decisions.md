@@ -113,3 +113,47 @@ Append-only log of non-trivial decisions made on this project. Entries are not e
 **Rationale.** One SVG locks the lettering inside the pick at every size with zero drift and is fully faithful to Figma's composition. The landscape photo frames the subject across all breakpoints without focal-point hacks.
 **Alternatives considered.** (1) Keep two elements, lock proportions via a fixed-aspect percentage container — workable but less faithful and still two elements. (2) Keep the hand-authored pick — rejected: it caused the drift and is less faithful than the real artwork.
 **Consequences.** Easier: locked, faithful composition; simpler Hero markup (one decoration image). Harder: the combined SVG bakes its colors (`#4F2C3D`, the pink gradient) as an asset rather than tokens — acceptable for a brand decoration, but a token change will not propagate into it.
+
+## 2026-06-16 — Sprint-3 scope: Shows section only; hero-pin, detail page, /shows deferred
+**Stage:** 03-build
+**Type:** Product / scope call
+**Status:** accepted
+
+**Context.** Sprint-3 CONTEXT scopes the **Shows section** (tabs + cards, Figma 39:12/39:15). At contract approval the lead added seven requests; three reach past the section: (#5/#7) a full-screen hero pinned until the rows scroll through, then a scroll-release; (#3) a native event **detail page** mirroring her current site; and the "See all shows" destination implying a (#7c) `/shows` listing. The hero is logged "static by intent" (Sprint-2), `preview.ts` only screenshots `/`, and neither the scroll scene nor the detail page has a Gate-2 motion/layout spec.
+**Decision.** Ship Sprint 3 as the Shows section mounted on the home page (`/`) below the hero; defer the hero scroll-pin + scroll-release, the native detail page, and the `/shows` listing to their own sprints. Interim: a whole-card click links to the event's existing WordPress page (`event.url`), and "See all shows" links to her live archive `https://www.megcmusic.com/events/` (verified 200; `/shows/` 404s).
+**Rationale.** The scroll scene re-opens the Sprint-2 hero and is a GSAP scroll-driven scene that needs its own Gate-2 motion spec; the detail page and `/shows` are new surfaces. The existing WP event page already *is* "the information on her site today," so the interim link delivers the requested behaviour with zero new surface. Mounting on `/` is required for the section to appear in the sprint's preview snapshots.
+**Alternatives considered.** (1) Fold all seven in now — rejected: silently crosses Gate 2 for the hero and adds two surfaces with no design spec. (2) Build a native detail route this sprint — rejected: new surface, no Figma, expands scope well past the section. (3) Create `/shows` for See-all — rejected: deferred with the listing sprint; the live archive serves the link today.
+**Consequences.** Easier: a clean, shippable Shows section; Sprint-2 hero untouched; no half-specified scroll scene. Harder: three follow-on sprints to schedule (hero scroll-composition, event detail, `/shows` listing); the See-all and card links point off-site until those land.
+
+## 2026-06-16 — Sprint-3 token additions (card surface, divider, type ramp, card max-width)
+**Stage:** 03-build
+**Type:** UX / design tradeoff
+**Status:** accepted
+
+**Context.** The show card and tabs (Figma 39:22/39:15) use values absent from `token-map.css`: an 8px card radius, the `0 8px 18px rgba(0,0,0,.55)` drop shadow, a `#b2aba4` divider between time/venue/city on cream, a 700px card width, and four type sizes (12/16/22/32px). No raw hex or ad-hoc font sizes may reach shipped code (WORKSPACE §3); `token-map.css` is the only legal home for raw values.
+**Decision.** Add to `token-map.css`: `--mc-radius-card:8px`, `--mc-shadow-card:0 8px 18px rgba(0,0,0,.55)`, `--mc-divider-card:#b2aba4`, `--mc-card-max:700px`, and a type ramp `--mc-text-2xs/-base/-lg/-2xl` (12/16/22/32px). Snap the card's off-grid 19px vertical padding to the 8pt grid (16px, `--mc-space-3`).
+**Rationale.** Tokenising is the only standard-compliant way to reference these values; mirrors the Sprint-2 token-additions ADR. `--mc-divider-card` is kept distinct from the existing dark-section `--mc-divider` (`#3f3119`) — different ground, different value. The 19→16px snap honours the 8pt discipline (arbitrary px is a bug) over matching an off-grid Figma value.
+**Alternatives considered.** (1) Raw hex/px in the CSS Module — rejected, violates the non-negotiable. (2) Reuse `--mc-divider` for the card rule — rejected: wrong value for cream. (3) Keep 19px padding exactly — rejected: off the 8pt grid for a ~3px nicety.
+**Consequences.** Easier: card/tabs reference tokens only; the type ramp is reusable by later sprints. Harder: `token-map.css` keeps accreting groups that should eventually mirror back into the `.md` template and Figma; the card is 6px shorter than Figma (within tolerance).
+
+## 2026-06-16 — "Just Added" tab ordering + whole-card / venue link interaction
+**Stage:** 03-build
+**Type:** UX / design tradeoff
+**Status:** accepted
+
+**Context.** Figma shows three tabs but `getEvents` only filters upcoming/past — there is no "just added" endpoint. Separately, the lead wants the whole row to open the event while the venue opens Google Maps directions; HTML forbids nesting `<a>` in `<a>`.
+**Decision.** Keep all three tabs; implement "Just Added" as upcoming sorted by the live `date` (publish) field newest-first, falling back to Up Next order when `date` is absent. Make the card a single stretched primary link (`titleLink::after { inset:0 }`) to `event.url`, with the venue as a separate Maps link lifted above it (`position:relative; z-index:1`).
+**Rationale.** The live tribe payload carries `date` (confirmed: `2026-06-03 19:12:23`), so "Just Added" is real data, not a duplicate of Up Next; the fallback guarantees no fake rows if a payload omits it. The stretched-link + raised-secondary-link pattern is the standard accessible way to have a block-level click target with one nested exception.
+**Alternatives considered.** (1) Drop to two tabs — rejected: less faithful to Figma; the data supports three. (2) Wrap the card in an anchor — rejected: invalid nested-anchor HTML, breaks the venue link. (3) JS click handler on the card — rejected: not keyboard/SR-native, loses real link semantics.
+**Consequences.** Easier: three faithful tabs on real data; native link semantics for both targets. Harder: "Just Added" ordering depends on a field outside the typed contract (added as optional `date?`); the stretched link slightly impairs text selection within the card (acceptable trade).
+
+## 2026-06-16 — Venue red gets a darker text-only `-ink` token (AA on cream)
+**Stage:** 03-build
+**Type:** UX / design tradeoff
+**Status:** accepted
+
+**Context.** The Figma venue colour `#d13e5b` measures **3.9:1** on the cream card `#f7eadd` — below the 4.5:1 AA floor for 16px regular text (the venue is also a link, so legibility matters doubly). AA on body copy is a project non-negotiable (WORKSPACE §3); the known risk was flagged in the Sprint-3 contract.
+**Decision.** Add `--mc-accent-red-ink:#bb314f` (**4.85:1** on cream) and use it for venue link text; keep `--mc-accent-red` (`#d13e5b`) as the base hue for any future fills/dots/borders.
+**Rationale.** Studio learning #56 — a hue tuned as a fill commonly fails as text; the fix is an additive darker `-ink` for text, not a repaint of the base. Zero cascade: nothing else consumes `--mc-accent-red` yet.
+**Alternatives considered.** (1) Ship `#d13e5b` as text — rejected: sub-AA, violates the non-negotiable. (2) Darken the base `--mc-accent-red` itself — rejected: would silently shift any future fill use; the base stays the brand red. (3) Enlarge/bold the venue to clear large-text AA (3:1) — rejected: fights the Figma type spec.
+**Consequences.** Easier: venue text passes AA; brand red preserved for fills. Harder: one more red token to keep straight (text → `-ink`, fills → base).

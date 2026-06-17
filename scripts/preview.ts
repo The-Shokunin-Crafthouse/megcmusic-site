@@ -182,6 +182,24 @@ async function main(): Promise<void> {
       await cdp.send("Page.navigate", { url: ORIGIN });
       await waitSettled(cdp);
 
+      // Optional: frame a section instead of the page top. Set PREVIEW_SCROLL
+      // to a CSS selector and the shot is taken with that element scrolled near
+      // the top — for sprints whose surface lives below a full-height hero.
+      // Default (unset) keeps the original top-of-page behaviour.
+      if (process.env.PREVIEW_SCROLL) {
+        const selector = process.env.PREVIEW_SCROLL;
+        await evaluate(
+          cdp,
+          `(() => {
+            const el = document.querySelector(${JSON.stringify(selector)});
+            if (!el) return;
+            const y = el.getBoundingClientRect().top + window.scrollY - 24;
+            window.scrollTo(0, Math.max(0, y));
+          })()`,
+        );
+        await sleep(450);
+      }
+
       const out = await cdp.send("Page.captureScreenshot", {
         format: "png",
         captureBeyondViewport: false,

@@ -30,6 +30,7 @@
   --mc-accent-blush: #d6abb3;
   --mc-accent-gold: #caa45f;
   --mc-accent-red: #d13e5b;
+  --mc-accent-red-ink: #bb314f; /* text-only red; AA (4.85:1) on cream — base #d13e5b fails at 16px */
 
   /* Channel triplets for rgba composition (R G B) */
   --mc-accent-pink-rgb: 246 132 154;
@@ -66,4 +67,18 @@
 
   /* Focus — dedicated ring, AA on the pink pill (not the brand accent) */
   --mc-focus-ring: #241420;
+
+  /* Cards — Shows section (Sprint 3, Figma 39:22) */
+  --mc-radius-card: 8px;
+  --mc-shadow-card: 0 8px 18px rgba(0, 0, 0, 0.55);
+  --mc-shadow-card-hover: 0 12px 24px rgba(0, 0, 0, 0.6); /* lifted on hover */
+  --mc-divider-card: #b2aba4; /* 1px rule between time / venue / city on cream */
+  --mc-card-max: 700px; /* card + list max width at desktop */
+  --mc-touch-target: 2.75rem; /* 44px — WCAG minimum touch size */
+
+  /* Type sizes — absolute ramp mirrored from Figma (Sprint 3) */
+  --mc-text-2xs: 0.75rem;  /* 12px — date-badge month */
+  --mc-text-base: 1rem;    /* 16px — tabs, time, venue, city, buttons */
+  --mc-text-lg: 1.375rem;  /* 22px — show title */
+  --mc-text-2xl: 2rem;     /* 32px — date-badge day */
 }

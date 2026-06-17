@@ -1,0 +1,163 @@
+/* ShowsSection — the touring calendar: pill tabs over a stack of show cards.
+   Lives on the home page below the hero. Tabs are the section's navigation
+   (Sprint-3 POV); the visually-hidden heading carries the landmark name. */
+
+.section {
+  padding: var(--mc-space-8) var(--mc-space-4);
+  background: var(--mc-bg);
+}
+
+.heading {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.inner {
+  max-width: var(--mc-card-max);
+  margin: 0 auto;
+}
+
+/* Tabs ------------------------------------------------------------------ */
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mc-space-2);
+  margin-bottom: var(--mc-space-4);
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  appearance: none;
+  border: 0;
+  cursor: pointer;
+  padding: var(--mc-space-2) var(--mc-space-3);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-weight: 400;
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-card);
+  background: var(--mc-accent-blush);
+  transition:
+    background var(--mc-motion-micro) var(--mc-ease-out),
+    transform var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.tab:hover {
+  background: var(--mc-accent-rose);
+}
+
+.tab:active {
+  transform: scale(0.96);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+}
+
+.tabActive,
+.tabActive:hover {
+  background: var(--mc-accent-pink);
+  font-weight: 600;
+}
+
+/* Panel ----------------------------------------------------------------- */
+
+/* The Figma "mask" (39:12) as an overflow-hidden container. Inset by a
+   gutter (cancelled by negative margin) so card drop-shadows and the hover
+   lift are never clipped — the clip only catches genuine overflow. */
+.clip {
+  overflow: hidden;
+  padding: var(--mc-space-4);
+  margin: calc(-1 * var(--mc-space-4));
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.empty {
+  margin: 0;
+  padding: var(--mc-space-7) var(--mc-space-4);
+  text-align: center;
+  font-family: var(--mc-font-display);
+  font-style: italic;
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-primary);
+}
+
+.actions {
+  display: flex;
+  justify-content: center;
+  margin-top: var(--mc-space-5);
+}
+
+.seeAll {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-2) var(--mc-space-5);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-weight: 600;
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-card);
+  background: var(--mc-accent-pink);
+  transition:
+    background var(--mc-motion-micro) var(--mc-ease-out),
+    transform var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.seeAll:hover {
+  background: var(--mc-accent-rose);
+}
+
+.seeAll:active {
+  transform: scale(0.97);
+}
+
+.seeAll:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+}
+
+/* Touch targets reach 44px on coarse pointers without bulking up the
+   desktop pills (studio learning #14). */
+@media (pointer: coarse) {
+  .tab {
+    min-height: var(--mc-touch-target);
+  }
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: var(--mc-space-9) var(--mc-space-6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab,
+  .seeAll {
+    transition: none;
+  }
+  .tab:active,
+  .seeAll:active {
+    transform: none;
+  }
+}
