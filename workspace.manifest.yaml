@@ -51,7 +51,10 @@ app:
   root: src/app/
   globals: src/app/globals.css
   api_clients: src/lib/api/        # wordpress.ts, woocommerce.ts, events.ts
-  scripts: scripts/                # verify-apis.ts
+  components: src/components/      # Nav/, Hero/ (Sprint 2)
+  assets: public/                  # public/images/hero/ — local hero assets
+  scripts: scripts/                # verify-apis.ts, preview.ts
+  snapshots: previews/             # per-sprint breakpoint PNGs from `npm run preview`
   ci: .github/workflows/           # deploy.yml, preview-deploy.yml, preview-cleanup.yml
   env_example: .env.local.example
   rest_bases:

@@ -1,0 +1,92 @@
+/* Nav — floating pink pill. Overlays the hero photo (POV: "the nav pill
+   floats on top of the photo"). Full-width pill on mobile, right-floated
+   from 768 up. All five interactive states are CSS-only — no client JS.
+   Disabled is N/A: no nav link is ever disabled. */
+
+.nav {
+  position: absolute;
+  top: var(--mc-space-3);
+  left: var(--mc-space-3);
+  right: var(--mc-space-3);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+}
+
+.list {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mc-space-2);
+  width: 100%;
+  margin: 0;
+  padding: var(--mc-space-3) var(--mc-space-4);
+  list-style: none;
+  background: var(--mc-accent-pink);
+  border-radius: var(--mc-radius-pill);
+}
+
+.link {
+  display: inline-block;
+  padding: var(--mc-space-1);
+  font-family: var(--mc-font-ui);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--mc-text-card);
+  /* reserve the 2px rule so hover/active never shifts layout */
+  border-bottom: 2px solid transparent;
+  transition:
+    color var(--mc-motion-micro) var(--mc-ease-out),
+    border-color var(--mc-motion-micro) var(--mc-ease-out),
+    opacity var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.link:hover {
+  border-bottom-color: var(--mc-nav-underline);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.link:active {
+  opacity: 0.7;
+}
+
+.active {
+  font-weight: 700;
+  border-bottom-color: var(--mc-nav-underline);
+}
+
+/* Tablet and up: pill stops being full-width and floats in from the right. */
+@media (min-width: 768px) {
+  .nav {
+    top: var(--mc-space-4);
+    left: auto;
+    right: var(--mc-space-7);
+    justify-content: flex-end;
+  }
+
+  .list {
+    width: auto;
+    gap: var(--mc-space-3);
+  }
+}
+
+@media (min-width: 1440px) {
+  .nav {
+    top: var(--mc-space-3);
+    right: var(--mc-space-8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
+}

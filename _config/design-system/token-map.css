@@ -51,4 +51,17 @@
   --mc-space-7: 64px;
   --mc-space-8: 96px;
   --mc-space-9: 128px;
+
+  /* Radius */
+  --mc-radius-pill: 9999px;
+
+  /* Motion (springs for affordances; micro easing for hover/focus) */
+  --mc-motion-micro: 120ms;
+  --mc-ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
+
+  /* Nav */
+  --mc-nav-underline: #fffcdb; /* cream highlight under active nav link */
+
+  /* Focus — dedicated ring, AA on the pink pill (not the brand accent) */
+  --mc-focus-ring: #241420;
 }
