@@ -31,6 +31,7 @@ WORKSPACE §3 requires a written reason for any static section. The Sprint-2 her
 - Nav routes `/shows`, `/media`, `/booking`, `/shop` are not built yet — links 404 until their sprints; `prefetch` is off until then.
 - Nav active state is static (Home) — dynamic `usePathname` active state arrives with routing.
 - Hand-authored pick is not pixel-identical to the Noun Project source (acceptable for a decoration; swap if an exact silhouette is required).
+- **Vercel preview env has `NEXT_PUBLIC_SITE_URL` set to an empty string**, which crashed the first preview build (`new URL("")`). `layout.tsx` now resolves it defensively (empty/malformed → production origin), but the var should be set per environment (studio learning #7) so OG/canonical URLs point at the right origin.
 
 ## Previews
 `previews/sprint-02-nav-hero/{390,768,1024,1440}.png` — regenerate with `npm run preview sprint-02-nav-hero`.
