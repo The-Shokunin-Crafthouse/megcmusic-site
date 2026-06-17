@@ -6,7 +6,9 @@
    appear outside _config/design-system/token-map.css.
    ============================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;0,700;1,400&family=Newsreader:ital,wght@0,400;1,400&family=Open+Sans:wght@400;600;700&family=Praise&display=swap');
+/* Google Fonts load via a <link> in app/layout.tsx <head>, NOT a CSS @import:
+   Turbopack strips external `@import url()` from the production build, so the
+   faces never loaded. The local token import below is inlined fine. */
 @import '../../_config/design-system/token-map.css';
 
 *,

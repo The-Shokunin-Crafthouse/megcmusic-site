@@ -179,3 +179,14 @@ Append-only log of non-trivial decisions made on this project. Entries are not e
 **Rationale.** The lead directed fidelity to the Figma file; the date-in-pick framing and the 3px padding gap are visible. Decoration geometry (SVG dimensions, rotation, the −1/−10 offsets) is intrinsic to the asset and kept as Figma-exact literals; the single layout value (19px) is tokenised.
 **Alternatives considered.** (1) Keep the 8pt snap — rejected: the lead wants Figma fidelity. (2) Keep the hand-authored pick — rejected: it did not frame the date. (3) Parse venue from event titles — rejected: fragile and wrong-prone; surface the data gap instead.
 **Consequences.** Easier: the card is 1:1 with Figma; venue/city is ready for real data. Harder: one off-grid card-padding token; the inlined pick path must be re-synced if the Figma vector changes.
+
+## 2026-06-17 — Google Fonts via `<link>`, not CSS `@import` (Turbopack strips external @import)
+**Stage:** 03-build
+**Type:** Architecture
+**Status:** accepted — supersedes the delivery mechanism of the 2026-06-16 "Web fonts via Google Fonts @import" entry
+
+**Context.** Review caught the Lora date numerals rendering in a fallback serif. Investigation: the built CSS contained no Google `@import`, `document.fonts` was empty (0 faces), and the browser made 0 requests to googleapis/gstatic — Next 16's **Turbopack strips external `@import url()`** from `globals.css`. So Lora / Open Sans / Newsreader / Praise never loaded; the whole site rendered system fallbacks from scaffold onward. The SVG hero masked it; the Lora numerals exposed it.
+**Decision.** Remove the external `@import` from `globals.css` and load the identical Google Fonts CSS via `<link rel="stylesheet">` (+ `preconnect`) in `app/layout.tsx` `<head>`, keeping `display=swap`. The local `token-map.css` `@import` stays (Turbopack inlines local imports fine).
+**Rationale.** A `<link>` reaches the browser verbatim and is the standard build-safe way to pull a third-party stylesheet; it preserves the logged "CDN Google Fonts, self-host deferred to Gate 3" intent and only fixes the mechanism. Confirmed in-browser: 67 faces register, Lora 400/600/700 + Open Sans 400/600/700 load, and Lora measurably differs from the serif fallback.
+**Alternatives considered.** (1) Keep the `@import` — rejected: silently stripped, fonts never load. (2) `next/font/google` — the robust idiomatic path and the eventual Gate-3 self-host pass; deferred here to keep the fix minimal and the self-host decision intact.
+**Consequences.** Easier: the brand type system actually renders site-wide — also fixes the latent Sprint-2 nav/hero fallback. Harder: a render-blocking external stylesheet + FOUT remain until the Gate-3 `next/font` self-host pass.
