@@ -1,0 +1,105 @@
+/* Nav — floating pink pill. Overlays the hero photo (POV: "the nav pill
+   floats on top of the photo"). Full-width pill on mobile, right-floated
+   from 768 up. All five interactive states are CSS-only — no client JS.
+   Disabled is N/A: no nav link is ever disabled. */
+
+.nav {
+  position: absolute;
+  top: var(--mc-space-3);
+  left: var(--mc-space-3);
+  right: var(--mc-space-3);
+  z-index: 10;
+  display: flex;
+  justify-content: center;
+}
+
+.list {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mc-space-2);
+  width: 100%;
+  margin: 0;
+  padding: var(--mc-space-3) var(--mc-space-4);
+  list-style: none;
+  background: var(--mc-accent-pink);
+  border-radius: var(--mc-radius-pill);
+}
+
+.link {
+  position: relative;
+  display: inline-block;
+  padding: var(--mc-space-1);
+  font-family: var(--mc-font-ui);
+  font-weight: 600;
+  font-size: 1rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  color: var(--mc-text-card);
+  transition: color var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+/* Spring underline: scales in from the centre and overshoots its resting
+   width before settling (back-out easing) for a fluid, springy feel. */
+.link::after {
+  content: "";
+  position: absolute;
+  left: var(--mc-space-1);
+  right: var(--mc-space-1);
+  bottom: 0;
+  height: 2px;
+  background: var(--mc-nav-underline);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform var(--mc-motion-underline) var(--mc-ease-overshoot);
+}
+
+.link:hover::after,
+.link:focus-visible::after,
+.active::after {
+  transform: scaleX(1);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.link:active {
+  opacity: 0.7;
+}
+
+.active {
+  font-weight: 700;
+}
+
+/* Tablet and up: pill stops being full-width and floats in from the right. */
+@media (min-width: 768px) {
+  .nav {
+    top: var(--mc-space-4);
+    left: auto;
+    right: var(--mc-space-7);
+    justify-content: flex-end;
+  }
+
+  .list {
+    width: auto;
+    gap: var(--mc-space-3);
+  }
+}
+
+@media (min-width: 1440px) {
+  .nav {
+    top: var(--mc-space-3);
+    right: var(--mc-space-8);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link,
+  .link::after {
+    transition: none;
+  }
+}

@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "preview": "next build && node --import tsx scripts/preview.ts",
     "verify:apis": "node --env-file=.env.local --import tsx scripts/verify-apis.ts"
   },
   "dependencies": {
