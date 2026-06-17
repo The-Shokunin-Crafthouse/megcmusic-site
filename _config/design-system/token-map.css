@@ -74,6 +74,7 @@
   --mc-shadow-card-hover: 0 12px 24px rgba(0, 0, 0, 0.6); /* lifted on hover */
   --mc-divider-card: #b2aba4; /* 1px rule between time / venue / city on cream */
   --mc-card-max: 700px; /* card + list max width at desktop */
+  --mc-card-pad-y: 19px; /* Figma 39:22 vertical card padding — exact, off the 8pt grid by design direction */
   --mc-touch-target: 2.75rem; /* 44px — WCAG minimum touch size */
 
   /* Type sizes — absolute ramp mirrored from Figma (Sprint 3) */

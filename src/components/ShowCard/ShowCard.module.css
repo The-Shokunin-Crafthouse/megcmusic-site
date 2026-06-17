@@ -8,8 +8,8 @@
   display: flex;
   align-items: flex-start;
   gap: var(--mc-space-5);
-  /* Figma pads 19px top/bottom; snapped to the 8pt grid (16px). */
-  padding: var(--mc-space-3) var(--mc-space-5) var(--mc-space-3) var(--mc-space-3);
+  /* Figma 39:22: 19px top/bottom, 16px left, 32px right. */
+  padding: var(--mc-card-pad-y) var(--mc-space-5) var(--mc-card-pad-y) var(--mc-space-3);
   list-style: none;
   background: var(--mc-bg-card);
   border-radius: var(--mc-radius-card);
@@ -31,25 +31,36 @@
   }
 }
 
-/* Date badge — cream month/day over the plum pick. */
+/* Date badge — cream month/day centred over the plum pick. Geometry mirrors
+   Figma 39:23: the pick is an absolutely-positioned vector that frames the
+   date; the text flows above it. Decoration dimensions are Figma-exact. */
 .badge {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
-  padding-top: var(--mc-space-1);
+  padding: 3px 13px 0;
   color: var(--mc-text-primary);
 }
 
-.pick {
+.pickWrap {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 4rem;
-  height: auto;
-  transform: translate(-50%, -50%) rotate(-96deg);
+  left: -1px;
+  top: -10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 77.281px;
+  height: 69.991px;
   z-index: 0;
+  pointer-events: none;
+}
+
+.pick {
+  width: 62.861px;
+  height: 71.059px;
+  transform: rotate(-96.04deg);
 }
 
 .month,
@@ -61,6 +72,7 @@
 }
 
 .month {
+  margin-bottom: -6px; /* Figma mb-[-6px] — tucks the day up under the month */
   font-weight: 700;
   font-size: var(--mc-text-2xs);
   letter-spacing: 0.04em;

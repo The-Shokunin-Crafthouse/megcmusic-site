@@ -3,21 +3,24 @@ import type { TribeEvent } from "@/lib/api/events";
 import { parseShowDate, formatTimeRange } from "@/lib/datetime";
 import styles from "./ShowCard.module.css";
 
-/** Guitar-pick silhouette behind the date badge (Figma 39:24, rotated in CSS).
- *  Hand-authored inline SVG so it tints from a token and ships no asset file. */
+/** Guitar-pick silhouette behind the date badge — the exact Figma vector
+ *  (node 39:24), inlined so it tints from a token and ships no asset file.
+ *  Sized and rotated (-96.04°) in CSS to frame the date, per Figma 39:23. */
 function GuitarPick() {
   return (
-    <svg
-      className={styles.pick}
-      viewBox="0 0 63 71"
-      aria-hidden="true"
-      focusable="false"
-    >
-      <path
-        d="M31.5 2C18 2 4 9 4 23c0 7 4 17 10 28 6 11 12 18 17.5 18S43 62 49 51c6-11 10-21 10-28C59 9 45 2 31.5 2Z"
-        fill="var(--mc-text-card)"
-      />
-    </svg>
+    <span className={styles.pickWrap} aria-hidden="true">
+      <svg
+        className={styles.pick}
+        viewBox="0 0 62.8615 71.0589"
+        fill="none"
+        focusable="false"
+      >
+        <path
+          d="M49.72 2.12833H49.6253C49.3574 2.0652 48.4901 1.84451 47.15 1.58431L47.1503 1.58457C41.9714 0.567386 36.7085 0.0369192 31.4314 0C26.1542 0.0343861 20.8917 0.562236 15.7125 1.57662C14.3725 1.83682 13.5051 2.05751 13.2372 2.12063H13.1425H13.1428C8.7729 3.43527 5.04485 6.32187 2.67795 10.2231C0.310987 14.1247 -0.527381 18.7645 0.324848 23.2473C0.324848 23.3892 0.372065 23.5232 0.403627 23.6495C5.81143 51.4689 24.652 67.9052 25.9133 68.9221L25.9765 68.9773C27.4833 70.3181 29.4302 71.0589 31.4471 71.0589C33.4644 71.0589 35.4113 70.3181 36.9181 68.9773L36.9812 68.9221C38.2109 67.9052 57.0516 51.4689 62.4594 23.6495C62.4594 23.5232 62.5146 23.3892 62.5382 23.2473C63.3881 18.7656 62.5487 14.1279 60.182 10.2284C57.8153 6.32896 54.0885 3.44368 49.7204 2.12852L49.72 2.12833Z"
+          fill="var(--mc-text-card)"
+        />
+      </svg>
+    </span>
   );
 }
 

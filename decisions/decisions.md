@@ -168,3 +168,14 @@ Append-only log of non-trivial decisions made on this project. Entries are not e
 **Rationale.** A server fetch must never hang a build. Failing fast into the empty state keeps the build green and lets ISR fill real data at runtime, where the serverless fetch path and timeout differ from the build. The committed snapshots prove the populated UI regardless of build-region connectivity.
 **Alternatives considered.** (1) `force-dynamic` — rejected: drops ISR (WORKSPACE: ISR only). (2) Reduce `per_page` — rejected: the API is fast at all sizes; size is not the cost. (3) Raise the timeout only — rejected: does not bound a genuine hang, just delays the failure.
 **Consequences.** Easier: resilient builds, no new infra coupling, good practice independent of this incident. Harder: if Vercel also cannot reach the WP host at *runtime*, the live preview shows the empty state until connectivity is fixed host-side (datacenter-IP allowlist) — flagged to the lead.
+
+## 2026-06-16 — Card fidelity pass: exact Figma pick vector + 19px padding (supersedes the 8pt snap)
+**Stage:** 03-build
+**Type:** UX / design tradeoff
+**Status:** accepted
+
+**Context.** Review of the live build flagged three card gaps vs Figma 39:22/39:23: the date did not sit inside the pick (hand-authored silhouette, centred positioning), the vertical padding read wrong (16px vs Figma's 19px), and venue/city were absent. The 2026-06-16 token-additions entry had snapped the 19px padding to 16px for the 8pt grid.
+**Decision.** Restore Figma exactly — inline the real 39:24 pick vector path and reproduce the 39:23 badge geometry (pick wrapper 77.281×69.991 at left −1 / top −10, vector 62.861×71.059 rotate −96.04°, month `mb -6`); set card vertical padding to the exact 19px via `--mc-card-pad-y`. Supersedes the 19→16 snap in the token-additions entry. Venue/city is **not** a code change: the render path is correct (verified with a throwaway mock), but the live Events feed has **0/19** upcoming events with a venue assigned (4 venues exist in WP, unlinked) — venue/city/maps appear automatically once events are assigned a venue in WordPress.
+**Rationale.** The lead directed fidelity to the Figma file; the date-in-pick framing and the 3px padding gap are visible. Decoration geometry (SVG dimensions, rotation, the −1/−10 offsets) is intrinsic to the asset and kept as Figma-exact literals; the single layout value (19px) is tokenised.
+**Alternatives considered.** (1) Keep the 8pt snap — rejected: the lead wants Figma fidelity. (2) Keep the hand-authored pick — rejected: it did not frame the date. (3) Parse venue from event titles — rejected: fragile and wrong-prone; surface the data gap instead.
+**Consequences.** Easier: the card is 1:1 with Figma; venue/city is ready for real data. Harder: one off-grid card-padding token; the inlined pick path must be re-synced if the Figma vector changes.
