@@ -72,7 +72,7 @@
 }
 
 .month {
-  margin-bottom: -6px; /* Figma mb-[-6px] — tucks the day up under the month */
+  margin-bottom: 0; /* +6px over Figma's mb-[-6px] tuck — breathing room under the month */
   font-weight: 700;
   font-size: var(--mc-text-2xs);
   letter-spacing: 0.04em;
