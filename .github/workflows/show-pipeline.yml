@@ -1,0 +1,42 @@
+name: Show pipeline
+
+on:
+  schedule:
+    - cron: "17 */4 * * *" # every 4h; shows aren't time-critical
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Dry run (log actions, no writes or emails)"
+        type: boolean
+        default: false
+
+concurrency:
+  group: show-pipeline
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install pipeline deps (isolated — never touches the site's package.json)
+        run: npm ci --prefix scripts/show-pipeline --no-audit --no-fund
+
+      - name: Self-test the parser (no network, no secrets)
+        run: SELFTEST=1 node scripts/show-pipeline/pipeline.mjs
+
+      - name: Run pipeline
+        run: node scripts/show-pipeline/pipeline.mjs
+        env:
+          PIPELINE_EMAIL: ${{ secrets.PIPELINE_EMAIL }}
+          PIPELINE_APP_PASSWORD: ${{ secrets.PIPELINE_APP_PASSWORD }}
+          WP_APP_USER: ${{ secrets.WP_APP_USER }}
+          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+          ALLOWED_SENDERS: "meghanclarisse@gmail.com"
+          DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
