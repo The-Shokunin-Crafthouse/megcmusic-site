@@ -1,6 +1,5 @@
-/* Overlay chrome at the top of every page. Mobile: a column — logo above the
-   full-width nav pill (keeps the pill's mobile design). Desktop: a row — logo
-   left, nav pill right. */
+/* Overlay chrome at the top of every page: logo left, nav right. A row at all
+   widths — the nav is the desktop pill above 768 and the Menu button below. */
 .chrome {
   position: absolute;
   top: 0;
@@ -8,18 +7,29 @@
   right: 0;
   z-index: 20;
   display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: var(--mc-space-2);
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mc-space-3);
   padding: var(--mc-space-3);
+}
+
+.desktopNav {
+  display: none;
+}
+
+.mobileNav {
+  display: flex;
 }
 
 @media (min-width: 768px) {
   .chrome {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
     padding: var(--mc-space-4) var(--mc-space-6);
+  }
+  .desktopNav {
+    display: flex;
+  }
+  .mobileNav {
+    display: none;
   }
 }
 

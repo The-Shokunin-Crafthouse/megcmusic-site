@@ -2,35 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { NAV_ITEMS, isActiveRoute } from "./navItems";
 import styles from "./Nav.module.css";
 
-type NavItem = { label: string; href: string };
-
-const ITEMS: NavItem[] = [
-  { label: "Home", href: "/" },
-  { label: "Shows", href: "/shows" },
-  { label: "Media", href: "/media" },
-  { label: "Booking", href: "/booking" },
-  { label: "Shop", href: "/shop" },
-];
-
-// The nav's first route-aware sprint: /shows is the first built route beyond "/".
-// Home matches only exactly; every other route also matches its sub-paths so a
-// future /shows/<slug> keeps the tab lit. Prefetch stays off until the remaining
-// routes (Media / Booking / Shop) exist.
-function isActive(pathname: string, href: string): boolean {
-  if (href === "/") return pathname === "/";
-  return pathname === href || pathname.startsWith(`${href}/`);
-}
-
+// Desktop primary nav — the floating pink pill. Hidden below 768, where
+// SiteChrome shows the Menu button instead.
 export function Nav() {
   const pathname = usePathname();
 
   return (
     <nav className={styles.nav} aria-label="Primary">
       <ul className={styles.list}>
-        {ITEMS.map(({ label, href }) => {
-          const active = isActive(pathname, href);
+        {NAV_ITEMS.map(({ label, href }) => {
+          const active = isActiveRoute(pathname, href);
           return (
             <li key={href}>
               <Link
