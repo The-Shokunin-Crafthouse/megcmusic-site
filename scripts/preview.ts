@@ -31,6 +31,10 @@ if (!sprint) {
 const PORT = 3210;
 const CDP_PORT = 9333;
 const ORIGIN = `http://127.0.0.1:${PORT}/`;
+// Snapshot a route other than "/" by setting PREVIEW_PATH (e.g. "/shows").
+const TARGET = process.env.PREVIEW_PATH
+  ? new URL(process.env.PREVIEW_PATH, ORIGIN).href
+  : ORIGIN;
 const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
 const PROFILE = "/tmp/megc-preview-chrome";
 const OUT = `previews/${sprint}`;
@@ -179,7 +183,7 @@ async function main(): Promise<void> {
         screenWidth: shot.width,
         screenHeight: shot.height,
       });
-      await cdp.send("Page.navigate", { url: ORIGIN });
+      await cdp.send("Page.navigate", { url: TARGET });
       await waitSettled(cdp);
 
       // Optional: frame a section instead of the page top. Set PREVIEW_SCROLL
