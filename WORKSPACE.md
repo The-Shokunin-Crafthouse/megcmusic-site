@@ -46,7 +46,7 @@ This file is a directive, not documentation. Read it. Follow it.
 - **Start date:** 2026-06-16
 - **Target launch:** TBD (set at Gate 1)
 - **Production domain:** megcmusic.com
-- **Current sprint:** (none — Sprint 1 scaffold delivered; set before Sprint 2 build)
+- **Current sprint:** `stages/03-build/sprint-04-shows-listing/` (approved 2026-07-01)
 
 Canonical machine-readable meta lives in `workspace.manifest.yaml`. Keep this section and the manifest in sync.
 
