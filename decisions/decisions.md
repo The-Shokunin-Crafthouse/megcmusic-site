@@ -190,3 +190,11 @@ Append-only log of non-trivial decisions made on this project. Entries are not e
 **Rationale.** A `<link>` reaches the browser verbatim and is the standard build-safe way to pull a third-party stylesheet; it preserves the logged "CDN Google Fonts, self-host deferred to Gate 3" intent and only fixes the mechanism. Confirmed in-browser: 67 faces register, Lora 400/600/700 + Open Sans 400/600/700 load, and Lora measurably differs from the serif fallback.
 **Alternatives considered.** (1) Keep the `@import` — rejected: silently stripped, fonts never load. (2) `next/font/google` — the robust idiomatic path and the eventual Gate-3 self-host pass; deferred here to keep the fix minimal and the self-host decision intact.
 **Consequences.** Easier: the brand type system actually renders site-wide — also fixes the latent Sprint-2 nav/hero fallback. Harder: a render-blocking external stylesheet + FOUT remain until the Gate-3 `next/font` self-host pass.
+
+## Future requirement — Email-to-event: auto-create venue if name not found
+**Stage:** future sprint (email intake)
+**Type:** Feature requirement
+**Status:** noted — not yet scoped
+
+When the email-to-create-event feature is built, the venue handling must auto-create a new venue record if the venue name in the email doesn't match an existing venue in the system. Do not fail or drop the venue field — create it and link it. Matching should be case-insensitive and trim whitespace.
+
