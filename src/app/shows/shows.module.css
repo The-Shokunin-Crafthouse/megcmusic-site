@@ -1,0 +1,51 @@
+/* /shows — the full tour archive. The Sprint-3 Shows section grown into a
+   destination: a brand header (★★★ motif + Lora title) over the same tabbed
+   card list. Warm plum ground, left-aligned to the 700px card column — not a
+   centered generic archive header. */
+
+.page {
+  position: relative;
+  min-height: 100svh;
+  background: var(--mc-bg);
+}
+
+.header {
+  max-width: var(--mc-card-max);
+  margin: 0 auto;
+  /* Top clears the floating nav pill; bottom sets the gap to the tabs. */
+  padding: var(--mc-space-8) var(--mc-space-4) var(--mc-space-6);
+}
+
+/* Guitar-pick sibling motif — three picks abstracted to stars, the brand's
+   section mark (Figma 908TLdOM0e6xRtnzOj2nNv). Decorative, so aria-hidden. */
+.stars {
+  margin: 0 0 var(--mc-space-3);
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.5em;
+  color: var(--mc-accent-gold);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-2xl);
+  line-height: 1.1;
+  color: var(--mc-text-primary);
+}
+
+.lede {
+  margin: var(--mc-space-3) 0 0;
+  max-width: 42ch;
+  font-family: var(--mc-font-display);
+  font-style: italic;
+  font-size: var(--mc-text-lg);
+  line-height: 1.4;
+  color: var(--mc-text-body);
+}
+
+@media (min-width: 768px) {
+  .header {
+    padding: var(--mc-space-9) var(--mc-space-6) var(--mc-space-6);
+  }
+}
