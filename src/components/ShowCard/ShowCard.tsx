@@ -1,6 +1,7 @@
 import { Fragment, type CSSProperties, type ReactNode } from "react";
 import type { TribeEvent } from "@/lib/api/events";
 import { parseShowDate, formatTimeRange } from "@/lib/datetime";
+import { decodeEntities } from "@/lib/text";
 import styles from "./ShowCard.module.css";
 
 /** Guitar-pick silhouette behind the date badge — the exact Figma vector
@@ -30,6 +31,7 @@ function directionsHref(venue: TribeEvent["venue"]): string | null {
   if (!name) return null;
   const destination = [name, venue?.address, venue?.city, venue?.state_province]
     .filter(Boolean)
+    .map((part) => decodeEntities(part))
     .join(", ");
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
 }
@@ -38,15 +40,18 @@ export function ShowCard({ event, index }: { event: TribeEvent; index: number })
   const date = parseShowDate(event.start_date);
   const time = formatTimeRange(event.start_date, event.end_date);
   const maps = directionsHref(event.venue);
+  const title = decodeEntities(event.title);
+  const venueName = event.venue?.venue ? decodeEntities(event.venue.venue) : "";
   const city = [event.venue?.city, event.venue?.state_province]
     .filter(Boolean)
+    .map((part) => decodeEntities(part))
     .join(", ");
 
   // Time · venue · city, joined by dividers — only the parts that exist (studio
   // appearances carry no venue), so a missing field never leaves a stray rule.
   const segments: ReactNode[] = [];
   if (time) segments.push(<span className={styles.time}>{time}</span>);
-  if (event.venue?.venue) {
+  if (venueName) {
     segments.push(
       maps ? (
         <a
@@ -55,10 +60,10 @@ export function ShowCard({ event, index }: { event: TribeEvent; index: number })
           target="_blank"
           rel="noopener noreferrer"
         >
-          {event.venue.venue}
+          {venueName}
         </a>
       ) : (
-        <span className={styles.venue}>{event.venue.venue}</span>
+        <span className={styles.venue}>{venueName}</span>
       ),
     );
   }
@@ -84,7 +89,7 @@ export function ShowCard({ event, index }: { event: TribeEvent; index: number })
             target="_blank"
             rel="noopener noreferrer"
           >
-            {event.title}
+            {title}
           </a>
         </h3>
 
