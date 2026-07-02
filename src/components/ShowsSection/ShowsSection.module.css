@@ -7,6 +7,12 @@
   background: var(--mc-bg);
 }
 
+/* On /shows the page header owns the top spacing, so the section drops its own
+   top padding and lets the header set the gap to the tabs. */
+.sectionPage {
+  padding-top: 0;
+}
+
 .heading {
   position: absolute;
   width: 1px;
@@ -107,34 +113,45 @@
   margin-top: var(--mc-space-5);
 }
 
-.seeAll {
+.seeAll,
+.showMore {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: var(--mc-touch-target);
   padding: var(--mc-space-2) var(--mc-space-5);
+  border: 0;
   border-radius: var(--mc-radius-pill);
   font-family: var(--mc-font-ui);
   font-weight: 600;
   font-size: var(--mc-text-base);
   color: var(--mc-text-card);
   background: var(--mc-accent-pink);
+  cursor: pointer;
   transition:
     background var(--mc-motion-micro) var(--mc-ease-out),
     transform var(--mc-motion-micro) var(--mc-ease-out);
 }
 
-.seeAll:hover {
+.seeAll:hover,
+.showMore:hover:not(:disabled) {
   background: var(--mc-accent-rose);
 }
 
-.seeAll:active {
+.seeAll:active,
+.showMore:active:not(:disabled) {
   transform: scale(0.97);
 }
 
-.seeAll:focus-visible {
+.seeAll:focus-visible,
+.showMore:focus-visible {
   outline: 2px solid var(--mc-focus-ring);
   outline-offset: 3px;
+}
+
+.showMore:disabled {
+  cursor: default;
+  background: var(--mc-accent-blush);
 }
 
 /* Touch targets reach 44px on coarse pointers without bulking up the
@@ -149,15 +166,21 @@
   .section {
     padding: var(--mc-space-9) var(--mc-space-6);
   }
+  /* Keep the /shows header in charge of the top gap at every breakpoint. */
+  .sectionPage {
+    padding-top: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tab,
-  .seeAll {
+  .seeAll,
+  .showMore {
     transition: none;
   }
   .tab:active,
-  .seeAll:active {
+  .seeAll:active,
+  .showMore:active {
     transform: none;
   }
 }
