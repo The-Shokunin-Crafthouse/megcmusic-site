@@ -160,17 +160,61 @@
 
 /* Archive controls (page variant) --------------------------------------- */
 
-.toolbar {
+/* Tabs row with the search toggle at the end (Figma 110:2). */
+.tabRow {
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: var(--mc-space-3);
+  gap: var(--mc-space-2);
   margin-bottom: var(--mc-space-4);
 }
 
-.search {
-  flex: 1 1 16rem;
-  min-width: 0;
+.tabRow .tabs {
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  gap: var(--mc-space-2);
+  margin-bottom: 0;
+}
+
+/* Tighter pills in the archive row so the three tabs + search sit on one line
+   at 390 (Figma 110:2). */
+.tabRow .tab {
+  padding-left: var(--mc-space-2);
+  padding-right: var(--mc-space-2);
+  white-space: nowrap;
+}
+
+.searchToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--mc-touch-target);
+  height: var(--mc-touch-target);
+  border: 0;
+  border-radius: var(--mc-radius-pill);
+  color: var(--mc-text-primary);
+  background: var(--mc-bg-quote);
+  cursor: pointer;
+  transition:
+    background var(--mc-motion-micro) var(--mc-ease-out),
+    transform var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.searchToggle:hover {
+  background: var(--mc-bg-section);
+}
+
+.searchToggle:active {
+  transform: scale(0.94);
+}
+
+.searchToggle:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+.searchReveal {
+  margin-bottom: var(--mc-space-4);
 }
 
 .searchInput {
@@ -195,98 +239,9 @@
   outline-offset: 3px;
 }
 
-.pageSize {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--mc-space-2);
-}
-
-.pageSizeLabel {
-  font-family: var(--mc-font-ui);
-  font-size: var(--mc-text-base);
-  color: var(--mc-text-primary);
-}
-
-.select {
-  min-height: var(--mc-touch-target);
-  padding: var(--mc-space-2) var(--mc-space-3);
-  border: 0;
-  border-radius: var(--mc-radius-pill);
-  font-family: var(--mc-font-ui);
-  font-size: var(--mc-text-base);
-  color: var(--mc-text-card);
-  background: var(--mc-bg-card);
-  cursor: pointer;
-}
-
-.select:focus-visible {
-  outline: 2px solid var(--mc-nav-underline);
-  outline-offset: 3px;
-}
-
-/* Numbered pagination --------------------------------------------------- */
-
-.pagination {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: var(--mc-space-2);
-  margin-top: var(--mc-space-5);
-}
-
-.pageNum,
-.pageArrow {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: var(--mc-touch-target);
-  min-height: var(--mc-touch-target);
-  padding: 0 var(--mc-space-2);
-  border: 0;
-  border-radius: var(--mc-radius-pill);
-  font-family: var(--mc-font-ui);
-  font-size: var(--mc-text-base);
-  color: var(--mc-text-card);
-  background: var(--mc-accent-blush);
-  cursor: pointer;
-  transition:
-    background var(--mc-motion-micro) var(--mc-ease-out),
-    transform var(--mc-motion-micro) var(--mc-ease-out);
-}
-
-.pageNum:hover:not(:disabled),
-.pageArrow:hover:not(:disabled) {
-  background: var(--mc-accent-rose);
-}
-
-.pageNum:active:not(:disabled),
-.pageArrow:active:not(:disabled) {
-  transform: scale(0.96);
-}
-
-.pageNum:focus-visible,
-.pageArrow:focus-visible {
-  outline: 2px solid var(--mc-nav-underline);
-  outline-offset: 3px;
-}
-
-.pageNumActive,
-.pageNumActive:hover {
-  background: var(--mc-accent-pink);
-  font-weight: 600;
-}
-
-.pageArrow:disabled {
-  cursor: default;
-  opacity: 0.4;
-}
-
-.pageGap {
-  display: inline-flex;
-  align-items: center;
-  padding: 0 var(--mc-space-1);
-  color: var(--mc-text-primary);
+/* Lazy-load trip wire — an invisible marker the observer watches for. */
+.sentinel {
+  height: 1px;
 }
 
 /* Touch targets reach 44px on coarse pointers without bulking up the
@@ -310,14 +265,12 @@
 @media (prefers-reduced-motion: reduce) {
   .tab,
   .seeAll,
-  .pageNum,
-  .pageArrow {
+  .searchToggle {
     transition: none;
   }
   .tab:active,
   .seeAll:active,
-  .pageNum:active,
-  .pageArrow:active {
+  .searchToggle:active {
     transform: none;
   }
 }

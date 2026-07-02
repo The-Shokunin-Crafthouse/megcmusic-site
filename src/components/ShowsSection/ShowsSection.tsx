@@ -1,7 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
+import {
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+  type KeyboardEvent,
+} from "react";
 import type { TribeEvent } from "@/lib/api/events";
 import { ShowCard } from "../ShowCard/ShowCard";
 import styles from "./ShowsSection.module.css";
@@ -13,15 +20,13 @@ const TABS = [
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
-/** Home caps each tab at 7 rows; /shows paginates instead. */
+/** Home caps each tab at 7 rows; /shows lazy-loads in batches of this size. */
 const MAX_ROWS = 7;
+const BATCH = 20;
 
-/** Entrance stagger wraps every 7 rows so a full page cascades in waves instead
- *  of trailing the last row a second behind. Home's 0–6 indices are unchanged. */
+/** Entrance stagger wraps every 7 rows so a batch cascades in waves instead of
+ *  trailing the last row a second behind. Home's 0–6 indices are unchanged. */
 const STAGGER = 7;
-
-/** Page-size choices for the /shows archive. */
-const PAGE_SIZES = [20, 50, 100] as const;
 
 const EMPTY_COPY: Record<TabId, string> = {
   "up-next": "No upcoming shows right now — check back soon.",
@@ -42,21 +47,6 @@ function matchesQuery(event: TribeEvent, q: string): boolean {
   return haystack.includes(q);
 }
 
-/** Page numbers to render, with 0 marking an ellipsis gap. Always keeps the
- *  first, last, and the current page's neighbours. */
-function pageWindow(current: number, total: number): number[] {
-  const keep = new Set([1, total, current, current - 1, current + 1]);
-  const shown = [...keep].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
-  const out: number[] = [];
-  let prev = 0;
-  for (const p of shown) {
-    if (p - prev > 1) out.push(0);
-    out.push(p);
-    prev = p;
-  }
-  return out;
-}
-
 export function ShowsSection({
   upcoming,
   justAdded,
@@ -71,9 +61,11 @@ export function ShowsSection({
   const isPage = variant === "page";
   const [active, setActive] = useState<TabId>("up-next");
   const [query, setQuery] = useState("");
-  const [pageSize, setPageSize] = useState<number>(PAGE_SIZES[0]);
-  const [page, setPage] = useState(1);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(BATCH);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const searchRef = useRef<HTMLInputElement>(null);
+  const sentinelRef = useRef<HTMLDivElement>(null);
   const baseId = useId();
 
   const source: Record<TabId, TribeEvent[]> = {
@@ -89,18 +81,47 @@ export function ShowsSection({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [active, q, upcoming, justAdded, past]);
 
-  // Home shows a fixed cap with no controls; /shows paginates the filtered list.
-  const pageCount = isPage ? Math.max(1, Math.ceil(filtered.length / pageSize)) : 1;
-  const current = Math.min(page, pageCount);
-  const events = isPage
-    ? filtered.slice((current - 1) * pageSize, current * pageSize)
-    : filtered.slice(0, MAX_ROWS);
+  // Reset the lazy window whenever the visible set changes at its root.
+  useEffect(() => {
+    setVisibleCount(BATCH);
+  }, [active, q]);
 
-  const searching = q.length > 0;
+  const events = isPage
+    ? filtered.slice(0, visibleCount)
+    : filtered.slice(0, MAX_ROWS);
+  const hasMore = isPage && visibleCount < filtered.length;
+
+  // Lazy load: reveal the next batch as the sentinel scrolls into view.
+  useEffect(() => {
+    if (!isPage || !hasMore) return;
+    const node = sentinelRef.current;
+    if (!node) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0]?.isIntersecting) {
+          setVisibleCount((c) => c + BATCH);
+        }
+      },
+      { rootMargin: "400px 0px" },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [isPage, hasMore, filtered.length]);
+
+  // Focus the field the moment search opens (rAF: it mounts this render).
+  useEffect(() => {
+    if (searchOpen) requestAnimationFrame(() => searchRef.current?.focus());
+  }, [searchOpen]);
 
   function selectTab(id: TabId) {
     setActive(id);
-    setPage(1);
+  }
+
+  function toggleSearch() {
+    setSearchOpen((open) => {
+      if (open) setQuery("");
+      return !open;
+    });
   }
 
   // APG tablist keyboard model: arrows move and activate, wrapping at the ends.
@@ -117,6 +138,35 @@ export function ShowsSection({
     tabRefs.current[next]?.focus();
   }
 
+  const searching = q.length > 0;
+
+  const tablist = (
+    <div role="tablist" aria-label="Show dates" className={styles.tabs}>
+      {TABS.map((tab, i) => {
+        const selected = tab.id === active;
+        return (
+          <button
+            key={tab.id}
+            ref={(el) => {
+              tabRefs.current[i] = el;
+            }}
+            type="button"
+            role="tab"
+            id={`${baseId}-tab-${tab.id}`}
+            aria-selected={selected}
+            aria-controls={`${baseId}-panel`}
+            tabIndex={selected ? 0 : -1}
+            className={selected ? `${styles.tab} ${styles.tabActive}` : styles.tab}
+            onClick={() => selectTab(tab.id)}
+            onKeyDown={(e) => onKeyDown(e, i)}
+          >
+            {tab.label}
+          </button>
+        );
+      })}
+    </div>
+  );
+
   return (
     <section
       className={isPage ? `${styles.section} ${styles.sectionPage}` : styles.section}
@@ -127,71 +177,53 @@ export function ShowsSection({
       </h2>
 
       <div className={styles.inner}>
-        <div role="tablist" aria-label="Show dates" className={styles.tabs}>
-          {TABS.map((tab, i) => {
-            const selected = tab.id === active;
-            return (
-              <button
-                key={tab.id}
-                ref={(el) => {
-                  tabRefs.current[i] = el;
-                }}
-                type="button"
-                role="tab"
-                id={`${baseId}-tab-${tab.id}`}
-                aria-selected={selected}
-                aria-controls={`${baseId}-panel`}
-                tabIndex={selected ? 0 : -1}
-                className={selected ? `${styles.tab} ${styles.tabActive}` : styles.tab}
-                onClick={() => selectTab(tab.id)}
-                onKeyDown={(e) => onKeyDown(e, i)}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
-        </div>
+        {isPage ? (
+          <div className={styles.tabRow}>
+            {tablist}
+            <button
+              type="button"
+              className={styles.searchToggle}
+              aria-expanded={searchOpen}
+              aria-controls={`${baseId}-search`}
+              aria-label={searchOpen ? "Close search" : "Search shows"}
+              onClick={toggleSearch}
+            >
+              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
+                {searchOpen ? (
+                  <path
+                    d="M6 6l12 12M18 6L6 18"
+                    stroke="currentColor"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                  />
+                ) : (
+                  <>
+                    <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" strokeWidth="2" />
+                    <path d="M16.5 16.5L21 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                  </>
+                )}
+              </svg>
+            </button>
+          </div>
+        ) : (
+          tablist
+        )}
 
-        {isPage && (
-          <div className={styles.toolbar}>
-            <div className={styles.search}>
-              <label htmlFor={`${baseId}-search`} className={styles.srOnly}>
-                Search shows
-              </label>
-              <input
-                id={`${baseId}-search`}
-                type="search"
-                inputMode="search"
-                placeholder="Search by show, venue, or city"
-                className={styles.searchInput}
-                value={query}
-                onChange={(e) => {
-                  setQuery(e.target.value);
-                  setPage(1);
-                }}
-              />
-            </div>
-
-            <div className={styles.pageSize}>
-              <label htmlFor={`${baseId}-page-size`} className={styles.pageSizeLabel}>
-                Per page
-              </label>
-              <select
-                id={`${baseId}-page-size`}
-                className={styles.select}
-                value={pageSize}
-                onChange={(e) => {
-                  setPageSize(Number(e.target.value));
-                  setPage(1);
-                }}
-              >
-                {PAGE_SIZES.map((n) => (
-                  <option key={n} value={n}>
-                    {n}
-                  </option>
-                ))}
-              </select>
-            </div>
+        {isPage && searchOpen && (
+          <div className={styles.searchReveal}>
+            <label htmlFor={`${baseId}-search`} className={styles.srOnly}>
+              Search shows
+            </label>
+            <input
+              ref={searchRef}
+              id={`${baseId}-search`}
+              type="search"
+              inputMode="search"
+              placeholder="Search by show, venue, or city"
+              className={styles.searchInput}
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+            />
           </div>
         )}
 
@@ -202,10 +234,11 @@ export function ShowsSection({
           className={styles.panel}
         >
           {events.length > 0 ? (
-            // Re-key on tab + page + query so the entrance animation replays
-            // whenever the visible set changes.
+            // Re-key on tab + query so the entrance animation replays when the
+            // set changes; lazily appended rows mount into the same list, so
+            // only the new rows animate in.
             <div className={styles.clip}>
-              <ul key={`${active}-${current}-${q}`} className={styles.list}>
+              <ul key={`${active}-${q}`} className={styles.list}>
                 {events.map((event, i) => (
                   <ShowCard
                     key={event.id}
@@ -218,56 +251,11 @@ export function ShowsSection({
             </div>
           ) : (
             <p className={styles.empty}>
-              {searching
-                ? `No shows match “${query.trim()}”.`
-                : EMPTY_COPY[active]}
+              {searching ? `No shows match “${query.trim()}”.` : EMPTY_COPY[active]}
             </p>
           )}
 
-          {isPage && pageCount > 1 && (
-            <nav className={styles.pagination} aria-label="Show pages">
-              <button
-                type="button"
-                className={styles.pageArrow}
-                onClick={() => setPage(current - 1)}
-                disabled={current <= 1}
-                aria-label="Previous page"
-              >
-                ‹
-              </button>
-              {pageWindow(current, pageCount).map((p, i) =>
-                p === 0 ? (
-                  <span key={`gap-${i}`} className={styles.pageGap} aria-hidden="true">
-                    …
-                  </span>
-                ) : (
-                  <button
-                    key={p}
-                    type="button"
-                    className={
-                      p === current
-                        ? `${styles.pageNum} ${styles.pageNumActive}`
-                        : styles.pageNum
-                    }
-                    aria-current={p === current ? "page" : undefined}
-                    aria-label={`Page ${p}`}
-                    onClick={() => setPage(p)}
-                  >
-                    {p}
-                  </button>
-                ),
-              )}
-              <button
-                type="button"
-                className={styles.pageArrow}
-                onClick={() => setPage(current + 1)}
-                disabled={current >= pageCount}
-                aria-label="Next page"
-              >
-                ›
-              </button>
-            </nav>
-          )}
+          {hasMore && <div ref={sentinelRef} className={styles.sentinel} aria-hidden="true" />}
 
           {!isPage && (
             <div className={styles.actions}>
