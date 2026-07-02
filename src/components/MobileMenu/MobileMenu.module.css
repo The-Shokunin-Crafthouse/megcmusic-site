@@ -54,10 +54,19 @@
 }
 
 .bar {
+  position: relative;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-end;
   padding: var(--mc-space-3);
+}
+
+/* Logo bleeds off the top-left corner, matching the page chrome (Figma 112:191). */
+.logoSlot {
+  position: absolute;
+  top: -8px;
+  left: -10px;
+  --logo-h: 92px;
 }
 
 .close {

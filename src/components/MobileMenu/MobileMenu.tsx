@@ -85,7 +85,9 @@ export function MobileMenu() {
           aria-label="Site menu"
         >
           <div className={styles.bar}>
-            <Logo />
+            <div className={styles.logoSlot}>
+              <Logo />
+            </div>
             <button
               ref={closeRef}
               type="button"

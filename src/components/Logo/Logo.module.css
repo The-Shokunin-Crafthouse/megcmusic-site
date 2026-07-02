@@ -5,7 +5,8 @@
 
 .img {
   display: block;
-  height: 40px;
+  /* Height is set by the context (--logo-h); width follows the 229:192 ratio. */
+  height: var(--logo-h, 40px);
   width: auto;
 }
 
@@ -13,10 +14,4 @@
   outline: 2px solid var(--mc-nav-underline);
   outline-offset: 3px;
   border-radius: 4px;
-}
-
-@media (min-width: 768px) {
-  .img {
-    height: 52px;
-  }
 }
