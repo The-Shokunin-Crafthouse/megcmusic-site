@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import styles from "./Nav.module.css";
 
 type NavItem = { label: string; href: string };
@@ -11,17 +14,23 @@ const ITEMS: NavItem[] = [
   { label: "Shop", href: "/shop" },
 ];
 
-// Sprint 2 ships a static active route (Home). Routes other than "/" are not
-// built yet; prefetch is off until they exist. Dynamic active state arrives
-// with routing in a later sprint.
-const ACTIVE_HREF = "/";
+// The nav's first route-aware sprint: /shows is the first built route beyond "/".
+// Home matches only exactly; every other route also matches its sub-paths so a
+// future /shows/<slug> keeps the tab lit. Prefetch stays off until the remaining
+// routes (Media / Booking / Shop) exist.
+function isActive(pathname: string, href: string): boolean {
+  if (href === "/") return pathname === "/";
+  return pathname === href || pathname.startsWith(`${href}/`);
+}
 
 export function Nav() {
+  const pathname = usePathname();
+
   return (
     <nav className={styles.nav} aria-label="Primary">
       <ul className={styles.list}>
         {ITEMS.map(({ label, href }) => {
-          const active = href === ACTIVE_HREF;
+          const active = isActive(pathname, href);
           return (
             <li key={href}>
               <Link
