@@ -1,0 +1,194 @@
+/* ShowCard — cream "set-list paper" card on deep plum (Figma 39:22).
+   The whole card is one click target → the event's page (a stretched primary
+   link). The venue is a second, independent link → Google Maps, lifted above
+   the stretched layer so both stay reachable without nesting <a> in <a>. */
+
+.card {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  gap: var(--mc-space-5);
+  /* Figma 39:22: 19px top/bottom, 16px left, 32px right. */
+  padding: var(--mc-card-pad-y) var(--mc-space-5) var(--mc-card-pad-y) var(--mc-space-3);
+  list-style: none;
+  background: var(--mc-bg-card);
+  border-radius: var(--mc-radius-card);
+  box-shadow: var(--mc-shadow-card);
+  /* Entrance: rise + grow from 0.8. Staggered per row via --row-index.
+     `backwards` holds the start frame through the delay. */
+  animation: card-in 450ms var(--mc-ease-out) backwards;
+  animation-delay: calc(var(--row-index, 0) * 70ms);
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(28px) scale(0.8);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* Date badge — cream month/day centred over the plum pick. Geometry mirrors
+   Figma 39:23: the pick is an absolutely-positioned vector that frames the
+   date; the text flows above it. Decoration dimensions are Figma-exact. */
+.badge {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  flex-shrink: 0;
+  padding: 3px 13px 0;
+  color: var(--mc-text-primary);
+}
+
+.pickWrap {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 77.281px;
+  height: 69.991px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.pick {
+  width: 62.861px;
+  height: 71.059px;
+  transform: rotate(-96.04deg);
+}
+
+.month,
+.day {
+  position: relative;
+  z-index: 1;
+  font-family: var(--mc-font-display);
+  line-height: 1;
+}
+
+.month {
+  margin-bottom: 0; /* +6px over Figma's mb-[-6px] tuck — breathing room under the month */
+  font-weight: 700;
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.04em;
+}
+
+.day {
+  font-weight: 400;
+  font-size: var(--mc-text-2xl);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-1);
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 600;
+  font-size: var(--mc-text-lg);
+  line-height: 1.2;
+  color: var(--mc-text-card);
+}
+
+.titleLink {
+  color: inherit;
+}
+
+/* Stretch the primary link over the entire card. */
+.titleLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--mc-radius-card);
+}
+
+.titleLink:focus-visible::after {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 2px;
+}
+
+.meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mc-space-2);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  line-height: 1.3;
+  color: var(--mc-text-card);
+}
+
+.time,
+.city {
+  color: var(--mc-text-card);
+}
+
+.venue {
+  position: relative;
+  z-index: 1; /* above the stretched titleLink::after */
+  color: var(--mc-accent-red-ink);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 3px;
+  transition: text-decoration-color var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.venue:hover {
+  text-decoration-color: currentColor;
+}
+
+.venue:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+.divider {
+  flex-shrink: 0;
+  width: 1px;
+  height: 1.25em;
+  background: var(--mc-divider-card);
+}
+
+/* Hover lift — pointer devices only, so a tap doesn't stick the raised state. */
+@media (hover: hover) {
+  .card {
+    transition:
+      transform var(--mc-motion-micro) var(--mc-ease-out),
+      box-shadow var(--mc-motion-micro) var(--mc-ease-out);
+  }
+  .card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
+}
+
+/* Touch: give the secondary venue link real hit slop without shifting siblings. */
+@media (pointer: coarse) {
+  .venue {
+    padding: var(--mc-space-2);
+    margin: calc(-1 * var(--mc-space-2));
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+  .card:hover {
+    transform: none;
+  }
+  .venue {
+    transition: none;
+  }
+}

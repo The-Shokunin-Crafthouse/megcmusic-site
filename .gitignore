@@ -77,3 +77,6 @@ stages/02-design/figma/exports/
 .claude-cache/
 .cursor-cache/
 .ai-cache/
+.vercel
+\!.vercel/project.json
+!.vercel/project.json
