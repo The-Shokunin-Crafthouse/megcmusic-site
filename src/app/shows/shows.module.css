@@ -1,7 +1,7 @@
 /* /shows — the full tour archive. The Sprint-3 Shows section grown into a
-   destination: a brand header (★★★ motif + Lora title) over the same tabbed
-   card list. Warm plum ground, left-aligned to the 700px card column — not a
-   centered generic archive header. */
+   destination: the home hero photo held full-screen behind the listing, a plum
+   scrim for contrast, brand header (★★★ + Lora title) left-aligned to the card
+   column, then the tabbed/searchable/paginated card list. */
 
 .page {
   position: relative;
@@ -9,11 +9,48 @@
   background: var(--mc-bg);
 }
 
+/* Full-screen fixed backdrop — same photo as the home hero — with the content
+   scrolling over it. */
+.bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  /* Plum wash so the cream cards and header text keep AA contrast — heavier at
+     the top (behind the chrome + header copy), lighter below so the photo still
+     reads behind the card list. */
+  background: linear-gradient(
+    180deg,
+    rgb(var(--mc-bg-rgb) / 0.95) 0%,
+    rgb(var(--mc-bg-rgb) / 0.9) 28%,
+    rgb(var(--mc-bg-rgb) / 0.82) 52%,
+    rgb(var(--mc-bg-rgb) / 0.82) 100%
+  );
+}
+
+.main {
+  position: relative;
+  z-index: 2;
+}
+
 .header {
+  /* Top clears the global chrome (logo + nav); bottom sets the gap to the tabs;
+     horizontal padding matches the section so headerInner aligns to the cards. */
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-6);
+}
+
+.headerInner {
   max-width: var(--mc-card-max);
   margin: 0 auto;
-  /* Top clears the floating nav pill; bottom sets the gap to the tabs. */
-  padding: var(--mc-space-8) var(--mc-space-4) var(--mc-space-6);
 }
 
 /* Guitar-pick sibling motif — three picks abstracted to stars, the brand's

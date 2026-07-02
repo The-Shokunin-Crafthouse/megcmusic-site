@@ -35,6 +35,7 @@
   /* Channel triplets for rgba composition (R G B) */
   --mc-accent-pink-rgb: 246 132 154;
   --mc-accent-gold-rgb: 202 164 95;
+  --mc-bg-rgb: 36 20 32; /* --mc-bg channels — scrim over the /shows hero photo */
 
   /* Typography */
   --mc-font-display: 'Lora', serif;
