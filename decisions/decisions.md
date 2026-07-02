@@ -208,3 +208,36 @@ When the email-to-create-event feature is built, the venue handling must auto-cr
 **Rationale.** Email becomes the single entry point while WordPress remains the only store — the CSV is generated from the WP record post-publish, so the two systems cannot diverge from the parse. Draft-with-confirm (Levi's call) means nothing goes live without her explicit YES. Deterministic template parsing (Levi's call) needs no API key, costs nothing, and fails loudly instead of guessing. The mailbox is the state store (INBOX = queue, `Pipeline/Processed` = archive, `[MC-id]` = pending-confirm) — no state files. Venues auto-create on no-match with case-insensitive normalized matching, per the future-requirement note above. Pipeline deps are isolated in their own `package.json` so Vercel never installs them.
 **Alternatives considered.** (1) Bandsintown as source of truth + site reads BIT API — rejected: inverts the North Star and replaces the tribe data layer Sprint 3 is built on. (2) Cowork scheduled task with tap-to-send drafts — rejected: leaves Levi in the loop; connector and allowlist limits above. (3) Freeform emails with AI parse — declined by Levi in favor of the template. (4) Switching TEC → Events Manager (better headless/MCP story) — rejected: migration cost with no blocking TEC gap; noted as the escape hatch if TEC ever blocks something real.
 **Consequences.** Easier: one entry, from her phone; both systems fed; nothing publishes unconfirmed; failures retry and surface via GitHub workflow-failure email only. Harder: Meg must follow the template (the robot re-asks otherwise); BIT upload remains one manual drag-and-drop (their only door); post-publish edits still happen in WP; the pipeline owns Gmail + WP app-password secrets (GitHub Actions secrets, revocable). Amends the operating picture: shows may enter via email; WP remains the store and Meg still never touches code.
+
+## 2026-07-01 — /shows past-shows pagination: backward-walk + same-origin proxy
+**Stage:** 03-build
+**Type:** Architecture
+**Status:** accepted
+
+**Context.** Sprint 4 builds the `/shows` destination: full upcoming list, and a paginated "Show more" past-shows archive. The tribe API sorts strictly ascending by start_date and ignores `order=desc` (confirmed against the live payload); pagination totals live in the body (`total_pages`/`total`) and mirror the `x-tec-totalpages`/`x-tec-total` headers. Past shows must read newest-first, and the archive depth is unknown, so the build must not fetch it whole.
+**Decision.** Render the tribe API's LAST past page (reversed) at build and walk toward page 1 on each "Show more"; serve subsequent pages through a same-origin Next route handler (`/api/shows/past`) that fetches server-side and returns each page reversed.
+**Rationale.** Reversing the last page yields the newest events without a client-side sort across pages. A same-origin proxy keeps the browser off a cross-origin WordPress call (no CORS surface, upstream URL never exposed) and reuses the existing 12s `AbortSignal` bound so no fetch can hang. Body `total_pages` drives the walk; the client is handed the next page number and stops at 0.
+**Alternatives considered.** (1) Client fetches the tribe API directly — rejected: cross-origin CORS + exposes the upstream and bypasses the shared timeout bound. (2) Fetch the whole archive at build — rejected: unbounded build cost as the archive grows (the stated risk). (3) Forward pagination — rejected: the API's ascending order would surface oldest shows first.
+**Consequences.** Easier: newest-first with no cross-page client sort; build stays bounded; one bounded code path shared with the section. Harder: the newest page can be partial, so the first "Show more" batch may be smaller than later ones; the client's page math assumes the build-time `total_pages`, refreshed each ISR cycle.
+
+## 2026-07-01 — /shows page header: ★★★ brand motif, no new tokens
+**Stage:** 03-build
+**Type:** UX / design tradeoff
+**Status:** accepted
+
+**Context.** `/shows` needs a page header the home section doesn't have. The brand carries a ★★★ section-label motif (guitar-pick siblings) but no header pattern existed in code, and the contract expected no new tokens. The studio slop-blocklist bans the centered eyebrow / oversized headline / gray-body "spec-page" pattern.
+**Decision.** Ship a left-aligned header — ★★★ (gold, aria-hidden) over a Lora title at the existing `--mc-text-2xl` ramp and an italic Lora lede in `--mc-text-body` — aligned to the 700px card column, using only existing tokens.
+**Rationale.** Left-aligned to the card column, ramp-sized (not an oversized jump), warm plum palette (not gray), and a brand motif (not a generic eyebrow) — each choice steers clear of the banned spec-page pattern while giving the destination its own identity. No new token was needed, so the token-map stays untouched.
+**Alternatives considered.** (1) Reuse the section's hidden h2 with no visible header — rejected: the destination needs a visible title and the POV calls for "the record". (2) A new display-size token for a bigger title — rejected: the existing ramp reads well and the contract expected no new tokens. (3) Centered header — rejected: matches the slop pattern.
+**Consequences.** Easier: distinct page identity with zero token churn; the section component is unchanged except for a padding-neutralizing class. Harder: the header lives in the route's own module, so a future shared page-header would be a small refactor.
+
+## 2026-07-01 — Nav active state becomes route-aware
+**Stage:** 03-build
+**Type:** UX / design tradeoff
+**Status:** accepted
+
+**Context.** Nav shipped in Sprint 2 with a hardcoded `ACTIVE_HREF = "/"` because no route beyond home existed. `/shows` is the first, so the cream active underline must follow the current route.
+**Decision.** Convert Nav to a client component that reads `usePathname()`; home matches exactly, other routes match their own path and sub-paths; prefetch stays off until the remaining routes exist.
+**Rationale.** `usePathname` is the idiomatic App-Router source of truth and keeps the active rule in one place. Prefix-matching sub-paths means a future `/shows/<slug>` keeps the tab lit without more work.
+**Alternatives considered.** (1) Pass an `active` prop from each page — rejected: pushes routing knowledge into every page and drifts. (2) Keep it static — rejected: the underline would lie on `/shows`.
+**Consequences.** Easier: correct active state on every current and future route, single source. Harder: Nav is now a client component (negligible — it is presentational and renders inside server trees).
