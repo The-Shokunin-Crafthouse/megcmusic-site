@@ -1,0 +1,11 @@
+{
+  "name": "megcmusic-show-pipeline",
+  "private": true,
+  "type": "module",
+  "description": "Email → WordPress → Bandsintown show pipeline. Ops tooling — isolated from the site's dependency tree; Vercel never installs this.",
+  "dependencies": {
+    "imapflow": "1.0.171",
+    "mailparser": "3.7.2",
+    "nodemailer": "6.9.16"
+  }
+}
