@@ -1,0 +1,22 @@
+.logo {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.img {
+  display: block;
+  height: 40px;
+  width: auto;
+}
+
+.logo:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (min-width: 768px) {
+  .img {
+    height: 52px;
+  }
+}
