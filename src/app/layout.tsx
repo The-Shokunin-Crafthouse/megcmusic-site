@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SiteChrome } from "@/components/SiteChrome/SiteChrome";
 import "./globals.css";
 
 // Tolerate a missing, empty, or malformed NEXT_PUBLIC_SITE_URL — Vercel preview
@@ -42,7 +43,10 @@ export default function RootLayout({
           rel="stylesheet"
         />
       </head>
-      <body>{children}</body>
+      <body>
+        <SiteChrome />
+        {children}
+      </body>
     </html>
   );
 }

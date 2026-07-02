@@ -1,0 +1,140 @@
+/* Menu trigger — same pink pill language as the desktop nav. */
+.trigger {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-2) var(--mc-space-4);
+  border: 0;
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--mc-text-card);
+  background: var(--mc-accent-pink);
+  cursor: pointer;
+  transition:
+    background var(--mc-motion-micro) var(--mc-ease-out),
+    transform var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.trigger:hover {
+  background: var(--mc-accent-rose);
+}
+
+.trigger:active {
+  transform: scale(0.96);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+}
+
+/* Full-screen overlay menu. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  background: var(--mc-bg);
+  animation: menu-in 220ms var(--mc-ease-out);
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--mc-space-3);
+}
+
+.close {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--mc-touch-target);
+  height: var(--mc-touch-target);
+  border: 0;
+  border-radius: var(--mc-radius-pill);
+  color: var(--mc-text-card);
+  background: var(--mc-accent-pink);
+  cursor: pointer;
+  transition:
+    background var(--mc-motion-micro) var(--mc-ease-out),
+    transform var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.close:hover {
+  background: var(--mc-accent-rose);
+}
+
+.close:active {
+  transform: scale(0.94);
+}
+
+.close:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+.menuNav {
+  padding: var(--mc-space-6) var(--mc-space-5);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.link {
+  display: inline-block;
+  font-family: var(--mc-font-display);
+  font-weight: 600;
+  font-size: var(--mc-text-2xl);
+  line-height: 1.1;
+  color: var(--mc-text-primary);
+}
+
+.link:active {
+  opacity: 0.7;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.active {
+  color: var(--mc-accent-pink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    animation: none;
+  }
+  .trigger,
+  .close {
+    transition: none;
+  }
+  .trigger:active,
+  .close:active {
+    transform: none;
+  }
+}

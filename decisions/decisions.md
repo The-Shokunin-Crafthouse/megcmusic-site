@@ -241,3 +241,47 @@ When the email-to-create-event feature is built, the venue handling must auto-cr
 **Rationale.** `usePathname` is the idiomatic App-Router source of truth and keeps the active rule in one place. Prefix-matching sub-paths means a future `/shows/<slug>` keeps the tab lit without more work.
 **Alternatives considered.** (1) Pass an `active` prop from each page — rejected: pushes routing knowledge into every page and drifts. (2) Keep it static — rejected: the underline would lie on `/shows`.
 **Consequences.** Easier: correct active state on every current and future route, single source. Harder: Nav is now a client component (negligible — it is presentational and renders inside server trees).
+
+## 2026-07-02 — Sprint 5: /shows gains search, numbered pagination, page-size
+**Stage:** 03-build
+**Type:** Product / scope call
+**Status:** accepted — supersedes the Sprint-4 out-of-scope note on filtering/search and the "Show more" pagination decision
+
+**Context.** After reviewing the Sprint-4 /shows preview, Levi requested a search field, numbered pagination, and a 20/50/100 page-size dropdown — parity with her current WordPress events archive. Sprint 4 had explicitly put "filtering/search/year grouping" out of scope ("add only via a logged scope decision") and chose a "Show more" append over a page-number widget; the Sprint-4 audit also lists "page-number pagination widget" as an AI-default to avoid.
+**Decision.** Add a client-side live search (title/venue/city, scoped to the active tab) and numbered pagination with a 20/50/100 page-size selector on the /shows page variant; load the full upcoming and past lists at build so filtering and paging are instant; retire the "Show more" append and the `/api/shows/past` route handler.
+**Rationale.** Levi owns the scope and asked for parity with her existing site, where fans already search and page through dates. Client-side filter/paging is instant and needs no new server surface; loading the full archive at build is safe at the current volume (14 upcoming, ~1 past) and each page fetch stays under the 12s bound. The page-number widget is a deliberate, logged override of the studio anti-default in service of client parity, not a default reached for absentmindedly.
+**Alternatives considered.** (1) Keep "Show more" + only add the dropdown — rejected: Levi wants numbered pages. (2) Server-side search/pagination via the tribe API — rejected: slower, reload feel, unnecessary at this volume; revisit if the archive grows large enough that loading all past at build risks the build budget. (3) Hold search out per the Sprint-4 note — rejected: superseded by an explicit request.
+**Consequences.** Easier: fans filter and page instantly; matches her current site; one simpler client path (no proxy route). Harder: the whole past archive now loads at build, so if it ever grows very large this must move to server-side search+pagination (the escape hatch); the numbered widget is an accepted deviation from the studio anti-default, tied to this surface only.
+
+## 2026-07-02 — Persistent site chrome + full-screen /shows backdrop
+**Stage:** 03-build
+**Type:** UX / design tradeoff
+**Status:** accepted
+
+**Context.** Levi asked for her logo to be a global element on every page that links home, and for /shows to carry the same full-screen hero photo as the home page. The nav had been rendered per-page and positioned as a hero overlay.
+**Decision.** Introduce a `SiteChrome` (logo + nav) mounted once in the root layout so it appears on every route; keep the existing pink-pill nav styling unchanged (stacked under the logo on mobile, logo-left/nav-right on desktop). On /shows, hold the home hero photo as a fixed full-screen backdrop under a top-weighted plum scrim for contrast.
+**Rationale.** The layout is the one place that is truly global, so the logo/nav live there and no page re-declares them. Reusing the pill's visual language honors "don't change the design" while making it persistent. A fixed backdrop + scrim gives the immersive photo Levi wanted without sacrificing AA on the cream cards or header copy. The scrim uses `rgb(var(--mc-bg-rgb) / a)` — the space-separated triplet requires the slash-alpha form; the legacy `rgba(triplet, a)` comma form is invalid and renders transparent.
+**Alternatives considered.** (1) Add the logo per-page — rejected: not global, drifts. (2) Redesign into a solid header bar — rejected: "don't change the design"; the pill is retained. (3) Photo with no scrim — rejected: header text failed contrast over bright areas of the photo.
+**Consequences.** Easier: one global chrome; every page gets the logo/home link; /shows matches the home atmosphere. Harder: on home the persistent logo overlaps the larger hero lockup (redundant but hidden behind the hero art); a new `--mc-bg-rgb` triplet token now exists for scrim composition.
+
+## 2026-07-02 — Per-show add-to-calendar via add-to-calendar-button
+**Stage:** 03-build
+**Type:** Stack / tech choice
+**Status:** accepted
+
+**Context.** Levi asked for add-to-calendar on every show, matching her current events page. The `add-to-calendar-button` web-component package was already a dependency.
+**Decision.** Render a per-card add-to-calendar control (Apple/Google/iCal/Outlook/Yahoo) built from the event's date/time/venue, gated behind a `withCalendar` prop on the shared ShowCard so only /shows shows it and home stays unchanged. Register the web component via a client-only dynamic import (it reads `window` on load) and feed it discrete date/time fields from a new `calendarParts` helper, using the event's IANA `timezone` (fallback America/Denver).
+**Rationale.** Reuses the installed dependency; the web component is self-contained and themeable. Prop-gating extends ShowCard without forking it (Sprint-4 scope guard) and keeps home stable. Client-only import avoids an SSR `window` crash; `calendarParts` keeps the same regex date handling as the rest of the app (no `new Date`, learning #48).
+**Alternatives considered.** (1) `add-to-calendar-button-react` wrapper — rejected: not installed; the vanilla element works via a lazy import. (2) Hand-rolled .ics + Google links — rejected: reinvents a maintained dependency already present. (3) Add it on home too — rejected: not requested; home stays as-is.
+**Consequences.** Easier: fans add any show to their calendar at the venue's local time; matches her current site. Harder: a third-party web component now renders inside cards (its own shadow-DOM styling), and its config lives in string attributes typed via a local JSX declaration.
+
+## 2026-07-02 — /shows mobile: Menu overlay, lazy-load, search-as-icon
+**Stage:** 03-build
+**Type:** UX / design tradeoff
+**Status:** accepted — supersedes the numbered-pagination + page-size decision in "2026-07-02 — Sprint 5: /shows gains search, numbered pagination, page-size" (the search + full-archive-at-build parts of that entry still stand)
+
+**Context.** After the first Sprint-5 preview, Levi supplied mobile designs (Figma 110:2 and the menu 112:191) and asked to remove numbered pagination and the per-page dropdown in favor of lazy loading, and to add a mobile menu. The numbered pagination was already flagged as a studio anti-default; the new direction resolves that tension.
+**Decision.** Replace numbered pagination + the 20/50/100 dropdown with lazy-load (IntersectionObserver reveals batches of 20 from the already-loaded list). Turn search into a circular toggle in the tab row that reveals the field (Figma 110:2). Replace the mobile full-width nav pill with a "Menu" button that opens a full-screen overlay of large Lora links (Figma 112:191) — Escape/close/route-change dismiss, focus trapped while open, body scroll locked, focus restored to the trigger. Desktop nav pill unchanged.
+**Rationale.** Lazy-load matches the design, drops the page-number widget (back within the studio bar), and needs no controls chrome. The search icon keeps the toolbar to a single row on mobile. The Menu overlay is required, not optional: the mobile design removes the always-visible nav, so without it mobile has no navigation. All data is already client-side, so lazy-load is progressive rendering, not fetching.
+**Alternatives considered.** (1) Keep numbered pagination — rejected: Levi's new direction + anti-default. (2) Persistent mobile search field — rejected: the design uses an icon; a field crowds 390. (3) Ship the Menu button without the overlay — rejected: breaks mobile nav. (4) Defer the mobile menu to its own sprint — rejected: it's coupled to this mobile redesign.
+**Consequences.** Easier: on-brand (no page-number widget), matches the comps, one shared nav source (navItems). Harder: a focus-trapped overlay is now maintained; add-to-calendar is kept per-card even though the comp omits it (an explicit call, since Levi requested it the prior turn).

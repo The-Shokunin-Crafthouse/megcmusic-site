@@ -37,6 +37,9 @@ export interface TribeEvent {
   all_day: boolean;
   image?: { url: string } | false;
   venue?: TribeVenue;
+  /** IANA zone the wall-clock times are in (e.g. "America/Denver"). Feeds the
+   *  add-to-calendar control so an event lands at the venue's local time. */
+  timezone?: string;
 }
 
 interface TribeEventsResponse {

@@ -48,3 +48,37 @@ export function formatTimeRange(startDate: string, endDate?: string): string {
   if (!e) return `@${start}`;
   return `@${start}–${formatClock(Number(e[4]), Number(e[5]))}`;
 }
+
+export interface CalendarParts {
+  /** "YYYY-MM-DD" for the add-to-calendar control. */
+  startDate: string;
+  endDate: string;
+  /** "HH:MM" 24h; omitted for all-day events. */
+  startTime?: string;
+  endTime?: string;
+}
+
+/**
+ * Split start/end strings into the discrete date + time fields the
+ * add-to-calendar-button expects. Same regex parse as the rest of this module
+ * (no `new Date`), so the calendar entry inherits the venue's wall-clock time.
+ * Returns null if the start can't be read; times are dropped when `allDay`.
+ */
+export function calendarParts(
+  startDate: string,
+  endDate?: string,
+  allDay = false,
+): CalendarParts | null {
+  const s = DATE_RE.exec(startDate);
+  if (!s) return null;
+  const e = endDate ? DATE_RE.exec(endDate) : null;
+  const startYmd = `${s[1]}-${s[2]}-${s[3]}`;
+  const endYmd = e ? `${e[1]}-${e[2]}-${e[3]}` : startYmd;
+  if (allDay) return { startDate: startYmd, endDate: endYmd };
+  return {
+    startDate: startYmd,
+    endDate: endYmd,
+    startTime: `${s[4]}:${s[5]}`,
+    endTime: e ? `${e[4]}:${e[5]}` : undefined,
+  };
+}

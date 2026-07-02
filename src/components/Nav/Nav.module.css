@@ -3,12 +3,11 @@
    from 768 up. All five interactive states are CSS-only — no client JS.
    Disabled is N/A: no nav link is ever disabled. */
 
+/* Positioned by SiteChrome; this rule owns only the pill's own layout.
+   Full-width on mobile (chrome stacks it under the logo), auto-width and
+   right-aligned from 768 up. */
 .nav {
-  position: absolute;
-  top: var(--mc-space-3);
-  left: var(--mc-space-3);
-  right: var(--mc-space-3);
-  z-index: 10;
+  width: 100%;
   display: flex;
   justify-content: center;
 }
@@ -75,25 +74,16 @@
   font-weight: 700;
 }
 
-/* Tablet and up: pill stops being full-width and floats in from the right. */
+/* Tablet and up: pill stops being full-width and sits to the right. */
 @media (min-width: 768px) {
   .nav {
-    top: var(--mc-space-4);
-    left: auto;
-    right: var(--mc-space-7);
+    width: auto;
     justify-content: flex-end;
   }
 
   .list {
     width: auto;
     gap: var(--mc-space-3);
-  }
-}
-
-@media (min-width: 1440px) {
-  .nav {
-    top: var(--mc-space-3);
-    right: var(--mc-space-8);
   }
 }
 

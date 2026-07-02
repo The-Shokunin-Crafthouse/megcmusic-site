@@ -8,9 +8,11 @@
 }
 
 /* On /shows the page header owns the top spacing, so the section drops its own
-   top padding and lets the header set the gap to the tabs. */
+   top padding and lets the header set the gap to the tabs. Transparent so the
+   page's fixed hero photo + scrim show through behind the cards. */
 .sectionPage {
   padding-top: 0;
+  background: transparent;
 }
 
 .heading {
@@ -113,45 +115,133 @@
   margin-top: var(--mc-space-5);
 }
 
-.seeAll,
-.showMore {
+.seeAll {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: var(--mc-touch-target);
   padding: var(--mc-space-2) var(--mc-space-5);
-  border: 0;
   border-radius: var(--mc-radius-pill);
   font-family: var(--mc-font-ui);
   font-weight: 600;
   font-size: var(--mc-text-base);
   color: var(--mc-text-card);
   background: var(--mc-accent-pink);
+  transition:
+    background var(--mc-motion-micro) var(--mc-ease-out),
+    transform var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.seeAll:hover {
+  background: var(--mc-accent-rose);
+}
+
+.seeAll:active {
+  transform: scale(0.97);
+}
+
+.seeAll:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+}
+
+/* Visually-hidden label, same recipe as the section heading. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Archive controls (page variant) --------------------------------------- */
+
+/* Tabs row with the search toggle at the end (Figma 110:2). */
+.tabRow {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  margin-bottom: var(--mc-space-4);
+}
+
+.tabRow .tabs {
+  flex: 1 1 auto;
+  flex-wrap: nowrap;
+  gap: var(--mc-space-2);
+  margin-bottom: 0;
+}
+
+/* Tighter pills in the archive row so the three tabs + search sit on one line
+   at 390 (Figma 110:2). */
+.tabRow .tab {
+  padding-left: var(--mc-space-2);
+  padding-right: var(--mc-space-2);
+  white-space: nowrap;
+}
+
+.searchToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: var(--mc-touch-target);
+  height: var(--mc-touch-target);
+  border: 0;
+  border-radius: var(--mc-radius-pill);
+  color: var(--mc-text-primary);
+  background: var(--mc-bg-quote);
   cursor: pointer;
   transition:
     background var(--mc-motion-micro) var(--mc-ease-out),
     transform var(--mc-motion-micro) var(--mc-ease-out);
 }
 
-.seeAll:hover,
-.showMore:hover:not(:disabled) {
-  background: var(--mc-accent-rose);
+.searchToggle:hover {
+  background: var(--mc-bg-section);
 }
 
-.seeAll:active,
-.showMore:active:not(:disabled) {
-  transform: scale(0.97);
+.searchToggle:active {
+  transform: scale(0.94);
 }
 
-.seeAll:focus-visible,
-.showMore:focus-visible {
-  outline: 2px solid var(--mc-focus-ring);
+.searchToggle:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
   outline-offset: 3px;
 }
 
-.showMore:disabled {
-  cursor: default;
-  background: var(--mc-accent-blush);
+.searchReveal {
+  margin-bottom: var(--mc-space-4);
+}
+
+.searchInput {
+  width: 100%;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-2) var(--mc-space-3);
+  border: 0;
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-card);
+  background: var(--mc-bg-card);
+}
+
+.searchInput::placeholder {
+  color: var(--mc-text-card);
+  opacity: 0.6;
+}
+
+.searchInput:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+/* Lazy-load trip wire — an invisible marker the observer watches for. */
+.sentinel {
+  height: 1px;
 }
 
 /* Touch targets reach 44px on coarse pointers without bulking up the
@@ -175,12 +265,12 @@
 @media (prefers-reduced-motion: reduce) {
   .tab,
   .seeAll,
-  .showMore {
+  .searchToggle {
     transition: none;
   }
   .tab:active,
   .seeAll:active,
-  .showMore:active {
+  .searchToggle:active {
     transform: none;
   }
 }

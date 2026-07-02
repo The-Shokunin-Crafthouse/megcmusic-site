@@ -1,0 +1,40 @@
+/* Overlay chrome at the top of every page: logo left, nav right. A row at all
+   widths — the nav is the desktop pill above 768 and the Menu button below. */
+.chrome {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mc-space-3);
+  padding: var(--mc-space-3);
+}
+
+.desktopNav {
+  display: none;
+}
+
+.mobileNav {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .chrome {
+    padding: var(--mc-space-4) var(--mc-space-6);
+  }
+  .desktopNav {
+    display: flex;
+  }
+  .mobileNav {
+    display: none;
+  }
+}
+
+@media (min-width: 1440px) {
+  .chrome {
+    padding: var(--mc-space-4) var(--mc-space-8);
+  }
+}
