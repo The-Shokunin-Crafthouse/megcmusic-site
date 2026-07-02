@@ -8,9 +8,11 @@
 }
 
 /* On /shows the page header owns the top spacing, so the section drops its own
-   top padding and lets the header set the gap to the tabs. */
+   top padding and lets the header set the gap to the tabs. Transparent so the
+   page's fixed hero photo + scrim show through behind the cards. */
 .sectionPage {
   padding-top: 0;
+  background: transparent;
 }
 
 .heading {
@@ -113,45 +115,178 @@
   margin-top: var(--mc-space-5);
 }
 
-.seeAll,
-.showMore {
+.seeAll {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: var(--mc-touch-target);
   padding: var(--mc-space-2) var(--mc-space-5);
-  border: 0;
   border-radius: var(--mc-radius-pill);
   font-family: var(--mc-font-ui);
   font-weight: 600;
   font-size: var(--mc-text-base);
   color: var(--mc-text-card);
   background: var(--mc-accent-pink);
+  transition:
+    background var(--mc-motion-micro) var(--mc-ease-out),
+    transform var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.seeAll:hover {
+  background: var(--mc-accent-rose);
+}
+
+.seeAll:active {
+  transform: scale(0.97);
+}
+
+.seeAll:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+}
+
+/* Visually-hidden label, same recipe as the section heading. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Archive controls (page variant) --------------------------------------- */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mc-space-3);
+  margin-bottom: var(--mc-space-4);
+}
+
+.search {
+  flex: 1 1 16rem;
+  min-width: 0;
+}
+
+.searchInput {
+  width: 100%;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-2) var(--mc-space-3);
+  border: 0;
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-card);
+  background: var(--mc-bg-card);
+}
+
+.searchInput::placeholder {
+  color: var(--mc-text-card);
+  opacity: 0.6;
+}
+
+.searchInput:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+.pageSize {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+}
+
+.pageSizeLabel {
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-primary);
+}
+
+.select {
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-2) var(--mc-space-3);
+  border: 0;
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-card);
+  background: var(--mc-bg-card);
+  cursor: pointer;
+}
+
+.select:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+/* Numbered pagination --------------------------------------------------- */
+
+.pagination {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mc-space-2);
+  margin-top: var(--mc-space-5);
+}
+
+.pageNum,
+.pageArrow {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--mc-touch-target);
+  min-height: var(--mc-touch-target);
+  padding: 0 var(--mc-space-2);
+  border: 0;
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-card);
+  background: var(--mc-accent-blush);
   cursor: pointer;
   transition:
     background var(--mc-motion-micro) var(--mc-ease-out),
     transform var(--mc-motion-micro) var(--mc-ease-out);
 }
 
-.seeAll:hover,
-.showMore:hover:not(:disabled) {
+.pageNum:hover:not(:disabled),
+.pageArrow:hover:not(:disabled) {
   background: var(--mc-accent-rose);
 }
 
-.seeAll:active,
-.showMore:active:not(:disabled) {
-  transform: scale(0.97);
+.pageNum:active:not(:disabled),
+.pageArrow:active:not(:disabled) {
+  transform: scale(0.96);
 }
 
-.seeAll:focus-visible,
-.showMore:focus-visible {
-  outline: 2px solid var(--mc-focus-ring);
+.pageNum:focus-visible,
+.pageArrow:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
   outline-offset: 3px;
 }
 
-.showMore:disabled {
+.pageNumActive,
+.pageNumActive:hover {
+  background: var(--mc-accent-pink);
+  font-weight: 600;
+}
+
+.pageArrow:disabled {
   cursor: default;
-  background: var(--mc-accent-blush);
+  opacity: 0.4;
+}
+
+.pageGap {
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--mc-space-1);
+  color: var(--mc-text-primary);
 }
 
 /* Touch targets reach 44px on coarse pointers without bulking up the
@@ -175,12 +310,14 @@
 @media (prefers-reduced-motion: reduce) {
   .tab,
   .seeAll,
-  .showMore {
+  .pageNum,
+  .pageArrow {
     transition: none;
   }
   .tab:active,
   .seeAll:active,
-  .showMore:active {
+  .pageNum:active,
+  .pageArrow:active {
     transform: none;
   }
 }

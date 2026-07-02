@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useId, useRef, useState, type KeyboardEvent } from "react";
+import { useId, useMemo, useRef, useState, type KeyboardEvent } from "react";
 import type { TribeEvent } from "@/lib/api/events";
 import { ShowCard } from "../ShowCard/ShowCard";
 import styles from "./ShowsSection.module.css";
@@ -13,13 +13,15 @@ const TABS = [
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
-/** Home caps each tab at 7 rows; /shows lifts the cap and shows everything. */
+/** Home caps each tab at 7 rows; /shows paginates instead. */
 const MAX_ROWS = 7;
 
-/** Entrance stagger wraps every 7 rows so a long list (or an appended page)
- *  cascades in waves instead of trailing one row a full second behind. Home's
- *  0–6 indices are unchanged by the wrap. */
+/** Entrance stagger wraps every 7 rows so a full page cascades in waves instead
+ *  of trailing the last row a second behind. Home's 0–6 indices are unchanged. */
 const STAGGER = 7;
+
+/** Page-size choices for the /shows archive. */
+const PAGE_SIZES = [20, 50, 100] as const;
 
 const EMPTY_COPY: Record<TabId, string> = {
   "up-next": "No upcoming shows right now — check back soon.",
@@ -27,13 +29,32 @@ const EMPTY_COPY: Record<TabId, string> = {
   past: "No past shows on record yet.",
 };
 
-/** The newest past events sit on the tribe API's LAST page (it sorts ascending),
- *  so /shows renders that page reversed and walks toward page 1 on each "Show
- *  more". `nextApiPage` is the API page to request next, 0 when the archive is
- *  exhausted; `perPage` keeps the client request aligned with the build fetch. */
-export interface PastPagination {
-  nextApiPage: number;
-  perPage: number;
+function matchesQuery(event: TribeEvent, q: string): boolean {
+  const haystack = [
+    event.title,
+    event.venue?.venue,
+    event.venue?.city,
+    event.venue?.state_province,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+  return haystack.includes(q);
+}
+
+/** Page numbers to render, with 0 marking an ellipsis gap. Always keeps the
+ *  first, last, and the current page's neighbours. */
+function pageWindow(current: number, total: number): number[] {
+  const keep = new Set([1, total, current, current - 1, current + 1]);
+  const shown = [...keep].filter((p) => p >= 1 && p <= total).sort((a, b) => a - b);
+  const out: number[] = [];
+  let prev = 0;
+  for (const p of shown) {
+    if (p - prev > 1) out.push(0);
+    out.push(p);
+    prev = p;
+  }
+  return out;
 }
 
 export function ShowsSection({
@@ -41,53 +62,45 @@ export function ShowsSection({
   justAdded,
   past,
   variant = "home",
-  pastPagination,
 }: {
   upcoming: TribeEvent[];
   justAdded: TribeEvent[];
   past: TribeEvent[];
   variant?: "home" | "page";
-  pastPagination?: PastPagination;
 }) {
   const isPage = variant === "page";
   const [active, setActive] = useState<TabId>("up-next");
+  const [query, setQuery] = useState("");
+  const [pageSize, setPageSize] = useState<number>(PAGE_SIZES[0]);
+  const [page, setPage] = useState(1);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const baseId = useId();
 
-  // On /shows the past tab grows as more pages load; on home it's a static prop.
-  const [pastRows, setPastRows] = useState<TribeEvent[]>(past);
-  const [nextApiPage, setNextApiPage] = useState(pastPagination?.nextApiPage ?? 0);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [loadError, setLoadError] = useState(false);
-
-  const cap = (list: TribeEvent[]) => (isPage ? list : list.slice(0, MAX_ROWS));
-  const lists: Record<TabId, TribeEvent[]> = {
-    "up-next": cap(upcoming),
-    "just-added": cap(justAdded),
-    past: isPage ? pastRows : cap(past),
+  const source: Record<TabId, TribeEvent[]> = {
+    "up-next": upcoming,
+    "just-added": justAdded,
+    past,
   };
-  const events = lists[active];
 
-  const canLoadMore = isPage && active === "past" && nextApiPage > 0;
+  const q = query.trim().toLowerCase();
+  const filtered = useMemo(() => {
+    const list = source[active];
+    return q ? list.filter((e) => matchesQuery(e, q)) : list;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [active, q, upcoming, justAdded, past]);
 
-  async function loadMorePast() {
-    if (!pastPagination || nextApiPage < 1) return;
-    setLoadingMore(true);
-    setLoadError(false);
-    try {
-      const res = await fetch(
-        `/api/shows/past?apiPage=${nextApiPage}&perPage=${pastPagination.perPage}`,
-      );
-      if (!res.ok) throw new Error(String(res.status));
-      const data = (await res.json()) as { events: TribeEvent[]; nextApiPage: number };
-      setPastRows((prev) => [...prev, ...data.events]);
-      setNextApiPage(data.nextApiPage);
-    } catch {
-      // Keep nextApiPage so the button stays available for a retry.
-      setLoadError(true);
-    } finally {
-      setLoadingMore(false);
-    }
+  // Home shows a fixed cap with no controls; /shows paginates the filtered list.
+  const pageCount = isPage ? Math.max(1, Math.ceil(filtered.length / pageSize)) : 1;
+  const current = Math.min(page, pageCount);
+  const events = isPage
+    ? filtered.slice((current - 1) * pageSize, current * pageSize)
+    : filtered.slice(0, MAX_ROWS);
+
+  const searching = q.length > 0;
+
+  function selectTab(id: TabId) {
+    setActive(id);
+    setPage(1);
   }
 
   // APG tablist keyboard model: arrows move and activate, wrapping at the ends.
@@ -100,7 +113,7 @@ export function ShowsSection({
     else if (event.key === "End") next = last;
     if (next < 0) return;
     event.preventDefault();
-    setActive(TABS[next].id);
+    selectTab(TABS[next].id);
     tabRefs.current[next]?.focus();
   }
 
@@ -130,7 +143,7 @@ export function ShowsSection({
                 aria-controls={`${baseId}-panel`}
                 tabIndex={selected ? 0 : -1}
                 className={selected ? `${styles.tab} ${styles.tabActive}` : styles.tab}
-                onClick={() => setActive(tab.id)}
+                onClick={() => selectTab(tab.id)}
                 onKeyDown={(e) => onKeyDown(e, i)}
               >
                 {tab.label}
@@ -139,6 +152,49 @@ export function ShowsSection({
           })}
         </div>
 
+        {isPage && (
+          <div className={styles.toolbar}>
+            <div className={styles.search}>
+              <label htmlFor={`${baseId}-search`} className={styles.srOnly}>
+                Search shows
+              </label>
+              <input
+                id={`${baseId}-search`}
+                type="search"
+                inputMode="search"
+                placeholder="Search by show, venue, or city"
+                className={styles.searchInput}
+                value={query}
+                onChange={(e) => {
+                  setQuery(e.target.value);
+                  setPage(1);
+                }}
+              />
+            </div>
+
+            <div className={styles.pageSize}>
+              <label htmlFor={`${baseId}-page-size`} className={styles.pageSizeLabel}>
+                Per page
+              </label>
+              <select
+                id={`${baseId}-page-size`}
+                className={styles.select}
+                value={pageSize}
+                onChange={(e) => {
+                  setPageSize(Number(e.target.value));
+                  setPage(1);
+                }}
+              >
+                {PAGE_SIZES.map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+        )}
+
         <div
           role="tabpanel"
           id={`${baseId}-panel`}
@@ -146,42 +202,80 @@ export function ShowsSection({
           className={styles.panel}
         >
           {events.length > 0 ? (
-            // Re-keying on the active tab remounts the list so the entrance
-            // animation replays each time you switch. Appended past rows mount
-            // into the same list, so only the new rows animate in.
+            // Re-key on tab + page + query so the entrance animation replays
+            // whenever the visible set changes.
             <div className={styles.clip}>
-              <ul key={active} className={styles.list}>
+              <ul key={`${active}-${current}-${q}`} className={styles.list}>
                 {events.map((event, i) => (
-                  <ShowCard key={event.id} event={event} index={i % STAGGER} />
+                  <ShowCard
+                    key={event.id}
+                    event={event}
+                    index={i % STAGGER}
+                    withCalendar={isPage}
+                  />
                 ))}
               </ul>
             </div>
           ) : (
-            <p className={styles.empty}>{EMPTY_COPY[active]}</p>
+            <p className={styles.empty}>
+              {searching
+                ? `No shows match “${query.trim()}”.`
+                : EMPTY_COPY[active]}
+            </p>
           )}
 
-          <div className={styles.actions}>
-            {isPage ? (
-              canLoadMore && (
-                <button
-                  type="button"
-                  className={styles.showMore}
-                  onClick={loadMorePast}
-                  disabled={loadingMore}
-                >
-                  {loadingMore
-                    ? "Loading…"
-                    : loadError
-                      ? "Try again"
-                      : "Show more"}
-                </button>
-              )
-            ) : (
+          {isPage && pageCount > 1 && (
+            <nav className={styles.pagination} aria-label="Show pages">
+              <button
+                type="button"
+                className={styles.pageArrow}
+                onClick={() => setPage(current - 1)}
+                disabled={current <= 1}
+                aria-label="Previous page"
+              >
+                ‹
+              </button>
+              {pageWindow(current, pageCount).map((p, i) =>
+                p === 0 ? (
+                  <span key={`gap-${i}`} className={styles.pageGap} aria-hidden="true">
+                    …
+                  </span>
+                ) : (
+                  <button
+                    key={p}
+                    type="button"
+                    className={
+                      p === current
+                        ? `${styles.pageNum} ${styles.pageNumActive}`
+                        : styles.pageNum
+                    }
+                    aria-current={p === current ? "page" : undefined}
+                    aria-label={`Page ${p}`}
+                    onClick={() => setPage(p)}
+                  >
+                    {p}
+                  </button>
+                ),
+              )}
+              <button
+                type="button"
+                className={styles.pageArrow}
+                onClick={() => setPage(current + 1)}
+                disabled={current >= pageCount}
+                aria-label="Next page"
+              >
+                ›
+              </button>
+            </nav>
+          )}
+
+          {!isPage && (
+            <div className={styles.actions}>
               <Link className={styles.seeAll} href="/shows">
                 See all shows
               </Link>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
     </section>
