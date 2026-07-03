@@ -40,20 +40,15 @@
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
-  /* Fixed frame width (Figma 110:133 37.17 ×1.514) so the centred month/day
-     land in the pick's left lobe, with the pick offset right behind them. */
-  box-sizing: border-box;
-  width: 56px;
-  padding: 17px 0 0;
+  padding: 3px 13px 0;
   color: var(--mc-text-primary);
 }
 
 .pickWrap {
-  /* Figma 110:134 places the pick behind the text, offset up-left from the
-     badge origin (values ×1.514 from the mobile comp), not centered. */
   position: absolute;
-  left: -1px;
-  top: -10px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -66,10 +61,7 @@
 .pick {
   width: 62.861px;
   height: 71.059px;
-  /* The inlined vector's natural orientation is ~39° off Figma's pick asset, so
-     -135° (not the -96.04° in the Figma layer) lands the point bottom-left /
-     shoulder top-right to match the comp (39:23, 110:134). */
-  transform: rotate(-135deg);
+  transform: rotate(-96.04deg);
 }
 
 .month,
@@ -77,11 +69,14 @@
   position: relative;
   z-index: 1;
   font-family: var(--mc-font-display);
-  line-height: 1;
+  /* Figma uses normal leading; the month's -6px tuck relies on that leading to
+     leave a couple px of breathing room under the month (line-height:1 kills it
+     and reads flush). */
+  line-height: normal;
 }
 
 .month {
-  margin-bottom: -6px; /* Figma 110:135 mb tuck (×1.514), pulls the day up under the month */
+  margin-bottom: -6px; /* Figma 110:135 autolayout gap — a few px under the month */
   font-weight: 700;
   font-size: var(--mc-text-2xs);
   letter-spacing: 0.04em;
