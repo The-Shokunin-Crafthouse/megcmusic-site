@@ -68,6 +68,8 @@
 .day {
   position: relative;
   z-index: 1;
+  /* Nudge the month/day 8px left over the pick to match the comp. */
+  left: -8px;
   font-family: var(--mc-font-display);
   /* Figma uses normal leading; the month's -6px tuck relies on that leading to
      leave a couple px of breathing room under the month (line-height:1 kills it
