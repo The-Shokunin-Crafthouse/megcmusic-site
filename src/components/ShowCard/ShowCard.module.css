@@ -40,7 +40,12 @@
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
-  padding: 3px 13px 0;
+  /* Fixed to the pick's footprint (not shrink-to-text) so the centred pick's
+     left edge always lands at the card's 16px padding — otherwise 1- vs 2-digit
+     days shift the whole group and the left margin reads inconsistent. */
+  box-sizing: border-box;
+  width: 77.281px;
+  padding-top: 3px;
   color: var(--mc-text-primary);
 }
 
