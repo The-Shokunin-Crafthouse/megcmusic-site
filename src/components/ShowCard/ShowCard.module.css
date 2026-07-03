@@ -66,7 +66,10 @@
 .pick {
   width: 62.861px;
   height: 71.059px;
-  transform: rotate(-96.04deg);
+  /* The inlined vector's natural orientation is ~39° off Figma's pick asset, so
+     -135° (not the -96.04° in the Figma layer) lands the point bottom-left /
+     shoulder top-right to match the comp (39:23, 110:134). */
+  transform: rotate(-135deg);
 }
 
 .month,
