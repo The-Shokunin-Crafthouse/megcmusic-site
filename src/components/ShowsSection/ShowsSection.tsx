@@ -10,8 +10,16 @@ import {
   type KeyboardEvent,
 } from "react";
 import type { TribeEvent } from "@/lib/api/events";
+import { fetchAllEventsBrowser } from "@/lib/api/events-browser";
 import { ShowCard } from "../ShowCard/ShowCard";
 import styles from "./ShowsSection.module.css";
+
+// "YYYY-MM-DD HH:MM:SS" strings sort chronologically as plain text (no Date;
+// studio learning #48). Mirrors the server page's sort for the browser fallback.
+const byStart = (dir: 1 | -1) => (a: TribeEvent, b: TribeEvent) =>
+  dir * a.start_date.localeCompare(b.start_date);
+const byPublished = (a: TribeEvent, b: TribeEvent) =>
+  (b.date ?? "").localeCompare(a.date ?? "");
 
 const TABS = [
   { id: "up-next", label: "Up Next" },
@@ -68,10 +76,49 @@ export function ShowsSection({
   const sentinelRef = useRef<HTMLDivElement>(null);
   const baseId = useId();
 
+  // The WP host blocks datacenter IPs, so the server render is empty on Vercel.
+  // When that happens, refetch from the visitor's browser (residential IP,
+  // CORS-allowed) and use that instead.
+  const serverEmpty =
+    upcoming.length === 0 && justAdded.length === 0 && past.length === 0;
+  const [browserData, setBrowserData] = useState<{
+    upcoming: TribeEvent[];
+    justAdded: TribeEvent[];
+    past: TribeEvent[];
+  } | null>(null);
+  const [loading, setLoading] = useState(serverEmpty);
+
+  useEffect(() => {
+    if (!serverEmpty) return;
+    let alive = true;
+    (async () => {
+      try {
+        const [up, pastRaw] = await Promise.all([
+          fetchAllEventsBrowser("upcoming"),
+          fetchAllEventsBrowser("past"),
+        ]);
+        if (!alive) return;
+        setBrowserData({
+          upcoming: [...up].sort(byStart(1)),
+          justAdded: [...up].sort(byPublished),
+          past: [...pastRaw].sort(byStart(-1)),
+        });
+      } catch {
+        // Leave the empty state; nothing more we can do from here.
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [serverEmpty]);
+
+  const data = browserData ?? { upcoming, justAdded, past };
   const source: Record<TabId, TribeEvent[]> = {
-    "up-next": upcoming,
-    "just-added": justAdded,
-    past,
+    "up-next": data.upcoming,
+    "just-added": data.justAdded,
+    past: data.past,
   };
 
   const q = query.trim().toLowerCase();
@@ -79,7 +126,7 @@ export function ShowsSection({
     const list = source[active];
     return q ? list.filter((e) => matchesQuery(e, q)) : list;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, q, upcoming, justAdded, past]);
+  }, [active, q, data.upcoming, data.justAdded, data.past]);
 
   // Reset the lazy window whenever the visible set changes at its root.
   useEffect(() => {
@@ -249,6 +296,8 @@ export function ShowsSection({
                 ))}
               </ul>
             </div>
+          ) : loading ? (
+            <p className={styles.empty}>Loading shows…</p>
           ) : (
             <p className={styles.empty}>
               {searching ? `No shows match “${query.trim()}”.` : EMPTY_COPY[active]}

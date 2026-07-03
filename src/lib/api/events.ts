@@ -62,7 +62,7 @@ export interface TribeEvent {
   timezone?: string;
 }
 
-interface TribeEventsResponse {
+export interface TribeEventsResponse {
   events?: TribeEvent[];
   total: number;
   total_pages: number;
