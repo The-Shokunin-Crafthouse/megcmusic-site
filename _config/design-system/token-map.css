@@ -23,6 +23,7 @@
   --mc-text-body: #e5d0bc;
   --mc-text-muted: #caa45f;
   --mc-text-card: #4f2c3d;
+  --mc-text-subtle: #9d9286; /* muted taupe — /shows sub-header (Figma 110:114) */
 
   /* Accents */
   --mc-accent-pink: #f6849a;
@@ -80,6 +81,7 @@
 
   /* Type sizes — absolute ramp mirrored from Figma (Sprint 3) */
   --mc-text-2xs: 0.75rem;  /* 12px — date-badge month */
+  --mc-text-sm: 0.875rem;  /* 14px — /shows sub-header (Figma 110:114) */
   --mc-text-base: 1rem;    /* 16px — tabs, time, venue, city, buttons */
   --mc-text-lg: 1.375rem;  /* 22px — show title */
   --mc-text-2xl: 2rem;     /* 32px — date-badge day */

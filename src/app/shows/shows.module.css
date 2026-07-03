@@ -72,13 +72,12 @@
 }
 
 .lede {
-  margin: var(--mc-space-3) 0 0;
-  max-width: 42ch;
-  font-family: var(--mc-font-display);
-  font-style: italic;
-  font-size: var(--mc-text-lg);
+  margin: var(--mc-space-2) 0 0;
+  max-width: 52ch;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-sm);
   line-height: 1.4;
-  color: var(--mc-text-body);
+  color: var(--mc-text-subtle);
 }
 
 @media (min-width: 768px) {

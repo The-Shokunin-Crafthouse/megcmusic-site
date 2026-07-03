@@ -13,12 +13,13 @@
   padding: var(--mc-space-3);
 }
 
-/* Corner logo — negative offsets are Figma-exact bleed, not tokens. */
+/* Corner logo — bleeds off the top-left corner per Figma 110:2 (visible
+   ~127×100). Negative offsets are Figma-exact bleed, not tokens. */
 .logoSlot {
   position: absolute;
-  top: -8px;
-  left: -10px;
-  --logo-h: 92px;
+  top: -4px;
+  left: -8px;
+  --logo-h: 140px;
 }
 
 .desktopNav {
@@ -34,9 +35,9 @@
     padding: var(--mc-space-4) var(--mc-space-6);
   }
   .logoSlot {
-    top: -10px;
-    left: -12px;
-    --logo-h: 108px;
+    top: -6px;
+    left: -10px;
+    --logo-h: 166px;
   }
   .desktopNav {
     display: flex;

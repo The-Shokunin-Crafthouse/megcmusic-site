@@ -64,9 +64,9 @@
 /* Logo bleeds off the top-left corner, matching the page chrome (Figma 112:191). */
 .logoSlot {
   position: absolute;
-  top: -8px;
-  left: -10px;
-  --logo-h: 92px;
+  top: -4px;
+  left: -8px;
+  --logo-h: 140px;
 }
 
 .close {

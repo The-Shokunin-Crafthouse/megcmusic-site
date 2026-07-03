@@ -45,10 +45,11 @@
 }
 
 .pickWrap {
+  /* Figma 110:134 places the pick behind the text, offset up-left from the
+     badge origin (values ×1.514 from the mobile comp), not centered. */
   position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  left: -7px;
+  top: -10px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -73,7 +74,7 @@
 }
 
 .month {
-  margin-bottom: 0; /* +6px over Figma's mb-[-6px] tuck — breathing room under the month */
+  margin-bottom: -6px; /* Figma 110:135 mb tuck (×1.514), pulls the day up under the month */
   font-weight: 700;
   font-size: var(--mc-text-2xs);
   letter-spacing: 0.04em;
