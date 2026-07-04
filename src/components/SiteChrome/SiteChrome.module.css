@@ -17,10 +17,12 @@
 
 .logoSlot {
   position: absolute;
-  top: -4px;
-  left: -8px;
+  /* Cropped hard off the top-left corner (Figma 39:4). Negative offsets are the
+     bleed; the artwork is tilted -6.04° in Logo.module.css. */
+  top: -62px;
+  left: -40px;
   z-index: var(--mc-z-logo);
-  --logo-h: 140px;
+  --logo-h: 180px;
 }
 
 .desktopNav {
@@ -32,12 +34,13 @@
 }
 
 @media (min-width: 768px) {
-  /* Logo pinned top-left — always the top layer, every route. */
+  /* Logo pinned top-left — always the top layer, every route. Comp-exact crop
+     (Figma 39:4: 272.94px artwork at ≈ -58/-95, tilted -6.04°). */
   .logoSlot {
     position: fixed;
-    top: -6px;
-    left: -10px;
-    --logo-h: 166px;
+    top: -95px;
+    left: -58px;
+    --logo-h: 273px;
   }
   /* Nav pinned top-right over the hero. */
   .desktopNav {

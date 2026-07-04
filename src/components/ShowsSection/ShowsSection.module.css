@@ -79,7 +79,8 @@
   border-radius: var(--mc-radius-pill);
   font-family: var(--mc-font-ui);
   font-weight: 400;
-  font-size: var(--mc-text-base);
+  /* Figma 39:12: pill labels are 12px, not the 16px body size. */
+  font-size: var(--mc-text-2xs);
   /* Inactive = glass pill (Figma 110:119): translucent plum + blur + teal edge. */
   color: var(--mc-teal-light);
   background: var(--mc-glass);
@@ -220,11 +221,8 @@
   flex-shrink: 0;
 }
 
-/* Tighter pills in the archive row so the three tabs + search sit on one line
-   at 390 (Figma 110:2). */
+/* Pills never wrap their own label; the row wraps between pills instead. */
 .tabRow .tab {
-  padding-left: var(--mc-space-2);
-  padding-right: var(--mc-space-2);
   white-space: nowrap;
 }
 
