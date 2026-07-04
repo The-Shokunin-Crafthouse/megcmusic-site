@@ -9,10 +9,30 @@ const EVENTS_API_URL =
   process.env.EVENTS_API_URL ?? "https://megcmusic.com/wp-json/tribe/events/v1";
 
 // Bound every call so a slow/unreachable WordPress host can never hang a build
-// or an ISR revalidation. From a normal network the API answers in <1s; the
-// build region occasionally cannot reach it, so we fail fast into the caller's
-// empty-state instead of stalling past Next's static-generation timeout.
-const REQUEST_TIMEOUT_MS = 12_000;
+// or an ISR revalidation. From a normal network the API answers in <1s, but the
+// Vercel build region is slow/flaky reaching it — a 12s bound emptied the page
+// at build. Give it 25s and one retry so transient slowness recovers, while a
+// truly unreachable host still fails into the caller's empty-state well within
+// Next's static-generation timeout.
+const REQUEST_TIMEOUT_MS = 25_000;
+const MAX_RETRIES = 1;
+
+// fetch() only rejects on network/timeout (not HTTP status), so a retry here
+// covers exactly the transient-slowness case; status handling stays in callers.
+async function fetchEvents(url: string): Promise<Response> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await fetch(url, {
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
+      });
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
 
 export interface TribeVenue {
   venue?: string;
@@ -37,9 +57,12 @@ export interface TribeEvent {
   all_day: boolean;
   image?: { url: string } | false;
   venue?: TribeVenue;
+  /** IANA zone the wall-clock times are in (e.g. "America/Denver"). Feeds the
+   *  add-to-calendar control so an event lands at the venue's local time. */
+  timezone?: string;
 }
 
-interface TribeEventsResponse {
+export interface TribeEventsResponse {
   events?: TribeEvent[];
   total: number;
   total_pages: number;
@@ -52,10 +75,7 @@ export async function getEvents(
     status === "upcoming"
       ? "?per_page=50&start_date=now"
       : "?per_page=50&end_date=now";
-  const res = await fetch(`${EVENTS_API_URL}/events${query}`, {
-    next: { revalidate: 3600 },
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-  });
+  const res = await fetchEvents(`${EVENTS_API_URL}/events${query}`);
   if (!res.ok) {
     // The archive endpoint 404s when a date query matches nothing.
     if (res.status === 404) return [];
@@ -75,8 +95,8 @@ export interface EventsPage {
   total: number;
 }
 
-/** Fetch a single page of the archive. Every page carries the same 12s bound as
- *  the rest of this module, so no single request can stall a build or an ISR
+/** Fetch a single page of the archive. Every page carries the same bound + retry
+ *  as the rest of this module, so no single request can stall a build or an ISR
  *  revalidation. */
 export async function getEventsPage(
   status: "upcoming" | "past",
@@ -84,12 +104,8 @@ export async function getEventsPage(
   perPage: number,
 ): Promise<EventsPage> {
   const bound = status === "upcoming" ? "start_date=now" : "end_date=now";
-  const res = await fetch(
+  const res = await fetchEvents(
     `${EVENTS_API_URL}/events?per_page=${perPage}&page=${page}&${bound}`,
-    {
-      next: { revalidate: 3600 },
-      signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-    },
   );
   if (!res.ok) {
     // The archive endpoint 404s when a date query matches nothing.
@@ -123,10 +139,7 @@ export async function getAllEvents(
 }
 
 export async function getEvent(id: number): Promise<TribeEvent | null> {
-  const res = await fetch(`${EVENTS_API_URL}/events/${id}`, {
-    next: { revalidate: 3600 },
-    signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
-  });
+  const res = await fetchEvents(`${EVENTS_API_URL}/events/${id}`);
   if (!res.ok) return null;
   return (await res.json()) as TribeEvent;
 }

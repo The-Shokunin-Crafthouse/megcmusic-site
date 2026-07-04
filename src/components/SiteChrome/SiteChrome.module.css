@@ -1,0 +1,54 @@
+/* Overlay chrome at the top of every page. The logo bleeds off the top-left
+   corner (Figma 110:2 — Logo frame anchored past 0,0); the nav/menu sits
+   top-right. */
+.chrome {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding: var(--mc-space-3);
+}
+
+/* Corner logo — bleeds off the top-left corner per Figma 110:2 (visible
+   ~127×100). Negative offsets are Figma-exact bleed, not tokens. */
+.logoSlot {
+  position: absolute;
+  top: -4px;
+  left: -8px;
+  --logo-h: 140px;
+}
+
+.desktopNav {
+  display: none;
+}
+
+.mobileNav {
+  display: flex;
+}
+
+@media (min-width: 768px) {
+  .chrome {
+    padding: var(--mc-space-4) var(--mc-space-6);
+  }
+  .logoSlot {
+    top: -6px;
+    left: -10px;
+    --logo-h: 166px;
+  }
+  .desktopNav {
+    display: flex;
+  }
+  .mobileNav {
+    display: none;
+  }
+}
+
+@media (min-width: 1440px) {
+  .chrome {
+    padding: var(--mc-space-4) var(--mc-space-8);
+  }
+}

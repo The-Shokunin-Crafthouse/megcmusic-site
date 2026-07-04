@@ -1,6 +1,7 @@
 import { Fragment, type CSSProperties, type ReactNode } from "react";
 import type { TribeEvent } from "@/lib/api/events";
 import { parseShowDate, formatTimeRange } from "@/lib/datetime";
+import { AddToCalendar } from "../AddToCalendar/AddToCalendar";
 import styles from "./ShowCard.module.css";
 
 /** Guitar-pick silhouette behind the date badge — the exact Figma vector
@@ -34,7 +35,15 @@ function directionsHref(venue: TribeEvent["venue"]): string | null {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
 }
 
-export function ShowCard({ event, index }: { event: TribeEvent; index: number }) {
+export function ShowCard({
+  event,
+  index,
+  withCalendar = false,
+}: {
+  event: TribeEvent;
+  index: number;
+  withCalendar?: boolean;
+}) {
   const date = parseShowDate(event.start_date);
   const time = formatTimeRange(event.start_date, event.end_date);
   const maps = directionsHref(event.venue);
@@ -98,6 +107,8 @@ export function ShowCard({ event, index }: { event: TribeEvent; index: number })
             ))}
           </div>
         )}
+
+        {withCalendar && <AddToCalendar event={event} />}
       </div>
     </li>
   );

@@ -1,0 +1,16 @@
+/* Lifts the add-to-calendar control above ShowCard's stretched title link so it
+   stays clickable, and nudges the web component's text button onto the brand
+   ink colour without touching its shadow-DOM internals. */
+.wrap {
+  position: relative;
+  z-index: 1;
+  margin-top: var(--mc-space-1);
+  /* ATCB "text" button inherits these custom props for its light theme. */
+  --btn-text: var(--mc-accent-red-ink);
+  --font: var(--mc-font-ui);
+}
+
+/* Tighten the web component's own spacing so it reads as a card affordance. */
+.wrap add-to-calendar-button {
+  line-height: 1;
+}

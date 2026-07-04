@@ -40,7 +40,12 @@
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
-  padding: 3px 13px 0;
+  /* Fixed to the pick's footprint (not shrink-to-text) so the centred pick's
+     left edge always lands at the card's 16px padding — otherwise 1- vs 2-digit
+     days shift the whole group and the left margin reads inconsistent. */
+  box-sizing: border-box;
+  width: 77.281px;
+  padding-top: 3px;
   color: var(--mc-text-primary);
 }
 
@@ -68,12 +73,17 @@
 .day {
   position: relative;
   z-index: 1;
+  /* Nudge the month/day 8px left over the pick to match the comp. */
+  left: -8px;
   font-family: var(--mc-font-display);
-  line-height: 1;
+  /* Figma uses normal leading; the month's -6px tuck relies on that leading to
+     leave a couple px of breathing room under the month (line-height:1 kills it
+     and reads flush). */
+  line-height: normal;
 }
 
 .month {
-  margin-bottom: 0; /* +6px over Figma's mb-[-6px] tuck — breathing room under the month */
+  margin-bottom: -6px; /* Figma 110:135 autolayout gap — a few px under the month */
   font-weight: 700;
   font-size: var(--mc-text-2xs);
   letter-spacing: 0.04em;
@@ -89,6 +99,8 @@
   flex-direction: column;
   gap: var(--mc-space-1);
   min-width: 0;
+  /* Pull the copy closer to the pick. */
+  margin-left: -16px;
 }
 
 .title {

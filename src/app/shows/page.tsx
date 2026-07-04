@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
-import { Nav } from "@/components/Nav/Nav";
-import {
-  ShowsSection,
-  type PastPagination,
-} from "@/components/ShowsSection/ShowsSection";
-import { getAllEvents, getEventsPage, type TribeEvent } from "@/lib/api/events";
+import { ShowsSection } from "@/components/ShowsSection/ShowsSection";
+import { getAllEvents, type TribeEvent } from "@/lib/api/events";
 import styles from "./shows.module.css";
 
 // Shows refresh hourly, same cadence as the home section.
@@ -16,10 +12,6 @@ export const metadata: Metadata = {
     "Meghan Clarisse Cave's full show calendar — every upcoming date and the archive of shows already played.",
 };
 
-// Past shows load a page at a time. The archive is small today but its depth is
-// unknown, so only the newest page renders at build; the rest load on demand.
-const PAST_PAGE_SIZE = 10;
-
 // String comparison sorts these "YYYY-MM-DD HH:MM:SS" stamps chronologically
 // without constructing a Date (studio learning #48).
 const byStart = (dir: 1 | -1) => (a: TribeEvent, b: TribeEvent) =>
@@ -30,70 +22,57 @@ const byStart = (dir: 1 | -1) => (a: TribeEvent, b: TribeEvent) =>
 const byPublished = (a: TribeEvent, b: TribeEvent) =>
   (b.date ?? "").localeCompare(a.date ?? "");
 
-async function safeAllUpcoming(): Promise<TribeEvent[]> {
+// Never let a flaky Events API break the build — fall back to an empty list,
+// which the section renders as its empty state.
+async function safeAll(status: "upcoming" | "past"): Promise<TribeEvent[]> {
   try {
-    return await getAllEvents("upcoming", 50);
+    return await getAllEvents(status, 50);
   } catch {
     return [];
   }
 }
 
-// The tribe API sorts ascending, so the newest past shows are on the last page.
-// Render that page reversed; hand the client the previous page to walk from.
-async function loadPast(): Promise<{
-  rows: TribeEvent[];
-  pagination: PastPagination;
-}> {
-  try {
-    const first = await getEventsPage("past", 1, PAST_PAGE_SIZE);
-    if (first.totalPages <= 1) {
-      return {
-        rows: [...first.events].reverse(),
-        pagination: { nextApiPage: 0, perPage: PAST_PAGE_SIZE },
-      };
-    }
-    const last = await getEventsPage("past", first.totalPages, PAST_PAGE_SIZE);
-    return {
-      rows: [...last.events].reverse(),
-      pagination: {
-        nextApiPage: first.totalPages - 1,
-        perPage: PAST_PAGE_SIZE,
-      },
-    };
-  } catch {
-    return {
-      rows: [],
-      pagination: { nextApiPage: 0, perPage: PAST_PAGE_SIZE },
-    };
-  }
-}
-
 export default async function ShowsPage() {
-  const [upcomingRaw, past] = await Promise.all([safeAllUpcoming(), loadPast()]);
+  const [upcomingRaw, pastRaw] = await Promise.all([
+    safeAll("upcoming"),
+    safeAll("past"),
+  ]);
 
   const upcoming = [...upcomingRaw].sort(byStart(1));
   const justAdded = [...upcomingRaw].sort(byPublished);
+  const past = [...pastRaw].sort(byStart(-1));
 
   return (
     <div className={styles.page}>
-      <Nav />
+      {/* Same hero photo as the home page, full-bleed behind the listing, with
+          a plum scrim so the cream cards keep their contrast. */}
+      <img
+        className={styles.bg}
+        src="images/hero/meghan-hero.jpg"
+        alt=""
+        aria-hidden="true"
+        decoding="async"
+      />
+      <div className={styles.scrim} aria-hidden="true" />
+
       <main className={styles.main}>
         <header className={styles.header}>
-          <p className={styles.stars} aria-hidden="true">
-            ★★★
-          </p>
-          <h1 className={styles.title}>Shows</h1>
-          <p className={styles.lede}>
-            Every date on the calendar — and every one already played.
-          </p>
+          <div className={styles.headerInner}>
+            <p className={styles.stars} aria-hidden="true">
+              ★★★
+            </p>
+            <h1 className={styles.title}>Shows</h1>
+            <p className={styles.lede}>
+              Every date on the calendar — and every one already played.
+            </p>
+          </div>
         </header>
 
         <ShowsSection
           variant="page"
           upcoming={upcoming}
           justAdded={justAdded}
-          past={past.rows}
-          pastPagination={past.pagination}
+          past={past}
         />
       </main>
     </div>

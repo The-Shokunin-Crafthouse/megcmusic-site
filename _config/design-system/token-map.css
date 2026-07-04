@@ -23,6 +23,7 @@
   --mc-text-body: #e5d0bc;
   --mc-text-muted: #caa45f;
   --mc-text-card: #4f2c3d;
+  --mc-text-subtle: #9d9286; /* muted taupe — /shows sub-header (Figma 110:114) */
 
   /* Accents */
   --mc-accent-pink: #f6849a;
@@ -32,9 +33,21 @@
   --mc-accent-red: #d13e5b;
   --mc-accent-red-ink: #bb314f; /* text-only red; AA (4.85:1) on cream — base #d13e5b fails at 16px */
 
+  /* Teal accent — 2026 refresh (Figma 39:2 / 110:2). Replaces pink as the
+     primary interactive accent; pink retained only for venue red. */
+  --mc-teal: #568c89;        /* solid teal — active tab, glass borders */
+  --mc-teal-light: #60b1ad;  /* light teal — menu/link/active, inactive-tab text */
+  --mc-teal-ink: #0d3333;    /* dark teal — text on teal fills */
+
+  /* Glassmorphism (intentional anti-default override, logged) */
+  --mc-glass-rgb: 60 15 37;  /* plum #3c0f25 for translucent fills */
+  --mc-glass: rgb(var(--mc-glass-rgb) / 0.4);
+  --mc-glass-blur: 13px;
+
   /* Channel triplets for rgba composition (R G B) */
   --mc-accent-pink-rgb: 246 132 154;
   --mc-accent-gold-rgb: 202 164 95;
+  --mc-bg-rgb: 36 20 32; /* --mc-bg channels — scrim over the /shows hero photo */
 
   /* Typography */
   --mc-font-display: 'Lora', serif;
@@ -79,6 +92,7 @@
 
   /* Type sizes — absolute ramp mirrored from Figma (Sprint 3) */
   --mc-text-2xs: 0.75rem;  /* 12px — date-badge month */
+  --mc-text-sm: 0.875rem;  /* 14px — /shows sub-header (Figma 110:114) */
   --mc-text-base: 1rem;    /* 16px — tabs, time, venue, city, buttons */
   --mc-text-lg: 1.375rem;  /* 22px — show title */
   --mc-text-2xl: 2rem;     /* 32px — date-badge day */

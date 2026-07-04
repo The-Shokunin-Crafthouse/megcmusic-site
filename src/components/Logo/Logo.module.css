@@ -1,0 +1,65 @@
+.logo {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+/* Height driven by the context (--logo-h); width follows the 229:192 ratio. */
+.lockup {
+  position: relative;
+  display: block;
+  height: var(--logo-h, 40px);
+  aspect-ratio: 229 / 192;
+}
+
+.pick,
+.name {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Left-to-right shimmer over the name only — a bright band swept across the
+   name glyphs (masked by the name SVG), blended so the pink script stays. */
+.shimmer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  background: linear-gradient(
+    100deg,
+    transparent 42%,
+    rgba(255, 255, 255, 0.55) 50%,
+    transparent 58%
+  );
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  /* Absolute path: CSS url() can't reach /public relatively, and this deploys
+     at the Vercel root. */
+  -webkit-mask: url(/images/hero/logo-name.svg) center / contain no-repeat;
+  mask: url(/images/hero/logo-name.svg) center / contain no-repeat;
+  animation: logo-shimmer 4s var(--mc-ease-out) infinite;
+}
+
+@keyframes logo-shimmer {
+  from {
+    background-position: 160% 0;
+  }
+  to {
+    background-position: -60% 0;
+  }
+}
+
+.logo:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shimmer {
+    animation: none;
+    background: none;
+  }
+}

@@ -1,4 +1,3 @@
-import { Nav } from "@/components/Nav/Nav";
 import { Hero } from "@/components/Hero/Hero";
 import { ShowsSection } from "@/components/ShowsSection/ShowsSection";
 import { getEvents, type TribeEvent } from "@/lib/api/events";
@@ -36,7 +35,6 @@ export default async function Home() {
 
   return (
     <div className={styles.page}>
-      <Nav />
       <Hero />
       <ShowsSection upcoming={upcoming} justAdded={justAdded} past={past} />
     </div>
