@@ -318,3 +318,13 @@ When the email-to-create-event feature is built, the venue handling must auto-cr
 **Rationale.** It's the client's approved brand direction; the blocklist yields to a logged, deliberate decision (per its own rule). Tokens keep the change single-sourced; a full refresh (header logo, homepage sections) follows.
 **Alternatives considered.** Push back on glassmorphism/borders per the blocklist — rejected: this is the client's chosen design, not an AI default reached for absent-mindedly. Keep pink — rejected: the redesign replaces it.
 **Consequences.** Easier: one teal token set drives nav/tabs/search/menu; matches the comp. Harder: `backdrop-filter` needs `-webkit-` + a solid-ish fallback consideration on unsupported browsers; contrast of light-teal text on glass must be watched (verify AA at Gate 3).
+
+## 2026-07-04 — Hidden social playbook page at /playbook-mcc-7k3x9f
+**Stage:** 03-build
+**Type:** Architecture / product scope
+**Status:** accepted
+
+**Context.** Levi requested a private social-media algorithm playbook for Meghan (Instagram + Facebook), reachable only by typing the URL — never linked from nav or any page — and able to update itself as new insights are learned. The repo has no robots.txt/sitemap yet (launch TODO), so page-level metadata is the only indexing control available.
+**Decision.** Unlinked App Router route with an unguessable slug (`/playbook-mcc-7k3x9f`) and page-level `robots: { index: false, follow: false, nocache }`. The page renders 100% generically from a committed `src/data/playbook.json` (rules, divergences, posting windows, changelog) — future updates are JSON-only, zero code churn. A weekly Cowork scheduled task re-runs the research, diffs against the committed JSON, updates rules + appends a dated changelog entry, and opens a PR for review. Not added to `navItems.ts`. Confidence badges use existing tokens only (teal-light / gold / red-ink); `:focus-visible` on this dark surface uses `--mc-nav-underline` because `--mc-focus-ring` (#241420) equals the page bg (precedent: MobileMenu).
+**Alternatives considered.** (1) Password/middleware gate — rejected: adds friction and build scope for an internal tool; slug + noindex is proportionate. (2) Simple slug like `/playbook` — rejected: trivially guessable. (3) Storing playbook data in WordPress — rejected: no app database by design, and the JSON-diff contract is what makes automated weekly updates reviewable.
+**Consequences.** Easier: weekly refresh touches one JSON file; changelog gives Meghan a dated insights ledger. Harder: privacy is by obscurity — anyone with the URL can view it; the weekly task runs only while the Cowork app is open (fires on next launch otherwise); noindex should be re-verified live once robots.txt ships at launch.
