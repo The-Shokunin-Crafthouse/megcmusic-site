@@ -1,0 +1,39 @@
+<svg width="229" height="192" viewBox="0 0 229 192" fill="none" xmlns="http://www.w3.org/2000/svg">
+
+<g id="Desktop" clip-path="url(#clip0_0_1)">
+
+<g id="Group 3">
+<g id="noun-guitar-pick-4239156 1">
+<path id="Vector" d="M-43.2731 -8.88649L-43.2386 -8.56046C-43.3584 -7.61504 -43.8021 -4.54829 -44.2097 0.160515L-44.2089 0.159541C-45.8239 18.3619 -45.7324 36.676 -43.9364 54.859C-41.8949 73.0165 -38.1597 90.9435 -32.7797 108.406C-31.3954 112.925 -30.3195 115.832 -30.0045 116.731L-29.97 117.057L-29.9701 117.056C-23.8512 131.623 -12.5537 143.407 1.7414 150.135C16.0374 156.863 32.3183 158.059 47.4427 153.491C47.9314 153.439 48.3753 153.228 48.7985 153.073C142.613 124.315 192.34 53.455 195.381 48.7416L195.548 48.5042C199.616 42.8273 201.457 35.854 200.722 28.9094C199.987 21.9639 196.727 15.5304 191.561 10.831L191.348 10.6337C187.398 6.7703 123.94 -52.1106 26.1841 -60.5923C25.7494 -60.5463 25.2681 -60.6875 24.7709 -60.717C9.03001 -62.0102 -6.6322 -57.4299 -19.1962 -47.86C-31.7599 -38.2901 -40.3362 -24.4069 -43.2726 -8.88798L-43.2731 -8.88649Z" fill="#4F2C3D"/>
+</g>
+<g id="Group 2">
+<g id="Gemini_Generated_Image_ohl3gwohl3gwohl3 1">
+<g id="Group">
+<g id="Vector_2" filter="url(#filter0_d_0_1)">
+
+</g>
+</g>
+</g>
+</g>
+</g>
+</g>
+<defs>
+<filter id="filter0_d_0_1" x="7.90967" y="11.5809" width="151.731" height="80.7058" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dx="2.90668" dy="2.32534"/>
+<feGaussianBlur stdDeviation="1.16267"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.234826 0 0 0 0 0.0578156 0 0 0 0 0.14337 0 0 0 1 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_1"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_0_1" result="shape"/>
+</filter>
+<linearGradient id="paint0_linear_0_1" x1="116.5" y1="17.5" x2="40" y2="85" gradientUnits="userSpaceOnUse">
+<stop stop-color="#FFC3CF"/>
+<stop offset="1" stop-color="#CB98A2"/>
+</linearGradient>
+<clipPath id="clip0_0_1">
+<rect width="1440" height="4967" fill="white"/>
+</clipPath>
+</defs>
+</svg>

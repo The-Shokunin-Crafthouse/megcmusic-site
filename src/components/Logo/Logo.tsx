@@ -1,19 +1,31 @@
 import Link from "next/link";
 import styles from "./Logo.module.css";
 
-// Her name-in-pick lockup (same asset as the home hero), used as the persistent
-// site mark. Always links home. Relative asset path so it resolves under any
-// deploy base (studio learning #25).
+// Persistent site mark: the guitar-pick and the "Meghan Clarisse" name are two
+// separate crisp SVGs layered in the same 229×192 space, so the name can carry
+// its own left-to-right gradient shimmer. Links home. Relative asset paths
+// resolve under any deploy base (studio learning #25).
 export function Logo() {
   return (
     <Link href="/" className={styles.logo} aria-label="Meghan Clarisse — home">
-      <img
-        className={styles.img}
-        src="images/hero/name-pick-lockup.svg"
-        alt="Meghan Clarisse"
-        width={229}
-        height={192}
-      />
+      <span className={styles.lockup}>
+        <img
+          className={styles.pick}
+          src="images/hero/logo-pick.svg"
+          alt=""
+          aria-hidden="true"
+          width={229}
+          height={192}
+        />
+        <img
+          className={styles.name}
+          src="images/hero/logo-name.svg"
+          alt="Meghan Clarisse"
+          width={229}
+          height={192}
+        />
+        <span className={styles.shimmer} aria-hidden="true" />
+      </span>
     </Link>
   );
 }
