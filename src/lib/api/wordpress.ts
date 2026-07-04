@@ -21,9 +21,15 @@ export interface WpPage {
   content: WpRendered;
 }
 
+// Bound every call so a slow/blocked upstream (the WP host blocks datacenter
+// IPs — see events.ts) can't hang the ISR build; the caller falls back to the
+// empty state and the browser refetches from the visitor's residential IP.
+const TIMEOUT_MS = 12_000;
+
 async function wpFetch<T>(path: string, revalidate: number): Promise<T> {
   const res = await fetch(`${WP_API_URL}${path}`, {
     next: { revalidate },
+    signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   if (!res.ok) {
     throw new Error(`WordPress ${path} → ${res.status} ${res.statusText}`);

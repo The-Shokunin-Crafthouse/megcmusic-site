@@ -1,6 +1,20 @@
 import { HomeScene } from "@/components/HomeScene/HomeScene";
+import { LinerNotes } from "@/components/LinerNotes/LinerNotes";
 import { getEvents, type TribeEvent } from "@/lib/api/events";
+import { getPage } from "@/lib/api/wordpress";
+import { paragraphsFromHtml } from "@/lib/wp-content";
 import styles from "./page.module.css";
+
+// Bio prose for Liner Notes — from Meg's WP /about page. Empty on a blocked
+// server render; LinerNotes then refetches in the browser.
+async function safeBio(): Promise<string[]> {
+  try {
+    const page = await getPage("about");
+    return paragraphsFromHtml(page?.content.rendered ?? "");
+  } catch {
+    return [];
+  }
+}
 
 // Never let a flaky Events API break the build — fall back to an empty list,
 // which the section renders as its empty state.
@@ -23,9 +37,10 @@ const byPublished = (a: TribeEvent, b: TribeEvent) =>
   (b.date ?? "").localeCompare(a.date ?? "");
 
 export default async function Home() {
-  const [upcomingRaw, pastRaw] = await Promise.all([
+  const [upcomingRaw, pastRaw, bio] = await Promise.all([
     safeEvents("upcoming"),
     safeEvents("past"),
+    safeBio(),
   ]);
 
   const upcoming = [...upcomingRaw].sort(byStart(1));
@@ -35,6 +50,7 @@ export default async function Home() {
   return (
     <div className={styles.page}>
       <HomeScene upcoming={upcoming} justAdded={justAdded} past={past} />
+      <LinerNotes paragraphs={bio} />
     </div>
   );
 }

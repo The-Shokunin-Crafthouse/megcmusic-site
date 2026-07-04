@@ -140,4 +140,16 @@
   --mc-entrance-scale: 0.94;     /* start scale — Emil: never scale(0) */
   --mc-cascade-stagger: 150ms;   /* gap between each show card dropping in */
   --mc-tab-stagger: 80ms;        /* left-to-right gap between tab-row pills */
+
+  /* Homepage body sections — Sprint 6 Phase 2 (Figma 39:2). */
+  --mc-text-liner: #e5d8cc;   /* Liner Notes bio prose */
+  --mc-radius-quote: 24px;    /* pull-quote / framed corners */
+
+  /* Type sizes used by the sections (mirrored absolute from the comp). */
+  --mc-text-detail: 0.8125rem; /* 13px — captions, recognition detail, video sub */
+  --mc-text-prose: 1.125rem;   /* 18px — bio + recognition body */
+  --mc-text-lead: 1.3125rem;   /* 21px — EPK/video/discography lead + year */
+  --mc-text-title: 1.75rem;    /* 28px — EPK/discography item titles */
+  --mc-text-quote: 2.3125rem;  /* 37px — pull-quote */
+  --mc-text-dropcap: 6.625rem; /* 106px — Praise drop-cap */
 }
