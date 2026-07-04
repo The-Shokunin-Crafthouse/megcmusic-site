@@ -49,6 +49,25 @@
   margin-bottom: var(--mc-space-4);
 }
 
+/* Tab-row pills stagger in left-to-right (--col-index), overlapping the card
+   cascade. Each pill pulls in from the left as it fades. */
+.tab,
+.searchToggle {
+  animation: tab-in var(--mc-entrance-duration) var(--mc-ease-out) backwards;
+  animation-delay: calc(var(--col-index, 0) * var(--mc-tab-stagger));
+}
+
+@keyframes tab-in {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-1 * var(--mc-space-2)));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .tab {
   display: inline-flex;
   align-items: center;
@@ -179,6 +198,7 @@
 /* Tabs row with the search toggle at the end (Figma 110:2). */
 .tabRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--mc-space-2);
   margin-bottom: var(--mc-space-4);
@@ -186,9 +206,18 @@
 
 .tabRow .tabs {
   flex: 1 1 auto;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: var(--mc-space-2);
   margin-bottom: 0;
+}
+
+/* Right-side controls (Add To Calendar + search) — pushed to the pill's end by
+   the tabs' flex-grow (Figma 39:12). */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  flex-shrink: 0;
 }
 
 /* Tighter pills in the archive row so the three tabs + search sit on one line
@@ -291,6 +320,7 @@
   .seeAll,
   .searchToggle {
     transition: none;
+    animation: none;
   }
   .tab:active,
   .seeAll:active,

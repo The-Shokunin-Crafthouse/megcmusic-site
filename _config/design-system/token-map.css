@@ -139,4 +139,5 @@
   --mc-entrance-offset: 20px;    /* slide distance into place */
   --mc-entrance-scale: 0.94;     /* start scale — Emil: never scale(0) */
   --mc-cascade-stagger: 150ms;   /* gap between each show card dropping in */
+  --mc-tab-stagger: 80ms;        /* left-to-right gap between tab-row pills */
 }
