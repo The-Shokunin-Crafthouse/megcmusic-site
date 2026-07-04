@@ -22,25 +22,43 @@
   margin: 0;
   padding: var(--mc-space-3) var(--mc-space-4);
   list-style: none;
+  position: relative;
   border-radius: var(--mc-radius-pill);
-  /* Glass pill (Figma 39:97): translucent plum fill + background blur, with a
-     light-source edge — a conic white gradient in the border that slowly pans
-     around the pill. Fill on padding-box, gradient on border-box through the
-     transparent 1px border. */
-  border: 1px solid transparent;
-  background:
-    linear-gradient(var(--mc-glass), var(--mc-glass)) padding-box,
-    conic-gradient(
-      from var(--mc-nav-angle),
-      rgb(var(--mc-nav-edge-rgb) / 0.12),
-      rgb(var(--mc-nav-edge-rgb) / 0.85) 0.12turn,
-      rgb(var(--mc-nav-edge-rgb) / 0.12) 0.34turn,
-      rgb(var(--mc-nav-edge-rgb) / 0.5) 0.62turn,
-      rgb(var(--mc-nav-edge-rgb) / 0.12) 0.84turn,
-      rgb(var(--mc-nav-edge-rgb) / 0.12)
-    ) border-box;
+  /* Glass pill (Figma 39:97): translucent plum fill + background blur. The
+     light-source edge lives entirely in the ::before ring below, so the pan
+     never touches this fill. */
+  background: var(--mc-glass);
   -webkit-backdrop-filter: blur(var(--mc-glass-blur));
   backdrop-filter: blur(var(--mc-glass-blur));
+}
+
+/* Light-source edge — a conic white gradient confined to a 1px ring by the
+   mask (paint the whole pill, then subtract the interior), so the slow pan
+   reads only on the border. */
+.list::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--mc-nav-angle),
+    rgb(var(--mc-nav-edge-rgb) / 0.12),
+    rgb(var(--mc-nav-edge-rgb) / 0.85) 0.12turn,
+    rgb(var(--mc-nav-edge-rgb) / 0.12) 0.34turn,
+    rgb(var(--mc-nav-edge-rgb) / 0.5) 0.62turn,
+    rgb(var(--mc-nav-edge-rgb) / 0.12) 0.84turn,
+    rgb(var(--mc-nav-edge-rgb) / 0.12)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
   animation: nav-edge-pan var(--mc-nav-spin) linear infinite;
 }
 
@@ -97,7 +115,7 @@
     transition: none;
   }
   /* Freeze the light-source pan; the static gradient edge remains. */
-  .list {
+  .list::before {
     animation: none;
   }
 }

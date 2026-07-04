@@ -82,7 +82,11 @@
      the pill edge reads as white light, not the teal accent). The conic sweep
      rotates around the pill like a light source panning. */
   --mc-nav-edge-rgb: 255 255 255; /* white light */
-  --mc-nav-spin: 9s;              /* one full pan of the light source */
+  --mc-nav-spin: 16s;             /* one slow full pan of the light source */
+
+  /* Logo name sheen — a barely-there brand-pink sweep over the script
+     (Figma highlight #FFC3CF). Subtle: noticed only on a close look. */
+  --mc-logo-sheen-rgb: 255 195 207; /* #FFC3CF */
 
   /* Hero dates framing — offset that drops the dates list into the lower hero
      so ~3 rows show on load and the 4th is clipped by the fold (scroll
@@ -129,9 +133,10 @@
      an "arriving with weight" feel. 640ms is over the 600ms UI ceiling by
      design: this is a scripted first-paint hero reveal seen once per visit,
      not a repeated micro-interaction (logged 2026-07-04 ADR). */
-  --mc-scrim-fade: 520ms;
-  --mc-entrance-duration: 640ms;
-  --mc-entrance-stagger: 120ms;  /* gap between logo → nav → dates */
-  --mc-entrance-offset: 18px;    /* slide distance into place */
+  --mc-scrim-fade: 1100ms;       /* slow plum wash — cinematic */
+  --mc-entrance-duration: 900ms; /* logo/nav/card settle — slow, deliberate */
+  --mc-entrance-stagger: 200ms;  /* gap between logo → nav → dates */
+  --mc-entrance-offset: 20px;    /* slide distance into place */
   --mc-entrance-scale: 0.94;     /* start scale — Emil: never scale(0) */
+  --mc-cascade-stagger: 150ms;   /* gap between each show card dropping in */
 }

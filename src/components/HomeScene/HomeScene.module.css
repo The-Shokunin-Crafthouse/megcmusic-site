@@ -64,18 +64,8 @@
   transition: opacity var(--mc-scrim-fade) var(--mc-ease-out);
 }
 
-:global(body[data-home="pending"]) .heroInner {
-  opacity: 0;
-  transform: translateY(var(--mc-entrance-offset)) scale(var(--mc-entrance-scale));
-}
-:global(body[data-home="entered"]) .heroInner {
-  opacity: 1;
-  transform: none;
-  transition:
-    opacity var(--mc-entrance-duration) var(--mc-ease-overshoot),
-    transform var(--mc-entrance-duration) var(--mc-ease-overshoot);
-  transition-delay: calc(3 * var(--mc-entrance-stagger));
-}
+/* The dates block does NOT animate as a unit — each show card cascades in on
+   its own (see ShowCard), so they arrive one-by-one instead of grouped. */
 
 /* Reduced motion: no pin, no choreography — a static hero photo at the top of
    the document that scrolls away normally, content settled and visible. */
