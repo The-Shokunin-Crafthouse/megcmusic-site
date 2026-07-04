@@ -96,4 +96,29 @@
   --mc-text-base: 1rem;    /* 16px — tabs, time, venue, city, buttons */
   --mc-text-lg: 1.375rem;  /* 22px — show title */
   --mc-text-2xl: 2rem;     /* 32px — date-badge day */
+
+  /* Z-index scale — Sprint 6 homepage scroll scene. The persistent logo pins
+     above everything on every route; the mobile menu overlay is the only thing
+     allowed above it (it carries its own logo). No ad-hoc 9999s. */
+  --mc-z-backdrop: 1;   /* fixed hero photo + scrim, behind all content */
+  --mc-z-content: 10;   /* normal-flow page sections */
+  --mc-z-chrome: 40;    /* nav pill / mobile Menu button */
+  --mc-z-logo: 100;     /* persistent logo — always the top layer of the page */
+  --mc-z-overlay: 200;  /* mobile menu full-screen overlay (sits over the logo) */
+
+  /* Hero scrim — flat plum wash over the photo for AA behind the dates list
+     (Figma 128:308: rgba(36,20,32,0.6) over the hero region). */
+  --mc-scrim-hero: rgb(var(--mc-bg-rgb) / 0.6);
+
+  /* Hero entrance choreography — Sprint 6. A one-time orchestrated reveal:
+     the plum scrim fades in, then logo → nav → dates each scale up from 0.94
+     (never 0) as they slide + fade, settling with the back-out overshoot for
+     an "arriving with weight" feel. 640ms is over the 600ms UI ceiling by
+     design: this is a scripted first-paint hero reveal seen once per visit,
+     not a repeated micro-interaction (logged 2026-07-04 ADR). */
+  --mc-scrim-fade: 520ms;
+  --mc-entrance-duration: 640ms;
+  --mc-entrance-stagger: 120ms;  /* gap between logo → nav → dates */
+  --mc-entrance-offset: 18px;    /* slide distance into place */
+  --mc-entrance-scale: 0.94;     /* start scale — Emil: never scale(0) */
 }
