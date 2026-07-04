@@ -318,3 +318,13 @@ When the email-to-create-event feature is built, the venue handling must auto-cr
 **Rationale.** It's the client's approved brand direction; the blocklist yields to a logged, deliberate decision (per its own rule). Tokens keep the change single-sourced; a full refresh (header logo, homepage sections) follows.
 **Alternatives considered.** Push back on glassmorphism/borders per the blocklist — rejected: this is the client's chosen design, not an AI default reached for absent-mindedly. Keep pink — rejected: the redesign replaces it.
 **Consequences.** Easier: one teal token set drives nav/tabs/search/menu; matches the comp. Harder: `backdrop-filter` needs `-webkit-` + a solid-ish fallback consideration on unsupported browsers; contrast of light-teal text on glass must be watched (verify AA at Gate 3).
+
+## 2026-07-04 — Playbook route renamed to /megs-playbook
+**Stage:** 03-build
+**Type:** Product scope
+**Status:** accepted — amends "Hidden social playbook page" (2026-07-04)
+
+**Context.** The unguessable slug shipped and merged, but Levi flagged it as too hard to remember for practical use.
+**Decision.** Rename the route to `/megs-playbook`. Page-level noindex/nofollow and the unlinked status are unchanged; the JSON data contract and weekly refresh loop are unaffected.
+**Alternatives considered.** Passphrase-style slug (memorable + unguessable) — offered, declined. Keep + bookmark — declined.
+**Consequences.** Easier: Meghan can remember and type the URL. Harder: the slug is now guessable by someone probing the site — accepted knowingly; privacy remains noindex + unlinked only.
