@@ -329,6 +329,7 @@ When the email-to-create-event feature is built, the venue handling must auto-cr
 **Alternatives considered.** (1) Password/middleware gate — rejected: adds friction and build scope for an internal tool; slug + noindex is proportionate. (2) Simple slug like `/playbook` — rejected: trivially guessable. (3) Storing playbook data in WordPress — rejected: no app database by design, and the JSON-diff contract is what makes automated weekly updates reviewable.
 **Consequences.** Easier: weekly refresh touches one JSON file; changelog gives Meghan a dated insights ledger. Harder: privacy is by obscurity — anyone with the URL can view it; the weekly task runs only while the Cowork app is open (fires on next launch otherwise); noindex should be re-verified live once robots.txt ships at launch.
 
+
 ## 2026-07-04 — Playbook route renamed to /megs-playbook
 **Stage:** 03-build
 **Type:** Product scope
@@ -338,3 +339,4 @@ When the email-to-create-event feature is built, the venue handling must auto-cr
 **Decision.** Rename the route to `/megs-playbook`. Page-level noindex/nofollow and the unlinked status are unchanged; the JSON data contract and weekly refresh loop are unaffected.
 **Alternatives considered.** Passphrase-style slug (memorable + unguessable) — offered, declined. Keep + bookmark — declined.
 **Consequences.** Easier: Meghan can remember and type the URL. Harder: the slug is now guessable by someone probing the site — accepted knowingly; privacy remains noindex + unlinked only.
+
