@@ -99,6 +99,8 @@
   flex-direction: column;
   gap: var(--mc-space-1);
   min-width: 0;
+  /* Pull the copy 8px closer to the pick. */
+  margin-left: -8px;
 }
 
 .title {
