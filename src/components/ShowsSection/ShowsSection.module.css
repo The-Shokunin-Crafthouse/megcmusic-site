@@ -15,6 +15,14 @@
   background: transparent;
 }
 
+/* On home the section is the hero content, riding over HomeScene's fixed photo:
+   transparent, and the scene owns the vertical rhythm (heroInner padding). */
+.sectionHome {
+  padding-top: 0;
+  padding-bottom: 0;
+  background: transparent;
+}
+
 .heading {
   position: absolute;
   width: 1px;
@@ -270,6 +278,11 @@
   /* Keep the /shows header in charge of the top gap at every breakpoint. */
   .sectionPage {
     padding-top: 0;
+  }
+  /* Home hero owns the vertical rhythm at every breakpoint. */
+  .sectionHome {
+    padding-top: 0;
+    padding-bottom: 0;
   }
 }
 

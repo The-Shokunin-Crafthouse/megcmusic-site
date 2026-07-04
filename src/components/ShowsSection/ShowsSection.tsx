@@ -216,7 +216,11 @@ export function ShowsSection({
 
   return (
     <section
-      className={isPage ? `${styles.section} ${styles.sectionPage}` : styles.section}
+      className={
+        isPage
+          ? `${styles.section} ${styles.sectionPage}`
+          : `${styles.section} ${styles.sectionHome}`
+      }
       aria-labelledby={`${baseId}-heading`}
     >
       <h2 id={`${baseId}-heading`} className={styles.heading}>
@@ -309,7 +313,7 @@ export function ShowsSection({
           {!isPage && (
             <div className={styles.actions}>
               <Link className={styles.seeAll} href="/shows">
-                See all shows
+                See all dates
               </Link>
             </div>
           )}

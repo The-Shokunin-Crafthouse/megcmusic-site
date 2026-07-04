@@ -1,0 +1,88 @@
+/* HomeScene — the pinned hero scroll scene (Figma 39:2). The photo + scrim are
+   a fixed backdrop behind the content; the dates list scrolls over it and the
+   opaque plum body (Phase 2) covers it. Entrance is CSS keyed off body[data-home]
+   so tokenised durations/eases stay in CSS and run off the main thread. */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--mc-z-backdrop);
+  overflow: hidden;
+  background: var(--mc-bg);
+  /* Release (past the dates list) translates this up; kept fixed so it never
+     adds to the scroll height. Driven from HomeScene.tsx. */
+  will-change: transform;
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--mc-scrim-hero);
+}
+
+.hero {
+  position: relative;
+  z-index: var(--mc-z-content);
+  min-height: 100svh;
+}
+
+/* Vertical rhythm: clear the pinned logo/nav, breathe before the release. */
+.heroInner {
+  padding-top: var(--mc-space-9);
+  padding-bottom: var(--mc-space-8);
+}
+
+.releaseMarker {
+  height: 1px;
+}
+
+/* Entrance ------------------------------------------------------------------ */
+/* Scrim fades first; the dates block arrives third (logo/nav are first/second,
+   in SiteChrome). Hidden until the body flips 'pending' → 'entered'. */
+:global(body[data-home="pending"]) .scrim {
+  opacity: 0;
+}
+:global(body[data-home="entered"]) .scrim {
+  opacity: 1;
+  transition: opacity var(--mc-scrim-fade) var(--mc-ease-out);
+}
+
+:global(body[data-home="pending"]) .heroInner {
+  opacity: 0;
+  transform: translateY(var(--mc-entrance-offset)) scale(var(--mc-entrance-scale));
+}
+:global(body[data-home="entered"]) .heroInner {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--mc-entrance-duration) var(--mc-ease-overshoot),
+    transform var(--mc-entrance-duration) var(--mc-ease-overshoot);
+  transition-delay: calc(3 * var(--mc-entrance-stagger));
+}
+
+/* Reduced motion: no pin, no choreography — a static hero photo at the top of
+   the document that scrolls away normally, content settled and visible. */
+@media (prefers-reduced-motion: reduce) {
+  .backdrop {
+    position: absolute;
+    inset: auto 0 auto 0;
+    top: 0;
+    height: 100svh;
+    transform: none;
+  }
+  .scrim,
+  .heroInner {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

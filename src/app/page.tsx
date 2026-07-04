@@ -1,5 +1,4 @@
-import { Hero } from "@/components/Hero/Hero";
-import { ShowsSection } from "@/components/ShowsSection/ShowsSection";
+import { HomeScene } from "@/components/HomeScene/HomeScene";
 import { getEvents, type TribeEvent } from "@/lib/api/events";
 import styles from "./page.module.css";
 
@@ -35,8 +34,7 @@ export default async function Home() {
 
   return (
     <div className={styles.page}>
-      <Hero />
-      <ShowsSection upcoming={upcoming} justAdded={justAdded} past={past} />
+      <HomeScene upcoming={upcoming} justAdded={justAdded} past={past} />
     </div>
   );
 }
