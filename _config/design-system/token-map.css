@@ -33,6 +33,17 @@
   --mc-accent-red: #d13e5b;
   --mc-accent-red-ink: #bb314f; /* text-only red; AA (4.85:1) on cream — base #d13e5b fails at 16px */
 
+  /* Teal accent — 2026 refresh (Figma 39:2 / 110:2). Replaces pink as the
+     primary interactive accent; pink retained only for venue red. */
+  --mc-teal: #568c89;        /* solid teal — active tab, glass borders */
+  --mc-teal-light: #60b1ad;  /* light teal — menu/link/active, inactive-tab text */
+  --mc-teal-ink: #0d3333;    /* dark teal — text on teal fills */
+
+  /* Glassmorphism (intentional anti-default override, logged) */
+  --mc-glass-rgb: 60 15 37;  /* plum #3c0f25 for translucent fills */
+  --mc-glass: rgb(var(--mc-glass-rgb) / 0.4);
+  --mc-glass-blur: 13px;
+
   /* Channel triplets for rgba composition (R G B) */
   --mc-accent-pink-rgb: 246 132 154;
   --mc-accent-gold-rgb: 202 164 95;

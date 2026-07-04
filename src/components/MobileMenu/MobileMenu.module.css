@@ -10,8 +10,8 @@
   font-family: var(--mc-font-ui);
   font-weight: 600;
   font-size: 1rem;
-  color: var(--mc-text-card);
-  background: var(--mc-accent-pink);
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal-light);
   cursor: pointer;
   transition:
     background var(--mc-motion-micro) var(--mc-ease-out),
@@ -19,7 +19,7 @@
 }
 
 .trigger:hover {
-  background: var(--mc-accent-rose);
+  background: var(--mc-teal);
 }
 
 .trigger:active {

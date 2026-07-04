@@ -307,3 +307,14 @@ When the email-to-create-event feature is built, the venue handling must auto-cr
 **Rationale.** The browser is the only client on a non-blocked (residential) IP, so it's the one place the data is reachable when the server can't. CORS already permits it (WP echoes Origin). Fallback-only keeps SSR/SEO when the server can reach WP and degrades gracefully when it can't. A serverless route-handler proxy was rejected — it runs from the same blocked datacenter.
 **Alternatives considered.** (1) Longer timeout + retry — done first, didn't help (it's a block). (2) Allowlist CI/Vercel IPs in WP — Vercel's egress IPs are dynamic and unstable to allowlist; also needs Meg's host admin. (3) Always fetch client-side — rejected: loses SSR when the server can reach WP (e.g. local/unblocked). 
 **Consequences.** Easier: shows populate for every visitor regardless of the datacenter block; no host-side change needed. Harder: on blocked deploys the first paint is a brief "Loading shows…" then the client fills in (no SSR content for crawlers there); the browser now talks to the WP origin directly (public GET only, no credentials).
+
+## 2026-07-04 — 2026 design refresh: teal accent + glassmorphism (Figma 39:2 / 110:2)
+**Stage:** 03-build
+**Type:** UX / design tradeoff
+**Status:** accepted — logs the anti-default overrides for the updated design
+
+**Context.** Levi updated the Figma with a new visual direction: a teal accent replaces pink as the primary interactive colour, and the nav / tabs / search / buttons move to glassmorphism (translucent plum + backdrop-blur + teal border). Both glassmorphism and outline/stroke borders are on the studio slop-blocklist.
+**Decision.** Adopt the teal palette (`--mc-teal #568c89`, `--mc-teal-light #60b1ad`, `--mc-teal-ink #0d3333`) and the glass tokens (`--mc-glass` = plum @40%, `--mc-glass-blur 13px`); restyle tabs (solid-teal active, glass inactive), search, the mobile Menu button (teal), and the desktop nav (glass pill, teal-active link). Pink is retired as the accent, kept only as the venue red. Glassmorphism + tab/nav borders are accepted as intentional, client-approved overrides of the slop-blocklist.
+**Rationale.** It's the client's approved brand direction; the blocklist yields to a logged, deliberate decision (per its own rule). Tokens keep the change single-sourced; a full refresh (header logo, homepage sections) follows.
+**Alternatives considered.** Push back on glassmorphism/borders per the blocklist — rejected: this is the client's chosen design, not an AI default reached for absent-mindedly. Keep pink — rejected: the redesign replaces it.
+**Consequences.** Easier: one teal token set drives nav/tabs/search/menu; matches the comp. Harder: `backdrop-filter` needs `-webkit-` + a solid-ish fallback consideration on unsupported browsers; contrast of light-teal text on glass must be watched (verify AA at Gate 3).

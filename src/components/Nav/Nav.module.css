@@ -22,7 +22,11 @@
   margin: 0;
   padding: var(--mc-space-3) var(--mc-space-4);
   list-style: none;
-  background: var(--mc-accent-pink);
+  /* Glass pill (Figma 39:2): translucent plum + blur + teal edge over the hero. */
+  background: var(--mc-glass);
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  backdrop-filter: blur(var(--mc-glass-blur));
+  border: 1px solid var(--mc-teal);
   border-radius: var(--mc-radius-pill);
 }
 
@@ -35,7 +39,7 @@
   font-size: 1rem;
   line-height: 1.2;
   white-space: nowrap;
-  color: var(--mc-text-card);
+  color: var(--mc-text-primary);
   transition: color var(--mc-motion-micro) var(--mc-ease-out);
 }
 
@@ -48,7 +52,7 @@
   right: var(--mc-space-1);
   bottom: 0;
   height: 2px;
-  background: var(--mc-nav-underline);
+  background: var(--mc-teal-light);
   transform: scaleX(0);
   transform-origin: center;
   transition: transform var(--mc-motion-underline) var(--mc-ease-overshoot);
@@ -61,7 +65,7 @@
 }
 
 .link:focus-visible {
-  outline: 2px solid var(--mc-focus-ring);
+  outline: 2px solid var(--mc-teal-light);
   outline-offset: 3px;
   border-radius: 2px;
 }
@@ -70,8 +74,10 @@
   opacity: 0.7;
 }
 
+/* Active = teal link (Figma 39:2), with the spring underline held open. */
 .active {
   font-weight: 700;
+  color: var(--mc-teal-light);
 }
 
 /* Tablet and up: pill stops being full-width and sits to the right. */

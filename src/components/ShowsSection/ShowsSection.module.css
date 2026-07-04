@@ -46,22 +46,27 @@
   align-items: center;
   justify-content: center;
   appearance: none;
-  border: 0;
+  box-sizing: border-box;
   cursor: pointer;
   padding: var(--mc-space-2) var(--mc-space-3);
   border-radius: var(--mc-radius-pill);
   font-family: var(--mc-font-ui);
   font-weight: 400;
   font-size: var(--mc-text-base);
-  color: var(--mc-text-card);
-  background: var(--mc-accent-blush);
+  /* Inactive = glass pill (Figma 110:119): translucent plum + blur + teal edge. */
+  color: var(--mc-teal-light);
+  background: var(--mc-glass);
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  backdrop-filter: blur(var(--mc-glass-blur));
+  border: 1px solid var(--mc-teal);
   transition:
     background var(--mc-motion-micro) var(--mc-ease-out),
+    color var(--mc-motion-micro) var(--mc-ease-out),
     transform var(--mc-motion-micro) var(--mc-ease-out);
 }
 
 .tab:hover {
-  background: var(--mc-accent-rose);
+  background: rgb(var(--mc-glass-rgb) / 0.6);
 }
 
 .tab:active {
@@ -69,14 +74,17 @@
 }
 
 .tab:focus-visible {
-  outline: 2px solid var(--mc-focus-ring);
+  outline: 2px solid var(--mc-teal-light);
   outline-offset: 3px;
 }
 
+/* Active = solid teal (Figma 110:116). */
 .tabActive,
 .tabActive:hover {
-  background: var(--mc-accent-pink);
-  font-weight: 600;
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal);
+  border-color: var(--mc-teal);
+  font-weight: 700;
 }
 
 /* Panel ----------------------------------------------------------------- */
@@ -188,12 +196,15 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  box-sizing: border-box;
   width: var(--mc-touch-target);
   height: var(--mc-touch-target);
-  border: 0;
+  border: 1px solid var(--mc-teal);
   border-radius: var(--mc-radius-pill);
-  color: var(--mc-text-primary);
-  background: var(--mc-bg-quote);
+  color: var(--mc-teal-light);
+  background: var(--mc-glass);
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  backdrop-filter: blur(var(--mc-glass-blur));
   cursor: pointer;
   transition:
     background var(--mc-motion-micro) var(--mc-ease-out),
@@ -201,7 +212,7 @@
 }
 
 .searchToggle:hover {
-  background: var(--mc-bg-section);
+  background: rgb(var(--mc-glass-rgb) / 0.6);
 }
 
 .searchToggle:active {
