@@ -35,10 +35,18 @@
   min-height: 100svh;
 }
 
-/* Vertical rhythm: clear the pinned logo/nav, breathe before the release. */
+/* Drop the dates into the lower hero so ~3 rows show on load and the 4th is
+   clipped by the fold (scroll affordance, Figma 39:12). Mobile uses a smaller
+   offset since wrapped titles make each card taller. */
 .heroInner {
-  padding-top: var(--mc-space-9);
+  padding-top: var(--mc-hero-dates-offset-mobile);
   padding-bottom: var(--mc-space-8);
+}
+
+@media (min-width: 768px) {
+  .heroInner {
+    padding-top: var(--mc-hero-dates-offset);
+  }
 }
 
 .releaseMarker {

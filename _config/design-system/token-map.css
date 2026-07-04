@@ -78,6 +78,19 @@
   /* Nav */
   --mc-nav-underline: #fffcdb; /* cream highlight under active nav link */
 
+  /* Nav glass edge — a slow-panning light-source gradient border (Figma 39:97:
+     the pill edge reads as white light, not the teal accent). The conic sweep
+     rotates around the pill like a light source panning. */
+  --mc-nav-edge-rgb: 255 255 255; /* white light */
+  --mc-nav-spin: 9s;              /* one full pan of the light source */
+
+  /* Hero dates framing — offset that drops the dates list into the lower hero
+     so ~3 rows show on load and the 4th is clipped by the fold (scroll
+     affordance, Figma 39:12). Viewport-relative on purpose; smaller on mobile
+     where cards are taller (wrapped titles) so fewer rows fit. */
+  --mc-hero-dates-offset: 48svh;
+  --mc-hero-dates-offset-mobile: 30svh;
+
   /* Focus — dedicated ring, AA on the pink pill (not the brand accent) */
   --mc-focus-ring: #241420;
 

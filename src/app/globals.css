@@ -34,3 +34,11 @@ a {
   color: inherit;
   text-decoration: none;
 }
+
+/* Animatable angle for the nav's panning light-source border (Sprint 6).
+   Registered so the conic-gradient sweep can transition/animate its angle. */
+@property --mc-nav-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
