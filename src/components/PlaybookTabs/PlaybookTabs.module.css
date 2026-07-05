@@ -1,0 +1,81 @@
+/* Page-level tab bar for /megs-playbook. Glass/teal pill language borrowed
+   from the /shows tabs (2026 refresh), sized up for page navigation. Sits on
+   the page's dark plum ground above both panels. */
+
+.wrap {
+  position: relative;
+}
+
+.tablist {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mc-space-2);
+  max-width: var(--mc-card-max);
+  margin: 0 auto;
+  /* Mobile: the global logo (bleeds to ~83px) and the fixed Menu button
+     (~16–60px) sit at the top corners; clear them so the pills don't collide.
+     Desktop drops back to a tighter top gap (the centered column clears both). */
+  padding: var(--mc-space-8) var(--mc-space-4) 0;
+}
+
+@media (min-width: 768px) {
+  .tablist {
+    padding-top: var(--mc-space-6);
+  }
+}
+
+.tab {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  appearance: none;
+  box-sizing: border-box;
+  cursor: pointer;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-2) var(--mc-space-4);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-weight: 400;
+  font-size: var(--mc-text-sm);
+  /* Inactive = glass pill: translucent plum + blur + teal edge. */
+  color: var(--mc-teal-light);
+  background: var(--mc-glass);
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  backdrop-filter: blur(var(--mc-glass-blur));
+  border: 1px solid var(--mc-teal);
+  transition:
+    background var(--mc-motion-micro) var(--mc-ease-out),
+    color var(--mc-motion-micro) var(--mc-ease-out),
+    transform var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.tab:hover {
+  background: rgb(var(--mc-glass-rgb) / 0.6);
+}
+
+.tab:active {
+  transform: scale(0.96);
+}
+
+.tab:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+}
+
+/* Active = solid teal, matching the /shows active-tab treatment. */
+.tabActive,
+.tabActive:hover {
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal);
+  border-color: var(--mc-teal);
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tab {
+    transition: none;
+  }
+  .tab:active {
+    transform: none;
+  }
+}
