@@ -1,0 +1,578 @@
+/* /epk — Electronic Press Kit destination. The Sprint-6 EPK section grown into a
+   booking-agent-facing page: the home hero photo held full-screen behind, a plum
+   scrim for contrast, then bio → press kit downloads → press → music → resources.
+   Route shell mirrors /shows; rows reuse the EPK section register (teal, glass,
+   cream-on-plum). */
+
+.page {
+  position: relative;
+  min-height: 100svh;
+  background: var(--mc-bg);
+}
+
+/* Full-screen fixed backdrop — same photo as the home hero — content scrolls
+   over it and the opaque sections cover it below the fold. */
+.bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgb(var(--mc-bg-rgb) / 0.95) 0%,
+    rgb(var(--mc-bg-rgb) / 0.9) 28%,
+    rgb(var(--mc-bg-rgb) / 0.82) 52%,
+    rgb(var(--mc-bg-rgb) / 0.82) 100%
+  );
+}
+
+.main {
+  position: relative;
+  z-index: 2;
+}
+
+/* ---- Header ------------------------------------------------------------- */
+.header {
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-6);
+}
+
+.headerInner {
+  max-width: var(--mc-card-max);
+  margin: 0 auto;
+}
+
+.stars {
+  margin: 0 0 var(--mc-space-3);
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.5em;
+  color: var(--mc-accent-gold);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-2xl);
+  line-height: 1.1;
+  color: var(--mc-text-primary);
+  /* A quiet arrive-with-weight settle on first paint (once). */
+  animation: epk-rise var(--mc-reveal-duration) var(--mc-ease-out-strong) both;
+}
+
+.lede {
+  margin: var(--mc-space-2) 0 var(--mc-space-5);
+  max-width: 56ch;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-prose);
+  line-height: 1.5;
+  color: var(--mc-text-body);
+  animation: epk-rise var(--mc-reveal-duration) var(--mc-ease-out-strong)
+    var(--mc-reveal-stagger) both;
+}
+
+@keyframes epk-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--mc-entrance-offset));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---- Primary / secondary buttons --------------------------------------- */
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-3) var(--mc-space-6);
+  border: 1px solid var(--mc-teal-light);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  font-weight: 600;
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal-light);
+  transition:
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    border-color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .cta:hover {
+    background: var(--mc-teal-bright);
+    border-color: var(--mc-teal-bright);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
+}
+
+.cta:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+.cta .ctaArrow {
+  transition: transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .cta:hover .ctaArrow {
+    transform: translate(2px, -2px);
+  }
+}
+
+/* ---- Section frame ------------------------------------------------------ */
+.section {
+  position: relative;
+  z-index: var(--mc-z-content);
+  padding: var(--mc-space-8) var(--mc-space-4);
+}
+
+.inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+}
+
+/* ---- Bio ---------------------------------------------------------------- */
+.bioGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--mc-space-6);
+}
+
+.bioProse {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-4);
+}
+
+.bioPara {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-prose);
+  line-height: 1.6;
+  color: var(--mc-text-liner);
+}
+
+.bioQuote {
+  margin: 0;
+  padding: var(--mc-space-5) var(--mc-space-5) var(--mc-space-5) var(--mc-space-6);
+  border-left: 2px solid var(--mc-teal);
+  background: var(--mc-bg-quote);
+  border-radius: 0 var(--mc-radius-quote) var(--mc-radius-quote) 0;
+}
+
+.bioQuoteText {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-style: italic;
+  font-size: var(--mc-text-lead);
+  line-height: 1.4;
+  color: var(--mc-text-primary);
+}
+
+.bioQuoteAttr {
+  display: block;
+  margin-top: var(--mc-space-3);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-sm);
+  font-style: normal;
+  color: var(--mc-text-muted);
+}
+
+/* Booking-facts card beside the bio. */
+.facts {
+  margin: 0;
+  padding: var(--mc-space-5);
+  border: 1px solid var(--mc-glass-border, var(--mc-teal));
+  border-radius: var(--mc-radius-quote);
+  background: var(--mc-glass);
+  backdrop-filter: blur(var(--mc-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--mc-space-3);
+}
+
+.factRow {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-1);
+}
+
+.factLabel {
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mc-accent-gold);
+}
+
+.factValue {
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-primary);
+}
+
+/* ---- Press-kit download rows (reuse EPK section register) --------------- */
+.kitList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.kitRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mc-space-4);
+  padding: var(--mc-space-5) 0;
+  border-top: 1px solid var(--mc-divider);
+}
+
+.kitRow:last-child {
+  border-bottom: 1px solid var(--mc-divider);
+}
+
+.kitMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-4);
+  min-width: 0;
+}
+
+.kitBadge {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: var(--mc-radius-card);
+  background: var(--mc-bg-quote);
+  color: var(--mc-teal-light);
+}
+
+.kitText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-1);
+  min-width: 0;
+}
+
+.kitTitle {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 400;
+  font-size: var(--mc-text-title);
+  line-height: 1.2;
+  color: var(--mc-text-primary);
+}
+
+.kitDesc {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  line-height: 1.4;
+  color: var(--mc-teal-light);
+}
+
+/* Bordered pill action — outline → teal fill on hover (EPK section parity). */
+.kitAction {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-3) var(--mc-space-5);
+  border: 1px solid var(--mc-teal);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-primary);
+  background: transparent;
+  transition:
+    color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    border-color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .kitAction:hover {
+    color: var(--mc-teal-ink);
+    background: var(--mc-teal-light);
+    border-color: var(--mc-teal-light);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
+}
+
+.kitAction:active {
+  transform: translateY(0) scale(0.96);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.kitAction:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+}
+
+.kitSoon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-3) var(--mc-space-5);
+  border: 1px dashed var(--mc-text-muted);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-muted);
+}
+
+.kitLoading {
+  margin: var(--mc-space-3) 0 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-sm);
+  color: var(--mc-text-subtle);
+}
+
+/* ---- Press links -------------------------------------------------------- */
+.pressList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--mc-space-4);
+}
+
+.pressCard {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mc-space-4);
+  padding: var(--mc-space-5);
+  border: 1px solid var(--mc-teal);
+  border-radius: var(--mc-radius-card);
+  background: var(--mc-glass);
+  backdrop-filter: blur(var(--mc-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  transition:
+    border-color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .pressCard:hover {
+    border-color: var(--mc-teal-light);
+    transform: translateY(-3px);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
+}
+
+.pressCard:focus-within {
+  border-color: var(--mc-teal-light);
+}
+
+.pressText {
+  min-width: 0;
+}
+
+.pressOutlet {
+  margin: 0 0 var(--mc-space-1);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--mc-accent-gold);
+}
+
+.pressTitle {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-size: var(--mc-text-lead);
+  line-height: 1.3;
+  color: var(--mc-text-primary);
+}
+
+/* Stretched link covers the whole card; the arrow is the visible affordance. */
+.pressLink::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--mc-radius-card);
+}
+
+.pressLink:focus-visible {
+  outline: none;
+}
+
+.pressCard:has(.pressLink:focus-visible) {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+.pressArrow {
+  flex-shrink: 0;
+  color: var(--mc-teal-light);
+  transition: transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .pressCard:hover .pressArrow {
+    transform: translate(3px, -3px);
+  }
+}
+
+/* ---- Resources / booking CTA ------------------------------------------- */
+.resources {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--mc-space-4);
+  padding: var(--mc-space-7) var(--mc-space-5);
+  border: 1px solid var(--mc-teal);
+  border-radius: var(--mc-radius-quote);
+  background: var(--mc-glass);
+  backdrop-filter: blur(var(--mc-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+}
+
+.resourcesTitle {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-title);
+  line-height: 1.2;
+  color: var(--mc-text-primary);
+}
+
+.resourcesText {
+  margin: 0;
+  max-width: 56ch;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  line-height: 1.5;
+  color: var(--mc-text-body);
+}
+
+.resourcesActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mc-space-3);
+  margin-top: var(--mc-space-2);
+}
+
+/* Secondary (ghost) button beside the primary CTA. */
+.ctaGhost {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-3) var(--mc-space-5);
+  border: 1px solid var(--mc-teal);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-primary);
+  background: transparent;
+  transition:
+    color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    border-color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .ctaGhost:hover {
+    color: var(--mc-teal-ink);
+    background: var(--mc-teal-light);
+    border-color: var(--mc-teal-light);
+    transform: translateY(-3px) scale(1.02);
+  }
+}
+
+.ctaGhost:active {
+  transform: translateY(0) scale(0.97);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.ctaGhost:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (min-width: 768px) {
+  .header {
+    padding: var(--mc-space-9) var(--mc-space-6) var(--mc-space-6);
+  }
+  .section {
+    padding: var(--mc-space-8) var(--mc-space-6);
+  }
+  .bioGrid {
+    grid-template-columns: 1.6fr 1fr;
+    align-items: start;
+  }
+  .pressList {
+    grid-template-columns: 1fr 1fr;
+  }
+  .kitBadge {
+    width: 64px;
+    height: 64px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title,
+  .lede {
+    animation: none;
+  }
+  .cta,
+  .kitAction,
+  .ctaGhost,
+  .pressCard,
+  .pressArrow,
+  .ctaArrow {
+    transition: none;
+  }
+}

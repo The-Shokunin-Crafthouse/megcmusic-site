@@ -148,6 +148,13 @@
   --mc-cascade-stagger: 150ms;   /* gap between each show card dropping in */
   --mc-tab-stagger: 80ms;        /* left-to-right gap between tab-row pills */
 
+  /* Content reveal on first paint — Sprint-6 Phase 3 (native routes /epk,
+     /media, /booking). A quiet arrive-with-weight settle for a route's header
+     copy: fade + slide up (--mc-entrance-offset) once, ease-out-strong. Shared
+     across the Phase-3 destinations so the reveal reads the same everywhere. */
+  --mc-reveal-duration: 460ms;   /* header settle — under the 600ms UI ceiling */
+  --mc-reveal-stagger: 80ms;     /* gap between title → lede */
+
   /* Homepage body sections — Sprint 6 Phase 2 (Figma 39:2). */
   --mc-text-liner: #e5d8cc;   /* Liner Notes bio prose */
   --mc-radius-quote: 24px;    /* pull-quote / framed corners */
