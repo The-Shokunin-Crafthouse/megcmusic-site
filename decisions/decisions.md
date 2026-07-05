@@ -348,3 +348,24 @@ When the email-to-create-event feature is built, the venue handling must auto-cr
 **Rationale.** Keep Meg's edit path in WordPress where the data is structured there (bio); use editable configs where WP isn't structured for it (recognition, EPK, discography), each seeded from the truthiest source and flagged for fill. Placeholders keep every section intentional today and light up as assets/links arrive. Third-party feeds (YouTube, Behold, Mailchimp) aren't datacenter-blocked, so they run normally.
 **Alternatives considered.** Parse recognition/EPK/discography from WP prose — rejected: fragile, and the pages aren't structured for it. Layered-SVG boot — offered; Levi chose Three.js. Skip placeholders and hide incomplete sections — rejected: the comp shows them and they read fine with intentional empty/placeholder states.
 **Consequences.** Easier: the homepage ships complete and on-comp today; every gap is a one-line config edit. Harder: album covers, EPK PDFs, EPK thumbnails, Behold id, and per-release deep links are follow-ups; the boot geometry is a v1 profile to refine; a real Mailchimp signup needs a live test.
+## 2026-07-04 — Hidden social playbook page at /playbook-mcc-7k3x9f
+**Stage:** 03-build
+**Type:** Architecture / product scope
+**Status:** accepted
+
+**Context.** Levi requested a private social-media algorithm playbook for Meghan (Instagram + Facebook), reachable only by typing the URL — never linked from nav or any page — and able to update itself as new insights are learned. The repo has no robots.txt/sitemap yet (launch TODO), so page-level metadata is the only indexing control available.
+**Decision.** Unlinked App Router route with an unguessable slug (`/playbook-mcc-7k3x9f`) and page-level `robots: { index: false, follow: false, nocache }`. The page renders 100% generically from a committed `src/data/playbook.json` (rules, divergences, posting windows, changelog) — future updates are JSON-only, zero code churn. A weekly Cowork scheduled task re-runs the research, diffs against the committed JSON, updates rules + appends a dated changelog entry, and opens a PR for review. Not added to `navItems.ts`. Confidence badges use existing tokens only (teal-light / gold / red-ink); `:focus-visible` on this dark surface uses `--mc-nav-underline` because `--mc-focus-ring` (#241420) equals the page bg (precedent: MobileMenu).
+**Alternatives considered.** (1) Password/middleware gate — rejected: adds friction and build scope for an internal tool; slug + noindex is proportionate. (2) Simple slug like `/playbook` — rejected: trivially guessable. (3) Storing playbook data in WordPress — rejected: no app database by design, and the JSON-diff contract is what makes automated weekly updates reviewable.
+**Consequences.** Easier: weekly refresh touches one JSON file; changelog gives Meghan a dated insights ledger. Harder: privacy is by obscurity — anyone with the URL can view it; the weekly task runs only while the Cowork app is open (fires on next launch otherwise); noindex should be re-verified live once robots.txt ships at launch.
+
+
+## 2026-07-04 — Playbook route renamed to /megs-playbook
+**Stage:** 03-build
+**Type:** Product scope
+**Status:** accepted — amends "Hidden social playbook page" (2026-07-04)
+
+**Context.** The unguessable slug shipped and merged, but Levi flagged it as too hard to remember for practical use.
+**Decision.** Rename the route to `/megs-playbook`. Page-level noindex/nofollow and the unlinked status are unchanged; the JSON data contract and weekly refresh loop are unaffected.
+**Alternatives considered.** Passphrase-style slug (memorable + unguessable) — offered, declined. Keep + bookmark — declined.
+**Consequences.** Easier: Meghan can remember and type the URL. Harder: the slug is now guessable by someone probing the site — accepted knowingly; privacy remains noindex + unlinked only.
+
