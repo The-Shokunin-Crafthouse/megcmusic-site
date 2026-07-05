@@ -3,7 +3,11 @@
   min-height: 100svh;
 }
 
-/* Anchors the 3D boot watermark over the discography (BootScene is absolute). */
+/* Anchors the 3D boot backdrop behind the discography (BootScene is absolute,
+   z:0; the transparent Discography section sits above it). The plum ground
+   lives here so the boot reads on the brand base. */
 .bootWrap {
   position: relative;
+  overflow: hidden;
+  background: var(--mc-bg);
 }

@@ -1,14 +1,12 @@
-/* 3D boot watermark layer — blended over the discography like the comp (39:382,
-   soft-light @ ~20%). Non-interactive; sits above the section's ground but
-   under nothing important, faint enough never to fight the copy. */
+/* 3D boot backdrop — sits behind the discography content (the section is
+   transparent; the wrapper carries the plum ground). Faint enough to keep the
+   copy AA, dimensional enough to feel alive as it tilts on scroll. */
 .host {
   position: absolute;
   inset: 0;
-  /* Above the section's opaque plum ground (--mc-z-content), below the chrome. */
-  z-index: calc(var(--mc-z-content) + 1);
+  z-index: 0;
   pointer-events: none;
-  opacity: 0.28;
-  mix-blend-mode: screen;
+  opacity: 0.4;
 }
 
 .host canvas {
@@ -19,6 +17,6 @@
 
 @media (prefers-reduced-motion: reduce) {
   .host {
-    opacity: 0.18;
+    opacity: 0.3;
   }
 }

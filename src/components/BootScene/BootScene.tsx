@@ -3,10 +3,13 @@
 import { useEffect, useRef } from "react";
 import styles from "./BootScene.module.css";
 
-// Boot scroll piece (Sprint 6 §5) — a 3D cowboy boot (Three.js) that turns and
-// settles as the visitor scrolls the discography, blended in like the comp's
-// watermark (39:382). Lazy-loaded, reduced-motion safe, disposed on unmount.
-// v1 geometry is an extruded boot silhouette; refine the profile from here.
+// Boot scroll piece (Sprint 6 §5) — the comp's ornate pink boot (39:382),
+// textured onto a lit 3D surface: the tooling reads as relief via a bump map,
+// and warm/teal lights play across it as it tilts and drifts on scroll. Lazy,
+// token-lit, reduced-motion safe, disposed on unmount.
+const BOOT_SRC = "images/decor/boot.png";
+const BOOT_ASPECT = 1227 / 1478;
+
 export function BootScene() {
   const hostRef = useRef<HTMLDivElement>(null);
 
@@ -23,16 +26,18 @@ export function BootScene() {
       const THREE = await import("three");
       const { ScrollTrigger } = await import("gsap/ScrollTrigger");
       const { gsap } = await import("gsap");
+      const texture = await new THREE.TextureLoader().loadAsync(BOOT_SRC);
       if (cancelled) return;
       gsap.registerPlugin(ScrollTrigger);
+      texture.colorSpace = THREE.SRGBColorSpace;
+      texture.anisotropy = 4;
 
-      // Colors from the token map so the boot stays on-palette.
       const css = getComputedStyle(document.documentElement);
-      const hex = (name: string, fallback: string) =>
-        new THREE.Color((css.getPropertyValue(name).trim() || fallback));
+      const color = (name: string, fallback: string) =>
+        new THREE.Color(css.getPropertyValue(name).trim() || fallback);
 
       const scene = new THREE.Scene();
-      const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+      const camera = new THREE.PerspectiveCamera(34, BOOT_ASPECT, 0.1, 100);
       camera.position.set(0, 0, 9);
 
       const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -40,101 +45,98 @@ export function BootScene() {
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       node.appendChild(renderer.domElement);
 
-      // --- Boot silhouette (side profile), extruded into depth. ---
-      const s = new THREE.Shape();
-      s.moveTo(0.2, 3.0);
-      s.quadraticCurveTo(0.7, 3.05, 1.15, 2.55);
-      s.quadraticCurveTo(1.0, 1.7, 1.05, 1.15);
-      s.lineTo(1.15, 0.7);
-      s.quadraticCurveTo(1.7, 0.62, 2.25, 0.5);
-      s.lineTo(2.5, 0.42);
-      s.quadraticCurveTo(2.62, 0.3, 2.4, 0.18);
-      s.lineTo(0.95, 0.12);
-      s.lineTo(0.9, 0.0);
-      s.lineTo(0.5, 0.0);
-      s.lineTo(0.48, 0.42);
-      s.lineTo(0.16, 0.44);
-      s.quadraticCurveTo(0.0, 1.6, 0.05, 2.4);
-      s.quadraticCurveTo(0.06, 2.9, 0.2, 3.0);
-
-      const geo = new THREE.ExtrudeGeometry(s, {
-        depth: 0.9,
-        bevelEnabled: true,
-        bevelThickness: 0.12,
-        bevelSize: 0.1,
-        bevelSegments: 3,
-        curveSegments: 24,
-      });
-      geo.center();
-
+      // Textured boot with the tooling as bump relief.
+      const h = 5.2;
+      const geo = new THREE.PlaneGeometry(h * BOOT_ASPECT, h);
       const mat = new THREE.MeshStandardMaterial({
-        color: hex("--mc-text-card", "#4f2c3d"),
-        roughness: 0.55,
-        metalness: 0.1,
+        map: texture,
+        bumpMap: texture,
+        bumpScale: 0.5,
+        transparent: true,
+        roughness: 0.72,
+        metalness: 0,
       });
       const boot = new THREE.Mesh(geo, mat);
-      boot.scale.setScalar(1.15);
       scene.add(boot);
 
-      // Warm western light: soft ambient + a key + a teal rim.
-      scene.add(new THREE.AmbientLight(0xffffff, 0.55));
-      const key = new THREE.DirectionalLight(hex("--mc-accent-gold", "#caa45f"), 2.2);
-      key.position.set(4, 6, 6);
+      // Keep the art readable, then rake warm + teal light across the tooling.
+      scene.add(new THREE.AmbientLight(0xffffff, 1.35));
+      const key = new THREE.DirectionalLight(color("--mc-accent-gold", "#caa45f"), 1.8);
+      key.position.set(5, 6, 4);
       scene.add(key);
-      const rim = new THREE.DirectionalLight(hex("--mc-teal-light", "#60b1ad"), 1.4);
-      rim.position.set(-6, -2, 3);
+      const rim = new THREE.DirectionalLight(color("--mc-teal-light", "#60b1ad"), 1.1);
+      rim.position.set(-6, -1, 3);
       scene.add(rim);
 
-      boot.rotation.x = 0.15;
-      boot.rotation.y = -0.6;
-
-      function resize() {
-        const { clientWidth: w, clientHeight: h } = node;
-        if (!w || !h) return;
-        renderer.setSize(w, h, false);
-        camera.aspect = w / h;
-        camera.updateProjectionMatrix();
-      }
-      resize();
-      const ro = new ResizeObserver(resize);
-      ro.observe(node);
-
-      let raf = 0;
-      let active = true; // render only while the section is near the viewport
+      const dpr = Math.min(window.devicePixelRatio, 2);
+      // Sync the drawing buffer to the host every render — robust against the
+      // wrapper's height settling after the section's content loads.
+      const syncSize = () => {
+        const rect = node.getBoundingClientRect();
+        const w = Math.round(rect.width);
+        const hgt = Math.round(rect.height);
+        if (!w || !hgt) return;
+        if (
+          renderer.domElement.width !== w * dpr ||
+          renderer.domElement.height !== hgt * dpr
+        ) {
+          renderer.setSize(w, hgt, false);
+          camera.aspect = w / hgt;
+          camera.updateProjectionMatrix();
+        }
+      };
       const render = () => {
+        syncSize();
         renderer.render(scene, camera);
       };
+      const ro = new ResizeObserver(() => render());
+      ro.observe(node);
+      const onLoad = () => render();
+      window.addEventListener("load", onLoad);
 
-      // Scroll drives a slow turn + settle; a gentle idle bob keeps it alive.
+      let raf = 0;
+      let active = true;
+      let t = 0;
+      let progress = 0;
+
+      // A flat plane, so tilt (not spin) — enough to let the light travel the
+      // leather. Scroll leans it one way through, idle adds a slow breathing sway.
+      const apply = () => {
+        const sway = reduce ? 0 : Math.sin(t) * 0.05;
+        boot.rotation.y = (progress - 0.5) * 0.7 + sway;
+        boot.rotation.x = (0.5 - progress) * 0.18 + (reduce ? 0 : Math.sin(t * 0.7) * 0.02);
+        render();
+      };
+
       const st = ScrollTrigger.create({
         trigger: node,
         start: "top bottom",
         end: "bottom top",
         onToggle: (self) => {
           active = self.isActive;
-          if (active) loop();
+          if (active && !reduce) loop();
         },
         onUpdate: (self) => {
-          if (reduce) return;
-          boot.rotation.y = -0.6 + self.progress * Math.PI * 1.1;
-          boot.rotation.z = (self.progress - 0.5) * 0.25;
-          render();
+          progress = self.progress;
+          apply();
         },
       });
 
       const loop = () => {
         if (!active || reduce) return;
-        boot.rotation.y += 0.0016;
-        render();
+        t += 0.016;
+        apply();
         raf = requestAnimationFrame(loop);
       };
-      render();
+      apply();
       if (!reduce) loop();
 
       cleanup = () => {
         cancelAnimationFrame(raf);
+        window.removeEventListener("load", onLoad);
         st.kill();
         ro.disconnect();
+        texture.dispose();
         geo.dispose();
         mat.dispose();
         renderer.dispose();
