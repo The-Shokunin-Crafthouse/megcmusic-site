@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import playbook from "@/data/playbook.json";
+import { PlaybookTabs } from "@/components/PlaybookTabs/PlaybookTabs";
 import styles from "./playbook.module.css";
 
 // Fully static, build-time-only page: no fetch, no revalidate. Every future
@@ -134,9 +135,11 @@ export default function PlaybookPage() {
     b.date.localeCompare(a.date),
   );
 
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
+  // The existing playbook document, unchanged, handed to the client tab bar as
+  // the Social Playbook panel. It stays server-rendered — passing it as a prop
+  // to a client component does not make it a client component.
+  const playbookPanel = (
+    <main className={styles.main}>
         <header className={styles.header}>
           <div className={styles.headerInner}>
             <p className={styles.stars} aria-hidden="true">
@@ -237,6 +240,11 @@ export default function PlaybookPage() {
           </p>
         </footer>
       </main>
+  );
+
+  return (
+    <div className={styles.page}>
+      <PlaybookTabs playbookPanel={playbookPanel} />
     </div>
   );
 }

@@ -48,6 +48,7 @@
   /* Channel triplets for rgba composition (R G B) */
   --mc-accent-pink-rgb: 246 132 154;
   --mc-accent-gold-rgb: 202 164 95;
+  --mc-teal-rgb: 86 140 137; /* --mc-teal channels — faint tint behind outreach {{auto}} chips */
   --mc-bg-rgb: 36 20 32; /* --mc-bg channels — scrim over the /shows hero photo */
 
   /* Typography */
