@@ -1,0 +1,77 @@
+/* Floating cart button — bottom-right, clear of the top chrome. Glass pill with
+   a teal count badge. */
+
+.trigger {
+  position: fixed;
+  right: var(--mc-space-4);
+  bottom: var(--mc-space-4);
+  z-index: var(--mc-z-chrome);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  height: 3.5rem;
+  border: 1px solid var(--mc-teal);
+  border-radius: var(--mc-radius-pill);
+  color: var(--mc-text-primary);
+  background: var(--mc-glass);
+  backdrop-filter: blur(var(--mc-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  box-shadow: var(--mc-shadow-card);
+  cursor: pointer;
+  transition:
+    color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    border-color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .trigger:hover {
+    color: var(--mc-teal-bright);
+    border-color: var(--mc-teal-light);
+    transform: translateY(-3px);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
+}
+
+.trigger:active {
+  transform: scale(0.94);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+}
+
+.badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  min-width: 1.375rem;
+  height: 1.375rem;
+  padding: 0 var(--mc-space-1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  font-weight: 700;
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal-light);
+}
+
+@media (min-width: 768px) {
+  .trigger {
+    right: var(--mc-space-6);
+    bottom: var(--mc-space-6);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .trigger {
+    transition-property: color, border-color, box-shadow;
+  }
+}

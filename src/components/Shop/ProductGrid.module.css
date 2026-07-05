@@ -1,0 +1,165 @@
+/* Product grid + the four async states (ready / loading / empty / error). */
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--mc-space-4);
+}
+
+.cell {
+  display: flex;
+}
+
+/* ---- States ------------------------------------------------------------- */
+.state {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--mc-space-3);
+  max-width: 52ch;
+  padding: var(--mc-space-7) var(--mc-space-5);
+  border: 1px solid var(--mc-teal);
+  border-radius: var(--mc-radius-quote);
+  background: var(--mc-glass);
+  backdrop-filter: blur(var(--mc-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+}
+
+.stateTitle {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-title);
+  line-height: 1.2;
+  color: var(--mc-text-primary);
+}
+
+.stateText {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  line-height: 1.5;
+  color: var(--mc-text-body);
+}
+
+.stateActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mc-space-3);
+  margin-top: var(--mc-space-2);
+}
+
+/* Solid-teal primary (retry) — matches the register's filled button. */
+.retry {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-3) var(--mc-space-5);
+  border: 1px solid var(--mc-teal-light);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  font-weight: 600;
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal-light);
+  cursor: pointer;
+  transition:
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .retry:hover {
+    background: var(--mc-teal-bright);
+    transform: translateY(-2px);
+  }
+}
+
+.retry:active {
+  transform: scale(0.97);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.retry:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+/* Ghost link beside it — open the live store. */
+.stateLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-3) var(--mc-space-5);
+  border: 1px solid var(--mc-teal);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-primary);
+  transition:
+    color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    border-color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .stateLink:hover {
+    color: var(--mc-teal-ink);
+    background: var(--mc-teal-light);
+    border-color: var(--mc-teal-light);
+    transform: translateY(-2px);
+  }
+}
+
+.stateLink:active {
+  transform: scale(0.97);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.stateLink:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+}
+
+/* ---- Loading spinner ---------------------------------------------------- */
+.spinner {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--mc-radius-pill);
+  border: 2px solid rgb(var(--mc-teal-rgb) / 0.3);
+  border-top-color: var(--mc-teal-light);
+  animation: shop-spin var(--mc-spinner-spin) linear infinite;
+}
+
+@keyframes shop-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--mc-space-5);
+  }
+}
+
+@media (min-width: 1024px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner {
+    animation-duration: var(--mc-spinner-spin-reduced);
+  }
+  .retry,
+  .stateLink {
+    transition: none;
+  }
+}

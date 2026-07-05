@@ -1,0 +1,126 @@
+/* /shop — WooCommerce storefront. Route shell mirrors /epk·/media·/booking: the
+   home hero photo held full-screen behind a plum scrim, then the header and the
+   product grid on the plum ground. Cream product tiles echo the show cards. */
+
+.page {
+  position: relative;
+  min-height: 100svh;
+  background: var(--mc-bg);
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgb(var(--mc-bg-rgb) / 0.95) 0%,
+    rgb(var(--mc-bg-rgb) / 0.9) 28%,
+    rgb(var(--mc-bg-rgb) / 0.82) 52%,
+    rgb(var(--mc-bg-rgb) / 0.82) 100%
+  );
+}
+
+.main {
+  position: relative;
+  z-index: 2;
+}
+
+/* ---- Header ------------------------------------------------------------- */
+.header {
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-6);
+}
+
+.headerInner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.stars {
+  margin: 0 0 var(--mc-space-3);
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.5em;
+  color: var(--mc-accent-gold);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-2xl);
+  line-height: 1.1;
+  color: var(--mc-text-primary);
+  animation: shop-rise var(--mc-reveal-duration) var(--mc-ease-out-strong) both;
+}
+
+.lede {
+  margin: var(--mc-space-2) 0 0;
+  max-width: 52ch;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-prose);
+  line-height: 1.5;
+  color: var(--mc-text-body);
+  animation: shop-rise var(--mc-reveal-duration) var(--mc-ease-out-strong)
+    var(--mc-reveal-stagger) both;
+}
+
+@keyframes shop-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--mc-entrance-offset));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---- Grid section ------------------------------------------------------- */
+.section {
+  position: relative;
+  z-index: var(--mc-z-content);
+  padding: var(--mc-space-6) var(--mc-space-4) var(--mc-space-9);
+}
+
+.inner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (min-width: 768px) {
+  .header {
+    padding: var(--mc-space-9) var(--mc-space-6) var(--mc-space-6);
+  }
+  .section {
+    padding: var(--mc-space-6) var(--mc-space-6) var(--mc-space-9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .title,
+  .lede {
+    animation: none;
+  }
+}
