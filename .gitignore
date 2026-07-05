@@ -80,3 +80,6 @@ stages/02-design/figma/exports/
 .vercel
 \!.vercel/project.json
 !.vercel/project.json
+
+# Playwright MCP scratch artifacts
+.playwright-mcp/

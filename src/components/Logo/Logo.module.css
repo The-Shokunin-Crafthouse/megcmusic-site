@@ -37,14 +37,14 @@
   inset: 0;
   pointer-events: none;
   mix-blend-mode: screen;
-  /* Soft brand-pink sweep (Figma highlight #FFC3CF) that travels the script —
-     toned down and spread wider (a broad, gentle band, not a thin flare),
-     masked to the name so only the glyphs catch it. */
+  /* Brand-pink sweep (Figma highlight #FFC3CF) that travels the script — a
+     defined moving band (a wipe, not a diffuse glow), masked to the name so
+     only the glyphs catch it. */
   background: linear-gradient(
     100deg,
-    transparent 30%,
-    rgb(var(--mc-logo-sheen-rgb) / 0.5) 50%,
-    transparent 70%
+    transparent 40%,
+    rgb(var(--mc-logo-sheen-rgb) / 0.78) 50%,
+    transparent 60%
   );
   background-size: 250% 100%;
   background-repeat: no-repeat;

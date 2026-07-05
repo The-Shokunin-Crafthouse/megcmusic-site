@@ -159,19 +159,32 @@
   }
 }
 
-/* Buy: the solid pill. On hover its label gets heavier and the fill brightens. */
+/* Buy: identical to the streaming links at rest. Only on hover does it fill
+   solid and its label go heavier. */
 .linkBuy {
-  font-weight: 600;
-  color: var(--mc-teal-ink);
-  background: var(--mc-teal);
-  border-color: var(--mc-teal);
+  position: relative;
+}
+
+/* Reserve the bold-weight width up front (an invisible bold ghost of the
+   label) so the hover weight change never reflows the row — the other links
+   stay put. */
+.linkBuy::after {
+  content: attr(data-label);
+  display: block;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-weight: 800;
+  text-transform: uppercase;
+  pointer-events: none;
 }
 
 @media (hover: hover) {
   .linkBuy:hover {
     font-weight: 800;
-    background: var(--mc-teal-bright);
-    border-color: var(--mc-teal-bright);
+    color: var(--mc-teal-ink);
+    background: var(--mc-teal);
+    border-color: var(--mc-teal);
     transform: translateY(-2px);
   }
 }

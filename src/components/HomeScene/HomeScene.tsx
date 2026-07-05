@@ -22,7 +22,39 @@ export function HomeScene({
   past: TribeEvent[];
 }) {
   const backdropRef = useRef<HTMLDivElement>(null);
+  const photoRef = useRef<HTMLImageElement>(null);
   const markerRef = useRef<HTMLDivElement>(null);
+
+  // The hero photo is a fixed backdrop. When it decodes AFTER first paint (cold
+  // network), Chrome doesn't always re-rasterize the fixed layer until a scroll
+  // invalidates it — so the image only "snapped" to full-bleed on the first
+  // scroll. Nudge a one-frame transform when the photo is ready to force the
+  // repaint immediately. Handles the already-cached case (complete) too.
+  useEffect(() => {
+    const backdrop = backdropRef.current;
+    const photo = photoRef.current;
+    if (!backdrop || !photo) return;
+
+    let raf = 0;
+    const nudge = () => {
+      // Skip if the release is currently driving the transform.
+      if (backdrop.style.transform && backdrop.style.transform !== "translateZ(0px)") return;
+      backdrop.style.transform = "translateZ(0)";
+      raf = requestAnimationFrame(() => {
+        if (backdrop.style.transform === "translateZ(0px)") backdrop.style.transform = "";
+      });
+    };
+
+    if (photo.complete && photo.naturalWidth > 0) {
+      nudge();
+      return () => cancelAnimationFrame(raf);
+    }
+    photo.addEventListener("load", nudge);
+    return () => {
+      cancelAnimationFrame(raf);
+      photo.removeEventListener("load", nudge);
+    };
+  }, []);
 
   // Entrance: mark the body hidden before paint, reveal on the next frame so the
   // CSS transition runs. Reduced motion skips straight to the settled state.
@@ -127,6 +159,7 @@ export function HomeScene({
       <div ref={backdropRef} className={styles.backdrop} aria-hidden="true">
         {/* LCP element — present at first paint, no animation on the image. */}
         <img
+          ref={photoRef}
           className={styles.photo}
           src="images/hero/meghan-hero.jpg"
           alt=""

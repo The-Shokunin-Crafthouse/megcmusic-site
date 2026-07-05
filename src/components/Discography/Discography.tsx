@@ -55,6 +55,7 @@ export function Discography() {
                       <a
                         className={`${styles.link} ${l.buy ? styles.linkBuy : styles.linkStream}`}
                         href={l.href}
+                        data-label={l.label}
                         target="_blank"
                         rel="noopener noreferrer"
                       >

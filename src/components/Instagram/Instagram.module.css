@@ -7,43 +7,46 @@
   background: var(--mc-bg);
 }
 
+/* The frame + its decor share one positioning context so the shapes track the
+   frame's exact box at every width (comp proportions). */
+.frameWrap {
+  position: relative;
+}
+
 /* Flat decorative shapes behind the frame (comp 39:149/150/152) — no blur.
-   Anchored to a centred 1273-wide band so they track the frame, then clipped
-   by the section's overflow. Sizes scale down responsively. */
+   Sized relative to the frame box, poking out and clipped by the section. */
 .decor {
   position: absolute;
   inset: 0;
-  overflow: hidden;
+  z-index: 0;
   pointer-events: none;
 }
 
-.decorInner {
-  position: relative;
-  max-width: 1273px;
-  height: 100%;
-  margin: 0 auto;
-}
-
 /* Teal rounded rectangle, tilted, 50% opacity (comp 39:149 — #568c89, r176).
-   Wider than the frame so its rounded ends poke out top-right / lower-left. */
+   Bigger than the frame in every direction (~+50px each side, matching the
+   comp), so its rounded ends poke out on the sides and its corners peek out
+   above-right / below-left through the tilt. */
 .tealRect {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 108%;
-  height: clamp(150px, 22vw, 285px);
-  transform: translate(-50%, -50%) rotate(-4deg);
+  width: calc(100% + 100px);
+  height: calc(100% + 96px);
+  transform: translate(-50%, -50%) rotate(-5deg);
   background: var(--mc-teal);
   opacity: 0.5;
-  border-radius: clamp(96px, 13vw, 176px);
+  border-radius: clamp(110px, 14vw, 176px);
+  animation: insta-rect-parallax linear both;
+  animation-timeline: view();
 }
 
-/* Guitar-pick silhouettes (comp 39:150 lower-left, 39:152 lower-right), large
-   and mostly clipped by the section, faint. */
+/* Guitar-pick silhouettes (comp 39:150 lower-left, 39:152 lower-right) — about
+   38% of the frame width, taller than the frame so they run off the bottom,
+   faint. */
 .pickLeft,
 .pickRight {
   position: absolute;
-  width: clamp(200px, 30vw, 420px);
+  width: 38%;
   height: auto;
   aspect-ratio: 100 / 108;
   fill: var(--mc-accent-rose);
@@ -51,15 +54,51 @@
 }
 
 .pickLeft {
-  left: clamp(-160px, -9vw, -70px);
-  bottom: -14%;
+  left: -10%;
+  top: 34%;
   transform: rotate(9deg);
+  animation: insta-pick-left-parallax linear both;
+  animation-timeline: view();
 }
 
 .pickRight {
-  right: clamp(-120px, -4vw, -30px);
-  bottom: -32%;
+  right: -7%;
+  top: 56%;
   transform: rotate(-15deg);
+  animation: insta-pick-right-parallax linear both;
+  animation-timeline: view();
+}
+
+/* Slight scroll parallax — each shape drifts at a slightly different rate so the
+   decor has depth as the section passes. Full transform is repeated in the
+   keyframes (they override the base transform used as the no-timeline fallback);
+   the base rule keeps the static composition on browsers without scroll
+   timelines. */
+@keyframes insta-rect-parallax {
+  from {
+    transform: translate(-50%, calc(-50% + 34px)) rotate(-5deg);
+  }
+  to {
+    transform: translate(-50%, calc(-50% - 34px)) rotate(-5deg);
+  }
+}
+
+@keyframes insta-pick-left-parallax {
+  from {
+    transform: translateY(50px) rotate(9deg);
+  }
+  to {
+    transform: translateY(-50px) rotate(9deg);
+  }
+}
+
+@keyframes insta-pick-right-parallax {
+  from {
+    transform: translateY(70px) rotate(-15deg);
+  }
+  to {
+    transform: translateY(-70px) rotate(-15deg);
+  }
 }
 
 .inner {
@@ -72,8 +111,10 @@
   align-items: stretch;
 }
 
-/* Blush frame around the feed (comp 39:155). */
+/* Blush frame around the feed (comp 39:155). Sits above the decor. */
 .frame {
+  position: relative;
+  z-index: 1;
   width: 100%;
   padding: var(--mc-space-3);
   background: var(--mc-accent-blush);
@@ -162,8 +203,10 @@
   color: var(--mc-teal-light);
 }
 
-/* Caption under the frame. */
+/* Caption under the frame — above any faint pick bleed. */
 .caption {
+  position: relative;
+  z-index: 1;
   margin: 0;
   font-family: var(--mc-font-display);
   font-size: var(--mc-text-lead);
@@ -219,5 +262,11 @@
   .follow,
   .handle {
     transition: none;
+  }
+  /* No scroll parallax on the decor — hold the static composition. */
+  .tealRect,
+  .pickLeft,
+  .pickRight {
+    animation: none;
   }
 }

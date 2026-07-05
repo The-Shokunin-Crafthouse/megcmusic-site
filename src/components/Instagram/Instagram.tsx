@@ -32,24 +32,24 @@ export async function Instagram() {
 
   return (
     <section className={styles.section} aria-labelledby="insta-heading">
-      {/* Flat decor behind the frame (comp 39:149/150/152): a teal angled
-          rounded rectangle, plus a guitar pick lower-left and lower-right. No
-          blurs. */}
-      <div className={styles.decor} aria-hidden="true">
-        <div className={styles.decorInner}>
-          <span className={styles.tealRect} />
-          <svg className={styles.pickLeft} viewBox="0 0 100 108" aria-hidden="true">
-            <path d="M50 3 C73 3 97 19 97 45 C97 77 66 105 50 105 C34 105 3 77 3 45 C3 19 27 3 50 3 Z" />
-          </svg>
-          <svg className={styles.pickRight} viewBox="0 0 100 108" aria-hidden="true">
-            <path d="M50 3 C73 3 97 19 97 45 C97 77 66 105 50 105 C34 105 3 77 3 45 C3 19 27 3 50 3 Z" />
-          </svg>
-        </div>
-      </div>
       <div className={styles.inner}>
         <SectionLabel id="insta-heading">Instastar</SectionLabel>
 
-        <div className={styles.frame}>
+        {/* The frame carries its own decor so the shapes track its exact box
+            (comp 39:149/150/152): a teal angled rounded rectangle behind it,
+            plus a guitar pick poking out lower-left and lower-right. No blurs. */}
+        <div className={styles.frameWrap}>
+          <div className={styles.decor} aria-hidden="true">
+            <span className={styles.tealRect} />
+            <svg className={styles.pickLeft} viewBox="0 0 100 108" aria-hidden="true">
+              <path d="M50 3 C73 3 97 19 97 45 C97 77 66 105 50 105 C34 105 3 77 3 45 C3 19 27 3 50 3 Z" />
+            </svg>
+            <svg className={styles.pickRight} viewBox="0 0 100 108" aria-hidden="true">
+              <path d="M50 3 C73 3 97 19 97 45 C97 77 66 105 50 105 C34 105 3 77 3 45 C3 19 27 3 50 3 Z" />
+            </svg>
+          </div>
+
+          <div className={styles.frame}>
           {posts.length > 0 ? (
             <ul className={styles.grid}>
               {posts.map((p) => (
@@ -78,6 +78,7 @@ export async function Instagram() {
               <span className={styles.followHandle}>@{INSTAGRAM_HANDLE}</span>
             </a>
           )}
+          </div>
         </div>
 
         <p className={styles.caption}>
