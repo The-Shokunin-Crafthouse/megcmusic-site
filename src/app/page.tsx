@@ -5,6 +5,7 @@ import { EPK } from "@/components/EPK/EPK";
 import { Videos } from "@/components/Videos/Videos";
 import { Newsletter } from "@/components/Newsletter/Newsletter";
 import { Discography } from "@/components/Discography/Discography";
+import { BootScene } from "@/components/BootScene/BootScene";
 import { SiteFooter } from "@/components/SiteFooter/SiteFooter";
 import { getEvents, type TribeEvent } from "@/lib/api/events";
 import { getPage } from "@/lib/api/wordpress";
@@ -61,7 +62,10 @@ export default async function Home() {
       <EPK />
       <Videos />
       <Newsletter />
-      <Discography />
+      <div className={styles.bootWrap}>
+        <Discography />
+        <BootScene />
+      </div>
       <SiteFooter />
     </div>
   );

@@ -2,3 +2,8 @@
   position: relative;
   min-height: 100svh;
 }
+
+/* Anchors the 3D boot watermark over the discography (BootScene is absolute). */
+.bootWrap {
+  position: relative;
+}
