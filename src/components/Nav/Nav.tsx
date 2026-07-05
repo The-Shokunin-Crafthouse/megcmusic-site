@@ -24,6 +24,12 @@ export function Nav() {
                 className={active ? `${styles.link} ${styles.active}` : styles.link}
               >
                 {label}
+                <span className={styles.eq} aria-hidden="true">
+                  <i />
+                  <i />
+                  <i />
+                  <i />
+                </span>
               </Link>
             </li>
           );

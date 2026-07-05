@@ -7,19 +7,45 @@
   background: var(--mc-bg);
 }
 
-/* Soft teal light behind the frame (comp 39:149). */
-.glow {
+/* Flat decorative shapes behind the frame (comp 39:149/150/152) — no glow. */
+.decor {
   position: absolute;
-  top: 50%;
-  left: 50%;
-  width: min(120%, 1200px);
-  height: 340px;
-  transform: translate(-50%, -30%) rotate(6deg);
-  background: var(--mc-teal);
-  opacity: 0.25;
-  border-radius: 50%;
-  filter: blur(80px);
+  inset: 0;
+  overflow: hidden;
   pointer-events: none;
+}
+
+.oval {
+  position: absolute;
+  top: 44%;
+  left: 50%;
+  width: min(110%, 1180px);
+  height: 300px;
+  transform: translate(-50%, -50%) rotate(6deg);
+  background: var(--mc-teal);
+  opacity: 0.16;
+  border-radius: 50%;
+}
+
+.pickLeft,
+.pickRight {
+  position: absolute;
+  width: 230px;
+  height: auto;
+  color: var(--mc-accent-rose);
+  opacity: 0.2;
+}
+
+.pickLeft {
+  top: 2%;
+  left: -64px;
+  transform: rotate(-58deg);
+}
+
+.pickRight {
+  top: 34%;
+  right: -64px;
+  transform: rotate(-58deg);
 }
 
 .inner {
@@ -29,7 +55,7 @@
   display: flex;
   flex-direction: column;
   gap: var(--mc-space-6);
-  align-items: center;
+  align-items: stretch;
 }
 
 /* Blush frame around the feed (comp 39:155). */
@@ -128,7 +154,7 @@
   font-family: var(--mc-font-display);
   font-size: var(--mc-text-lead);
   color: var(--mc-text-liner);
-  text-align: center;
+  text-align: left;
 }
 
 .handle {

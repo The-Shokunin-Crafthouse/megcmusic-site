@@ -45,8 +45,8 @@ export function BootScene() {
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       node.appendChild(renderer.domElement);
 
-      // Textured boot with the tooling as bump relief.
-      const h = 5.2;
+      // Textured boot with the tooling as bump relief (scaled ~0.7).
+      const h = 3.64;
       const geo = new THREE.PlaneGeometry(h * BOOT_ASPECT, h);
       const mat = new THREE.MeshStandardMaterial({
         map: texture,
@@ -105,6 +105,8 @@ export function BootScene() {
         const sway = reduce ? 0 : Math.sin(t) * 0.05;
         boot.rotation.y = (progress - 0.5) * 0.7 + sway;
         boot.rotation.x = (0.5 - progress) * 0.18 + (reduce ? 0 : Math.sin(t * 0.7) * 0.02);
+        // Slight parallax: the boot drifts upward as the section scrolls past.
+        boot.position.y = (progress - 0.35) * 1.4;
         render();
       };
 

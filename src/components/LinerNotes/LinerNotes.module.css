@@ -77,9 +77,16 @@
   margin: 0;
   font-family: var(--mc-font-display);
   font-style: italic;
-  font-size: var(--mc-text-quote);
+  font-size: var(--mc-text-title);
   line-height: 1.2;
   color: var(--mc-text-primary);
+}
+
+/* One line on desktop (Levi's call) — the main column is wide enough. */
+@media (min-width: 768px) {
+  .quoteText {
+    white-space: nowrap;
+  }
 }
 
 .quoteAttr {

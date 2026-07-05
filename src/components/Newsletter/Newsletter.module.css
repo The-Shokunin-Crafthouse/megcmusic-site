@@ -63,9 +63,9 @@
 .input {
   width: 100%;
   min-height: var(--mc-touch-target);
-  padding: var(--mc-space-3);
+  padding: var(--mc-space-3) var(--mc-space-4);
   border: 1px solid var(--mc-teal);
-  border-radius: var(--mc-radius-card);
+  border-radius: var(--mc-radius-pill);
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-base);
   color: var(--mc-text-card);
@@ -92,6 +92,21 @@
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-detail);
   color: var(--mc-accent-pink);
+}
+
+.optional {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--mc-text-liner);
+  opacity: 0.7;
+}
+
+.hint {
+  font-family: var(--mc-font-display);
+  font-style: italic;
+  font-size: var(--mc-text-detail);
+  color: var(--mc-text-liner);
 }
 
 /* Honeypot — off-screen, not display:none (bots skip hidden fields). */

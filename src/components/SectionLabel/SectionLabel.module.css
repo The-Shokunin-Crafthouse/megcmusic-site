@@ -3,7 +3,7 @@
   margin: 0;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: var(--mc-space-2);
   font-family: var(--mc-font-display);
   font-weight: 700;

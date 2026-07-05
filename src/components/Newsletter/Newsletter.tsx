@@ -47,6 +47,7 @@ const stripTags = (s: string) => s.replace(/<[^>]*>/g, "").trim();
 export function Newsletter() {
   const [fname, setFname] = useState("");
   const [email, setEmail] = useState("");
+  const [birthday, setBirthday] = useState("");
   const [status, setStatus] = useState<Status>("idle");
   const [message, setMessage] = useState("");
   const [touched, setTouched] = useState(false);
@@ -66,7 +67,8 @@ export function Newsletter() {
     try {
       const url =
         `${MC_BASE}&EMAIL=${encodeURIComponent(email)}` +
-        `&FNAME=${encodeURIComponent(fname)}&${HONEYPOT}=`;
+        `&FNAME=${encodeURIComponent(fname)}` +
+        `&BIRTHDAY=${encodeURIComponent(birthday)}&${HONEYPOT}=`;
       const res = await jsonp(url);
       if (res.result === "success") {
         setStatus("success");
@@ -149,6 +151,26 @@ export function Newsletter() {
                   {emailError}
                 </span>
               )}
+            </div>
+
+            <div className={styles.field}>
+              <label className={styles.label} htmlFor={`${baseId}-bday`}>
+                Birthday <span className={styles.optional}>(optional)</span>
+              </label>
+              <span id={`${baseId}-bday-hint`} className={styles.hint}>
+                I’ll send you something special on your birthday.
+              </span>
+              <input
+                id={`${baseId}-bday`}
+                className={styles.input}
+                type="text"
+                name="BIRTHDAY"
+                inputMode="numeric"
+                placeholder="MM / DD"
+                value={birthday}
+                onChange={(e) => setBirthday(e.target.value)}
+                aria-describedby={`${baseId}-bday-hint`}
+              />
             </div>
 
             {/* Honeypot — hidden from people, catches bots. */}

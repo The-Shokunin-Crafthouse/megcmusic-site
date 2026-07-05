@@ -19,10 +19,10 @@
   position: absolute;
   /* Cropped hard off the top-left corner (Figma 39:4). Negative offsets are the
      bleed; the artwork is tilted -6.04° in Logo.module.css. */
-  top: -62px;
-  left: -40px;
+  top: -43px;
+  left: -28px;
   z-index: var(--mc-z-logo);
-  --logo-h: 180px;
+  --logo-h: 126px;
 }
 
 .desktopNav {
@@ -38,9 +38,9 @@
      (Figma 39:4: 272.94px artwork at ≈ -58/-95, tilted -6.04°). */
   .logoSlot {
     position: fixed;
-    top: -95px;
-    left: -58px;
-    --logo-h: 273px;
+    top: -67px;
+    left: -41px;
+    --logo-h: 191px;
   }
   /* Nav pinned top-right over the hero. */
   .desktopNav {

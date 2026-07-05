@@ -63,7 +63,10 @@ export function VideosGallery({ videos }: { videos: Video[] }) {
                 <img src={thumb(v.id)} alt="" loading="lazy" decoding="async" />
                 <PlayCircle className={styles.itemPlay} weight="fill" aria-hidden="true" />
               </span>
-              <span className={styles.itemTitle}>{v.title || "Watch on YouTube"}</span>
+              <span className={styles.itemText}>
+                <span className={styles.itemTitle}>{v.title || "Watch on YouTube"}</span>
+                {v.author && <span className={styles.itemSub}>{v.author}</span>}
+              </span>
             </button>
           </li>
         ))}

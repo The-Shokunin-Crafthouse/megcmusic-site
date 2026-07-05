@@ -91,6 +91,68 @@
   opacity: 0.7;
 }
 
+/* Music metaphor: an equalizer that dances under the link on hover, and plays
+   continuously on the active ("now playing") page. */
+.eq {
+  position: absolute;
+  left: var(--mc-space-1);
+  right: var(--mc-space-1);
+  bottom: -7px;
+  height: 9px;
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 2px;
+  opacity: 0;
+  transition: opacity var(--mc-motion-micro) var(--mc-ease-out);
+  pointer-events: none;
+}
+
+.eq i {
+  flex: 1 1 0;
+  height: 22%;
+  background: var(--mc-teal-light);
+  border-radius: 1px;
+}
+
+.link:hover .eq,
+.link:focus-visible .eq,
+.active .eq {
+  opacity: 1;
+}
+
+.link:hover .eq i,
+.link:focus-visible .eq i,
+.active .eq i {
+  animation: eq-bounce 640ms var(--mc-ease-out) infinite;
+}
+
+.eq i:nth-child(1) {
+  animation-duration: 560ms;
+}
+.eq i:nth-child(2) {
+  animation-duration: 760ms;
+  animation-delay: 90ms;
+}
+.eq i:nth-child(3) {
+  animation-duration: 620ms;
+  animation-delay: 40ms;
+}
+.eq i:nth-child(4) {
+  animation-duration: 820ms;
+  animation-delay: 140ms;
+}
+
+@keyframes eq-bounce {
+  0%,
+  100% {
+    height: 22%;
+  }
+  50% {
+    height: 100%;
+  }
+}
+
 /* Active = teal link (Figma 39:2), with the spring underline held open. */
 .active {
   font-weight: 700;
@@ -117,5 +179,10 @@
   /* Freeze the light-source pan; the static gradient edge remains. */
   .list::before {
     animation: none;
+  }
+  /* Static equalizer — no bounce. */
+  .eq i {
+    animation: none;
+    height: 45%;
   }
 }
