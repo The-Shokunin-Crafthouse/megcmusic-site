@@ -39,13 +39,19 @@
    clipped by the fold (scroll affordance, Figma 39:12). Mobile uses a smaller
    offset since wrapped titles make each card taller. */
 .heroInner {
-  padding-top: var(--mc-hero-dates-offset-mobile);
+  padding-top: max(
+    var(--mc-space-7),
+    calc(100svh - var(--mc-hero-dates-reserve-mobile))
+  );
   padding-bottom: var(--mc-space-8);
 }
 
 @media (min-width: 768px) {
   .heroInner {
-    padding-top: var(--mc-hero-dates-offset);
+    padding-top: max(
+      var(--mc-space-7),
+      calc(100svh - var(--mc-hero-dates-reserve))
+    );
   }
 }
 

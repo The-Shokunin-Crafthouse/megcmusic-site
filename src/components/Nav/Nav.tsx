@@ -23,12 +23,10 @@ export function Nav() {
                 aria-current={active ? "page" : undefined}
                 className={active ? `${styles.link} ${styles.active}` : styles.link}
               >
-                {label}
-                <span className={styles.eq} aria-hidden="true">
-                  <i />
-                  <i />
-                  <i />
-                  <i />
+                <span className={styles.roll}>
+                  <span className={styles.rollInner} data-label={label}>
+                    {label}
+                  </span>
                 </span>
               </Link>
             </li>

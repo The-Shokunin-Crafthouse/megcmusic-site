@@ -3,9 +3,7 @@
   position: relative;
   z-index: var(--mc-z-content);
   padding: var(--mc-space-9) var(--mc-space-4);
-  /* Transparent so the BootScene backdrop shows through; the bootWrap carries
-     the plum ground. */
-  background: transparent;
+  background: var(--mc-bg);
 }
 
 .inner {

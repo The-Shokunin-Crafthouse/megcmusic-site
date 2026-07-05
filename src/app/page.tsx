@@ -45,13 +45,13 @@ export default async function Home() {
       <HomeScene upcoming={upcoming} justAdded={justAdded} past={past} />
       <LinerNotes />
       <Instagram />
-      <EPK />
-      <Videos />
-      <Newsletter />
       <div className={styles.bootWrap}>
-        <Discography />
+        <EPK />
         <BootScene />
       </div>
+      <Videos />
+      <Newsletter />
+      <Discography />
       <SiteFooter />
     </div>
   );

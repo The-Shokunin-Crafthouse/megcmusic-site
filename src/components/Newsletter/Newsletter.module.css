@@ -131,18 +131,22 @@
   background: var(--mc-teal-light);
   cursor: pointer;
   transition:
-    background var(--mc-motion-micro) var(--mc-ease-out),
-    transform var(--mc-motion-micro) var(--mc-ease-out);
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
 }
 
 @media (hover: hover) {
   .submit:hover:not(:disabled) {
     background: var(--mc-teal);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--mc-shadow-card-hover);
   }
 }
 
 .submit:active:not(:disabled) {
-  transform: scale(0.97);
+  transform: translateY(0) scale(0.96);
+  transition-duration: var(--mc-motion-micro);
 }
 
 .submit:focus-visible {

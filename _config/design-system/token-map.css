@@ -74,6 +74,8 @@
   --mc-ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
   --mc-motion-underline: 360ms;
   --mc-ease-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1); /* back-out: overshoots then settles */
+  --mc-ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1); /* strong ease-out for premium micro-interactions (Emil) */
+  --mc-motion-hover: 220ms; /* standard hover/reveal duration */
 
   /* Nav */
   --mc-nav-underline: #fffcdb; /* cream highlight under active nav link */
@@ -88,12 +90,13 @@
      (Figma highlight #FFC3CF). Subtle: noticed only on a close look. */
   --mc-logo-sheen-rgb: 255 195 207; /* #FFC3CF */
 
-  /* Hero dates framing — offset that drops the dates list into the lower hero
-     so ~3 rows show on load and the 4th is clipped by the fold (scroll
-     affordance, Figma 39:12). Viewport-relative on purpose; smaller on mobile
-     where cards are taller (wrapped titles) so fewer rows fit. */
-  --mc-hero-dates-offset: 48svh;
-  --mc-hero-dates-offset-mobile: 30svh;
+  /* Hero dates framing — bottom-anchor the dates so EXACTLY ~3.5 rows show on
+     load (3 full + the 4th clipped mid) regardless of viewport height. The
+     reserve is the fixed pixel run from the tabs down through 3.5 cards; the
+     pills therefore sit at a different Y per viewport height (by design).
+     Cards are taller on mobile (wrapped titles), so the reserve is larger. */
+  --mc-hero-dates-reserve: 448px;
+  --mc-hero-dates-reserve-mobile: 512px;
 
   /* Focus — dedicated ring, AA on the pink pill (not the brand accent) */
   --mc-focus-ring: #241420;
@@ -145,7 +148,7 @@
   --mc-text-liner: #e5d8cc;   /* Liner Notes bio prose */
   --mc-radius-quote: 24px;    /* pull-quote / framed corners */
   --mc-grain-opacity: 0.07;   /* film-grain overlay (brand texture, comp) */
-  --mc-footer-wordmark: #2f1d2a; /* BOOK ME watermark — a hair lighter than --mc-bg-section */
+  --mc-footer-wordmark: #2c1a27; /* BOOK ME watermark — barely lighter than --mc-bg-section (#291724) */
 
   /* Type sizes used by the sections (mirrored absolute from the comp). */
   --mc-text-detail: 0.8125rem; /* 13px — captions, recognition detail, video sub */

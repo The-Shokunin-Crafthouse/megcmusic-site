@@ -15,37 +15,40 @@
   pointer-events: none;
 }
 
-.oval {
+.blobLeft,
+.blobRight,
+.blobRightSm {
   position: absolute;
-  top: 44%;
-  left: 50%;
-  width: min(110%, 1180px);
-  height: 300px;
-  transform: translate(-50%, -50%) rotate(6deg);
   background: var(--mc-teal);
-  opacity: 0.16;
   border-radius: 50%;
+  filter: blur(38px);
 }
 
-.pickLeft,
-.pickRight {
-  position: absolute;
-  width: 230px;
-  height: auto;
-  color: var(--mc-accent-rose);
-  opacity: 0.2;
+.blobLeft {
+  top: 16%;
+  left: -110px;
+  width: 380px;
+  height: 300px;
+  opacity: 0.34;
+  transform: rotate(-14deg);
 }
 
-.pickLeft {
-  top: 2%;
-  left: -64px;
-  transform: rotate(-58deg);
+.blobRight {
+  bottom: -60px;
+  right: -120px;
+  width: 440px;
+  height: 300px;
+  opacity: 0.34;
+  transform: rotate(12deg);
 }
 
-.pickRight {
-  top: 34%;
-  right: -64px;
-  transform: rotate(-58deg);
+.blobRightSm {
+  top: -40px;
+  right: 60px;
+  width: 240px;
+  height: 190px;
+  opacity: 0.26;
+  transform: rotate(-8deg);
 }
 
 .inner {
@@ -157,22 +160,35 @@
   text-align: left;
 }
 
+/* Teal fill wipes in left→right behind the handle; the text darkens to read on
+   it. Cleaner than an underline. */
 .handle {
   color: var(--mc-teal-light);
-  text-decoration: underline;
-  text-decoration-color: transparent;
-  text-underline-offset: 3px;
-  transition: text-decoration-color var(--mc-motion-micro) var(--mc-ease-out);
+  padding: 0 var(--mc-space-1);
+  border-radius: var(--mc-radius-card);
+  background-image: linear-gradient(var(--mc-teal-light), var(--mc-teal-light));
+  background-size: 0% 100%;
+  background-position: left center;
+  background-repeat: no-repeat;
+  transition:
+    background-size var(--mc-motion-hover) var(--mc-ease-out-strong),
+    color var(--mc-motion-hover) var(--mc-ease-out-strong);
 }
 
 .handle:hover {
-  text-decoration-color: currentColor;
+  background-size: 100% 100%;
+  color: var(--mc-teal-ink);
 }
 
 .handle:focus-visible {
   outline: 2px solid var(--mc-teal-light);
   outline-offset: 3px;
-  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .handle {
+    transition: color var(--mc-motion-micro) var(--mc-ease-out);
+  }
 }
 
 @media (min-width: 768px) {

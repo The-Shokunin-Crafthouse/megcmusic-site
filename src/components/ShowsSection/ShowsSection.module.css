@@ -164,16 +164,23 @@
   color: var(--mc-text-card);
   background: var(--mc-accent-pink);
   transition:
-    background var(--mc-motion-micro) var(--mc-ease-out),
-    transform var(--mc-motion-micro) var(--mc-ease-out);
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
 }
 
-.seeAll:hover {
-  background: var(--mc-accent-rose);
+@media (hover: hover) {
+  .seeAll:hover {
+    background: var(--mc-accent-rose);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
 }
 
+/* Press: scale down; release snaps back (Emil). */
 .seeAll:active {
-  transform: scale(0.97);
+  transform: translateY(0) scale(0.96);
+  transition-duration: var(--mc-motion-micro);
 }
 
 .seeAll:focus-visible {

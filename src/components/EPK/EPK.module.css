@@ -3,7 +3,9 @@
   position: relative;
   z-index: var(--mc-z-content);
   padding: var(--mc-space-9) var(--mc-space-4);
-  background: var(--mc-bg);
+  /* Transparent so the BootScene backdrop shows through; the bootWrap carries
+     the plum ground. */
+  background: transparent;
 }
 
 .inner {
@@ -89,18 +91,26 @@
   color: var(--mc-text-primary);
   background: transparent;
   transition:
-    background var(--mc-motion-micro) var(--mc-ease-out),
-    transform var(--mc-motion-micro) var(--mc-ease-out);
+    color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    border-color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
 }
 
 @media (hover: hover) {
   .action:hover {
-    background: var(--mc-glass);
+    color: var(--mc-teal-ink);
+    background: var(--mc-teal-light);
+    border-color: var(--mc-teal-light);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--mc-shadow-card-hover);
   }
 }
 
 .action:active {
-  transform: scale(0.97);
+  transform: translateY(0) scale(0.96);
+  transition-duration: var(--mc-motion-micro);
 }
 
 .action:focus-visible {
