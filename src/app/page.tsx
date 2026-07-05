@@ -1,6 +1,9 @@
 import { HomeScene } from "@/components/HomeScene/HomeScene";
 import { LinerNotes } from "@/components/LinerNotes/LinerNotes";
 import { Instagram } from "@/components/Instagram/Instagram";
+import { EPK } from "@/components/EPK/EPK";
+import { Discography } from "@/components/Discography/Discography";
+import { SiteFooter } from "@/components/SiteFooter/SiteFooter";
 import { getEvents, type TribeEvent } from "@/lib/api/events";
 import { getPage } from "@/lib/api/wordpress";
 import { paragraphsFromHtml } from "@/lib/wp-content";
@@ -53,6 +56,9 @@ export default async function Home() {
       <HomeScene upcoming={upcoming} justAdded={justAdded} past={past} />
       <LinerNotes paragraphs={bio} />
       <Instagram />
+      <EPK />
+      <Discography />
+      <SiteFooter />
     </div>
   );
 }
