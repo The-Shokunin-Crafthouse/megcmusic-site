@@ -42,9 +42,15 @@ function gmailClient(): gmail_v1.Gmail {
 }
 
 /** RFC 2822 message, base64url-encoded for the Gmail API `raw` field. */
-function encodeMime(to: string, subject: string, body: string): string {
+function encodeMime(
+  to: string,
+  subject: string,
+  body: string,
+  replyTo?: string,
+): string {
   const headers = [
     `To: ${to}`,
+    ...(replyTo ? [`Reply-To: ${replyTo}`] : []),
     `Subject: ${subject}`,
     "MIME-Version: 1.0",
     'Content-Type: text/plain; charset="UTF-8"',
@@ -68,9 +74,11 @@ export async function sendEmail(params: {
   subject: string;
   body: string;
   threadId?: string | null;
+  /** Sets the Reply-To header — e.g. a booking enquirer, so a reply reaches them. */
+  replyTo?: string;
 }): Promise<SentMessage> {
   const gmail = gmailClient();
-  const raw = encodeMime(params.to, params.subject, params.body);
+  const raw = encodeMime(params.to, params.subject, params.body, params.replyTo);
   const res = await gmail.users.messages.send({
     userId: "me",
     requestBody: params.threadId

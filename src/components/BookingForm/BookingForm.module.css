@@ -1,0 +1,228 @@
+/* Booking form — native tokenized fields on the plum ground, glass surfaces with
+   a teal focus ring, five states on every control. Success replaces the form. */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-4);
+}
+
+/* Off-screen honeypot — present in the DOM, invisible to users and AT. */
+.honeypot {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+}
+
+.label {
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-sm);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--mc-text-primary);
+}
+
+.input,
+.textarea {
+  width: 100%;
+  padding: var(--mc-space-3) var(--mc-space-4);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  line-height: 1.5;
+  color: var(--mc-text-primary);
+  background: var(--mc-glass);
+  border: 1px solid var(--mc-teal);
+  border-radius: var(--mc-radius-card);
+  backdrop-filter: blur(var(--mc-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  transition:
+    border-color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: calc(var(--mc-space-9) + var(--mc-space-3));
+}
+
+.input::placeholder,
+.textarea::placeholder {
+  color: var(--mc-text-subtle);
+}
+
+@media (hover: hover) {
+  .input:hover,
+  .textarea:hover {
+    border-color: var(--mc-teal-light);
+  }
+}
+
+.input:focus-visible,
+.textarea:focus-visible {
+  outline: none;
+  border-color: var(--mc-teal-light);
+  box-shadow: 0 0 0 3px rgb(var(--mc-teal-rgb) / 0.35);
+}
+
+.input:disabled,
+.textarea:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Invalid field — brand red, kept distinct from the teal accent. */
+.input[aria-invalid="true"],
+.textarea[aria-invalid="true"] {
+  border-color: var(--mc-accent-red);
+}
+
+.fieldError {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-sm);
+  color: var(--mc-accent-red);
+}
+
+.formError {
+  margin: 0;
+  padding: var(--mc-space-3) var(--mc-space-4);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-primary);
+  background: rgb(var(--mc-accent-pink-rgb) / 0.12);
+  border: 1px solid var(--mc-accent-red);
+  border-radius: var(--mc-radius-card);
+}
+
+/* Primary submit — teal fill (teal-ink text passes AA on it). */
+.submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mc-space-2);
+  align-self: flex-start;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-3) var(--mc-space-6);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  font-weight: 600;
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal-light);
+  border: 1px solid var(--mc-teal-light);
+  border-radius: var(--mc-radius-pill);
+  cursor: pointer;
+  transition:
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    border-color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .submit:hover:not(:disabled) {
+    background: var(--mc-teal-bright);
+    border-color: var(--mc-teal-bright);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
+}
+
+.submit:active:not(:disabled) {
+  transform: translateY(0) scale(0.97);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.submit:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+.submit:disabled {
+  opacity: 0.7;
+  cursor: progress;
+}
+
+.submitIcon {
+  transition: transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .submit:hover:not(:disabled) .submitIcon {
+    transform: translate(2px, -2px);
+  }
+}
+
+/* ---- Success state ------------------------------------------------------ */
+.success {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--mc-space-3);
+  padding: var(--mc-space-7) var(--mc-space-6);
+  border: 1px solid var(--mc-teal);
+  border-radius: var(--mc-radius-quote);
+  background: var(--mc-glass);
+  backdrop-filter: blur(var(--mc-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  animation: booking-settle var(--mc-reveal-duration) var(--mc-ease-out-strong)
+    both;
+}
+
+.successIcon {
+  color: var(--mc-teal-light);
+}
+
+.successTitle {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-title);
+  line-height: 1.2;
+  color: var(--mc-text-primary);
+}
+
+.successTitle:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 4px;
+  border-radius: var(--mc-space-1);
+}
+
+.successText {
+  margin: 0;
+  max-width: 48ch;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  line-height: 1.5;
+  color: var(--mc-text-body);
+}
+
+@keyframes booking-settle {
+  from {
+    opacity: 0;
+    transform: translateY(var(--mc-entrance-offset));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .textarea,
+  .submit,
+  .submitIcon {
+    transition: none;
+  }
+  .success {
+    animation: none;
+  }
+}
