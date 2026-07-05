@@ -1,0 +1,92 @@
+/* Footer (Figma 39:286) — a giant BOOK ME watermark behind the booking CTA. */
+.footer {
+  position: relative;
+  z-index: var(--mc-z-content);
+  overflow: hidden;
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-7);
+  background: var(--mc-bg-section);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+}
+
+/* Oversized wordmark, clipped, sitting just behind the content. */
+.watermark {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: -1;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: clamp(5.5rem, 22vw, 17rem);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--mc-footer-wordmark);
+  pointer-events: none;
+  user-select: none;
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--mc-space-4);
+  text-align: center;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-3) var(--mc-space-5);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-weight: 700;
+  font-size: var(--mc-text-base);
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal-light);
+  transition:
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  /* Brighten on hover (lighter teal), never darken. */
+  .cta:hover {
+    background: var(--mc-teal-bright);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
+}
+
+.cta:active {
+  transform: translateY(0) scale(0.96);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+.copyright {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta {
+    transition: none;
+  }
+  .cta:active {
+    transform: none;
+  }
+}

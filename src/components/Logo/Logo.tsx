@@ -2,9 +2,9 @@ import Link from "next/link";
 import styles from "./Logo.module.css";
 
 // Persistent site mark: the guitar-pick and the "Meghan Clarisse" name are two
-// separate crisp SVGs layered in the same 229×192 space, so the name can carry
-// its own left-to-right gradient shimmer. Links home. Relative asset paths
-// resolve under any deploy base (studio learning #25).
+// separate crisp SVGs (split from the Figma 39:4 export) layered in the same
+// 272.94² space, so the name can carry its own left-to-right gradient shimmer.
+// Links home. Relative asset paths resolve under any deploy base (learning #25).
 export function Logo() {
   return (
     <Link href="/" className={styles.logo} aria-label="Meghan Clarisse — home">
@@ -14,15 +14,15 @@ export function Logo() {
           src="images/hero/logo-pick.svg"
           alt=""
           aria-hidden="true"
-          width={229}
-          height={192}
+          width={273}
+          height={273}
         />
         <img
           className={styles.name}
           src="images/hero/logo-name.svg"
           alt="Meghan Clarisse"
-          width={229}
-          height={192}
+          width={273}
+          height={273}
         />
         <span className={styles.shimmer} aria-hidden="true" />
       </span>

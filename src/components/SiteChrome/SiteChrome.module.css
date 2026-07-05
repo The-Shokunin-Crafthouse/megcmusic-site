@@ -1,25 +1,28 @@
-/* Overlay chrome at the top of every page. The logo bleeds off the top-left
-   corner (Figma 110:2 — Logo frame anchored past 0,0); the nav/menu sits
-   top-right. */
+/* Overlay chrome. The logo bleeds off the top-left; nav/menu sits top-right.
+   On desktop the logo is fixed and the top-most layer on every route (Sprint 6),
+   and the nav is fixed over the hero. On mobile the whole chrome scrolls away
+   with the page — the logo is the explicit exception to "always fixed"
+   (Figma 110:2). Negative logo offsets are Figma-exact bleed, not tokens. */
 .chrome {
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
-  z-index: 20;
+  z-index: var(--mc-z-chrome);
   display: flex;
   align-items: center;
   justify-content: flex-end;
   padding: var(--mc-space-3);
 }
 
-/* Corner logo — bleeds off the top-left corner per Figma 110:2 (visible
-   ~127×100). Negative offsets are Figma-exact bleed, not tokens. */
 .logoSlot {
   position: absolute;
-  top: -4px;
-  left: -8px;
-  --logo-h: 140px;
+  /* Cropped hard off the top-left corner (Figma 39:4). Negative offsets are the
+     bleed; the artwork is tilted -6.04° in Logo.module.css. */
+  top: -43px;
+  left: -28px;
+  z-index: var(--mc-z-logo);
+  --logo-h: 126px;
 }
 
 .desktopNav {
@@ -31,16 +34,21 @@
 }
 
 @media (min-width: 768px) {
-  .chrome {
-    padding: var(--mc-space-4) var(--mc-space-6);
-  }
+  /* Logo pinned top-left — always the top layer, every route. Comp-exact crop
+     (Figma 39:4: 272.94px artwork at ≈ -58/-95, tilted -6.04°). */
   .logoSlot {
-    top: -6px;
-    left: -10px;
-    --logo-h: 166px;
+    position: fixed;
+    top: -67px;
+    left: -41px;
+    --logo-h: 191px;
   }
+  /* Nav pinned top-right over the hero. */
   .desktopNav {
     display: flex;
+    position: fixed;
+    top: var(--mc-space-4);
+    right: var(--mc-space-6);
+    z-index: var(--mc-z-chrome);
   }
   .mobileNav {
     display: none;
@@ -48,7 +56,46 @@
 }
 
 @media (min-width: 1440px) {
-  .chrome {
-    padding: var(--mc-space-4) var(--mc-space-8);
+  .desktopNav {
+    right: var(--mc-space-8);
+  }
+}
+
+/* Hero entrance (home only, keyed off body[data-home]) — logo first, nav
+   second, each scaling up from 0.94 as it slides + fades with the back-out
+   overshoot. Dates come third (HomeScene). Values are tokens; runs off the
+   main thread. Hidden until the body flips to 'entered'. */
+:global(body[data-home="pending"]) .logoSlot,
+:global(body[data-home="pending"]) .desktopNav,
+:global(body[data-home="pending"]) .mobileNav {
+  opacity: 0;
+  transform: translateY(var(--mc-entrance-offset)) scale(var(--mc-entrance-scale));
+}
+
+:global(body[data-home="entered"]) .logoSlot,
+:global(body[data-home="entered"]) .desktopNav,
+:global(body[data-home="entered"]) .mobileNav {
+  opacity: 1;
+  transform: none;
+  transition:
+    opacity var(--mc-entrance-duration) var(--mc-ease-overshoot),
+    transform var(--mc-entrance-duration) var(--mc-ease-overshoot);
+}
+
+:global(body[data-home="entered"]) .logoSlot {
+  transition-delay: calc(1 * var(--mc-entrance-stagger));
+}
+:global(body[data-home="entered"]) .desktopNav,
+:global(body[data-home="entered"]) .mobileNav {
+  transition-delay: calc(2 * var(--mc-entrance-stagger));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .logoSlot,
+  .desktopNav,
+  .mobileNav {
+    opacity: 1;
+    transform: none;
+    transition: none;
   }
 }

@@ -1,0 +1,184 @@
+/* Liner Notes (Figma 39:106) — opaque plum so it scrolls over the fixed hero
+   photo. Bio + pull-quote beside a Recognition timeline. */
+.section {
+  position: relative;
+  z-index: var(--mc-z-content);
+  padding: var(--mc-space-9) var(--mc-space-4);
+  background: var(--mc-bg);
+}
+
+.inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+}
+
+.grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+}
+
+.main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-5);
+  min-width: 0;
+}
+
+/* Lead paragraph with the Praise drop-cap beside it (comp 39:111). */
+.lead {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--mc-space-3);
+  margin: 0;
+}
+
+.dropCap {
+  flex-shrink: 0;
+  font-family: var(--mc-font-drop-cap);
+  font-size: var(--mc-text-dropcap);
+  line-height: 0.82;
+  color: var(--mc-text-primary);
+}
+
+.leadText {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.lead .leadText,
+.para {
+  font-family: var(--mc-font-display);
+  font-size: var(--mc-text-prose);
+  line-height: 1.5;
+  color: var(--mc-text-liner);
+}
+
+.para {
+  margin: 0;
+}
+
+/* Pull-quote (comp 39:114): plum panel, pink left rule, rounded bottom-right. */
+.quote {
+  margin: 0;
+  padding: var(--mc-space-4) var(--mc-space-5);
+  background: var(--mc-bg-quote);
+  border-left: 3px solid var(--mc-accent-pink);
+  border-bottom-right-radius: var(--mc-radius-quote);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+}
+
+.quoteText {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-style: italic;
+  font-size: var(--mc-text-title);
+  line-height: 1.2;
+  color: var(--mc-text-primary);
+}
+
+/* One line on desktop (Levi's call) — the main column is wide enough. */
+@media (min-width: 768px) {
+  .quoteText {
+    white-space: nowrap;
+  }
+}
+
+.quoteAttr {
+  font-family: var(--mc-font-ui);
+  font-style: normal;
+  font-size: var(--mc-text-detail);
+  line-height: 1.5;
+  color: var(--mc-teal-light);
+}
+
+/* Recognition sidebar (comp 39:120): gold top rule, dated entries. */
+.recognition {
+  border-top: 1px solid var(--mc-accent-gold);
+  padding: var(--mc-space-3) 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-4);
+}
+
+.recHeading {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 400;
+  font-size: var(--mc-text-prose);
+  line-height: 1.5;
+  color: var(--mc-text-primary);
+}
+
+.recList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-4);
+}
+
+.recItem {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.5;
+  padding-bottom: var(--mc-space-4);
+  border-bottom: 1px solid rgb(var(--mc-accent-gold-rgb) / 0.2);
+}
+
+.recItem:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.recPeriod {
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-detail);
+  color: var(--mc-accent-pink);
+}
+
+.recTitle {
+  font-family: var(--mc-font-display);
+  font-size: var(--mc-text-prose);
+  color: var(--mc-text-primary);
+}
+
+.recDetail {
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-detail);
+  color: var(--mc-teal);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Two columns from tablet up: bio grows, Recognition holds 344px (comp). */
+@media (min-width: 768px) {
+  .section {
+    padding: var(--mc-space-9) var(--mc-space-6);
+  }
+  .grid {
+    flex-direction: row;
+    gap: var(--mc-space-7);
+    align-items: flex-start;
+  }
+  .recognition {
+    flex-shrink: 0;
+    width: 344px;
+  }
+}

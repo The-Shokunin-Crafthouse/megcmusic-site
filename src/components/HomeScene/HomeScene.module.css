@@ -1,0 +1,94 @@
+/* HomeScene — the pinned hero scroll scene (Figma 39:2). The photo + scrim are
+   a fixed backdrop behind the content; the dates list scrolls over it and the
+   opaque plum body (Phase 2) covers it. Entrance is CSS keyed off body[data-home]
+   so tokenised durations/eases stay in CSS and run off the main thread. */
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: var(--mc-z-backdrop);
+  overflow: hidden;
+  background: var(--mc-bg);
+  /* Release (past the dates list) translates this up; kept fixed so it never
+     adds to the scroll height. Driven from HomeScene.tsx, which also toggles
+     will-change only while it's actually moving — a static will-change here
+     promoted the layer at first paint and rendered it a beat late (the photo
+     only snapped to full-bleed on the first scroll). */
+}
+
+.photo {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+
+.scrim {
+  position: absolute;
+  inset: 0;
+  background: var(--mc-scrim-hero);
+}
+
+.hero {
+  position: relative;
+  z-index: var(--mc-z-content);
+  min-height: 100svh;
+}
+
+/* Drop the dates into the lower hero so ~3 rows show on load and the 4th is
+   clipped by the fold (scroll affordance, Figma 39:12). Mobile uses a smaller
+   offset since wrapped titles make each card taller. */
+.heroInner {
+  padding-top: max(
+    var(--mc-space-7),
+    calc(100svh - var(--mc-hero-dates-reserve-mobile))
+  );
+  padding-bottom: var(--mc-space-8);
+}
+
+@media (min-width: 768px) {
+  .heroInner {
+    padding-top: max(
+      var(--mc-space-7),
+      calc(100svh - var(--mc-hero-dates-reserve))
+    );
+  }
+}
+
+.releaseMarker {
+  height: 1px;
+}
+
+/* Entrance ------------------------------------------------------------------ */
+/* Scrim fades first; the dates block arrives third (logo/nav are first/second,
+   in SiteChrome). Hidden until the body flips 'pending' → 'entered'. */
+:global(body[data-home="pending"]) .scrim {
+  opacity: 0;
+}
+:global(body[data-home="entered"]) .scrim {
+  opacity: 1;
+  transition: opacity var(--mc-scrim-fade) var(--mc-ease-out);
+}
+
+/* The dates block does NOT animate as a unit — each show card cascades in on
+   its own (see ShowCard), so they arrive one-by-one instead of grouped. */
+
+/* Reduced motion: no pin, no choreography — a static hero photo at the top of
+   the document that scrolls away normally, content settled and visible. */
+@media (prefers-reduced-motion: reduce) {
+  .backdrop {
+    position: absolute;
+    inset: auto 0 auto 0;
+    top: 0;
+    height: 100svh;
+    transform: none;
+  }
+  .scrim,
+  .heroInner {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}

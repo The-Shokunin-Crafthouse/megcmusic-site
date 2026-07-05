@@ -7,6 +7,7 @@ import {
   useMemo,
   useRef,
   useState,
+  type CSSProperties,
   type KeyboardEvent,
 } from "react";
 import type { TribeEvent } from "@/lib/api/events";
@@ -70,6 +71,7 @@ export function ShowsSection({
   const [active, setActive] = useState<TabId>("up-next");
   const [query, setQuery] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
+  const [calendarOn, setCalendarOn] = useState(false);
   const [visibleCount, setVisibleCount] = useState(BATCH);
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
   const searchRef = useRef<HTMLInputElement>(null);
@@ -203,6 +205,7 @@ export function ShowsSection({
             aria-selected={selected}
             aria-controls={`${baseId}-panel`}
             tabIndex={selected ? 0 : -1}
+            style={{ "--col-index": i } as CSSProperties}
             className={selected ? `${styles.tab} ${styles.tabActive}` : styles.tab}
             onClick={() => selectTab(tab.id)}
             onKeyDown={(e) => onKeyDown(e, i)}
@@ -216,7 +219,11 @@ export function ShowsSection({
 
   return (
     <section
-      className={isPage ? `${styles.section} ${styles.sectionPage}` : styles.section}
+      className={
+        isPage
+          ? `${styles.section} ${styles.sectionPage}`
+          : `${styles.section} ${styles.sectionHome}`
+      }
       aria-labelledby={`${baseId}-heading`}
     >
       <h2 id={`${baseId}-heading`} className={styles.heading}>
@@ -224,12 +231,26 @@ export function ShowsSection({
       </h2>
 
       <div className={styles.inner}>
-        {isPage ? (
-          <div className={styles.tabRow}>
-            {tablist}
+        <div className={styles.tabRow}>
+          {tablist}
+          <div className={styles.controls}>
+            {!isPage && (
+              <button
+                type="button"
+                className={
+                  calendarOn ? `${styles.tab} ${styles.tabActive}` : styles.tab
+                }
+                style={{ "--col-index": TABS.length } as CSSProperties}
+                aria-pressed={calendarOn}
+                onClick={() => setCalendarOn((on) => !on)}
+              >
+                Add To Calendar
+              </button>
+            )}
             <button
               type="button"
               className={styles.searchToggle}
+              style={{ "--col-index": TABS.length + 1 } as CSSProperties}
               aria-expanded={searchOpen}
               aria-controls={`${baseId}-search`}
               aria-label={searchOpen ? "Close search" : "Search shows"}
@@ -252,11 +273,9 @@ export function ShowsSection({
               </svg>
             </button>
           </div>
-        ) : (
-          tablist
-        )}
+        </div>
 
-        {isPage && searchOpen && (
+        {searchOpen && (
           <div className={styles.searchReveal}>
             <label htmlFor={`${baseId}-search`} className={styles.srOnly}>
               Search shows
@@ -291,7 +310,7 @@ export function ShowsSection({
                     key={event.id}
                     event={event}
                     index={i % STAGGER}
-                    withCalendar={isPage}
+                    withCalendar={isPage || calendarOn}
                   />
                 ))}
               </ul>
@@ -309,7 +328,7 @@ export function ShowsSection({
           {!isPage && (
             <div className={styles.actions}>
               <Link className={styles.seeAll} href="/shows">
-                See all shows
+                See all dates
               </Link>
             </div>
           )}

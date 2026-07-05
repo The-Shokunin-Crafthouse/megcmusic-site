@@ -1,0 +1,272 @@
+/* Instagram strip (Figma 39:147) — a blush-framed feed over a teal glow. */
+.section {
+  position: relative;
+  z-index: var(--mc-z-content);
+  overflow: hidden;
+  padding: var(--mc-space-9) var(--mc-space-4);
+  background: var(--mc-bg);
+}
+
+/* The frame + its decor share one positioning context so the shapes track the
+   frame's exact box at every width (comp proportions). */
+.frameWrap {
+  position: relative;
+}
+
+/* Flat decorative shapes behind the frame (comp 39:149/150/152) — no blur.
+   Sized relative to the frame box, poking out and clipped by the section. */
+.decor {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Teal rounded rectangle, tilted, 50% opacity (comp 39:149 — #568c89, r176).
+   Bigger than the frame in every direction (~+50px each side, matching the
+   comp), so its rounded ends poke out on the sides and its corners peek out
+   above-right / below-left through the tilt. */
+.tealRect {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(100% + 100px);
+  height: calc(100% + 96px);
+  transform: translate(-50%, -50%) rotate(-5deg);
+  background: var(--mc-teal);
+  opacity: 0.5;
+  border-radius: clamp(110px, 14vw, 176px);
+  animation: insta-rect-parallax linear both;
+  animation-timeline: view();
+}
+
+/* Guitar-pick silhouettes (comp 39:150 lower-left, 39:152 lower-right) — about
+   38% of the frame width, taller than the frame so they run off the bottom,
+   faint. */
+.pickLeft,
+.pickRight {
+  position: absolute;
+  width: 38%;
+  height: auto;
+  aspect-ratio: 100 / 108;
+  fill: var(--mc-accent-rose);
+  opacity: 0.16;
+}
+
+.pickLeft {
+  left: -10%;
+  top: 34%;
+  transform: rotate(9deg);
+  animation: insta-pick-left-parallax linear both;
+  animation-timeline: view();
+}
+
+.pickRight {
+  right: -7%;
+  top: 56%;
+  transform: rotate(-15deg);
+  animation: insta-pick-right-parallax linear both;
+  animation-timeline: view();
+}
+
+/* Slight scroll parallax — each shape drifts at a slightly different rate so the
+   decor has depth as the section passes. Full transform is repeated in the
+   keyframes (they override the base transform used as the no-timeline fallback);
+   the base rule keeps the static composition on browsers without scroll
+   timelines. */
+@keyframes insta-rect-parallax {
+  from {
+    transform: translate(-50%, calc(-50% + 34px)) rotate(-5deg);
+  }
+  to {
+    transform: translate(-50%, calc(-50% - 34px)) rotate(-5deg);
+  }
+}
+
+@keyframes insta-pick-left-parallax {
+  from {
+    transform: translateY(50px) rotate(9deg);
+  }
+  to {
+    transform: translateY(-50px) rotate(9deg);
+  }
+}
+
+@keyframes insta-pick-right-parallax {
+  from {
+    transform: translateY(70px) rotate(-15deg);
+  }
+  to {
+    transform: translateY(-70px) rotate(-15deg);
+  }
+}
+
+.inner {
+  position: relative;
+  max-width: 1273px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+  align-items: stretch;
+}
+
+/* Blush frame around the feed (comp 39:155). Sits above the decor. */
+.frame {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  padding: var(--mc-space-3);
+  background: var(--mc-accent-blush);
+  border-radius: var(--mc-radius-quote);
+}
+
+/* Configured: a row of recent posts. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--mc-space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.post {
+  display: block;
+  aspect-ratio: 1 / 1;
+  overflow: hidden;
+  border-radius: var(--mc-radius-card);
+  background: var(--mc-bg-quote);
+}
+
+.post img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--mc-motion-underline) var(--mc-ease-out);
+}
+
+@media (hover: hover) {
+  .post:hover img {
+    transform: scale(1.04);
+  }
+}
+
+.post:focus-visible {
+  outline: 2px solid var(--mc-teal-ink);
+  outline-offset: 2px;
+}
+
+/* Unconfigured: an intentional follow panel (no broken grid). */
+.follow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mc-space-3);
+  min-height: 240px;
+  padding: var(--mc-space-7) var(--mc-space-4);
+  border-radius: var(--mc-radius-quote);
+  background: var(--mc-bg-quote);
+  color: var(--mc-text-primary);
+  text-align: center;
+  transition: background var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+@media (hover: hover) {
+  .follow:hover {
+    background: var(--mc-bg-section);
+  }
+}
+
+.follow:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 4px;
+}
+
+.igIcon {
+  width: 48px;
+  height: 48px;
+  color: var(--mc-teal-light);
+}
+
+.followLead {
+  font-family: var(--mc-font-display);
+  font-size: var(--mc-text-lead);
+  color: var(--mc-text-liner);
+}
+
+.followHandle {
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-title);
+  color: var(--mc-teal-light);
+}
+
+/* Caption under the frame — above any faint pick bleed. */
+.caption {
+  position: relative;
+  z-index: 1;
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-size: var(--mc-text-lead);
+  color: var(--mc-text-liner);
+  text-align: left;
+}
+
+/* Teal fill wipes in left→right behind the handle; the text darkens to read on
+   it. Cleaner than an underline. */
+.handle {
+  color: var(--mc-teal-light);
+  padding: 0 var(--mc-space-1);
+  border-radius: var(--mc-radius-card);
+  background-image: linear-gradient(var(--mc-teal-light), var(--mc-teal-light));
+  background-size: 0% 100%;
+  background-position: left center;
+  background-repeat: no-repeat;
+  transition:
+    background-size var(--mc-motion-hover) var(--mc-ease-out-strong),
+    color var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+.handle:hover {
+  background-size: 100% 100%;
+  color: var(--mc-teal-ink);
+}
+
+.handle:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .handle {
+    transition: color var(--mc-motion-micro) var(--mc-ease-out);
+  }
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: var(--mc-space-9) var(--mc-space-6);
+  }
+  .frame {
+    padding: var(--mc-space-4);
+  }
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .post img,
+  .follow,
+  .handle {
+    transition: none;
+  }
+  /* No scroll parallax on the decor — hold the static composition. */
+  .tealRect,
+  .pickLeft,
+  .pickRight {
+    animation: none;
+  }
+}

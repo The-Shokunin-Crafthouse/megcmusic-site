@@ -1,0 +1,23 @@
+/* ★★★ LABEL ★★★ — Lora bold, cream label between rose stars (Figma 39:107). */
+.heading {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--mc-space-2);
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-base);
+  letter-spacing: 0.08em;
+  color: var(--mc-text-primary);
+  text-transform: uppercase;
+}
+
+.stars {
+  color: var(--mc-accent-rose);
+  letter-spacing: 0.1em;
+}
+
+.label {
+  white-space: nowrap;
+}

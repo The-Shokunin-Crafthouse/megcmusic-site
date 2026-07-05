@@ -14,20 +14,21 @@
   background: var(--mc-bg-card);
   border-radius: var(--mc-radius-card);
   box-shadow: var(--mc-shadow-card);
-  /* Entrance: rise + grow from 0.8. Staggered per row via --row-index.
-     `backwards` holds the start frame through the delay. */
-  animation: card-in 450ms var(--mc-ease-out) backwards;
-  animation-delay: calc(var(--row-index, 0) * 70ms);
+  /* Entrance: each card drops in from above and settles, cascading top-first
+     (delay grows with --row-index). `backwards` holds the start frame through
+     the delay so lower cards wait, hidden, until their turn. */
+  animation: card-in var(--mc-entrance-duration) var(--mc-ease-out) backwards;
+  animation-delay: calc(var(--row-index, 0) * var(--mc-cascade-stagger));
 }
 
 @keyframes card-in {
   from {
     opacity: 0;
-    transform: translateY(28px) scale(0.8);
+    transform: translateY(calc(-1 * var(--mc-entrance-offset)));
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 

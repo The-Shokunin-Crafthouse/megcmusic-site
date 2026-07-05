@@ -9,10 +9,10 @@ import styles from "./SiteChrome.module.css";
 export function SiteChrome() {
   return (
     <div className={styles.chrome}>
-      <div className={styles.logoSlot}>
+      <div className={styles.logoSlot} data-chrome-logo>
         <Logo />
       </div>
-      <div className={styles.desktopNav}>
+      <div className={styles.desktopNav} data-chrome-nav>
         <Nav />
       </div>
       <div className={styles.mobileNav}>

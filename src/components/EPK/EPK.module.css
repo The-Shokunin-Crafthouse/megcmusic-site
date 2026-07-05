@@ -1,0 +1,147 @@
+/* Electronic Press Kit (Figma 39:158) — divided rows of downloadable kits. */
+.section {
+  position: relative;
+  z-index: var(--mc-z-content);
+  padding: var(--mc-space-9) var(--mc-space-4);
+  /* Transparent so the BootScene backdrop shows through; the bootWrap carries
+     the plum ground. */
+  background: transparent;
+}
+
+.inner {
+  max-width: 1273px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mc-space-4);
+  padding: var(--mc-space-5) 0;
+  border-top: 1px solid var(--mc-divider);
+}
+
+.row:last-child {
+  border-bottom: 1px solid var(--mc-divider);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-4);
+  min-width: 0;
+}
+
+.thumb {
+  flex-shrink: 0;
+  width: 84px;
+  height: 108px;
+  object-fit: cover;
+  border-radius: var(--mc-radius-card);
+  box-shadow: var(--mc-shadow-card);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+  min-width: 0;
+}
+
+.title {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 400;
+  font-size: var(--mc-text-title);
+  line-height: 1.2;
+  color: var(--mc-text-primary);
+}
+
+.desc {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-lead);
+  line-height: 1.4;
+  color: var(--mc-teal-light);
+}
+
+/* Bordered pill action (comp 39:169). */
+.action {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-3) var(--mc-space-5);
+  border: 1px solid var(--mc-teal);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-primary);
+  background: transparent;
+  transition:
+    color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    border-color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .action:hover {
+    color: var(--mc-teal-ink);
+    background: var(--mc-teal-light);
+    border-color: var(--mc-teal-light);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
+}
+
+.action:active {
+  transform: translateY(0) scale(0.96);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.action:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+}
+
+/* Not-yet-available state — clearly inert, not a dead link. */
+.soon {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-3) var(--mc-space-5);
+  border: 1px dashed var(--mc-text-muted);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-muted);
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: var(--mc-space-9) var(--mc-space-6);
+  }
+  .meta {
+    gap: var(--mc-space-6);
+  }
+  .thumb {
+    width: 112px;
+    height: 145px;
+  }
+}

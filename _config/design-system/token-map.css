@@ -37,6 +37,7 @@
      primary interactive accent; pink retained only for venue red. */
   --mc-teal: #568c89;        /* solid teal — active tab, glass borders */
   --mc-teal-light: #60b1ad;  /* light teal — menu/link/active, inactive-tab text */
+  --mc-teal-bright: #7cc6c1; /* brighter teal — hover highlight (brighten, never darken) */
   --mc-teal-ink: #0d3333;    /* dark teal — text on teal fills */
 
   /* Glassmorphism (intentional anti-default override, logged) */
@@ -74,9 +75,31 @@
   --mc-ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
   --mc-motion-underline: 360ms;
   --mc-ease-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1); /* back-out: overshoots then settles */
+  --mc-ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1); /* strong ease-out for premium micro-interactions (Emil) */
+  --mc-motion-hover: 220ms; /* standard hover/reveal duration */
 
   /* Nav */
   --mc-nav-underline: #fffcdb; /* cream highlight under active nav link */
+  --mc-nav-roll: 460ms;         /* per-letter roll-up duration — slow, deliberate */
+  --mc-nav-roll-stagger: 45ms;  /* gap between each letter as the label rolls */
+
+  /* Nav glass edge — a slow-panning light-source gradient border (Figma 39:97:
+     the pill edge reads as white light, not the teal accent). The conic sweep
+     rotates around the pill like a light source panning. */
+  --mc-nav-edge-rgb: 255 255 255; /* white light */
+  --mc-nav-spin: 16s;             /* one slow full pan of the light source */
+
+  /* Logo name sheen — a barely-there brand-pink sweep over the script
+     (Figma highlight #FFC3CF). Subtle: noticed only on a close look. */
+  --mc-logo-sheen-rgb: 255 195 207; /* #FFC3CF */
+
+  /* Hero dates framing — bottom-anchor the dates so EXACTLY ~3.5 rows show on
+     load (3 full + the 4th clipped mid) regardless of viewport height. The
+     reserve is the fixed pixel run from the tabs down through 3.5 cards; the
+     pills therefore sit at a different Y per viewport height (by design).
+     Cards are taller on mobile (wrapped titles), so the reserve is larger. */
+  --mc-hero-dates-reserve: 448px;
+  --mc-hero-dates-reserve-mobile: 512px;
 
   /* Focus — dedicated ring, AA on the pink pill (not the brand accent) */
   --mc-focus-ring: #241420;
@@ -96,4 +119,45 @@
   --mc-text-base: 1rem;    /* 16px — tabs, time, venue, city, buttons */
   --mc-text-lg: 1.375rem;  /* 22px — show title */
   --mc-text-2xl: 2rem;     /* 32px — date-badge day */
+
+  /* Z-index scale — Sprint 6 homepage scroll scene. The persistent logo pins
+     above everything on every route; the mobile menu overlay is the only thing
+     allowed above it (it carries its own logo). No ad-hoc 9999s. */
+  --mc-z-backdrop: 1;   /* fixed hero photo + scrim, behind all content */
+  --mc-z-content: 10;   /* normal-flow page sections */
+  --mc-z-chrome: 40;    /* nav pill / mobile Menu button */
+  --mc-z-logo: 100;     /* persistent logo — always the top layer of the page */
+  --mc-z-overlay: 200;  /* mobile menu full-screen overlay (sits over the logo) */
+
+  /* Hero scrim — flat plum wash over the photo for AA behind the dates list
+     (Figma 128:308: rgba(36,20,32,0.6) over the hero region). */
+  --mc-scrim-hero: rgb(var(--mc-bg-rgb) / 0.6);
+
+  /* Hero entrance choreography — Sprint 6. A one-time orchestrated reveal:
+     the plum scrim fades in, then logo → nav → dates each scale up from 0.94
+     (never 0) as they slide + fade, settling with the back-out overshoot for
+     an "arriving with weight" feel. 640ms is over the 600ms UI ceiling by
+     design: this is a scripted first-paint hero reveal seen once per visit,
+     not a repeated micro-interaction (logged 2026-07-04 ADR). */
+  --mc-scrim-fade: 1100ms;       /* slow plum wash — cinematic */
+  --mc-entrance-duration: 900ms; /* logo/nav/card settle — slow, deliberate */
+  --mc-entrance-stagger: 200ms;  /* gap between logo → nav → dates */
+  --mc-entrance-offset: 20px;    /* slide distance into place */
+  --mc-entrance-scale: 0.94;     /* start scale — Emil: never scale(0) */
+  --mc-cascade-stagger: 150ms;   /* gap between each show card dropping in */
+  --mc-tab-stagger: 80ms;        /* left-to-right gap between tab-row pills */
+
+  /* Homepage body sections — Sprint 6 Phase 2 (Figma 39:2). */
+  --mc-text-liner: #e5d8cc;   /* Liner Notes bio prose */
+  --mc-radius-quote: 24px;    /* pull-quote / framed corners */
+  --mc-grain-opacity: 0.07;   /* film-grain overlay (brand texture, comp) */
+  --mc-footer-wordmark: #261522; /* BOOK ME watermark — barely off --mc-bg-section (#291724), a whisper */
+
+  /* Type sizes used by the sections (mirrored absolute from the comp). */
+  --mc-text-detail: 0.8125rem; /* 13px — captions, recognition detail, video sub */
+  --mc-text-prose: 1.125rem;   /* 18px — bio + recognition body */
+  --mc-text-lead: 1.3125rem;   /* 21px — EPK/video/discography lead + year */
+  --mc-text-title: 1.75rem;    /* 28px — EPK/discography item titles */
+  --mc-text-quote: 2.3125rem;  /* 37px — pull-quote */
+  --mc-text-dropcap: 6.625rem; /* 106px — Praise drop-cap */
 }

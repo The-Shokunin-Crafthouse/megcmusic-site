@@ -1,0 +1,237 @@
+/* Discography (Figma 128:673) — divided release rows with streaming + buy. */
+.section {
+  position: relative;
+  z-index: var(--mc-z-content);
+  padding: var(--mc-space-9) var(--mc-space-4);
+  background: var(--mc-bg);
+}
+
+.inner {
+  max-width: 1273px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mc-space-4);
+  padding: var(--mc-space-6) 0;
+  border-top: 1px solid var(--mc-divider);
+}
+
+.row:last-child {
+  border-bottom: 1px solid var(--mc-divider);
+}
+
+.meta {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-6);
+  min-width: 0;
+}
+
+.art {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  box-shadow: 0 4px 28px rgb(0 0 0 / 0.55);
+}
+
+/* Titled placeholder until a real cover is added. */
+.artPlaceholder {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mc-space-2);
+  padding: var(--mc-space-2);
+  text-align: center;
+  background: var(--mc-bg-quote);
+  box-shadow: 0 4px 28px rgb(0 0 0 / 0.55);
+}
+
+.artStar {
+  color: var(--mc-accent-gold);
+  font-size: var(--mc-text-lead);
+}
+
+.artTitle {
+  font-family: var(--mc-font-display);
+  font-size: var(--mc-text-detail);
+  line-height: 1.25;
+  color: var(--mc-text-liner);
+}
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+  min-width: 0;
+}
+
+.release {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+}
+
+.year,
+.type {
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-lead);
+  color: var(--mc-accent-pink);
+}
+
+.star {
+  color: var(--mc-accent-rose);
+  font-size: var(--mc-text-base);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-title);
+  line-height: 1.2;
+  color: var(--mc-text-primary);
+}
+
+.links {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-4);
+}
+
+.linkWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mc-space-4);
+}
+
+.divider {
+  width: 1px;
+  height: 1.25em;
+  background: var(--mc-teal);
+}
+
+.link {
+  display: inline-block;
+  padding: var(--mc-space-1) var(--mc-space-3);
+  /* Transparent 2px border reserved on every variant so adding a border on
+     hover never shifts the row. */
+  border: 2px solid transparent;
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-lead);
+  color: var(--mc-text-primary);
+  text-transform: uppercase;
+  transition:
+    color var(--mc-motion-micro) var(--mc-ease-out),
+    background var(--mc-motion-micro) var(--mc-ease-out),
+    border-color var(--mc-motion-micro) var(--mc-ease-out),
+    font-weight var(--mc-motion-micro) var(--mc-ease-out),
+    transform var(--mc-motion-micro) var(--mc-ease-overshoot);
+}
+
+/* Streaming (Spotify / Apple): outline on hover — a 2px teal border with the
+   label brightening, no fill. */
+@media (hover: hover) {
+  .linkStream:hover {
+    color: var(--mc-teal-bright);
+    border-color: var(--mc-teal);
+    transform: translateY(-2px);
+  }
+}
+
+/* Buy: identical to the streaming links at rest. Only on hover does it fill
+   solid and its label go heavier. */
+.linkBuy {
+  position: relative;
+}
+
+/* Reserve the bold-weight width up front (an invisible bold ghost of the
+   label) so the hover weight change never reflows the row — the other links
+   stay put. */
+.linkBuy::after {
+  content: attr(data-label);
+  display: block;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-weight: 800;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .linkBuy:hover {
+    font-weight: 800;
+    color: var(--mc-teal-ink);
+    background: var(--mc-teal);
+    border-color: var(--mc-teal);
+    transform: translateY(-2px);
+  }
+}
+
+.link:active {
+  transform: translateY(0) scale(0.96);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition:
+      color var(--mc-motion-micro) var(--mc-ease-out),
+      border-color var(--mc-motion-micro) var(--mc-ease-out);
+  }
+  .linkStream:hover,
+  .linkBuy:hover {
+    transform: none;
+  }
+  .link:active {
+    transform: none;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: var(--mc-space-9) var(--mc-space-6);
+  }
+  .art,
+  .artPlaceholder {
+    width: 150px;
+    height: 150px;
+  }
+}

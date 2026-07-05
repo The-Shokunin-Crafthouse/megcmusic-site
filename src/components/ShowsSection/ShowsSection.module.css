@@ -15,6 +15,14 @@
   background: transparent;
 }
 
+/* On home the section is the hero content, riding over HomeScene's fixed photo:
+   transparent, and the scene owns the vertical rhythm (heroInner padding). */
+.sectionHome {
+  padding-top: 0;
+  padding-bottom: 0;
+  background: transparent;
+}
+
 .heading {
   position: absolute;
   width: 1px;
@@ -41,6 +49,25 @@
   margin-bottom: var(--mc-space-4);
 }
 
+/* Tab-row pills stagger in left-to-right (--col-index), overlapping the card
+   cascade. Each pill pulls in from the left as it fades. */
+.tab,
+.searchToggle {
+  animation: tab-in var(--mc-entrance-duration) var(--mc-ease-out) backwards;
+  animation-delay: calc(var(--col-index, 0) * var(--mc-tab-stagger));
+}
+
+@keyframes tab-in {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-1 * var(--mc-space-2)));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .tab {
   display: inline-flex;
   align-items: center;
@@ -52,7 +79,8 @@
   border-radius: var(--mc-radius-pill);
   font-family: var(--mc-font-ui);
   font-weight: 400;
-  font-size: var(--mc-text-base);
+  /* Figma 39:12: pill labels are 12px, not the 16px body size. */
+  font-size: var(--mc-text-2xs);
   /* Inactive = glass pill (Figma 110:119): translucent plum + blur + teal edge. */
   color: var(--mc-teal-light);
   background: var(--mc-glass);
@@ -136,16 +164,25 @@
   color: var(--mc-text-card);
   background: var(--mc-accent-pink);
   transition:
-    background var(--mc-motion-micro) var(--mc-ease-out),
-    transform var(--mc-motion-micro) var(--mc-ease-out);
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
 }
 
-.seeAll:hover {
-  background: var(--mc-accent-rose);
+@media (hover: hover) {
+  /* Brighten the pink on hover, never dim it to the muted rose. */
+  .seeAll:hover {
+    background: var(--mc-accent-pink);
+    filter: brightness(1.08);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
 }
 
+/* Press: scale down; release snaps back (Emil). */
 .seeAll:active {
-  transform: scale(0.97);
+  transform: translateY(0) scale(0.96);
+  transition-duration: var(--mc-motion-micro);
 }
 
 .seeAll:focus-visible {
@@ -171,6 +208,7 @@
 /* Tabs row with the search toggle at the end (Figma 110:2). */
 .tabRow {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: var(--mc-space-2);
   margin-bottom: var(--mc-space-4);
@@ -178,16 +216,22 @@
 
 .tabRow .tabs {
   flex: 1 1 auto;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   gap: var(--mc-space-2);
   margin-bottom: 0;
 }
 
-/* Tighter pills in the archive row so the three tabs + search sit on one line
-   at 390 (Figma 110:2). */
+/* Right-side controls (Add To Calendar + search) — pushed to the pill's end by
+   the tabs' flex-grow (Figma 39:12). */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  flex-shrink: 0;
+}
+
+/* Pills never wrap their own label; the row wraps between pills instead. */
 .tabRow .tab {
-  padding-left: var(--mc-space-2);
-  padding-right: var(--mc-space-2);
   white-space: nowrap;
 }
 
@@ -271,6 +315,11 @@
   .sectionPage {
     padding-top: 0;
   }
+  /* Home hero owns the vertical rhythm at every breakpoint. */
+  .sectionHome {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -278,6 +327,7 @@
   .seeAll,
   .searchToggle {
     transition: none;
+    animation: none;
   }
   .tab:active,
   .seeAll:active,

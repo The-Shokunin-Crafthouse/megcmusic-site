@@ -3,12 +3,15 @@
   flex-shrink: 0;
 }
 
-/* Height driven by the context (--logo-h); width follows the 229:192 ratio. */
+/* Height driven by the context (--logo-h); the pick+name artwork is square
+   (Figma 39:4 export, 272.94²), tilted -6.04° to match the comp. */
 .lockup {
   position: relative;
   display: block;
   height: var(--logo-h, 40px);
-  aspect-ratio: 229 / 192;
+  aspect-ratio: 1 / 1;
+  transform: rotate(-6.04deg);
+  transform-origin: center;
 }
 
 .pick,
@@ -20,6 +23,13 @@
   height: 100%;
 }
 
+/* Script drop-shadow via CSS (rasterises at device resolution = crisp on
+   retina) instead of an in-SVG feGaussianBlur, which pixelated the name.
+   Colour is the Figma shadow plum (= --mc-glass-rgb). */
+.name {
+  filter: drop-shadow(1.5px 1.5px 1.5px rgb(var(--mc-glass-rgb) / 0.85));
+}
+
 /* Left-to-right shimmer over the name only — a bright band swept across the
    name glyphs (masked by the name SVG), blended so the pink script stays. */
 .shimmer {
@@ -27,11 +37,14 @@
   inset: 0;
   pointer-events: none;
   mix-blend-mode: screen;
+  /* Brand-pink sweep (Figma highlight #FFC3CF) that travels the script — a
+     defined moving band (a wipe, not a diffuse glow), masked to the name so
+     only the glyphs catch it. */
   background: linear-gradient(
     100deg,
-    transparent 42%,
-    rgba(255, 255, 255, 0.55) 50%,
-    transparent 58%
+    transparent 40%,
+    rgb(var(--mc-logo-sheen-rgb) / 0.78) 50%,
+    transparent 60%
   );
   background-size: 250% 100%;
   background-repeat: no-repeat;
@@ -39,15 +52,17 @@
      at the Vercel root. */
   -webkit-mask: url(/images/hero/logo-name.svg) center / contain no-repeat;
   mask: url(/images/hero/logo-name.svg) center / contain no-repeat;
-  animation: logo-shimmer 4s var(--mc-ease-out) infinite;
+  /* Slower wipe (8s vs 6s); the off-canvas travel keeps the same rest gap
+     between passes. */
+  animation: logo-shimmer 8s var(--mc-ease-out) infinite;
 }
 
 @keyframes logo-shimmer {
   from {
-    background-position: 160% 0;
+    background-position: 170% 0;
   }
   to {
-    background-position: -60% 0;
+    background-position: -70% 0;
   }
 }
 

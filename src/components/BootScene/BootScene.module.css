@@ -1,0 +1,23 @@
+/* 3D boot backdrop — sits behind the discography content (the section is
+   transparent; the wrapper carries the plum ground). Faint enough to keep the
+   copy AA, dimensional enough to feel alive as it tilts on scroll. */
+.host {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.2;
+  mix-blend-mode: soft-light;
+}
+
+.host canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .host {
+    opacity: 0.3;
+  }
+}

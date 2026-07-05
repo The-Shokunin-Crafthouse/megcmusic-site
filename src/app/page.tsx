@@ -1,5 +1,12 @@
-import { Hero } from "@/components/Hero/Hero";
-import { ShowsSection } from "@/components/ShowsSection/ShowsSection";
+import { HomeScene } from "@/components/HomeScene/HomeScene";
+import { LinerNotes } from "@/components/LinerNotes/LinerNotes";
+import { Instagram } from "@/components/Instagram/Instagram";
+import { EPK } from "@/components/EPK/EPK";
+import { Videos } from "@/components/Videos/Videos";
+import { Newsletter } from "@/components/Newsletter/Newsletter";
+import { Discography } from "@/components/Discography/Discography";
+import { BootScene } from "@/components/BootScene/BootScene";
+import { SiteFooter } from "@/components/SiteFooter/SiteFooter";
 import { getEvents, type TribeEvent } from "@/lib/api/events";
 import styles from "./page.module.css";
 
@@ -35,8 +42,17 @@ export default async function Home() {
 
   return (
     <div className={styles.page}>
-      <Hero />
-      <ShowsSection upcoming={upcoming} justAdded={justAdded} past={past} />
+      <HomeScene upcoming={upcoming} justAdded={justAdded} past={past} />
+      <LinerNotes />
+      <Instagram />
+      <div className={styles.bootWrap}>
+        <EPK />
+        <BootScene />
+      </div>
+      <Videos />
+      <Newsletter />
+      <Discography />
+      <SiteFooter />
     </div>
   );
 }
