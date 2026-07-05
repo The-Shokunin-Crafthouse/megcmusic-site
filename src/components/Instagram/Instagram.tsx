@@ -32,11 +32,19 @@ export async function Instagram() {
 
   return (
     <section className={styles.section} aria-labelledby="insta-heading">
-      {/* Soft teal blobs behind the frame, left + right (comp 39:149/150/152). */}
+      {/* Flat decor behind the frame (comp 39:149/150/152): a teal angled
+          rounded rectangle, plus a guitar pick lower-left and lower-right. No
+          blurs. */}
       <div className={styles.decor} aria-hidden="true">
-        <span className={styles.blobLeft} />
-        <span className={styles.blobRight} />
-        <span className={styles.blobRightSm} />
+        <div className={styles.decorInner}>
+          <span className={styles.tealRect} />
+          <svg className={styles.pickLeft} viewBox="0 0 100 108" aria-hidden="true">
+            <path d="M50 3 C73 3 97 19 97 45 C97 77 66 105 50 105 C34 105 3 77 3 45 C3 19 27 3 50 3 Z" />
+          </svg>
+          <svg className={styles.pickRight} viewBox="0 0 100 108" aria-hidden="true">
+            <path d="M50 3 C73 3 97 19 97 45 C97 77 66 105 50 105 C34 105 3 77 3 45 C3 19 27 3 50 3 Z" />
+          </svg>
+        </div>
       </div>
       <div className={styles.inner}>
         <SectionLabel id="insta-heading">Instastar</SectionLabel>

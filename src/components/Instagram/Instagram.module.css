@@ -7,7 +7,9 @@
   background: var(--mc-bg);
 }
 
-/* Flat decorative shapes behind the frame (comp 39:149/150/152) — no glow. */
+/* Flat decorative shapes behind the frame (comp 39:149/150/152) — no blur.
+   Anchored to a centred 1273-wide band so they track the frame, then clipped
+   by the section's overflow. Sizes scale down responsively. */
 .decor {
   position: absolute;
   inset: 0;
@@ -15,40 +17,49 @@
   pointer-events: none;
 }
 
-.blobLeft,
-.blobRight,
-.blobRightSm {
+.decorInner {
+  position: relative;
+  max-width: 1273px;
+  height: 100%;
+  margin: 0 auto;
+}
+
+/* Teal rounded rectangle, tilted, 50% opacity (comp 39:149 — #568c89, r176).
+   Wider than the frame so its rounded ends poke out top-right / lower-left. */
+.tealRect {
   position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 108%;
+  height: clamp(150px, 22vw, 285px);
+  transform: translate(-50%, -50%) rotate(-4deg);
   background: var(--mc-teal);
-  border-radius: 50%;
-  filter: blur(38px);
+  opacity: 0.5;
+  border-radius: clamp(96px, 13vw, 176px);
 }
 
-.blobLeft {
-  top: 16%;
-  left: -110px;
-  width: 380px;
-  height: 300px;
-  opacity: 0.34;
-  transform: rotate(-14deg);
+/* Guitar-pick silhouettes (comp 39:150 lower-left, 39:152 lower-right), large
+   and mostly clipped by the section, faint. */
+.pickLeft,
+.pickRight {
+  position: absolute;
+  width: clamp(200px, 30vw, 420px);
+  height: auto;
+  aspect-ratio: 100 / 108;
+  fill: var(--mc-accent-rose);
+  opacity: 0.16;
 }
 
-.blobRight {
-  bottom: -60px;
-  right: -120px;
-  width: 440px;
-  height: 300px;
-  opacity: 0.34;
-  transform: rotate(12deg);
+.pickLeft {
+  left: clamp(-160px, -9vw, -70px);
+  bottom: -14%;
+  transform: rotate(9deg);
 }
 
-.blobRightSm {
-  top: -40px;
-  right: 60px;
-  width: 240px;
-  height: 190px;
-  opacity: 0.26;
-  transform: rotate(-8deg);
+.pickRight {
+  right: clamp(-120px, -4vw, -30px);
+  bottom: -32%;
+  transform: rotate(-15deg);
 }
 
 .inner {

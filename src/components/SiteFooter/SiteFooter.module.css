@@ -57,8 +57,9 @@
 }
 
 @media (hover: hover) {
+  /* Brighten on hover (lighter teal), never darken. */
   .cta:hover {
-    background: var(--mc-teal);
+    background: var(--mc-teal-bright);
     transform: translateY(-3px) scale(1.02);
     box-shadow: var(--mc-shadow-card-hover);
   }

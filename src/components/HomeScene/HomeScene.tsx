@@ -77,10 +77,19 @@ export function HomeScene({
           10,
         ) || 48;
 
+      // Promote the layer only while it's actually translating; at rest the
+      // backdrop stays a plain fixed element so it paints full-bleed at first
+      // paint (a static will-change made it snap to full-bleed only on scroll).
       const apply = () => {
         const past = window.innerHeight - gap - marker.getBoundingClientRect().top;
         const shift = Math.max(0, past);
-        backdrop.style.transform = shift ? `translate3d(0, ${-shift}px, 0)` : "";
+        if (shift) {
+          backdrop.style.willChange = "transform";
+          backdrop.style.transform = `translate3d(0, ${-shift}px, 0)`;
+        } else {
+          backdrop.style.transform = "";
+          backdrop.style.willChange = "";
+        }
       };
 
       const st = ScrollTrigger.create({
@@ -91,6 +100,7 @@ export function HomeScene({
         onLeave: apply,
         onLeaveBack: () => {
           backdrop.style.transform = "";
+          backdrop.style.willChange = "";
         },
       });
       // The start position depends on the events list height + late-loading
@@ -102,6 +112,7 @@ export function HomeScene({
         window.removeEventListener("load", onLoad);
         st.kill();
         backdrop.style.transform = "";
+        backdrop.style.willChange = "";
       };
     })();
 

@@ -170,8 +170,10 @@
 }
 
 @media (hover: hover) {
+  /* Brighten the pink on hover, never dim it to the muted rose. */
   .seeAll:hover {
-    background: var(--mc-accent-rose);
+    background: var(--mc-accent-pink);
+    filter: brightness(1.08);
     transform: translateY(-3px) scale(1.02);
     box-shadow: var(--mc-shadow-card-hover);
   }

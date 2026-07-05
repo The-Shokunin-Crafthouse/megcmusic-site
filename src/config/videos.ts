@@ -8,6 +8,9 @@
  */
 export const CHANNEL_ID = "UCCns9wV-KGZI05bsBezql5w";
 
+/** Public channel page — linked from the videos right rail. */
+export const channelUrl = `https://www.youtube.com/channel/${CHANNEL_ID}`;
+
 export const primaryVideoId = "A8E_XRwkhTk";
 
 export const extraVideoIds: string[] = [];

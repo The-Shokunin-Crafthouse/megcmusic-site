@@ -10,8 +10,10 @@
   overflow: hidden;
   background: var(--mc-bg);
   /* Release (past the dates list) translates this up; kept fixed so it never
-     adds to the scroll height. Driven from HomeScene.tsx. */
-  will-change: transform;
+     adds to the scroll height. Driven from HomeScene.tsx, which also toggles
+     will-change only while it's actually moving — a static will-change here
+     promoted the layer at first paint and rendered it a beat late (the photo
+     only snapped to full-bleed on the first scroll). */
 }
 
 .photo {

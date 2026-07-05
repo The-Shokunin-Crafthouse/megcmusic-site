@@ -133,6 +133,9 @@
 .link {
   display: inline-block;
   padding: var(--mc-space-1) var(--mc-space-3);
+  /* Transparent 2px border reserved on every variant so adding a border on
+     hover never shifts the row. */
+  border: 2px solid transparent;
   border-radius: var(--mc-radius-pill);
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-lead);
@@ -141,13 +144,34 @@
   transition:
     color var(--mc-motion-micro) var(--mc-ease-out),
     background var(--mc-motion-micro) var(--mc-ease-out),
+    border-color var(--mc-motion-micro) var(--mc-ease-out),
+    font-weight var(--mc-motion-micro) var(--mc-ease-out),
     transform var(--mc-motion-micro) var(--mc-ease-overshoot);
 }
 
+/* Streaming (Spotify / Apple): outline on hover — a 2px teal border with the
+   label brightening, no fill. */
 @media (hover: hover) {
-  .link:hover {
-    color: var(--mc-teal-ink);
-    background: var(--mc-teal-light);
+  .linkStream:hover {
+    color: var(--mc-teal-bright);
+    border-color: var(--mc-teal);
+    transform: translateY(-2px);
+  }
+}
+
+/* Buy: the solid pill. On hover its label gets heavier and the fill brightens. */
+.linkBuy {
+  font-weight: 600;
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal);
+  border-color: var(--mc-teal);
+}
+
+@media (hover: hover) {
+  .linkBuy:hover {
+    font-weight: 800;
+    background: var(--mc-teal-bright);
+    border-color: var(--mc-teal-bright);
     transform: translateY(-2px);
   }
 }
@@ -163,9 +187,12 @@
 
 @media (prefers-reduced-motion: reduce) {
   .link {
-    transition: color var(--mc-motion-micro) var(--mc-ease-out);
+    transition:
+      color var(--mc-motion-micro) var(--mc-ease-out),
+      border-color var(--mc-motion-micro) var(--mc-ease-out);
   }
-  .link:hover {
+  .linkStream:hover,
+  .linkBuy:hover {
     transform: none;
   }
   .link:active {

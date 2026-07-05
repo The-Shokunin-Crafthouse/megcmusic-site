@@ -37,6 +37,7 @@
      primary interactive accent; pink retained only for venue red. */
   --mc-teal: #568c89;        /* solid teal — active tab, glass borders */
   --mc-teal-light: #60b1ad;  /* light teal — menu/link/active, inactive-tab text */
+  --mc-teal-bright: #7cc6c1; /* brighter teal — hover highlight (brighten, never darken) */
   --mc-teal-ink: #0d3333;    /* dark teal — text on teal fills */
 
   /* Glassmorphism (intentional anti-default override, logged) */
@@ -79,6 +80,8 @@
 
   /* Nav */
   --mc-nav-underline: #fffcdb; /* cream highlight under active nav link */
+  --mc-nav-roll: 460ms;         /* per-letter roll-up duration — slow, deliberate */
+  --mc-nav-roll-stagger: 45ms;  /* gap between each letter as the label rolls */
 
   /* Nav glass edge — a slow-panning light-source gradient border (Figma 39:97:
      the pill edge reads as white light, not the teal accent). The conic sweep
@@ -148,7 +151,7 @@
   --mc-text-liner: #e5d8cc;   /* Liner Notes bio prose */
   --mc-radius-quote: 24px;    /* pull-quote / framed corners */
   --mc-grain-opacity: 0.07;   /* film-grain overlay (brand texture, comp) */
-  --mc-footer-wordmark: #2c1a27; /* BOOK ME watermark — barely lighter than --mc-bg-section (#291724) */
+  --mc-footer-wordmark: #33212f; /* BOOK ME watermark — a touch more contrast over --mc-bg-section (#291724), still a whisper */
 
   /* Type sizes used by the sections (mirrored absolute from the comp). */
   --mc-text-detail: 0.8125rem; /* 13px — captions, recognition detail, video sub */

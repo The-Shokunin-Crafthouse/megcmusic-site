@@ -91,23 +91,34 @@
   opacity: 0.7;
 }
 
-/* The label rolls up and a teal copy rolls in from below — a clean, premium
-   reveal. The active ("now playing") link rests on the teal copy. */
+/* Each letter rolls up on its own and a teal copy rolls in from below —
+   staggered left-to-right for a slow, deliberate reveal. The active ("now
+   playing") link rests on the teal copies. */
 .roll {
-  display: inline-block;
-  overflow: hidden;
+  display: inline-flex;
   vertical-align: bottom;
   line-height: 1.2;
+}
+
+.rollChar {
+  display: inline-block;
+  overflow: hidden;
+  line-height: 1.2;
+  /* Preserve the space glyph's width even though letters are inline-blocks. */
+  white-space: pre;
 }
 
 .rollInner {
   display: inline-block;
   position: relative;
-  transition: transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+  white-space: pre;
+  transition: transform var(--mc-nav-roll) var(--mc-ease-out-strong);
+  /* Roll-in reverses the stagger so letters settle back left-to-right too. */
+  transition-delay: calc(var(--i, 0) * var(--mc-nav-roll-stagger));
 }
 
 .rollInner::after {
-  content: attr(data-label);
+  content: attr(data-ch);
   position: absolute;
   left: 0;
   top: 100%;
@@ -149,5 +160,6 @@
   }
   .rollInner {
     transition: none;
+    transition-delay: 0ms;
   }
 }

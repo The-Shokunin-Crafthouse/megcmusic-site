@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS, isActiveRoute } from "./navItems";
@@ -20,13 +21,25 @@ export function Nav() {
               <Link
                 href={href}
                 prefetch={false}
+                aria-label={label}
                 aria-current={active ? "page" : undefined}
                 className={active ? `${styles.link} ${styles.active}` : styles.link}
               >
-                <span className={styles.roll}>
-                  <span className={styles.rollInner} data-label={label}>
-                    {label}
-                  </span>
+                {/* Each letter rolls up on its own, staggered left-to-right; a
+                    teal copy rolls in behind it. Labels are single words, so the
+                    split reads fine to a screen reader (Link carries aria-label). */}
+                <span className={styles.roll} aria-hidden="true">
+                  {label.split("").map((ch, i) => (
+                    <span
+                      key={i}
+                      className={styles.rollChar}
+                      style={{ "--i": i } as CSSProperties}
+                    >
+                      <span className={styles.rollInner} data-ch={ch}>
+                        {ch}
+                      </span>
+                    </span>
+                  ))}
                 </span>
               </Link>
             </li>

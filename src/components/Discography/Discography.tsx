@@ -14,9 +14,9 @@ export function Discography() {
         <ul className={styles.list}>
           {RELEASES.map((r) => {
             const links = [
-              { label: "Spotify", href: r.spotify ?? ARTIST_LINKS.spotify },
-              { label: "Apple", href: r.apple ?? ARTIST_LINKS.apple },
-              { label: "Buy", href: r.buy ?? ARTIST_LINKS.buy },
+              { label: "Spotify", href: r.spotify ?? ARTIST_LINKS.spotify, buy: false },
+              { label: "Apple", href: r.apple ?? ARTIST_LINKS.apple, buy: false },
+              { label: "Buy", href: r.buy ?? ARTIST_LINKS.buy, buy: true },
             ];
             return (
               <li key={r.title} className={styles.row}>
@@ -53,7 +53,7 @@ export function Discography() {
                     <span key={l.label} className={styles.linkWrap}>
                       {i > 0 && <span className={styles.divider} aria-hidden="true" />}
                       <a
-                        className={styles.link}
+                        className={`${styles.link} ${l.buy ? styles.linkBuy : styles.linkStream}`}
                         href={l.href}
                         target="_blank"
                         rel="noopener noreferrer"

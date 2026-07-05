@@ -110,6 +110,15 @@ export function BootScene() {
         render();
       };
 
+      // Defined before ScrollTrigger.create so onToggle (which can fire
+      // synchronously during create) never hits the TDZ.
+      const loop = () => {
+        if (!active || reduce) return;
+        t += 0.016;
+        apply();
+        raf = requestAnimationFrame(loop);
+      };
+
       const st = ScrollTrigger.create({
         trigger: node,
         start: "top bottom",
@@ -124,12 +133,6 @@ export function BootScene() {
         },
       });
 
-      const loop = () => {
-        if (!active || reduce) return;
-        t += 0.016;
-        apply();
-        raf = requestAnimationFrame(loop);
-      };
       apply();
       if (!reduce) loop();
 
