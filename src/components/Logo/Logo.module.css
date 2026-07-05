@@ -23,6 +23,13 @@
   height: 100%;
 }
 
+/* Script drop-shadow via CSS (rasterises at device resolution = crisp on
+   retina) instead of an in-SVG feGaussianBlur, which pixelated the name.
+   Colour is the Figma shadow plum (= --mc-glass-rgb). */
+.name {
+  filter: drop-shadow(1.5px 1.5px 1.5px rgb(var(--mc-glass-rgb) / 0.85));
+}
+
 /* Left-to-right shimmer over the name only — a bright band swept across the
    name glyphs (masked by the name SVG), blended so the pink script stays. */
 .shimmer {
