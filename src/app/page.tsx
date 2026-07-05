@@ -2,6 +2,8 @@ import { HomeScene } from "@/components/HomeScene/HomeScene";
 import { LinerNotes } from "@/components/LinerNotes/LinerNotes";
 import { Instagram } from "@/components/Instagram/Instagram";
 import { EPK } from "@/components/EPK/EPK";
+import { Videos } from "@/components/Videos/Videos";
+import { Newsletter } from "@/components/Newsletter/Newsletter";
 import { Discography } from "@/components/Discography/Discography";
 import { SiteFooter } from "@/components/SiteFooter/SiteFooter";
 import { getEvents, type TribeEvent } from "@/lib/api/events";
@@ -57,6 +59,8 @@ export default async function Home() {
       <LinerNotes paragraphs={bio} />
       <Instagram />
       <EPK />
+      <Videos />
+      <Newsletter />
       <Discography />
       <SiteFooter />
     </div>
