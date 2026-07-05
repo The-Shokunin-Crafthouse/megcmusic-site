@@ -1,0 +1,145 @@
+/* Product tile — cream card echoing the show cards, a square image frame above
+   name + price. Whole card is a stretched link; hover lifts and brightens
+   (brighten-never-darken register). */
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  border-radius: var(--mc-radius-card);
+  background: var(--mc-bg-card);
+  box-shadow: var(--mc-shadow-card);
+  overflow: hidden;
+  transition:
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
+}
+
+/* Fixed-aspect frame reserves space so the grid never shifts as tiles load. */
+.frame {
+  position: relative;
+  aspect-ratio: 1 / 1;
+  background: var(--mc-bg-card);
+  overflow: hidden;
+}
+
+.image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .card:hover .image {
+    transform: scale(1.03);
+  }
+}
+
+.imageFallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  font-size: var(--mc-text-2xl);
+  color: var(--mc-accent-gold);
+  background: var(--mc-bg-quote);
+}
+
+.soldOut {
+  position: absolute;
+  top: var(--mc-space-2);
+  left: var(--mc-space-2);
+  z-index: 1;
+  padding: var(--mc-space-1) var(--mc-space-3);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mc-text-primary);
+  background: rgb(var(--mc-bg-rgb) / 0.82);
+}
+
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-1);
+  padding: var(--mc-space-3) var(--mc-space-3) var(--mc-space-4);
+}
+
+.name {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 600;
+  font-size: var(--mc-text-base);
+  line-height: 1.25;
+  color: var(--mc-text-card);
+}
+
+/* Stretched link covers the whole card; the name is the accessible label. */
+.link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: var(--mc-radius-card);
+}
+
+.link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.link:focus-visible {
+  outline: none;
+}
+
+.card:has(.link:focus-visible) {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+.price {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mc-space-2);
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  font-weight: 700;
+  color: var(--mc-text-card);
+}
+
+.wasPrice {
+  font-weight: 400;
+  font-size: var(--mc-text-sm);
+  color: var(--mc-accent-red-ink);
+  text-decoration: line-through;
+}
+
+.salePrice {
+  color: var(--mc-accent-red-ink);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card,
+  .image {
+    transition: none;
+  }
+  @media (hover: hover) {
+    .card:hover,
+    .card:hover .image {
+      transform: none;
+    }
+  }
+}
