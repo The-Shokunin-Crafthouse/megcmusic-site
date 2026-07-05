@@ -1,0 +1,204 @@
+/* Photo gallery — square lazy tiles that open an accessible lightbox. The grid
+   reserves every cell (aspect-ratio + fixed columns) so lazy images never shift
+   layout (CLS 0). Hover brightens, never darkens (brand rule). */
+
+.grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--mc-space-2);
+}
+
+.cell {
+  margin: 0;
+}
+
+.tile {
+  display: block;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  padding: 0;
+  border: none;
+  border-radius: var(--mc-radius-card);
+  overflow: hidden;
+  background: var(--mc-bg-quote);
+  cursor: pointer;
+  transition:
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+.thumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition:
+    filter var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .tile:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
+  .tile:hover .thumb {
+    filter: brightness(1.08);
+    transform: scale(1.05);
+  }
+}
+
+.tile:active {
+  transform: scale(0.98);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.tile:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+}
+
+.empty {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-subtle);
+}
+
+.emptyLink {
+  color: var(--mc-teal-light);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+/* ---- Lightbox ----------------------------------------------------------- */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: var(--mc-z-overlay);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: var(--mc-space-2);
+  padding: var(--mc-space-4);
+  background: rgb(var(--mc-bg-rgb) / 0.94);
+  backdrop-filter: blur(var(--mc-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  opacity: 1;
+  transition: opacity var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@starting-style {
+  .lightbox[data-open="true"] {
+    opacity: 0;
+  }
+}
+
+.stage {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+  max-height: 100%;
+}
+
+.full {
+  max-width: 100%;
+  max-height: 86svh;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: var(--mc-radius-card);
+  box-shadow: var(--mc-shadow-card);
+  transform: scale(1);
+  transition: transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@starting-style {
+  .lightbox[data-open="true"] .full {
+    transform: scale(0.96);
+  }
+}
+
+/* Glass circular controls. */
+.control {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--mc-touch-target);
+  height: var(--mc-touch-target);
+  border: 1px solid var(--mc-teal);
+  border-radius: var(--mc-radius-pill);
+  color: var(--mc-text-primary);
+  background: var(--mc-glass);
+  backdrop-filter: blur(var(--mc-glass-blur));
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  cursor: pointer;
+  transition:
+    color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    border-color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .control:hover {
+    color: var(--mc-teal-ink);
+    background: var(--mc-teal-light);
+    border-color: var(--mc-teal-light);
+    transform: scale(1.06);
+  }
+}
+
+.control:active {
+  transform: scale(0.94);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.control:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+/* The close control floats to the top-right corner of the overlay. */
+.close {
+  position: absolute;
+  top: var(--mc-space-4);
+  right: var(--mc-space-4);
+}
+
+@media (min-width: 768px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--mc-space-3);
+  }
+  .lightbox {
+    padding: var(--mc-space-6);
+    gap: var(--mc-space-4);
+  }
+}
+
+@media (min-width: 1280px) {
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tile,
+  .thumb,
+  .full,
+  .control {
+    transition-property: filter, opacity;
+  }
+  @starting-style {
+    .lightbox[data-open="true"] .full {
+      transform: none;
+    }
+  }
+}
