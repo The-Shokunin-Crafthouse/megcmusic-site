@@ -78,6 +78,11 @@
   --mc-ease-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1); /* back-out: overshoots then settles */
   --mc-ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1); /* strong ease-out for premium micro-interactions (Emil) */
   --mc-motion-hover: 220ms; /* standard hover/reveal duration */
+  /* Loading spinner (Sprint 7 /shop). A fast spin reads as faster loading
+     (Emil); reduced-motion slows it rather than stopping, so the loading
+     affordance survives without the fast rotation. */
+  --mc-spinner-spin: 720ms;
+  --mc-spinner-spin-reduced: 1600ms;
 
   /* Nav */
   --mc-nav-underline: #fffcdb; /* cream highlight under active nav link */

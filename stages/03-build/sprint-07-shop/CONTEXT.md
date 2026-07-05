@@ -1,5 +1,5 @@
 # Sprint 07 — Shop (WooCommerce storefront + Zustand cart)
-**Status:** not started (stub — kickoff prompt lives with Levi; see sprint-06 `CC-PROMPT.md` §6 Phase 4)
+**Status:** in build — slices 1–3 (listing + detail + Zustand cart) built & verified 2026-07-05 (PR: browse + cart). Checkout (slice 4) wired as the same-origin hand-off per the 2026-07-05 ADR; end-to-end carryover needs same-origin staging/prod verification (nonce not readable cross-origin on the preview).
 **Figma source:** file `908TLdOM0e6xRtnzOj2nNv` (Shop frames — pull node IDs via `get_metadata`; the Figma MCP needs auth and may be unreachable in a non-interactive session — build from the established route register if so, and say so).
 **Breakpoints:** 390 / 768 / 1024 / 1440 / 1920
 

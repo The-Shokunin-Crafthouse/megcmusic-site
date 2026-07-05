@@ -46,7 +46,7 @@ This file is a directive, not documentation. Read it. Follow it.
 - **Start date:** 2026-06-16
 - **Target launch:** TBD (set at Gate 1)
 - **Production domain:** megcmusic.com
-- **Current sprint:** `stages/03-build/sprint-05-shows-archive/` (approved 2026-07-02)
+- **Current sprint:** `stages/03-build/sprint-07-shop/` (Phase 4 — WooCommerce shop; browse + Zustand cart in review 2026-07-05)
 
 Canonical machine-readable meta lives in `workspace.manifest.yaml`. Keep this section and the manifest in sync.
 
