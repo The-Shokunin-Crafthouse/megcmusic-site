@@ -60,10 +60,11 @@ export async function POST(request: Request): Promise<Response> {
     return Response.json({ ok: false, errors }, { status: 400 });
   }
 
-  const to = process.env.BOOKING_TO;
+  // Meghan's booking inbox. Defaults to her Gmail; BOOKING_TO can override it
+  // (e.g. a dedicated address) without a code change. Empty override → soft error.
+  const to = process.env.BOOKING_TO ?? "meghanclarisse@gmail.com";
   if (!to) {
-    // Misconfiguration, not the visitor's fault — surface a soft error and log.
-    console.error("BOOKING_TO is not set; booking enquiry could not be sent.");
+    console.error("Booking destination is empty; enquiry could not be sent.");
     return Response.json({ ok: false, error: "unavailable" }, { status: 503 });
   }
 
