@@ -151,7 +151,7 @@
   --mc-text-liner: #e5d8cc;   /* Liner Notes bio prose */
   --mc-radius-quote: 24px;    /* pull-quote / framed corners */
   --mc-grain-opacity: 0.07;   /* film-grain overlay (brand texture, comp) */
-  --mc-footer-wordmark: #33212f; /* BOOK ME watermark — a touch more contrast over --mc-bg-section (#291724), still a whisper */
+  --mc-footer-wordmark: #261522; /* BOOK ME watermark — barely off --mc-bg-section (#291724), a whisper */
 
   /* Type sizes used by the sections (mirrored absolute from the comp). */
   --mc-text-detail: 0.8125rem; /* 13px — captions, recognition detail, video sub */
