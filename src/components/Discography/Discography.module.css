@@ -118,6 +118,24 @@
   gap: var(--mc-space-4);
 }
 
+/* Mobile: the three service pills (Spotify · Apple · Buy) are wider than the
+   viewport as a single nowrap row (Figma is desktop-only here). Let them wrap
+   and drop the decorative dividers — they'd otherwise dangle at a wrapped line's
+   start. Full-size pills preserve the 44px touch target. Dividers + single row
+   return at 768. (decisions.md 2026-07-05.) */
+@media (max-width: 767px) {
+  .links {
+    flex-wrap: wrap;
+    gap: var(--mc-space-3);
+  }
+  .linkWrap {
+    gap: var(--mc-space-3);
+  }
+  .divider {
+    display: none;
+  }
+}
+
 .linkWrap {
   display: inline-flex;
   align-items: center;
