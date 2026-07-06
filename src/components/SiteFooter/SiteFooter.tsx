@@ -1,10 +1,11 @@
 import Link from "next/link";
+import { WP_ORIGIN } from "@/lib/wp-origin";
 import styles from "./SiteFooter.module.css";
 
 // Footer (Figma 39:286) — oversized "BOOK ME" watermark behind the booking CTA
 // and copyright. The gig CTA points at Meg's live contact page until the native
 // /booking route ships (Phase 3), then it repoints.
-const BOOKING_HREF = "https://www.megcmusic.com/contact-me/";
+const BOOKING_HREF = `${WP_ORIGIN}/contact-me/`;
 
 export function SiteFooter() {
   return (

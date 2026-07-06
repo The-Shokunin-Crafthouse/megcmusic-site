@@ -4,6 +4,8 @@
  * genuine coverage. Add an item and it appears; drop one and it's gone. Outlet is
  * the source name; quote is optional pull copy (kept short, real, no invention).
  */
+import { WP_ORIGIN } from "@/lib/wp-origin";
+
 export interface PressItem {
   outlet: string;
   title: string;
@@ -34,7 +36,7 @@ export const PRESS_ITEMS: PressItem[] = [
   {
     outlet: "megcmusic.com",
     title: "Reviews — Shadows of a Ghost Town",
-    href: "https://www.megcmusic.com/reviews-shadows-of-a-ghost-town/",
+    href: `${WP_ORIGIN}/reviews-shadows-of-a-ghost-town/`,
     quote: null,
   },
 ];

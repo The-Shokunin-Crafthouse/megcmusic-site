@@ -4,7 +4,9 @@
  * visitor's residential IP can reach WP, and its REST CORS echoes the request
  * origin, so a plain cross-origin GET succeeds. Mirrors events-browser.ts.
  */
-const WP_API_URL = "https://megcmusic.com/wp-json/wp/v2";
+import { WP_ORIGIN } from "@/lib/wp-origin";
+
+const WP_API_URL = `${WP_ORIGIN}/wp-json/wp/v2`;
 const TIMEOUT_MS = 15_000;
 
 /** Fetch a single page's rendered HTML content by slug, or "" if unavailable. */

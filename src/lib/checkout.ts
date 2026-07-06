@@ -18,10 +18,13 @@
 "use client";
 
 import { type CartLine } from "@/lib/shop";
+import { WP_ORIGIN } from "@/lib/wp-origin";
 
-const STORE_API = "https://megcmusic.com/wp-json/wc/store/v1";
+const STORE_API = `${WP_ORIGIN}/wp-json/wc/store/v1`;
 // Land on her cart page (review + pay) rather than jumping straight to payment.
-export const LIVE_CHECKOUT_URL = "https://www.megcmusic.com/cart/";
+// Same origin as the store REST base above — so the cross-origin fallback notice
+// ("Continue on the store") always points at the WordPress host, not this site.
+export const LIVE_CHECKOUT_URL = `${WP_ORIGIN}/cart/`;
 
 /** Thrown when the Store API cart can't be written because the front-end is a
  *  different origin than WooCommerce (the nonce header isn't CORS-exposed). */
