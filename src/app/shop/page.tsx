@@ -31,7 +31,7 @@ export default async function ShopPage() {
     <div className={styles.page}>
       <img
         className={styles.bg}
-        src="images/hero/meghan-hero.jpg"
+        src="/images/hero/meghan-hero.jpg"
         alt=""
         aria-hidden="true"
         decoding="async"

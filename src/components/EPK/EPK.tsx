@@ -18,7 +18,7 @@ export function EPK() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   className={styles.thumb}
-                  src="images/hero/meghan-hero.jpg"
+                  src="/images/hero/meghan-hero.jpg"
                   alt=""
                   aria-hidden="true"
                   loading="lazy"

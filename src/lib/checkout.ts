@@ -43,7 +43,17 @@ export async function handoffToCheckout(lines: CartLine[]): Promise<void> {
 
   // credentials:'include' shares WooCommerce's session cookie same-origin, so
   // the classic checkout reads the very cart we populate here.
-  const cartRes = await fetch(`${STORE_API}/cart`, { credentials: "include" });
+  // A cross-origin front-end can't even complete this GET: the browser rejects
+  // the credentialed CORS request with a TypeError ("Failed to fetch") before any
+  // header is readable. That's the same origin limitation as an unreadable nonce,
+  // so surface it as CheckoutOriginError — never a generic "try again" (a retry
+  // can never succeed cross-origin, so that message lies to the visitor).
+  let cartRes: Response;
+  try {
+    cartRes = await fetch(`${STORE_API}/cart`, { credentials: "include" });
+  } catch {
+    throw new CheckoutOriginError();
+  }
   const nonce = cartRes.headers.get("Nonce");
   const cartToken = cartRes.headers.get("Cart-Token") ?? "";
 

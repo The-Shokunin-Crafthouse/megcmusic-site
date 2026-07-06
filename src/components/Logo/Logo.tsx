@@ -11,7 +11,7 @@ export function Logo() {
       <span className={styles.lockup}>
         <img
           className={styles.pick}
-          src="images/hero/logo-pick.svg"
+          src="/images/hero/logo-pick.svg"
           alt=""
           aria-hidden="true"
           width={273}
@@ -19,7 +19,7 @@ export function Logo() {
         />
         <img
           className={styles.name}
-          src="images/hero/logo-name.svg"
+          src="/images/hero/logo-name.svg"
           alt="Meghan Clarisse"
           width={273}
           height={273}
