@@ -149,7 +149,7 @@
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-base);
   line-height: 1.5;
-  color: var(--mc-text-body);
+  color: var(--mc-white);
 }
 
 .includeStar {
@@ -183,6 +183,7 @@
 }
 
 .factValue {
+  margin: 0; /* reset the UA <dd> indent so values sit flush under their headers */
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-base);
   color: var(--mc-text-primary);
@@ -191,11 +192,9 @@
 /* ---- Form panel --------------------------------------------------------- */
 .panel {
   padding: var(--mc-space-6);
-  border: 1px solid var(--mc-teal);
   border-radius: var(--mc-radius-quote);
-  background: rgb(var(--mc-glass-rgb) / 0.5);
-  backdrop-filter: blur(var(--mc-glass-blur));
-  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  background: var(--mc-text-primary); /* cream — the page's default text ink, now the panel ground */
+  box-shadow: var(--mc-shadow-card); /* soft lift replaces the removed border */
 }
 
 .panelTitle {
@@ -204,7 +203,7 @@
   font-weight: 700;
   font-size: var(--mc-text-title);
   line-height: 1.2;
-  color: var(--mc-text-primary);
+  color: var(--mc-bg); /* main site purple, on the cream panel */
 }
 
 @media (min-width: 768px) {
