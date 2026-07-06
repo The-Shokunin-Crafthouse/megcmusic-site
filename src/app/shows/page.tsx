@@ -48,7 +48,7 @@ export default async function ShowsPage() {
           a plum scrim so the cream cards keep their contrast. */}
       <img
         className={styles.bg}
-        src="images/hero/meghan-hero.jpg"
+        src="/images/hero/meghan-hero.jpg"
         alt=""
         aria-hidden="true"
         decoding="async"

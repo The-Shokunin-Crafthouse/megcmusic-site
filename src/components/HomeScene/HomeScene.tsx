@@ -171,7 +171,7 @@ export function HomeScene({
         <img
           ref={photoRef}
           className={styles.photo}
-          src="images/hero/meghan-hero.jpg"
+          src="/images/hero/meghan-hero.jpg"
           alt=""
           width={2849}
           height={1632}

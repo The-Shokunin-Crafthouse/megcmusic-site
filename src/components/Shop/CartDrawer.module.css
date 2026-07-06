@@ -256,8 +256,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 2rem;
-  height: 2rem;
+  width: var(--mc-touch-target); /* 44px — WCAG/sprint minimum touch size */
+  height: var(--mc-touch-target);
   border: none;
   border-radius: var(--mc-radius-pill);
   background: transparent;
