@@ -4,13 +4,15 @@
 }
 
 /* Height driven by the context (--logo-h); the pick+name artwork is square
-   (Figma 39:4 export, 272.94²), tilted -6.04° to match the comp. */
+   (Figma 39:4 export, 272.94²), tilted -6.04° to match the comp.
+   Nudged 4px down + 4px right (translate before rotate = screen-axis move) to
+   pull the lockup off the top-left corner crop for breathing room. */
 .lockup {
   position: relative;
   display: block;
   height: var(--logo-h, 40px);
   aspect-ratio: 1 / 1;
-  transform: rotate(-6.04deg);
+  transform: translate(4px, 4px) rotate(-6.04deg);
   transform-origin: center;
 }
 
