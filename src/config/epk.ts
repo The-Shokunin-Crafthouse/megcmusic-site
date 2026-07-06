@@ -4,6 +4,8 @@
  * aren't in WordPress yet, so they ship as a "coming soon" state (href: null)
  * until the PDFs are added — set the href and they go live.
  */
+import { WP_ORIGIN } from "@/lib/wp-origin";
+
 export interface EpkItem {
   title: string;
   description: string;
@@ -28,6 +30,6 @@ export const EPK_ITEMS: EpkItem[] = [
     title: "Sample Set List",
     description: "Crowd pleasers from covers to originals.",
     action: "View",
-    href: "https://www.megcmusic.com/sample-set-list/",
+    href: `${WP_ORIGIN}/sample-set-list/`,
   },
 ];

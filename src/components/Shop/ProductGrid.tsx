@@ -3,12 +3,13 @@
 import { useEffect, useState } from "react";
 import { fetchProductsBrowser } from "@/lib/api/woocommerce-browser";
 import { type ShopProduct } from "@/lib/shop";
+import { WP_ORIGIN } from "@/lib/wp-origin";
 import { ProductCard } from "./ProductCard";
 import styles from "./ProductGrid.module.css";
 
 // Her live store — the honest destination when the headless fetch can't reach
 // WooCommerce, so a visitor is never dead-ended.
-const LIVE_SHOP = "https://www.megcmusic.com/shop/";
+const LIVE_SHOP = `${WP_ORIGIN}/shop/`;
 
 type Status = "ready" | "loading" | "empty" | "error";
 

@@ -19,8 +19,10 @@ import {
   type ShopImage,
 } from "@/lib/shop";
 
+import { WP_ORIGIN } from "@/lib/wp-origin";
+
 const WC_API_URL =
-  process.env.WC_API_URL ?? "https://megcmusic.com/wp-json/wc/v3";
+  process.env.WC_API_URL ?? `${WP_ORIGIN}/wp-json/wc/v3`;
 
 // Match the events-module bound: 25s ceiling, one retry for transient slowness.
 // A hard datacenter-IP block still fails well within Next's static-generation
