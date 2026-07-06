@@ -40,9 +40,10 @@
   animation-timeline: view();
 }
 
-/* Guitar-pick silhouettes (comp 39:150 lower-left, 39:152 lower-right) — about
-   38% of the frame width, taller than the frame so they run off the bottom,
-   faint. */
+/* Guitar-pick silhouettes (comp 39:150/152) — about 38% of the frame width,
+   taller than the frame so they run off its edge, faint. One pokes from the
+   upper-left above the frame, the other from the lower-right below it, so the
+   pair frames the feed on a diagonal. */
 .pickLeft,
 .pickRight {
   position: absolute;
@@ -55,7 +56,7 @@
 
 .pickLeft {
   left: -10%;
-  top: 34%;
+  top: -14%;
   transform: rotate(9deg);
   animation: insta-pick-left-parallax linear both;
   animation-timeline: view();
@@ -70,10 +71,12 @@
 }
 
 /* Slight scroll parallax — each shape drifts at a slightly different rate so the
-   decor has depth as the section passes. Full transform is repeated in the
-   keyframes (they override the base transform used as the no-timeline fallback);
-   the base rule keeps the static composition on browsers without scroll
-   timelines. */
+   decor has depth as the section passes. The two picks drift on BOTH axes and in
+   opposing directions (the upper-left pick down-and-right → up-and-left, the
+   lower-right pick the mirror), so they splay apart on a diagonal as it scrolls.
+   Full transform is repeated in the keyframes (they override the base transform
+   used as the no-timeline fallback); the base rule keeps the static composition
+   on browsers without scroll timelines. */
 @keyframes insta-rect-parallax {
   from {
     transform: translate(-50%, calc(-50% + 34px)) rotate(-5deg);
@@ -85,19 +88,19 @@
 
 @keyframes insta-pick-left-parallax {
   from {
-    transform: translateY(50px) rotate(9deg);
+    transform: translate(34px, 46px) rotate(9deg);
   }
   to {
-    transform: translateY(-50px) rotate(9deg);
+    transform: translate(-34px, -46px) rotate(9deg);
   }
 }
 
 @keyframes insta-pick-right-parallax {
   from {
-    transform: translateY(70px) rotate(-15deg);
+    transform: translate(-44px, 64px) rotate(-15deg);
   }
   to {
-    transform: translateY(-70px) rotate(-15deg);
+    transform: translate(44px, -64px) rotate(-15deg);
   }
 }
 
