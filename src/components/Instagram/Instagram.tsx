@@ -21,7 +21,7 @@ async function getPosts(): Promise<BeholdPost[]> {
       signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) return [];
-    return parseBeholdPosts(await res.json()).slice(0, 6);
+    return parseBeholdPosts(await res.json()).slice(0, 4);
   } catch {
     return [];
   }
