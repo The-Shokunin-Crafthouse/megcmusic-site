@@ -21,7 +21,7 @@ async function getPosts(): Promise<BeholdPost[]> {
       signal: AbortSignal.timeout(8000),
     });
     if (!res.ok) return [];
-    return parseBeholdPosts(await res.json()).slice(0, 6);
+    return parseBeholdPosts(await res.json()).slice(0, 4);
   } catch {
     return [];
   }
@@ -37,7 +37,7 @@ export async function Instagram() {
 
         {/* The frame carries its own decor so the shapes track its exact box
             (comp 39:149/150/152): a teal angled rounded rectangle behind it,
-            plus a guitar pick poking out lower-left and lower-right. No blurs. */}
+            plus a guitar pick poking out upper-left and lower-right. No blurs. */}
         <div className={styles.frameWrap}>
           <div className={styles.decor} aria-hidden="true">
             <span className={styles.tealRect} />
