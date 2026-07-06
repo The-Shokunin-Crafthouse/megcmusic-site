@@ -18,7 +18,7 @@ const INCLUDE = [
 
 // Booking-at-a-glance, drawn from her bio — no invention.
 const FACTS: { label: string; value: string }[] = [
-  { label: "Formats", value: "Solo Acoustic · Full Band" },
+  { label: "Formats", value: "Solo Acoustic · Duo · Full Band" },
   { label: "Based", value: "Front Range, Colorado" },
   { label: "Plays", value: "Bars · Venues · Festivals · Private events" },
 ];

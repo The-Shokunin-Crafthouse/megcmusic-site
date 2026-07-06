@@ -33,6 +33,12 @@
   --mc-accent-red: #d13e5b;
   --mc-accent-red-ink: #bb314f; /* text-only red; AA (4.85:1) on cream — base #d13e5b fails at 16px */
 
+  /* Stark white — booking left-column bullets + booking form input fields
+     (2026-07-05 booking refresh). The only pure white in the register. */
+  --mc-white: #ffffff;
+  --mc-input-border: #d4d4d4;      /* faint grey 1px border on white inputs */
+  --mc-input-placeholder: #6b6b6b; /* AA (5.1:1) placeholder grey on white */
+
   /* Teal accent — 2026 refresh (Figma 39:2 / 110:2). Replaces pink as the
      primary interactive accent; pink retained only for venue red. */
   --mc-teal: #568c89;        /* solid teal — active tab, glass borders */
