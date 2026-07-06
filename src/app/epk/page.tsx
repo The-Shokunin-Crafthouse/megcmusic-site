@@ -10,6 +10,7 @@ import { parseDownloadableAssets, type EpkAsset } from "@/lib/epk-assets";
 import { EPK_ITEMS } from "@/config/epk";
 import { PRESS_ITEMS } from "@/config/press";
 import { BIO_PARAGRAPHS } from "@/config/bio";
+import { WP_ORIGIN } from "@/lib/wp-origin";
 import styles from "./epk.module.css";
 
 // The press-kit page changes only when Meg edits WordPress; refresh hourly so a
@@ -32,7 +33,7 @@ const FACTS: { label: string; value: string }[] = [
 
 // Live hi-res photo pool + press-kit source page (residential-IP links; the WP
 // host serves these to visitors even when it blocks the datacenter build).
-const PHOTOS_URL = "https://www.megcmusic.com/photos/";
+const PHOTOS_URL = `${WP_ORIGIN}/photos/`;
 
 // Server-side parse of the press-kit page for downloadable files. A blocked
 // datacenter deploy returns nothing here; EpkPressKit fills it from the browser.

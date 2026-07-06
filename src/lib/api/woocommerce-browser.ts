@@ -17,7 +17,9 @@ import {
   type ShopCurrency,
 } from "@/lib/shop";
 
-const STORE_API = "https://megcmusic.com/wp-json/wc/store/v1";
+import { WP_ORIGIN } from "@/lib/wp-origin";
+
+const STORE_API = `${WP_ORIGIN}/wp-json/wc/store/v1`;
 const TIMEOUT_MS = 15_000;
 
 interface StorePrices {

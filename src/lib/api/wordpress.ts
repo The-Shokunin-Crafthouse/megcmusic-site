@@ -4,8 +4,10 @@
  * (revalidate: 0) per the project brief.
  */
 
+import { WP_ORIGIN } from "@/lib/wp-origin";
+
 const WP_API_URL =
-  process.env.WP_API_URL ?? "https://megcmusic.com/wp-json/wp/v2";
+  process.env.WP_API_URL ?? `${WP_ORIGIN}/wp-json/wp/v2`;
 
 export interface WpRendered {
   rendered: string;

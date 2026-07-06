@@ -1,4 +1,5 @@
 import type { TribeEvent, TribeEventsResponse } from "./events";
+import { WP_ORIGIN } from "@/lib/wp-origin";
 
 /**
  * Browser-side events fetch — the fallback when the server render came back
@@ -7,7 +8,7 @@ import type { TribeEvent, TribeEventsResponse } from "./events";
  * (residential) IP can, and WP's REST CORS echoes the request origin. So when
  * the server list is empty we refetch straight from the browser.
  */
-const API_BASE = "https://megcmusic.com/wp-json/tribe/events/v1";
+const API_BASE = `${WP_ORIGIN}/wp-json/tribe/events/v1`;
 const TIMEOUT_MS = 15_000;
 
 async function fetchPage(

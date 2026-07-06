@@ -5,8 +5,10 @@
  * date math (and the bare-number epoch trap).
  */
 
+import { WP_ORIGIN } from "@/lib/wp-origin";
+
 const EVENTS_API_URL =
-  process.env.EVENTS_API_URL ?? "https://megcmusic.com/wp-json/tribe/events/v1";
+  process.env.EVENTS_API_URL ?? `${WP_ORIGIN}/wp-json/tribe/events/v1`;
 
 // Bound every call so a slow/unreachable WordPress host can never hang a build
 // or an ISR revalidation. From a normal network the API answers in <1s, but the

@@ -4,6 +4,8 @@
  * (just add `spotify`/`apple` to a release to override). `art` is null until a
  * cover is dropped in; the row shows a titled placeholder meanwhile.
  */
+import { WP_ORIGIN } from "@/lib/wp-origin";
+
 export interface Release {
   year: string;
   type: "SINGLE" | "EP" | "LP";
@@ -19,7 +21,7 @@ export const ARTIST_LINKS = {
   spotify: "https://open.spotify.com/artist/3iUKOkvtyfkAcg8pOWU5wp",
   apple: "https://music.apple.com/us/artist/meghan-clarisse/1484763484",
   amazon: "https://music.amazon.com/artists/B082L4182W/meghan-clarisse",
-  buy: "https://www.megcmusic.com/shop/",
+  buy: `${WP_ORIGIN}/shop/`,
 };
 
 export const RELEASES: Release[] = [
