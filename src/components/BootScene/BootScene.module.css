@@ -1,23 +1,18 @@
-/* 3D boot backdrop — sits behind the discography content (the section is
-   transparent; the wrapper carries the plum ground). Faint enough to keep the
-   copy AA, dimensional enough to feel alive as it tilts on scroll. */
+/* 3D boot backdrop — sits behind the EPK content (the section is transparent;
+   the wrapper carries the plum ground). Plain opacity only: a blend mode over
+   an accelerated WebGL canvas flickers between blended and raw frames while
+   the compositor promotes/demotes layers on scroll, so the faintness must
+   come from alpha, not compositing. Faint enough to keep the copy AA. */
 .host {
   position: absolute;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  opacity: 0.2;
-  mix-blend-mode: soft-light;
+  opacity: 0.16;
 }
 
 .host canvas {
   display: block;
   width: 100%;
   height: 100%;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .host {
-    opacity: 0.3;
-  }
 }

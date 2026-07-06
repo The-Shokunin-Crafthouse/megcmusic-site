@@ -127,9 +127,13 @@ export function HomeScene({
       const st = ScrollTrigger.create({
         trigger: marker,
         start: `top bottom-=${gap}`,
-        end: "top top",
+        // Stay live to the bottom of the page: callbacks only fire on state
+        // CHANGE, so a page entered (or hydrated) below a bounded range would
+        // never receive one and the photo would sit full-bleed over the body
+        // sections. With the range open-ended, every scroll below the release
+        // line re-syncs the shift.
+        end: "max",
         onUpdate: apply,
-        onLeave: apply,
         onLeaveBack: () => {
           backdrop.style.transform = "";
           backdrop.style.willChange = "";
@@ -137,8 +141,14 @@ export function HomeScene({
       });
       // The start position depends on the events list height + late-loading
       // fonts/photo; recompute once they've settled so the trigger is accurate.
+      // Then sync immediately — restored/deep scroll positions get the correct
+      // shift without waiting for a scroll event.
       ScrollTrigger.refresh();
-      const onLoad = () => ScrollTrigger.refresh();
+      apply();
+      const onLoad = () => {
+        ScrollTrigger.refresh();
+        apply();
+      };
       window.addEventListener("load", onLoad);
       cleanup = () => {
         window.removeEventListener("load", onLoad);

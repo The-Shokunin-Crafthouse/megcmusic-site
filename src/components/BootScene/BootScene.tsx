@@ -10,6 +10,21 @@ import styles from "./BootScene.module.css";
 const BOOT_SRC = "images/decor/boot.png";
 const BOOT_ASPECT = 1227 / 1478;
 
+// ——— Motion tuning (three.js world units / radians / seconds) ———————————
+// Scroll-driven: progress runs 0 → 1 while the section transits the viewport.
+const PARALLAX_X = 0.5; // horizontal drift — boot slides left as you scroll down
+const PARALLAX_Y = 1.1; // vertical drift — boot rises as you scroll down
+const PARALLAX_Y_CENTER = 0.35; // progress value where the boot sits at rest height
+const TILT_Y = 0.55; // scroll lean around Y (light travels the leather)
+const TILT_X = 0.16; // scroll lean around X
+// Idle 3D drift: three offset sine waves so the boot slowly wanders in all
+// three rotational axes (Lissajous, never repeats visibly). Off under
+// reduced motion.
+const SWAY_SPEED = 0.7; // global idle speed multiplier (1 ≈ 6s dominant period)
+const SWAY_Y = 0.07; // idle yaw amplitude
+const SWAY_X = 0.04; // idle pitch amplitude
+const SWAY_Z = 0.025; // idle roll amplitude
+
 export function BootScene() {
   const hostRef = useRef<HTMLDivElement>(null);
 
@@ -99,14 +114,20 @@ export function BootScene() {
       let t = 0;
       let progress = 0;
 
-      // A flat plane, so tilt (not spin) — enough to let the light travel the
-      // leather. Scroll leans it one way through, idle adds a slow breathing sway.
+      // A flat plane, so tilt (not spin — a full turn would show it edge-on).
+      // Scroll leans it one way through while it drifts up-and-left (diagonal
+      // parallax, same language as the Instagram picks); idle layers three
+      // offset sines so it slowly wanders in yaw, pitch, and roll.
       const apply = () => {
-        const sway = reduce ? 0 : Math.sin(t) * 0.05;
-        boot.rotation.y = (progress - 0.5) * 0.7 + sway;
-        boot.rotation.x = (0.5 - progress) * 0.18 + (reduce ? 0 : Math.sin(t * 0.7) * 0.02);
-        // Slight parallax: the boot drifts upward as the section scrolls past.
-        boot.position.y = (progress - 0.35) * 1.4;
+        const drift = reduce ? 0 : t * SWAY_SPEED;
+        boot.rotation.y =
+          (progress - 0.5) * TILT_Y + (reduce ? 0 : Math.sin(drift) * SWAY_Y);
+        boot.rotation.x =
+          (0.5 - progress) * TILT_X +
+          (reduce ? 0 : Math.sin(drift * 0.62) * SWAY_X);
+        boot.rotation.z = reduce ? 0 : Math.sin(drift * 0.45 + 1.2) * SWAY_Z;
+        boot.position.x = (0.5 - progress) * PARALLAX_X;
+        boot.position.y = (progress - PARALLAX_Y_CENTER) * PARALLAX_Y;
         render();
       };
 
