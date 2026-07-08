@@ -145,6 +145,85 @@
   color: var(--mc-text-primary);
 }
 
+/* Loading skeleton --------------------------------------------------------- */
+/* Show-card-shaped placeholders while the browser events fallback runs
+   (2026-07-03 ADR: WP blocks datacenter IPs). Same card geometry, radius,
+   shadow, and cascade tokens as ShowCard so the loading state participates in
+   the entrance choreography and the swap to real cards isn't a visual state
+   change. Placeholder blocks pulse gently; reduced motion holds them static. */
+
+.skeletonCard {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-5);
+  /* Mirrors ShowCard: 19px top/bottom, 16px left, 32px right (Figma 39:22). */
+  padding: var(--mc-card-pad-y) var(--mc-space-5) var(--mc-card-pad-y) var(--mc-space-3);
+  list-style: none;
+  background: var(--mc-bg-card);
+  border-radius: var(--mc-radius-card);
+  box-shadow: var(--mc-shadow-card);
+  animation: skeleton-in var(--mc-entrance-duration) var(--mc-ease-out) backwards;
+  animation-delay: calc(var(--row-index, 0) * var(--mc-cascade-stagger));
+}
+
+@keyframes skeleton-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--mc-entrance-offset)));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Footprint of the real date badge's pick (Figma-exact decoration dimensions,
+   same literals as ShowCard's .badge/.pickWrap). */
+.skeletonBadge {
+  flex-shrink: 0;
+  width: 77.281px;
+  height: 69.991px;
+  border-radius: 50%;
+  background: var(--mc-divider-card);
+}
+
+.skeletonBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+  flex: 1 1 auto;
+  min-width: 0;
+  /* Mirrors ShowCard .body: pull the copy closer to the pick. */
+  margin-left: -16px;
+}
+
+/* Bars sized to the real title (22px × 1.2) and meta (16px × 1.3) lines. */
+.skeletonTitle {
+  height: calc(var(--mc-text-lg) * 1.2);
+  width: 60%;
+  border-radius: var(--mc-radius-card);
+  background: var(--mc-divider-card);
+}
+
+.skeletonMeta {
+  height: calc(var(--mc-text-base) * 1.3);
+  width: 40%;
+  border-radius: var(--mc-radius-card);
+  background: var(--mc-divider-card);
+}
+
+.skeletonBadge,
+.skeletonTitle,
+.skeletonMeta {
+  animation: skeleton-pulse var(--mc-skeleton-pulse) var(--mc-ease-out) infinite;
+}
+
+@keyframes skeleton-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
 .actions {
   display: flex;
   justify-content: center;
@@ -333,5 +412,13 @@
   .seeAll:active,
   .searchToggle:active {
     transform: none;
+  }
+  /* Skeleton: no cascade, no pulse — static placeholder shapes; the
+     role="status" text still announces loading. */
+  .skeletonCard,
+  .skeletonBadge,
+  .skeletonTitle,
+  .skeletonMeta {
+    animation: none;
   }
 }

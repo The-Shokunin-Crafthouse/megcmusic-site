@@ -89,6 +89,9 @@
      affordance survives without the fast rotation. */
   --mc-spinner-spin: 720ms;
   --mc-spinner-spin-reduced: 1600ms;
+  /* Skeleton placeholder pulse (Shows loading state, 2026-07-08). Slow and
+     faint — a breath, not a shimmer; gated off under reduced motion. */
+  --mc-skeleton-pulse: 1800ms;
 
   /* Nav */
   --mc-nav-underline: #fffcdb; /* cream highlight under active nav link */

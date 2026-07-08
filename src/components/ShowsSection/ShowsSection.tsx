@@ -33,6 +33,11 @@ type TabId = (typeof TABS)[number]["id"];
 const MAX_ROWS = 7;
 const BATCH = 20;
 
+/** Skeleton rows while the browser fallback fetches — matches the hero's
+ *  ~3.5-visible-row framing so the loading state fills the same silhouette
+ *  the real cards will. */
+const SKELETON_ROWS = 4;
+
 /** Entrance stagger wraps every 7 rows so a batch cascades in waves instead of
  *  trailing the last row a second behind. Home's 0–6 indices are unchanged. */
 const STAGGER = 7;
@@ -316,7 +321,29 @@ export function ShowsSection({
               </ul>
             </div>
           ) : loading ? (
-            <p className={styles.empty}>Loading shows…</p>
+            // Skeleton show-card shapes (same geometry, cascade, and tokens as
+            // the real cards) so the loading state reads as part of the
+            // entrance choreography, not a broken state mid-reveal — and the
+            // swap to real data doesn't look like a state change. See
+            // decisions.md (2026-07-08).
+            <div className={styles.clip} role="status">
+              <span className={styles.srOnly}>Loading shows…</span>
+              <ul className={styles.list} aria-hidden="true">
+                {Array.from({ length: SKELETON_ROWS }, (_, i) => (
+                  <li
+                    key={i}
+                    className={styles.skeletonCard}
+                    style={{ "--row-index": i } as CSSProperties}
+                  >
+                    <span className={styles.skeletonBadge} />
+                    <span className={styles.skeletonBody}>
+                      <span className={styles.skeletonTitle} />
+                      <span className={styles.skeletonMeta} />
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
           ) : (
             <p className={styles.empty}>
               {searching ? `No shows match “${query.trim()}”.` : EMPTY_COPY[active]}

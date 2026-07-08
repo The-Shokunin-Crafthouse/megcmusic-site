@@ -29,30 +29,49 @@ export function HomeScene({
   // network), Chrome doesn't always re-rasterize the fixed layer until a scroll
   // invalidates it — so the image only "snapped" to full-bleed on the first
   // scroll. Nudge a one-frame transform when the photo is ready to force the
-  // repaint immediately. Handles the already-cached case (complete) too.
+  // repaint immediately.
+  //
+  // Readiness = decode(), not the load event: with decoding="async" `load`
+  // fires when the bytes arrive but the bitmap may not be decoded yet, so a
+  // load-timed nudge could land before there were pixels to rasterize (the
+  // residual flakiness). decode() resolves only once the image is actually
+  // paintable, and it waits for load internally, so it covers the cached
+  // (already-complete) case too. On rejection (decode error) fall back to
+  // load/complete so the nudge still runs.
   useEffect(() => {
     const backdrop = backdropRef.current;
     const photo = photoRef.current;
     if (!backdrop || !photo) return;
 
     let raf = 0;
+    let cancelled = false;
     const nudge = () => {
+      if (cancelled) return;
       // Skip if the release is currently driving the transform.
       if (backdrop.style.transform && backdrop.style.transform !== "translateZ(0px)") return;
+      // Synchronous reflow first, so the transform toggle lands on fresh
+      // layout instead of racing the browser's own pending invalidation.
+      void backdrop.offsetHeight;
       backdrop.style.transform = "translateZ(0)";
       raf = requestAnimationFrame(() => {
         if (backdrop.style.transform === "translateZ(0px)") backdrop.style.transform = "";
       });
     };
 
-    if (photo.complete && photo.naturalWidth > 0) {
-      nudge();
-      return () => cancelAnimationFrame(raf);
-    }
-    photo.addEventListener("load", nudge);
+    photo
+      .decode()
+      .catch(
+        () =>
+          new Promise<void>((resolve) => {
+            if (photo.complete) return resolve();
+            photo.addEventListener("load", () => resolve(), { once: true });
+          }),
+      )
+      .then(nudge);
+
     return () => {
+      cancelled = true;
       cancelAnimationFrame(raf);
-      photo.removeEventListener("load", nudge);
     };
   }, []);
 
