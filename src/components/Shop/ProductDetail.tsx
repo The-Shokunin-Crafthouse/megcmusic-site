@@ -8,6 +8,7 @@ import { fetchProductBrowser } from "@/lib/api/woocommerce-browser";
 import { formatPrice, type ShopProduct } from "@/lib/shop";
 import { ProductGallery } from "./ProductGallery";
 import { AddToCart } from "./AddToCart";
+import { LoadingWave } from "@/components/LoadingWave/LoadingWave";
 import styles from "./ProductDetail.module.css";
 
 type Status = "ready" | "loading" | "notfound" | "error";
@@ -59,7 +60,7 @@ export function ProductDetail({
   if (status === "loading") {
     return (
       <div className={styles.state} role="status" aria-live="polite">
-        <span className={styles.spinner} aria-hidden="true" />
+        <LoadingWave />
         <p className={styles.stateText}>Loading this item…</p>
       </div>
     );

@@ -283,21 +283,6 @@
   outline-offset: 3px;
 }
 
-.spinner {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--mc-radius-pill);
-  border: 2px solid rgb(var(--mc-teal-rgb) / 0.3);
-  border-top-color: var(--mc-teal-light);
-  animation: detail-spin var(--mc-spinner-spin) linear infinite;
-}
-
-@keyframes detail-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 @media (min-width: 768px) {
   .layout {
     grid-template-columns: 1fr 1fr;
@@ -315,8 +300,5 @@
   .retry,
   .stateLink {
     transition: none;
-  }
-  .spinner {
-    animation-duration: var(--mc-spinner-spin-reduced);
   }
 }

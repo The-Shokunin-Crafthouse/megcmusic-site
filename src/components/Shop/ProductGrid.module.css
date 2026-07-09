@@ -125,22 +125,6 @@
   outline-offset: 3px;
 }
 
-/* ---- Loading spinner ---------------------------------------------------- */
-.spinner {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--mc-radius-pill);
-  border: 2px solid rgb(var(--mc-teal-rgb) / 0.3);
-  border-top-color: var(--mc-teal-light);
-  animation: shop-spin var(--mc-spinner-spin) linear infinite;
-}
-
-@keyframes shop-spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
 @media (min-width: 768px) {
   .grid {
     grid-template-columns: repeat(3, 1fr);
@@ -155,9 +139,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .spinner {
-    animation-duration: var(--mc-spinner-spin-reduced);
-  }
   .retry,
   .stateLink {
     transition: none;

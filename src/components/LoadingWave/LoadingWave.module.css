@@ -1,0 +1,61 @@
+/* LoadingWave — branded shop loader (2026-07-09 ADR). An audio-waveform
+   silhouette (sine envelope, tallest at centre) with a pulse travelling
+   left-to-right. Every colour / size / duration is a --mc-wave-* token
+   (token-map.css); transform + opacity only. */
+
+.wave {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mc-wave-gap);
+  height: var(--mc-wave-h-max);
+}
+
+.bar {
+  width: var(--mc-wave-bar-w);
+  border-radius: var(--mc-radius-pill);
+  background: var(--mc-wave-color);
+  /* Base height from the per-bar envelope scale, resolved against the tokens. */
+  height: calc(
+    var(--mc-wave-h-min) +
+      (var(--mc-wave-h-max) - var(--mc-wave-h-min)) * var(--wave-scale)
+  );
+  transform: scaleY(0.22);
+  transform-origin: center;
+  animation: wave-pulse var(--mc-wave-cycle) var(--mc-ease-out) infinite;
+  /* Stagger each bar by a fraction of one cycle so the pulse travels across. */
+  animation-delay: calc(
+    var(--wave-i) * var(--mc-wave-cycle) / var(--mc-wave-bars) * -1
+  );
+}
+
+@keyframes wave-pulse {
+  0%,
+  100% {
+    transform: scaleY(0.22);
+    opacity: 0.5;
+  }
+  45% {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+/* Reduced motion: hold the full silhouette (no vertical travel) and breathe
+   its opacity in unison — a functional loading signal, never a blank frame. */
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    transform: scaleY(1);
+    animation: wave-breathe var(--mc-wave-cycle-reduced) var(--mc-ease-out)
+      infinite;
+    animation-delay: 0s;
+  }
+  @keyframes wave-breathe {
+    0%,
+    100% {
+      opacity: 0.4;
+    }
+    50% {
+      opacity: 0.85;
+    }
+  }
+}
