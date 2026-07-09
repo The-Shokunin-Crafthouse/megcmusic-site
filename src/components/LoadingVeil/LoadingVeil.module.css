@@ -139,7 +139,7 @@
   position: absolute;
   top: var(--beam-top, 17%);
   left: var(--beam-x, 50%);
-  width: var(--beam-w, 17vw);
+  width: var(--beam-w, 23vw);
   height: var(--beam-h, 96vh);
   transform-origin: top center;
   /* Rest state = the composed fanned scene (what reduced-motion shows). */
@@ -155,8 +155,9 @@
     rgb(var(--beam-rgb) / 0.06) 62%,
     rgb(var(--beam-rgb) / 0) 86%
   );
-  /* Cone: a slit at the truss, widening to a full base. */
-  clip-path: polygon(43% 0%, 57% 0%, 100% 100%, 0% 100%);
+  /* Cone: a near-point slit at the truss, widening to a full base — skinny at
+     the fixture, wide at the floor. */
+  clip-path: polygon(48% 0%, 52% 0%, 100% 100%, 0% 100%);
   /* Feather the long edges hard so the shaft is soft volumetric light, never a
      hard-edged triangle — narrow solid core, wide fade to each side. */
   -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 40%, #000 60%, transparent 100%);
@@ -175,7 +176,7 @@
    cone rakes dead-centre behind the logo. */
 .b1 { /* amber accent, far left — dim + narrow so it glows, not muddies */
   --beam-rgb: var(--mc-veil-c-amber);
-  --beam-x: 26%; --beam-w: 15vw; --beam-core: 0.28;
+  --beam-x: 26%; --beam-w: 20vw; --beam-core: 0.28;
   --beam-rot-rest: -34deg; --beam-rot-from: -45deg; --beam-rot-to: -23deg;
   --beam-op-rest: 0.6; --beam-op-lo: 0.4; --beam-op-hi: 0.7;
   --beam-sweep-dur: 28s; --beam-breath-dur: 8s;
@@ -231,7 +232,7 @@
 }
 .b8 { /* amber accent, far right — dim + narrow so it glows, not muddies */
   --beam-rgb: var(--mc-veil-c-amber);
-  --beam-x: 74%; --beam-w: 15vw; --beam-core: 0.28;
+  --beam-x: 74%; --beam-w: 20vw; --beam-core: 0.28;
   --beam-rot-rest: 34deg; --beam-rot-from: 23deg; --beam-rot-to: 46deg;
   --beam-op-rest: 0.6; --beam-op-lo: 0.4; --beam-op-hi: 0.7;
   --beam-sweep-dur: 26s; --beam-breath-dur: 9s;
