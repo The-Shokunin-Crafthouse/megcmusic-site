@@ -194,6 +194,7 @@
   --mc-veil-c-pool-magenta: 236 128 198; /* floor gobo pool — magenta */
   --mc-veil-c-pool-white: 230 224 244;   /* floor gobo pool — white */
   --mc-veil-c-pool-amber: 255 190 132;   /* floor gobo pool — amber */
+  --mc-veil-cone-blur: 11px;        /* progressive cone blur — full strength at the floor, masked off at the source */
   --mc-veil-logo-w: 319px;          /* lockup visual width, desktop (Figma 148:293) */
   --mc-veil-logo-w-mobile: 221.5px; /* lockup visual width, mobile (Figma 148:296) */
   --mc-veil-logo-settle: 2000ms;    /* one settle-in: fade + rise + elastic scale pop — slow, cinematic */

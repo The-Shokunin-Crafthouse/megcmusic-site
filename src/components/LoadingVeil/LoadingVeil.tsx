@@ -40,6 +40,9 @@ export function LoadingVeil({ phase }: { phase: VeilPhase }) {
         {POOLS.map((p) => (
           <div key={p} className={`${styles.pool} ${styles[p]}`} />
         ))}
+        {/* Progressive blur over the cones: crisp at the source, hazier toward
+            the floor. Above the light layers, below the logo. */}
+        <div className={styles.coneBlur} />
         <div className={styles.bloom} />
         <div className={styles.logoBox}>
           {/* Measured LCP element on veiled loads (the photo is excluded as a

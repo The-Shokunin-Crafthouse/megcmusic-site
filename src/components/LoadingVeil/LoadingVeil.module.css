@@ -312,6 +312,24 @@
   --pool-dur: 10s; --pool-delay: -2s;
 }
 
+/* ------------------------- PROGRESSIVE CONE BLUR -------------------- */
+/* Gradient blur over the cones: crisp at the source, hazier toward the floor
+   (light scattering through more air lower down). One masked backdrop-filter —
+   the mask is transparent at the top (no blur at the fixtures) and ramps to
+   solid by the lower third (full blur at the floor). Sits above the light
+   layers, below the logo (z-index), so the mark stays sharp. Static (no
+   animation); the blur cost is a transient loading-screen overlay. */
+.coneBlur {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  -webkit-backdrop-filter: blur(var(--mc-veil-cone-blur));
+  backdrop-filter: blur(var(--mc-veil-cone-blur));
+  -webkit-mask-image: linear-gradient(to bottom, transparent 14%, #000 66%);
+  mask-image: linear-gradient(to bottom, transparent 14%, #000 66%);
+}
+
 /* ------------------------------- BLOOM ------------------------------- */
 /* Exit beat 1 — the light blooms once before the veil lifts. A soft wash that
    goes 0 → peak on the swell phase and holds through the fade. Sits under the
