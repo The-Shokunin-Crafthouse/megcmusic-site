@@ -41,6 +41,9 @@ export function LoadingVeil({ phase }: { phase: VeilPhase }) {
           <div key={p} className={`${styles.pool} ${styles[p]}`} />
         ))}
         <div className={styles.bloom} />
+        {/* Dims the light directly behind the lockup so the mark reads solid
+            and in front, never washed transparent by a beam crossing behind. */}
+        <div className={styles.logoBacking} />
         <div className={styles.logoBox}>
           {/* Measured LCP element on veiled loads (the photo is excluded as a
               low-entropy backdrop), so it rides at high priority too. */}
