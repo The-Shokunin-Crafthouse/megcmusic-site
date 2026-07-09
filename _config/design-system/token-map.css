@@ -173,24 +173,34 @@
 
   /* Home boot veil — the full-screen loading screen covering first paint when
      the server render came back with zero shows (datacenter-blocked deploys;
-     2026-07-08 ADR). Figma 148:292 (desktop) / 148:295 (mobile): stage-lights
-     photo at 10% in luminosity blend over a lifted plum ground, the name
-     lockup centred. Motion is cinematic per client direction — concert haze:
-     long periods, transform/opacity only. */
+     2026-07-08 ADR). Figma 148:292 (desktop) / 148:295 (mobile) art-direct a
+     concert stage; the scene is now built procedurally (beam cones + lamp
+     blooms + floor gobo pools, palette below) rather than a photo, so the
+     lights actually move and nothing blend-flashes (2026-07-09 ADR). Motion is
+     cinematic per client direction — concert haze: long periods, slow sweeps,
+     transform/opacity only. */
   --mc-veil-bg: #543343;            /* lifted plum ground (Figma 148:292 fill) */
   --mc-veil-z: 150;                 /* over the persistent logo (100), under the menu overlay (200) */
-  --mc-veil-photo-opacity: 0.1;     /* base photo — luminosity blend on the plum */
-  --mc-veil-beam-max: 0.25;         /* screen-blend copy peak — brightens only the beams */
-  --mc-veil-drift: 36s;             /* base photo drift + scale breath, alternate */
-  --mc-veil-drift-scale: 1.06;      /* drift zoom ceiling */
-  --mc-veil-beam-cycle: 12s;        /* one beam-breath (0 → peak → 0) */
+  /* Procedural stage-light palette (R G B triplets, all brighter than the plum
+     ground) — the moving-light veil that REPLACED the stage photo (2026-07-09
+     ADR). Beams + floor pools compose from these over --mc-veil-bg with no
+     blend mode: the photo's mix-blend-mode flipped to unblended on compositing
+     (the flash the client saw), and its beams were baked-in / couldn't move.
+     Per-fixture geometry + phase live as documented literals in the module
+     (composition, not reusable tokens — Instastar/ShowCard precedent). */
+  --mc-veil-c-magenta: 240 120 200;      /* dominant beam */
+  --mc-veil-c-white: 236 232 246;        /* cool-white beam */
+  --mc-veil-c-amber: 255 186 122;        /* warm accent — far edges only, never centre */
+  --mc-veil-c-pool-magenta: 236 128 198; /* floor gobo pool — magenta */
+  --mc-veil-c-pool-white: 230 224 244;   /* floor gobo pool — white */
+  --mc-veil-c-pool-amber: 255 190 132;   /* floor gobo pool — amber */
   --mc-veil-logo-w: 319px;          /* lockup visual width, desktop (Figma 148:293) */
   --mc-veil-logo-w-mobile: 221.5px; /* lockup visual width, mobile (Figma 148:296) */
   --mc-veil-logo-settle: 900ms;     /* one settle-in: fade + rise */
   --mc-veil-logo-rise: 8px;         /* settle-in rise distance */
   --mc-veil-logo-exit: 420ms;       /* veil logo departs faster than the veil fade — hand-off, never two logos */
-  --mc-veil-swell: 600ms;           /* exit beat 1: the light blooms once */
-  --mc-veil-swell-opacity: 0.35;    /* bloom peak on the screen-blend copy */
+  --mc-veil-swell: 600ms;           /* exit beat 1: the light blooms once before the veil lifts */
+  --mc-veil-swell-opacity: 0.4;     /* bloom-layer peak opacity on swell/fade */
   --mc-veil-hold-min: 1200ms;       /* anti-flash floor — veil never shows shorter */
   --mc-veil-hold-max: 10000ms;      /* cap — past this, exit to the skeleton/empty path */
 

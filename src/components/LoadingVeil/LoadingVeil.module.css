@@ -1,76 +1,353 @@
 /* LoadingVeil — home boot veil (Figma 148:292 desktop / 148:295 mobile).
-   Concert haze, not an EDM rig: the photo itself moves — slow drift, a
-   screen-blend copy breathing the beams brighter — with long periods and
-   transform/opacity only. will-change is acceptable statically here because
-   the veil exists only while loading and unmounts on exit. Every duration /
-   colour / opacity / z-index is a --mc-veil-* token (token-map.css). */
+   The stage-lights PHOTO was replaced (2026-07-09 ADR) with a procedural
+   concert-lighting scene: linear-gradient beam cones fanning from an upper
+   truss, small lamp blooms at each fixture, and radial gobo pools on the floor
+   — everything composed over the plum ground (var(--mc-veil-bg)) with NO
+   blend mode (the photo's mix-blend-mode flipped to unblended on compositing,
+   the flash the client reported). Animates transform + opacity ONLY, off the
+   main thread; no filter, no blend. Per-fixture geometry/phase are documented
+   composition literals (Instastar/ShowCard precedent); the light PALETTE lives
+   in token-map.css (--mc-veil-c-*). Cinematic + slow: sweeps 15–31s, breaths
+   7–14s, each layer phase-offset so the rig never pulses in unison. */
 
 .veil {
   position: fixed;
   inset: 0;
   z-index: var(--mc-veil-z);
   overflow: hidden;
-  background: var(--mc-veil-bg);
+  /* Lifted plum at the stage centre falling to the site's dark plum at the
+     edges/rig — the near-black surround a concert stage needs so the beam
+     gradients read as LIGHT (glowing) rather than pale wedges. The photo used
+     to supply this darkening; the procedural scene composes it from the two
+     existing plum tokens (no new hex). */
+  background: radial-gradient(
+    ellipse 92% 82% at 50% 42%,
+    var(--mc-veil-bg) 0%,
+    var(--mc-bg) 100%
+  );
 }
 
 .visuals {
   position: absolute;
   inset: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
-.photo,
-.beams {
+/* ------------------------------- HAZE -------------------------------- */
+/* Wide, dim atmospheric fill. Brightest band sits high (26%), off dead-centre,
+   so it never fights the logo. Opacity breath only (no promotion needed). */
+.haze {
+  position: absolute;
+  left: 50%;
+  top: 6%;
+  width: 130vw;
+  height: 64vh;
+  transform: translateX(-50%);
+  opacity: var(--mc-veil-haze-op-hi, 0.44);
+  background: radial-gradient(
+    ellipse 58% 52% at 50% 26%,
+    rgb(var(--mc-veil-c-magenta) / 0.16) 0%,
+    rgb(var(--mc-veil-c-magenta) / 0.05) 46%,
+    rgb(var(--mc-veil-c-magenta) / 0) 72%
+  );
+  animation: veil-haze-breath 24s ease-in-out infinite alternate;
+  --mc-veil-haze-op-lo: 0.28;
+  --mc-veil-haze-op-hi: 0.44;
+}
+
+/* ------------------------- SWEEP (room pass) ------------------------- */
+/* Two wide, dim wedges doing a slow lighthouse pass — the extra axis of
+   perceptible motion + atmospheric depth. Same cheap technique as the beams
+   (linear-gradient + clip-path + edge-feather mask), NOT conic. Reuse the beam
+   sweep/breath keyframes by setting the same --beam-* custom props. */
+.sweep {
+  position: absolute;
+  top: 15%;
+  left: 50%;
+  width: 120vw;
+  height: 90vh;
+  transform-origin: top center;
+  transform: translateX(-50%) rotate(var(--beam-rot-rest));
+  opacity: var(--beam-op-rest);
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--beam-rgb) / var(--beam-core)) 0%,
+    rgb(var(--beam-rgb) / calc(var(--beam-core) * 0.4)) 40%,
+    rgb(var(--beam-rgb) / 0) 78%
+  );
+  clip-path: polygon(46% 0%, 54% 0%, 100% 100%, 0% 100%);
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 30%, #000 70%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 30%, #000 70%, transparent 100%);
+  will-change: transform, opacity;
+  animation:
+    veil-beam-sweep var(--beam-sweep-dur) ease-in-out infinite alternate var(--beam-sweep-delay),
+    veil-beam-breath var(--beam-breath-dur) ease-in-out infinite alternate var(--beam-breath-delay);
+}
+.s1 {
+  --beam-rgb: var(--mc-veil-c-magenta);
+  --beam-core: 0.14;
+  --beam-rot-rest: -16deg; --beam-rot-from: -25deg; --beam-rot-to: -7deg;
+  --beam-op-rest: 0.14; --beam-op-lo: 0.1; --beam-op-hi: 0.18;
+  --beam-sweep-dur: 27s; --beam-breath-dur: 19s;
+  --beam-sweep-delay: -6s; --beam-breath-delay: -3s;
+}
+.s2 {
+  --beam-rgb: var(--mc-veil-c-magenta);
+  --beam-core: 0.12;
+  --beam-rot-rest: 14deg; --beam-rot-from: 6deg; --beam-rot-to: 22deg;
+  --beam-op-rest: 0.13; --beam-op-lo: 0.1; --beam-op-hi: 0.16;
+  --beam-sweep-dur: 31s; --beam-breath-dur: 21s;
+  --beam-sweep-delay: -14s; --beam-breath-delay: -9s;
+}
+
+/* ------------------------------- LAMPS ------------------------------- */
+/* Small radial blooms pinned at each beam's fixture point — they sell the
+   moving-head SOURCES the linear cones lack. Cheap (small); opacity + scale
+   only, no promotion. Colour-matched to their beam; centre lamps dimmed. */
+.lamp {
+  position: absolute;
+  top: var(--lamp-y, 25%);
+  left: var(--lamp-x);
+  /* Responsive so the fixtures don't merge into one bar where the truss span
+     is narrow (mobile) yet stay substantial on desktop. */
+  width: clamp(34px, 4.4vw, 66px);
+  height: clamp(34px, 4.4vw, 66px);
+  transform: translate(-50%, -50%) scale(1);
+  border-radius: 50%;
+  opacity: var(--lamp-op-rest);
+  background: radial-gradient(
+    closest-side,
+    rgb(var(--lamp-rgb) / 0.7),
+    rgb(var(--lamp-rgb) / 0) 70%
+  );
+  animation: veil-lamp-glow var(--lamp-dur) ease-in-out infinite alternate var(--lamp-delay);
+}
+.l1 { --lamp-rgb: var(--mc-veil-c-amber);   --lamp-x: 20%; --lamp-op-rest: 0.5; --lamp-op-lo: 0.32; --lamp-op-hi: 0.6;  --lamp-dur: 9s;    --lamp-delay: -2s; }
+.l2 { --lamp-rgb: var(--mc-veil-c-white);   --lamp-x: 31%; --lamp-op-rest: 0.58; --lamp-op-lo: 0.4; --lamp-op-hi: 0.72; --lamp-dur: 11s;   --lamp-delay: -6s; }
+.l3 { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 40%; --lamp-op-rest: 0.62; --lamp-op-lo: 0.42; --lamp-op-hi: 0.78; --lamp-dur: 8s;   --lamp-delay: -4s; }
+.l4 { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 47%; --lamp-op-rest: 0.42; --lamp-op-lo: 0.28; --lamp-op-hi: 0.52; --lamp-dur: 10s;  --lamp-delay: -1s; }
+.l5 { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 55%; --lamp-op-rest: 0.44; --lamp-op-lo: 0.28; --lamp-op-hi: 0.54; --lamp-dur: 13s;  --lamp-delay: -7s; }
+.l6 { --lamp-rgb: var(--mc-veil-c-white);   --lamp-x: 63%; --lamp-op-rest: 0.58; --lamp-op-lo: 0.4; --lamp-op-hi: 0.72; --lamp-dur: 9.5s; --lamp-delay: -3s; }
+.l7 { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 72%; --lamp-op-rest: 0.62; --lamp-op-lo: 0.42; --lamp-op-hi: 0.78; --lamp-dur: 12s;  --lamp-delay: -9s; }
+.l8 { --lamp-rgb: var(--mc-veil-c-amber);   --lamp-x: 82%; --lamp-op-rest: 0.5; --lamp-op-lo: 0.32; --lamp-op-hi: 0.6;  --lamp-dur: 14s;   --lamp-delay: -5s; }
+
+/* ------------------------------- BEAMS ------------------------------- */
+.beam {
+  position: absolute;
+  top: var(--beam-top, 26%);
+  left: var(--beam-x, 50%);
+  width: var(--beam-w, 17vw);
+  height: var(--beam-h, 96vh);
+  transform-origin: top center;
+  /* Rest state = the composed fanned scene (what reduced-motion shows). */
+  transform: translateX(-50%) rotate(var(--beam-rot-rest, 0deg));
+  opacity: var(--beam-op-rest, 0.82);
+  /* Length fade: ramps IN just under the fixture (no hard flat top — the lamp
+     bloom caps the origin), peaks, then extinguishes before the floor. */
+  background: linear-gradient(
+    to bottom,
+    rgb(var(--beam-rgb) / 0) 0%,
+    rgb(var(--beam-rgb) / var(--beam-core, 0.5)) 10%,
+    rgb(var(--beam-rgb) / calc(var(--beam-core, 0.5) * 0.5)) 34%,
+    rgb(var(--beam-rgb) / 0.06) 62%,
+    rgb(var(--beam-rgb) / 0) 86%
+  );
+  /* Cone: a slit at the truss, widening to a full base. */
+  clip-path: polygon(43% 0%, 57% 0%, 100% 100%, 0% 100%);
+  /* Feather the long edges hard so the shaft is soft volumetric light, never a
+     hard-edged triangle — narrow solid core, wide fade to each side. */
+  -webkit-mask-image: linear-gradient(to right, transparent 0%, #000 40%, #000 60%, transparent 100%);
+  mask-image: linear-gradient(to right, transparent 0%, #000 40%, #000 60%, transparent 100%);
+  will-change: transform, opacity;
+  animation:
+    veil-beam-sweep var(--beam-sweep-dur, 18s) ease-in-out infinite alternate var(--beam-sweep-delay, 0s),
+    veil-beam-breath var(--beam-breath-dur, 9s) ease-in-out infinite alternate var(--beam-breath-delay, 0s);
+}
+
+/* Per-fixture placement / colour / phase. rot-from/rot-to bracket rot-rest by
+   ~10–12° → a visible foot sweep. The two centre beams (b4/b5) carry a lower
+   core so no bright cone parks dead-centre behind the logo. */
+.b1 { /* amber accent, far left — dim + narrow so it glows, not muddies */
+  --beam-rgb: var(--mc-veil-c-amber);
+  --beam-x: 20%; --beam-w: 15vw; --beam-core: 0.28;
+  --beam-rot-rest: -34deg; --beam-rot-from: -39deg; --beam-rot-to: -29deg;
+  --beam-op-rest: 0.6; --beam-op-lo: 0.4; --beam-op-hi: 0.7;
+  --beam-sweep-dur: 17s; --beam-breath-dur: 8s;
+  --beam-sweep-delay: -2s; --beam-breath-delay: -4s;
+}
+.b2 { /* cool white */
+  --beam-rgb: var(--mc-veil-c-white);
+  --beam-x: 31%; --beam-core: 0.46;
+  --beam-rot-rest: -22deg; --beam-rot-from: -27deg; --beam-rot-to: -16deg;
+  --beam-op-rest: 0.8; --beam-op-lo: 0.52; --beam-op-hi: 0.9;
+  --beam-sweep-dur: 21s; --beam-breath-dur: 11s;
+  --beam-sweep-delay: -6s; --beam-breath-delay: -1s;
+}
+.b3 { /* magenta — brightest, off-centre left */
+  --beam-rgb: var(--mc-veil-c-magenta);
+  --beam-x: 40%; --beam-core: 0.52;
+  --beam-rot-rest: -12deg; --beam-rot-from: -17deg; --beam-rot-to: -5deg;
+  --beam-op-rest: 0.84; --beam-op-lo: 0.56; --beam-op-hi: 0.94;
+  --beam-sweep-dur: 15s; --beam-breath-dur: 9s;
+  --beam-sweep-delay: -9s; --beam-breath-delay: -5s;
+}
+.b4 { /* magenta, near-vertical — centre-guard: low core, capped peak */
+  --beam-rgb: var(--mc-veil-c-magenta);
+  --beam-x: 47%; --beam-core: 0.38;
+  --beam-rot-rest: -4deg; --beam-rot-from: -9deg; --beam-rot-to: 3deg;
+  --beam-op-rest: 0.72; --beam-op-lo: 0.5; --beam-op-hi: 0.82;
+  --beam-sweep-dur: 19s; --beam-breath-dur: 12s;
+  --beam-sweep-delay: -3s; --beam-breath-delay: -8s;
+}
+.b5 { /* magenta — centre-guard: low core, capped peak */
+  --beam-rgb: var(--mc-veil-c-magenta);
+  --beam-x: 55%; --beam-core: 0.42;
+  --beam-rot-rest: 6deg; --beam-rot-from: 0deg; --beam-rot-to: 12deg;
+  --beam-op-rest: 0.74; --beam-op-lo: 0.5; --beam-op-hi: 0.84;
+  --beam-sweep-dur: 23s; --beam-breath-dur: 7s;
+  --beam-sweep-delay: -12s; --beam-breath-delay: -2s;
+}
+.b6 { /* cool white */
+  --beam-rgb: var(--mc-veil-c-white);
+  --beam-x: 63%; --beam-core: 0.46;
+  --beam-rot-rest: 15deg; --beam-rot-from: 9deg; --beam-rot-to: 21deg;
+  --beam-op-rest: 0.8; --beam-op-lo: 0.52; --beam-op-hi: 0.9;
+  --beam-sweep-dur: 16s; --beam-breath-dur: 10s;
+  --beam-sweep-delay: -5s; --beam-breath-delay: -6s;
+}
+.b7 { /* magenta — brightest, off-centre right */
+  --beam-rgb: var(--mc-veil-c-magenta);
+  --beam-x: 72%; --beam-core: 0.52;
+  --beam-rot-rest: 24deg; --beam-rot-from: 18deg; --beam-rot-to: 30deg;
+  --beam-op-rest: 0.84; --beam-op-lo: 0.56; --beam-op-hi: 0.94;
+  --beam-sweep-dur: 20s; --beam-breath-dur: 13s;
+  --beam-sweep-delay: -8s; --beam-breath-delay: -3s;
+}
+.b8 { /* amber accent, far right — dim + narrow so it glows, not muddies */
+  --beam-rgb: var(--mc-veil-c-amber);
+  --beam-x: 82%; --beam-w: 15vw; --beam-core: 0.28;
+  --beam-rot-rest: 34deg; --beam-rot-from: 28deg; --beam-rot-to: 40deg;
+  --beam-op-rest: 0.6; --beam-op-lo: 0.4; --beam-op-hi: 0.7;
+  --beam-sweep-dur: 24s; --beam-breath-dur: 9s;
+  --beam-sweep-delay: -1s; --beam-breath-delay: -10s;
+}
+
+/* ------------------------------- POOLS ------------------------------- */
+/* Perspective-flattened gobo ellipses on the reflective floor; larger + more
+   spaced toward the foreground (bottom). Opacity + scale breath. */
+.pool {
+  position: absolute;
+  top: var(--pool-y);
+  left: var(--pool-x);
+  width: var(--pool-w);
+  height: var(--pool-h);
+  transform-origin: center;
+  transform: translateX(-50%) scale(1);
+  opacity: var(--pool-op-rest, 0.5);
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgb(var(--pool-rgb) / var(--pool-core, 0.42)) 0%,
+    rgb(var(--pool-rgb) / 0.16) 42%,
+    rgb(var(--pool-rgb) / 0) 72%
+  );
+  animation: veil-pool-breath var(--pool-dur, 11s) ease-in-out infinite alternate var(--pool-delay, 0s);
+}
+.p1 {
+  --pool-rgb: var(--mc-veil-c-pool-magenta);
+  --pool-x: 26%; --pool-y: 66%; --pool-w: 20vw; --pool-h: 7vh;
+  --pool-op-rest: 0.46; --pool-op-lo: 0.3; --pool-op-hi: 0.58;
+  --pool-scale-lo: 0.92; --pool-scale-hi: 1.06;
+  --pool-dur: 10s; --pool-delay: -3s;
+}
+.p2 {
+  --pool-rgb: var(--mc-veil-c-pool-white);
+  --pool-x: 60%; --pool-y: 70%; --pool-w: 24vw; --pool-h: 8vh;
+  --pool-op-rest: 0.5; --pool-op-lo: 0.32; --pool-op-hi: 0.62;
+  --pool-scale-lo: 0.94; --pool-scale-hi: 1.08;
+  --pool-dur: 13s; --pool-delay: -7s;
+}
+.p3 {
+  --pool-rgb: var(--mc-veil-c-pool-magenta);
+  --pool-x: 44%; --pool-y: 76%; --pool-w: 30vw; --pool-h: 10vh;
+  --pool-op-rest: 0.5; --pool-op-lo: 0.32; --pool-op-hi: 0.64;
+  --pool-scale-lo: 0.9; --pool-scale-hi: 1.1;
+  --pool-dur: 9s; --pool-delay: -1s;
+}
+.p4 {
+  --pool-rgb: var(--mc-veil-c-pool-magenta);
+  --pool-x: 78%; --pool-y: 80%; --pool-w: 28vw; --pool-h: 10vh;
+  --pool-op-rest: 0.48; --pool-op-lo: 0.3; --pool-op-hi: 0.6;
+  --pool-scale-lo: 0.93; --pool-scale-hi: 1.09;
+  --pool-dur: 12s; --pool-delay: -9s;
+}
+.p5 {
+  --pool-rgb: var(--mc-veil-c-pool-white);
+  --pool-x: 16%; --pool-y: 84%; --pool-w: 34vw; --pool-h: 12vh;
+  --pool-op-rest: 0.5; --pool-op-lo: 0.32; --pool-op-hi: 0.62;
+  --pool-scale-lo: 0.9; --pool-scale-hi: 1.1;
+  --pool-dur: 11s; --pool-delay: -5s;
+}
+.p6 {
+  --pool-rgb: var(--mc-veil-c-pool-magenta);
+  --pool-x: 54%; --pool-y: 88%; --pool-w: 42vw; --pool-h: 14vh;
+  --pool-op-rest: 0.52; --pool-op-lo: 0.34; --pool-op-hi: 0.66;
+  --pool-scale-lo: 0.9; --pool-scale-hi: 1.12;
+  --pool-dur: 14s; --pool-delay: -11s;
+}
+.p7 {
+  --pool-rgb: var(--mc-veil-c-pool-amber);
+  --pool-x: 88%; --pool-y: 90%; --pool-w: 30vw; --pool-h: 12vh;
+  --pool-op-rest: 0.42; --pool-op-lo: 0.26; --pool-op-hi: 0.54;
+  --pool-scale-lo: 0.92; --pool-scale-hi: 1.08;
+  --pool-dur: 10s; --pool-delay: -2s;
+}
+
+/* ------------------------------- BLOOM ------------------------------- */
+/* Exit beat 1 — the light blooms once before the veil lifts. A soft wash that
+   goes 0 → peak on the swell phase and holds through the fade. Sits under the
+   logo so the mark stays crisp. Opacity transition only. */
+.bloom {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: center;
-  will-change: transform;
-  animation: veil-drift var(--mc-veil-drift) ease-in-out infinite alternate;
-}
-
-.photo {
-  opacity: var(--mc-veil-photo-opacity);
-  mix-blend-mode: luminosity;
-}
-
-/* Same drift as the base copy (keeps the two registered) + the beam breath. */
-.beams {
   opacity: 0;
-  mix-blend-mode: screen;
-  animation:
-    veil-drift var(--mc-veil-drift) ease-in-out infinite alternate,
-    veil-beams var(--mc-veil-beam-cycle) ease-in-out infinite;
+  background: radial-gradient(
+    ellipse 70% 55% at 50% 42%,
+    rgb(var(--mc-veil-c-white) / 0.5) 0%,
+    rgb(var(--mc-veil-c-magenta) / 0.22) 45%,
+    rgb(var(--mc-veil-c-magenta) / 0) 78%
+  );
 }
-
-@keyframes veil-drift {
-  from {
-    transform: translate3d(0, 0, 0) scale(1);
-  }
-  to {
-    transform: translate3d(-1.5%, 1%, 0) scale(var(--mc-veil-drift-scale));
-  }
-}
-
-@keyframes veil-beams {
-  0%,
-  100% {
-    opacity: 0;
-  }
-  50% {
-    opacity: var(--mc-veil-beam-max);
-  }
-}
-
-/* Exit beat 1 — the light blooms once: the screen copy swells to the bloom
-   peak. The transition picks up from the breath's current animated value
-   (before-change style includes animation effects), so the bloom never jumps. */
-.veil[data-phase="swell"] .beams,
-.veil[data-phase="fade"] .beams {
-  animation: veil-drift var(--mc-veil-drift) ease-in-out infinite alternate;
+.veil[data-phase="swell"] .bloom,
+.veil[data-phase="fade"] .bloom {
   opacity: var(--mc-veil-swell-opacity);
   transition: opacity var(--mc-veil-swell) var(--mc-ease-out);
+}
+
+/* ----------------------------- KEYFRAMES ----------------------------- */
+/* rotate() values resolve from per-fixture custom props at compute time, then
+   interpolate as concrete angles — smooth, compositor-driven. Shared by beams
+   and sweeps (both set the --beam-* props). */
+@keyframes veil-beam-sweep {
+  from { transform: translateX(-50%) rotate(var(--beam-rot-from)); }
+  to { transform: translateX(-50%) rotate(var(--beam-rot-to)); }
+}
+@keyframes veil-beam-breath {
+  from { opacity: var(--beam-op-lo); }
+  to { opacity: var(--beam-op-hi); }
+}
+@keyframes veil-lamp-glow {
+  from { opacity: var(--lamp-op-lo); transform: translate(-50%, -50%) scale(0.9); }
+  to { opacity: var(--lamp-op-hi); transform: translate(-50%, -50%) scale(1.12); }
+}
+@keyframes veil-pool-breath {
+  from { opacity: var(--pool-op-lo); transform: translateX(-50%) scale(var(--pool-scale-lo)); }
+  to { opacity: var(--pool-op-hi); transform: translateX(-50%) scale(var(--pool-scale-hi)); }
+}
+@keyframes veil-haze-breath {
+  from { opacity: var(--mc-veil-haze-op-lo); }
+  to { opacity: var(--mc-veil-haze-op-hi); }
 }
 
 /* Exit beat 2 — the veil lifts over the entrance duration WHILE the hero
@@ -181,24 +458,35 @@
   white-space: nowrap;
 }
 
-/* Reduced motion: static photo + logo, plain opacity fades. The beam copy and
-   the bloom are dropped entirely; the exit is a plain fade. Functional, never
-   blank. */
+/* Reduced motion: freeze every light at its authored REST frame — a fully
+   composed, lit stage, never blank. The base rules already encode the fanned
+   rest state, so disabling the animations leaves a finished poster. The exit
+   bloom still transitions on phase (a plain opacity change). */
 @media (prefers-reduced-motion: reduce) {
-  .photo,
-  .beams,
+  .haze,
+  .sweep,
+  .lamp,
+  .beam,
+  .pool,
   .logoBox,
   .shimmer {
-    animation: none;
+    animation: none !important;
   }
   .shimmer {
     background: none;
   }
-  .beams,
-  .veil[data-phase="swell"] .beams,
-  .veil[data-phase="fade"] .beams {
-    opacity: 0;
-    transition: none;
+  .sweep,
+  .beam {
+    transform: translateX(-50%) rotate(var(--beam-rot-rest));
+  }
+  .lamp {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  .pool {
+    transform: translateX(-50%) scale(1);
+  }
+  .haze {
+    opacity: var(--mc-veil-haze-op-hi);
   }
   .veil[data-phase="fade"] .logoBox {
     transform: translate(-50%, -50%);
