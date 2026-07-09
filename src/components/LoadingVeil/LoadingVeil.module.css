@@ -7,10 +7,10 @@
    the flash the client reported). Animates transform + opacity ONLY, off the
    main thread; no filter, no blend. Per-fixture geometry/phase are documented
    composition literals (Instastar/ShowCard precedent); the light PALETTE lives
-   in token-map.css (--mc-veil-c-*). Cinematic + slow, de-synchronised: beam
-   sweeps 19–42s (one there-and-back 38–84s), room-pass sweeps 44–53s, breaths
-   10–27s — all mutually incommensurate + phase-offset, so the rig drifts and
-   never resyncs into a pattern. A lounge rig, not an EDM strobe. */
+   in token-map.css (--mc-veil-c-*). Cinematic + slow, but each beam pans a
+   WIDE ~18–24° arc (clearly visible) on its own incommensurate period (sweeps
+   16–30s) so the heads head in different directions and never resync — like a
+   real stage rig, not an EDM strobe. */
 
 .veil {
   position: fixed;
@@ -42,13 +42,13 @@
 .haze {
   position: absolute;
   left: 50%;
-  top: 2%;
-  width: 140vw;
-  height: 62vh;
+  top: 6%;
+  width: 130vw;
+  height: 64vh;
   transform: translateX(-50%);
   opacity: var(--mc-veil-haze-op-hi, 0.44);
   background: radial-gradient(
-    ellipse 60% 52% at 50% 18%,
+    ellipse 58% 52% at 50% 26%,
     rgb(var(--mc-veil-c-magenta) / 0.16) 0%,
     rgb(var(--mc-veil-c-magenta) / 0.05) 46%,
     rgb(var(--mc-veil-c-magenta) / 0) 72%
@@ -65,10 +65,10 @@
    sweep/breath keyframes by setting the same --beam-* custom props. */
 .sweep {
   position: absolute;
-  top: 7%;
+  top: 15%;
   left: 50%;
-  width: 130vw;
-  height: 98vh;
+  width: 120vw;
+  height: 90vh;
   transform-origin: top center;
   transform: translateX(-50%) rotate(var(--beam-rot-rest));
   opacity: var(--beam-op-rest);
@@ -89,18 +89,18 @@
 .s1 {
   --beam-rgb: var(--mc-veil-c-magenta);
   --beam-core: 0.14;
-  --beam-rot-rest: -26deg; --beam-rot-from: -35deg; --beam-rot-to: -17deg;
+  --beam-rot-rest: -16deg; --beam-rot-from: -25deg; --beam-rot-to: -7deg;
   --beam-op-rest: 0.14; --beam-op-lo: 0.1; --beam-op-hi: 0.18;
-  --beam-sweep-dur: 44s; --beam-breath-dur: 23s;
+  --beam-sweep-dur: 27s; --beam-breath-dur: 19s;
   --beam-sweep-delay: -6s; --beam-breath-delay: -3s;
 }
 .s2 {
   --beam-rgb: var(--mc-veil-c-magenta);
   --beam-core: 0.12;
-  --beam-rot-rest: 24deg; --beam-rot-from: 15deg; --beam-rot-to: 33deg;
+  --beam-rot-rest: 14deg; --beam-rot-from: 6deg; --beam-rot-to: 22deg;
   --beam-op-rest: 0.13; --beam-op-lo: 0.1; --beam-op-hi: 0.16;
-  --beam-sweep-dur: 53s; --beam-breath-dur: 27s;
-  --beam-sweep-delay: -19s; --beam-breath-delay: -9s;
+  --beam-sweep-dur: 31s; --beam-breath-dur: 21s;
+  --beam-sweep-delay: -14s; --beam-breath-delay: -9s;
 }
 
 /* ------------------------------- LAMPS ------------------------------- */
@@ -109,12 +109,12 @@
    only, no promotion. Colour-matched to their beam; centre lamps dimmed. */
 .lamp {
   position: absolute;
-  top: var(--lamp-y, 13%);
+  top: var(--lamp-y, 25%);
   left: var(--lamp-x);
   /* Responsive so the fixtures don't merge into one bar where the truss span
      is narrow (mobile) yet stay substantial on desktop. */
-  width: clamp(30px, 3.8vw, 58px);
-  height: clamp(30px, 3.8vw, 58px);
+  width: clamp(34px, 4.4vw, 66px);
+  height: clamp(34px, 4.4vw, 66px);
   transform: translate(-50%, -50%) scale(1);
   border-radius: 50%;
   opacity: var(--lamp-op-rest);
@@ -125,26 +125,22 @@
   );
   animation: veil-lamp-glow var(--lamp-dur) ease-in-out infinite alternate var(--lamp-delay);
 }
-.l1  { --lamp-rgb: var(--mc-veil-c-amber);   --lamp-x: 8%;  --lamp-op-rest: 0.5;  --lamp-op-lo: 0.32; --lamp-op-hi: 0.6;  --lamp-dur: 15s;   --lamp-delay: -2s; }
-.l2  { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 16%; --lamp-op-rest: 0.62; --lamp-op-lo: 0.42; --lamp-op-hi: 0.78; --lamp-dur: 19s;   --lamp-delay: -6s; }
-.l3  { --lamp-rgb: var(--mc-veil-c-white);   --lamp-x: 25%; --lamp-op-rest: 0.58; --lamp-op-lo: 0.4;  --lamp-op-hi: 0.72; --lamp-dur: 13s;   --lamp-delay: -11s; }
-.l4  { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 33%; --lamp-op-rest: 0.62; --lamp-op-lo: 0.42; --lamp-op-hi: 0.78; --lamp-dur: 20s;   --lamp-delay: -9s; }
-.l5  { --lamp-rgb: var(--mc-veil-c-white);   --lamp-x: 41%; --lamp-op-rest: 0.56; --lamp-op-lo: 0.38; --lamp-op-hi: 0.7;  --lamp-dur: 16.5s; --lamp-delay: -1s; }
-.l6  { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 46%; --lamp-op-rest: 0.42; --lamp-op-lo: 0.28; --lamp-op-hi: 0.52; --lamp-dur: 14s;   --lamp-delay: -7s; }
-.l7  { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 54%; --lamp-op-rest: 0.44; --lamp-op-lo: 0.28; --lamp-op-hi: 0.54; --lamp-dur: 18.5s; --lamp-delay: -14s; }
-.l8  { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 59%; --lamp-op-rest: 0.62; --lamp-op-lo: 0.42; --lamp-op-hi: 0.78; --lamp-dur: 12.5s; --lamp-delay: -11s; }
-.l9  { --lamp-rgb: var(--mc-veil-c-white);   --lamp-x: 67%; --lamp-op-rest: 0.58; --lamp-op-lo: 0.4;  --lamp-op-hi: 0.72; --lamp-dur: 21s;   --lamp-delay: -5s; }
-.l10 { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 75%; --lamp-op-rest: 0.62; --lamp-op-lo: 0.42; --lamp-op-hi: 0.78; --lamp-dur: 17s;   --lamp-delay: -8s; }
-.l11 { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 84%; --lamp-op-rest: 0.6;  --lamp-op-lo: 0.4;  --lamp-op-hi: 0.74; --lamp-dur: 15.5s; --lamp-delay: -18s; }
-.l12 { --lamp-rgb: var(--mc-veil-c-amber);   --lamp-x: 92%; --lamp-op-rest: 0.5;  --lamp-op-lo: 0.32; --lamp-op-hi: 0.6;  --lamp-dur: 19.5s; --lamp-delay: -6s; }
+.l1 { --lamp-rgb: var(--mc-veil-c-amber);   --lamp-x: 20%; --lamp-op-rest: 0.5; --lamp-op-lo: 0.32; --lamp-op-hi: 0.6;  --lamp-dur: 9s;    --lamp-delay: -2s; }
+.l2 { --lamp-rgb: var(--mc-veil-c-white);   --lamp-x: 31%; --lamp-op-rest: 0.58; --lamp-op-lo: 0.4; --lamp-op-hi: 0.72; --lamp-dur: 11s;   --lamp-delay: -6s; }
+.l3 { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 40%; --lamp-op-rest: 0.62; --lamp-op-lo: 0.42; --lamp-op-hi: 0.78; --lamp-dur: 8s;   --lamp-delay: -4s; }
+.l4 { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 47%; --lamp-op-rest: 0.42; --lamp-op-lo: 0.28; --lamp-op-hi: 0.52; --lamp-dur: 10s;  --lamp-delay: -1s; }
+.l5 { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 55%; --lamp-op-rest: 0.44; --lamp-op-lo: 0.28; --lamp-op-hi: 0.54; --lamp-dur: 13s;  --lamp-delay: -7s; }
+.l6 { --lamp-rgb: var(--mc-veil-c-white);   --lamp-x: 63%; --lamp-op-rest: 0.58; --lamp-op-lo: 0.4; --lamp-op-hi: 0.72; --lamp-dur: 9.5s; --lamp-delay: -3s; }
+.l7 { --lamp-rgb: var(--mc-veil-c-magenta); --lamp-x: 72%; --lamp-op-rest: 0.62; --lamp-op-lo: 0.42; --lamp-op-hi: 0.78; --lamp-dur: 12s;  --lamp-delay: -9s; }
+.l8 { --lamp-rgb: var(--mc-veil-c-amber);   --lamp-x: 82%; --lamp-op-rest: 0.5; --lamp-op-lo: 0.32; --lamp-op-hi: 0.6;  --lamp-dur: 14s;   --lamp-delay: -5s; }
 
 /* ------------------------------- BEAMS ------------------------------- */
 .beam {
   position: absolute;
-  top: var(--beam-top, 14%);
+  top: var(--beam-top, 26%);
   left: var(--beam-x, 50%);
   width: var(--beam-w, 17vw);
-  height: var(--beam-h, 104vh);
+  height: var(--beam-h, 96vh);
   transform-origin: top center;
   /* Rest state = the composed fanned scene (what reduced-motion shows). */
   transform: translateX(-50%) rotate(var(--beam-rot-rest, 0deg));
@@ -171,112 +167,75 @@
     veil-beam-breath var(--beam-breath-dur, 9s) ease-in-out infinite alternate var(--beam-breath-delay, 0s);
 }
 
-/* Per-fixture placement / colour / phase. rot-from/rot-to bracket rot-rest by
-   ~10–12° → a visible foot sweep. The two centre beams (b4/b5) carry a lower
-   core so no bright cone parks dead-centre behind the logo. */
-/* 12 fixtures, x spread 8%→92%, rest angles fanned ±54° — a wide rig from a
-   high truss. Motion is deliberately DE-SYNCHRONISED and slow (a lounge rig
-   drifting, never an EDM strobe): each beam sweeps a DIFFERENT amount (amp
-   7–15°), ASYMMETRICALLY around its rest (some drift mostly in, some out), on
-   its OWN period (sweep 19–42s, so one full there-and-back is 38–84s), and the
-   periods are mutually incommensurate so the rig never resyncs into a pattern.
-   Opacity breaths are 10–20s — a slow swell, never a flicker. The two centre
-   beams (b6/b7) keep a low core so no bright cone parks behind the logo. */
+/* Per-fixture placement / colour / phase. Each beam sweeps a WIDE arc (~18–24°
+   swing) around its rest angle — a clearly-visible pan, like an independent
+   moving-head — on its own slow, incommensurate period, so at any instant the
+   beams are heading in DIFFERENT directions and never resync into a pattern.
+   The two centre beams (b4/b5) keep a smaller arc + lower core so no bright
+   cone rakes dead-centre behind the logo. */
 .b1 { /* amber accent, far left — dim + narrow so it glows, not muddies */
   --beam-rgb: var(--mc-veil-c-amber);
-  --beam-x: 8%; --beam-w: 15vw; --beam-core: 0.28;
-  --beam-rot-rest: -54deg; --beam-rot-from: -57deg; --beam-rot-to: -48deg;
+  --beam-x: 20%; --beam-w: 15vw; --beam-core: 0.28;
+  --beam-rot-rest: -34deg; --beam-rot-from: -45deg; --beam-rot-to: -23deg;
   --beam-op-rest: 0.6; --beam-op-lo: 0.4; --beam-op-hi: 0.7;
-  --beam-sweep-dur: 38s; --beam-breath-dur: 16s;
-  --beam-sweep-delay: -3s; --beam-breath-delay: -5s;
+  --beam-sweep-dur: 28s; --beam-breath-dur: 8s;
+  --beam-sweep-delay: -31s; --beam-breath-delay: -4s;
 }
-.b2 { /* magenta */
-  --beam-rgb: var(--mc-veil-c-magenta);
-  --beam-x: 16%; --beam-core: 0.48;
-  --beam-rot-rest: -45deg; --beam-rot-from: -51deg; --beam-rot-to: -41deg;
-  --beam-op-rest: 0.8; --beam-op-lo: 0.52; --beam-op-hi: 0.9;
-  --beam-sweep-dur: 24s; --beam-breath-dur: 13s;
-  --beam-sweep-delay: -17s; --beam-breath-delay: -1s;
-}
-.b3 { /* cool white */
+.b2 { /* cool white */
   --beam-rgb: var(--mc-veil-c-white);
-  --beam-x: 25%; --beam-core: 0.46;
-  --beam-rot-rest: -36deg; --beam-rot-from: -39deg; --beam-rot-to: -30deg;
+  --beam-x: 31%; --beam-core: 0.46;
+  --beam-rot-rest: -22deg; --beam-rot-from: -33deg; --beam-rot-to: -11deg;
   --beam-op-rest: 0.8; --beam-op-lo: 0.52; --beam-op-hi: 0.9;
-  --beam-sweep-dur: 31s; --beam-breath-dur: 18s;
-  --beam-sweep-delay: -8s; --beam-breath-delay: -9s;
+  --beam-sweep-dur: 22s; --beam-breath-dur: 11s;
+  --beam-sweep-delay: -13s; --beam-breath-delay: -1s;
 }
-.b4 { /* magenta — brightest, off-centre left */
+.b3 { /* magenta — brightest, off-centre left */
   --beam-rgb: var(--mc-veil-c-magenta);
-  --beam-x: 33%; --beam-core: 0.52;
-  --beam-rot-rest: -27deg; --beam-rot-from: -34deg; --beam-rot-to: -22deg;
+  --beam-x: 40%; --beam-core: 0.52;
+  --beam-rot-rest: -12deg; --beam-rot-from: -23deg; --beam-rot-to: 1deg;
   --beam-op-rest: 0.84; --beam-op-lo: 0.56; --beam-op-hi: 0.94;
-  --beam-sweep-dur: 20s; --beam-breath-dur: 11s;
-  --beam-sweep-delay: -25s; --beam-breath-delay: -13s;
+  --beam-sweep-dur: 18s; --beam-breath-dur: 9s;
+  --beam-sweep-delay: -7s; --beam-breath-delay: -5s;
 }
-.b5 { /* cool white */
+.b4 { /* magenta, near-vertical — centre-guard: smaller arc, low core */
+  --beam-rgb: var(--mc-veil-c-magenta);
+  --beam-x: 47%; --beam-core: 0.38;
+  --beam-rot-rest: -4deg; --beam-rot-from: -12deg; --beam-rot-to: 6deg;
+  --beam-op-rest: 0.72; --beam-op-lo: 0.5; --beam-op-hi: 0.82;
+  --beam-sweep-dur: 25s; --beam-breath-dur: 12s;
+  --beam-sweep-delay: -40s; --beam-breath-delay: -8s;
+}
+.b5 { /* magenta — centre-guard: smaller arc, low core */
+  --beam-rgb: var(--mc-veil-c-magenta);
+  --beam-x: 55%; --beam-core: 0.42;
+  --beam-rot-rest: 6deg; --beam-rot-from: -3deg; --beam-rot-to: 15deg;
+  --beam-op-rest: 0.74; --beam-op-lo: 0.5; --beam-op-hi: 0.84;
+  --beam-sweep-dur: 30s; --beam-breath-dur: 7s;
+  --beam-sweep-delay: -9s; --beam-breath-delay: -2s;
+}
+.b6 { /* cool white */
   --beam-rgb: var(--mc-veil-c-white);
-  --beam-x: 41%; --beam-core: 0.44;
-  --beam-rot-rest: -17deg; --beam-rot-from: -21deg; --beam-rot-to: -9deg;
-  --beam-op-rest: 0.78; --beam-op-lo: 0.5; --beam-op-hi: 0.88;
-  --beam-sweep-dur: 34s; --beam-breath-dur: 15s;
-  --beam-sweep-delay: -11s; --beam-breath-delay: -3s;
-}
-.b6 { /* magenta, near-vertical — centre-guard: low core, capped peak */
-  --beam-rgb: var(--mc-veil-c-magenta);
-  --beam-x: 46%; --beam-core: 0.36;
-  --beam-rot-rest: -8deg; --beam-rot-from: -12deg; --beam-rot-to: 0deg;
-  --beam-op-rest: 0.7; --beam-op-lo: 0.48; --beam-op-hi: 0.8;
-  --beam-sweep-dur: 27s; --beam-breath-dur: 14s;
-  --beam-sweep-delay: -33s; --beam-breath-delay: -7s;
-}
-.b7 { /* magenta, near-vertical — centre-guard: low core, capped peak */
-  --beam-rgb: var(--mc-veil-c-magenta);
-  --beam-x: 54%; --beam-core: 0.4;
-  --beam-rot-rest: 8deg; --beam-rot-from: 3deg; --beam-rot-to: 13deg;
-  --beam-op-rest: 0.72; --beam-op-lo: 0.48; --beam-op-hi: 0.82;
-  --beam-sweep-dur: 42s; --beam-breath-dur: 17s;
-  --beam-sweep-delay: -6s; --beam-breath-delay: -11s;
-}
-.b8 { /* magenta */
-  --beam-rgb: var(--mc-veil-c-magenta);
-  --beam-x: 59%; --beam-core: 0.48;
-  --beam-rot-rest: 17deg; --beam-rot-from: 12deg; --beam-rot-to: 26deg;
+  --beam-x: 63%; --beam-core: 0.46;
+  --beam-rot-rest: 15deg; --beam-rot-from: 3deg; --beam-rot-to: 26deg;
   --beam-op-rest: 0.8; --beam-op-lo: 0.52; --beam-op-hi: 0.9;
-  --beam-sweep-dur: 22s; --beam-breath-dur: 12s;
-  --beam-sweep-delay: -19s; --beam-breath-delay: -2s;
+  --beam-sweep-dur: 20s; --beam-breath-dur: 10s;
+  --beam-sweep-delay: -33s; --beam-breath-delay: -6s;
 }
-.b9 { /* cool white */
-  --beam-rgb: var(--mc-veil-c-white);
-  --beam-x: 67%; --beam-core: 0.46;
-  --beam-rot-rest: 27deg; --beam-rot-from: 22deg; --beam-rot-to: 31deg;
-  --beam-op-rest: 0.8; --beam-op-lo: 0.52; --beam-op-hi: 0.9;
-  --beam-sweep-dur: 36s; --beam-breath-dur: 19s;
-  --beam-sweep-delay: -2s; --beam-breath-delay: -6s;
-}
-.b10 { /* magenta — brightest, off-centre right */
+.b7 { /* magenta — brightest, off-centre right */
   --beam-rgb: var(--mc-veil-c-magenta);
-  --beam-x: 75%; --beam-core: 0.52;
-  --beam-rot-rest: 36deg; --beam-rot-from: 30deg; --beam-rot-to: 40deg;
+  --beam-x: 72%; --beam-core: 0.52;
+  --beam-rot-rest: 24deg; --beam-rot-from: 13deg; --beam-rot-to: 35deg;
   --beam-op-rest: 0.84; --beam-op-lo: 0.56; --beam-op-hi: 0.94;
-  --beam-sweep-dur: 19s; --beam-breath-dur: 10s;
-  --beam-sweep-delay: -14s; --beam-breath-delay: -15s;
+  --beam-sweep-dur: 16s; --beam-breath-dur: 13s;
+  --beam-sweep-delay: -5s; --beam-breath-delay: -3s;
 }
-.b11 { /* magenta */
-  --beam-rgb: var(--mc-veil-c-magenta);
-  --beam-x: 84%; --beam-core: 0.48;
-  --beam-rot-rest: 45deg; --beam-rot-from: 41deg; --beam-rot-to: 53deg;
-  --beam-op-rest: 0.8; --beam-op-lo: 0.52; --beam-op-hi: 0.9;
-  --beam-sweep-dur: 29s; --beam-breath-dur: 16s;
-  --beam-sweep-delay: -28s; --beam-breath-delay: -4s;
-}
-.b12 { /* amber accent, far right — dim + narrow so it glows, not muddies */
+.b8 { /* amber accent, far right — dim + narrow so it glows, not muddies */
   --beam-rgb: var(--mc-veil-c-amber);
-  --beam-x: 92%; --beam-w: 15vw; --beam-core: 0.28;
-  --beam-rot-rest: 54deg; --beam-rot-from: 49deg; --beam-rot-to: 58deg;
+  --beam-x: 82%; --beam-w: 15vw; --beam-core: 0.28;
+  --beam-rot-rest: 34deg; --beam-rot-from: 23deg; --beam-rot-to: 46deg;
   --beam-op-rest: 0.6; --beam-op-lo: 0.4; --beam-op-hi: 0.7;
-  --beam-sweep-dur: 40s; --beam-breath-dur: 13s;
-  --beam-sweep-delay: -9s; --beam-breath-delay: -8s;
+  --beam-sweep-dur: 26s; --beam-breath-dur: 9s;
+  --beam-sweep-delay: -40s; --beam-breath-delay: -10s;
 }
 
 /* ------------------------------- POOLS ------------------------------- */
@@ -348,20 +307,6 @@
   --pool-op-rest: 0.42; --pool-op-lo: 0.26; --pool-op-hi: 0.54;
   --pool-scale-lo: 0.92; --pool-scale-hi: 1.08;
   --pool-dur: 10s; --pool-delay: -2s;
-}
-.p8 {
-  --pool-rgb: var(--mc-veil-c-pool-white);
-  --pool-x: 34%; --pool-y: 92%; --pool-w: 26vw; --pool-h: 11vh;
-  --pool-op-rest: 0.46; --pool-op-lo: 0.3; --pool-op-hi: 0.58;
-  --pool-scale-lo: 0.91; --pool-scale-hi: 1.1;
-  --pool-dur: 12.5s; --pool-delay: -8s;
-}
-.p9 {
-  --pool-rgb: var(--mc-veil-c-pool-magenta);
-  --pool-x: 70%; --pool-y: 96%; --pool-w: 38vw; --pool-h: 13vh;
-  --pool-op-rest: 0.48; --pool-op-lo: 0.3; --pool-op-hi: 0.62;
-  --pool-scale-lo: 0.9; --pool-scale-hi: 1.11;
-  --pool-dur: 13s; --pool-delay: -4s;
 }
 
 /* ------------------------------- BLOOM ------------------------------- */

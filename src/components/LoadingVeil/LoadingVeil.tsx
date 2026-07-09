@@ -5,9 +5,9 @@ export type VeilPhase = "hold" | "swell" | "fade";
 /** Beam fixtures fanning from the upper truss (left→right), pool gobos on the
  *  floor, and the lamp blooms at each fixture — all colour/placement/phase are
  *  in LoadingVeil.module.css (.b1–.b8 / .p1–.p7 / .l1–.l8 / .s1–.s2). */
-const BEAMS = ["b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8", "b9", "b10", "b11", "b12"] as const;
-const POOLS = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8", "p9"] as const;
-const LAMPS = ["l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8", "l9", "l10", "l11", "l12"] as const;
+const BEAMS = ["b1", "b2", "b3", "b4", "b5", "b6", "b7", "b8"] as const;
+const POOLS = ["p1", "p2", "p3", "p4", "p5", "p6", "p7"] as const;
+const LAMPS = ["l1", "l2", "l3", "l4", "l5", "l6", "l7", "l8"] as const;
 const SWEEPS = ["s1", "s2"] as const;
 
 /** Home boot veil — the full-screen loading screen covering first paint when
