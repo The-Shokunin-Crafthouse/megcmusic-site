@@ -52,6 +52,9 @@ export function HomeScene({
   const [fallbackSettled, setFallbackSettled] = useState(false);
   const [forceFallback, setForceFallback] = useState(false);
   const veilStartRef = useRef(0);
+  // Review affordance: hold the veil open indefinitely so the light motion can
+  // be studied (set by ?veilhold=1, below).
+  const reviewHoldRef = useRef(false);
   const veilActive = veilPhase !== "done";
   // The hero entrance is HELD (body stays "pending") until the veil's fade
   // begins, so the two choreographies crossfade instead of butt-joining.
@@ -72,11 +75,24 @@ export function HomeScene({
     setVeilPhase((p) => (p === "done" ? "hold" : p));
   }, []);
 
+  // Review affordance (any env): ?veilhold=1 forces the veil AND keeps it in
+  // hold indefinitely, so the slow light motion can be watched on a deployed
+  // preview (the live veil otherwise exits in ~1-2s once the browser fetch
+  // resolves). Positive, default-off, and inert without the param (learning
+  // #73); runs before the hold effect so the exit timer is never scheduled.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("veilhold") !== "1") return;
+    reviewHoldRef.current = true;
+    setForceFallback(true);
+    setVeilPhase((p) => (p === "done" ? "hold" : p));
+  }, []);
+
   // Hold: exit once the fallback settles (respecting the anti-flash min hold),
   // or at the cap if it hasn't — past the cap what's beneath is the existing
   // skeleton-card path (2026-07-08 skeleton ADR).
   useEffect(() => {
     if (veilPhase !== "hold") return;
+    if (reviewHoldRef.current) return; // ?veilhold=1: never auto-exit
     if (!veilStartRef.current) veilStartRef.current = performance.now();
     const elapsed = performance.now() - veilStartRef.current;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
