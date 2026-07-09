@@ -109,7 +109,9 @@
    only, no promotion. Colour-matched to their beam; centre lamps dimmed. */
 .lamp {
   position: absolute;
-  top: var(--lamp-y, 16%);
+  /* Centred exactly on the cone tip (= --beam-top) so the cone starts from the
+     middle of the glow, not below it. */
+  top: var(--lamp-y, 17%);
   left: var(--lamp-x);
   /* Sized to the skinny cone tip (not the old fat base) so the source reads as
      a small lamp glow, not an oversized circus bulb. Responsive + clamped. */
@@ -145,14 +147,14 @@
   /* Rest state = the composed fanned scene (what reduced-motion shows). */
   transform: translateX(-50%) rotate(var(--beam-rot-rest, 0deg));
   opacity: var(--beam-op-rest, 0.82);
-  /* Length fade: ramps IN just under the fixture (no hard flat top — the lamp
-     bloom caps the origin), peaks, then extinguishes before the floor. */
+  /* Strongest RIGHT at the source (the fixture), then extinguishes before the
+     floor — no fade-in, so there is no dark gap between the lamp and the cone.
+     The near-point cone tip + the lamp bloom hide the tiny flat top edge. */
   background: linear-gradient(
     to bottom,
-    rgb(var(--beam-rgb) / 0) 0%,
-    rgb(var(--beam-rgb) / var(--beam-core, 0.5)) 10%,
-    rgb(var(--beam-rgb) / calc(var(--beam-core, 0.5) * 0.5)) 34%,
-    rgb(var(--beam-rgb) / 0.06) 62%,
+    rgb(var(--beam-rgb) / var(--beam-core, 0.5)) 0%,
+    rgb(var(--beam-rgb) / calc(var(--beam-core, 0.5) * 0.55)) 30%,
+    rgb(var(--beam-rgb) / 0.06) 60%,
     rgb(var(--beam-rgb) / 0) 86%
   );
   /* Cone: a near-point slit at the truss, widening to a full base — skinny at
@@ -363,28 +365,6 @@
   opacity: 0;
   pointer-events: none;
   transition: opacity var(--mc-entrance-duration) var(--mc-ease-out-strong);
-}
-
-/* Logo backing — a soft dark-plum patch that dims the light DIRECTLY behind
-   the lockup so the pink script reads solid and in front, never washed
-   transparent by a bright beam crossing behind it. Sits above every light
-   layer (z-index) and below the logo (earlier in DOM + lower z). The radial
-   fades to nothing so it reads as "the light is a touch dimmer behind her
-   name", not a visible dark blob. */
-.logoBacking {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  z-index: 1;
-  width: min(72vw, 640px);
-  height: min(42vh, 400px);
-  transform: translate(-50%, -51%);
-  background: radial-gradient(
-    ellipse 50% 48% at 50% 50%,
-    rgb(var(--mc-bg-rgb) / 0.82) 0%,
-    rgb(var(--mc-bg-rgb) / 0.5) 42%,
-    rgb(var(--mc-bg-rgb) / 0) 72%
-  );
 }
 
 /* Lockup — centred, sized to the Figma visual width. logo-name.svg is the
