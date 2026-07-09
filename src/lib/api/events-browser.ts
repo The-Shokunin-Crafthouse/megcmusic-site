@@ -11,6 +11,37 @@ import { WP_ORIGIN } from "@/lib/wp-origin";
 const API_BASE = `${WP_ORIGIN}/wp-json/tribe/events/v1`;
 const TIMEOUT_MS = 15_000;
 
+/* Read-through sessionStorage cache so one fetch per session serves home,
+   /shows, and back-navigations — the boot veil then genuinely shows once per
+   session instead of on every route that falls back (2026-07-08 ADR). */
+const CACHE_TTL_MS = 30 * 60_000;
+const cacheKey = (status: "upcoming" | "past") => `mc-events-${status}`;
+
+function readCache(status: "upcoming" | "past"): TribeEvent[] | null {
+  try {
+    const raw = sessionStorage.getItem(cacheKey(status));
+    if (!raw) return null;
+    const parsed = JSON.parse(raw) as { t: number; events: TribeEvent[] };
+    if (!Array.isArray(parsed.events)) return null;
+    if (Date.now() - parsed.t > CACHE_TTL_MS) return null;
+    return parsed.events;
+  } catch {
+    // Unavailable storage (private mode) or corrupt payload — fetch instead.
+    return null;
+  }
+}
+
+function writeCache(status: "upcoming" | "past", events: TribeEvent[]): void {
+  try {
+    sessionStorage.setItem(
+      cacheKey(status),
+      JSON.stringify({ t: Date.now(), events }),
+    );
+  } catch {
+    // Best-effort: a full or unavailable store just means a refetch next time.
+  }
+}
+
 async function fetchPage(
   status: "upcoming" | "past",
   page: number,
@@ -33,12 +64,22 @@ async function fetchPage(
 export async function fetchAllEventsBrowser(
   status: "upcoming" | "past",
 ): Promise<TribeEvent[]> {
+  const cached = readCache(status);
+  if (cached) return cached;
   const first = await fetchPage(status, 1, 50);
-  if (first.totalPages <= 1) return first.events;
-  const rest = await Promise.all(
-    Array.from({ length: first.totalPages - 1 }, (_, i) =>
-      fetchPage(status, i + 2, 50),
-    ),
-  );
-  return [first.events, ...rest.map((p) => p.events)].flat();
+  const events =
+    first.totalPages <= 1
+      ? first.events
+      : [
+          first.events,
+          ...(
+            await Promise.all(
+              Array.from({ length: first.totalPages - 1 }, (_, i) =>
+                fetchPage(status, i + 2, 50),
+              ),
+            )
+          ).map((p) => p.events),
+        ].flat();
+  writeCache(status, events);
+  return events;
 }

@@ -57,6 +57,22 @@
   animation-delay: calc(var(--col-index, 0) * var(--mc-tab-stagger));
 }
 
+/* Home boot veil (2026-07-08 ADR): on a veiled load the entrance animations
+   are held at their first frame — from the SSR paint onward — and released
+   when the veil's exit flips body[data-home] to "entered", so tabs, skeletons,
+   and cards arrive AS the veil lifts instead of playing out invisibly beneath
+   it. Home-only: the .held class is never applied on /shows. */
+.held .tab,
+.held .searchToggle,
+.held .skeletonCard {
+  animation-play-state: paused;
+}
+:global(body[data-home="entered"]) .held .tab,
+:global(body[data-home="entered"]) .held .searchToggle,
+:global(body[data-home="entered"]) .held .skeletonCard {
+  animation-play-state: running;
+}
+
 @keyframes tab-in {
   from {
     opacity: 0;
