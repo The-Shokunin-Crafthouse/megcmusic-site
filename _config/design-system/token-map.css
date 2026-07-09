@@ -196,8 +196,10 @@
   --mc-veil-c-pool-amber: 255 190 132;   /* floor gobo pool — amber */
   --mc-veil-logo-w: 319px;          /* lockup visual width, desktop (Figma 148:293) */
   --mc-veil-logo-w-mobile: 221.5px; /* lockup visual width, mobile (Figma 148:296) */
-  --mc-veil-logo-settle: 900ms;     /* one settle-in: fade + rise */
+  --mc-veil-logo-settle: 1000ms;    /* one settle-in: fade + rise + elastic scale pop */
   --mc-veil-logo-rise: 8px;         /* settle-in rise distance */
+  --mc-veil-logo-scale-from: 0.75;  /* entrance start — smaller */
+  --mc-veil-logo-scale-peak: 1.05;  /* elastic overshoot before settling to 1 */
   --mc-veil-logo-exit: 420ms;       /* veil logo departs faster than the veil fade — hand-off, never two logos */
   --mc-veil-swell: 600ms;           /* exit beat 1: the light blooms once before the veil lifts */
   --mc-veil-swell-opacity: 0.4;     /* bloom-layer peak opacity on swell/fade */

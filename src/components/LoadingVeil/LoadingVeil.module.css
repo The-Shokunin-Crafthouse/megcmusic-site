@@ -432,15 +432,23 @@
   }
 }
 
-/* One settle-in: fade + a short rise. */
+/* One settle-in: fade + a short rise + an elastic scale pop — starts small
+   (0.75), overshoots past full size (1.05), then settles back to its 1× resting
+   place. The keyframe stops carry the overshoot; the ease-out timing makes each
+   leg decelerate so it reads springy, not linear. */
 @keyframes veil-logo-in {
-  from {
+  0% {
     opacity: 0;
-    transform: translate(-50%, calc(-50% + var(--mc-veil-logo-rise)));
+    transform: translate(-50%, calc(-50% + var(--mc-veil-logo-rise)))
+      scale(var(--mc-veil-logo-scale-from));
   }
-  to {
+  55% {
     opacity: 1;
-    transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%) scale(var(--mc-veil-logo-scale-peak));
+  }
+  100% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
   }
 }
 
