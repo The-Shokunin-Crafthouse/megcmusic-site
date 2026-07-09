@@ -111,10 +111,10 @@
   position: absolute;
   top: var(--lamp-y, 16%);
   left: var(--lamp-x);
-  /* Responsive so the fixtures don't merge into one bar where the truss span
-     is narrow (mobile) yet stay substantial on desktop. */
-  width: clamp(34px, 4.4vw, 66px);
-  height: clamp(34px, 4.4vw, 66px);
+  /* Sized to the skinny cone tip (not the old fat base) so the source reads as
+     a small lamp glow, not an oversized circus bulb. Responsive + clamped. */
+  width: clamp(18px, 2.4vw, 38px);
+  height: clamp(18px, 2.4vw, 38px);
   transform: translate(-50%, -50%) scale(1);
   border-radius: 50%;
   opacity: var(--lamp-op-rest);
