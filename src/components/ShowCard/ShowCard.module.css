@@ -21,6 +21,17 @@
   animation-delay: calc(var(--row-index, 0) * var(--mc-cascade-stagger));
 }
 
+/* Home boot veil (2026-07-08 ADR): on a veiled load the cascade is held at its
+   first frame — from the SSR paint onward — and released when the veil's exit
+   flips body[data-home] to "entered", so the cards arrive AS the veil lifts
+   instead of playing out invisibly beneath it. */
+.held {
+  animation-play-state: paused;
+}
+:global(body[data-home="entered"]) .held {
+  animation-play-state: running;
+}
+
 @keyframes card-in {
   from {
     opacity: 0;

@@ -39,10 +39,14 @@ export function ShowCard({
   event,
   index,
   withCalendar = false,
+  entranceHeld = false,
 }: {
   event: TribeEvent;
   index: number;
   withCalendar?: boolean;
+  /** Home boot veil: hold the cascade at its first frame until the veil's
+   *  exit flips body[data-home] to "entered". */
+  entranceHeld?: boolean;
 }) {
   const date = parseShowDate(event.start_date);
   const time = formatTimeRange(event.start_date, event.end_date);
@@ -74,7 +78,10 @@ export function ShowCard({
   if (city) segments.push(<span className={styles.city}>{city}</span>);
 
   return (
-    <li className={styles.card} style={{ "--row-index": index } as CSSProperties}>
+    <li
+      className={entranceHeld ? `${styles.card} ${styles.held}` : styles.card}
+      style={{ "--row-index": index } as CSSProperties}
+    >
       <div className={styles.badge}>
         <GuitarPick />
         {date && (

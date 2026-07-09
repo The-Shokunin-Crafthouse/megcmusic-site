@@ -1,9 +1,20 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { ShowsSection } from "../ShowsSection/ShowsSection";
+import { LoadingVeil, type VeilPhase } from "../LoadingVeil/LoadingVeil";
 import type { TribeEvent } from "@/lib/api/events";
 import styles from "./HomeScene.module.css";
+
+/** Millisecond value of a duration token (e.g. "600ms" / "10s" / "36s"). */
+function tokenMs(name: string, fallback: number): number {
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
+  const value = parseFloat(raw);
+  if (Number.isNaN(value)) return fallback;
+  return raw.endsWith("ms") ? value : raw.endsWith("s") ? value * 1000 : value;
+}
 
 // The home scroll scene (Sprint 6, Figma 39:2). Meg's photo is a fixed backdrop
 // (the LCP element — painted at first paint, no animation gating it); a plum
@@ -24,6 +35,103 @@ export function HomeScene({
   const backdropRef = useRef<HTMLDivElement>(null);
   const photoRef = useRef<HTMLImageElement>(null);
   const markerRef = useRef<HTMLDivElement>(null);
+  const veilSlotRef = useRef<HTMLDivElement>(null);
+
+  // Boot veil (2026-07-08 ADR): when the server render came back with zero
+  // shows (datacenter-blocked deploys), a full-screen loading veil covers first
+  // paint while the browser-side events fallback runs. Rendered in the server
+  // HTML (phase starts "hold" when serverEmpty) so there is no hydration flash;
+  // a server-populated render never mounts it. Lifecycle: hold (min 1200ms /
+  // max 10s) → swell (the light blooms once) → fade (veil lifts WHILE the hero
+  // entrance runs beneath it) → done (unmount).
+  const serverEmpty =
+    upcoming.length === 0 && justAdded.length === 0 && past.length === 0;
+  const [veilPhase, setVeilPhase] = useState<VeilPhase | "done">(
+    serverEmpty ? "hold" : "done",
+  );
+  const [fallbackSettled, setFallbackSettled] = useState(false);
+  const [forceFallback, setForceFallback] = useState(false);
+  const veilStartRef = useRef(0);
+  const veilActive = veilPhase !== "done";
+  // The hero entrance is HELD (body stays "pending") until the veil's fade
+  // begins, so the two choreographies crossfade instead of butt-joining.
+  const veilHolding = veilPhase === "hold" || veilPhase === "swell";
+
+  // ShowsSection reports when the browser fallback settles (data or failure —
+  // either way the veil's job is done; what's beneath is cards, skeletons past
+  // the cap, or the empty state on failure).
+  const onFallbackSettled = useCallback(() => setFallbackSettled(true), []);
+
+  // Dev preview only: ?veil=1 forces the veiled path locally, since local dev
+  // reaches WP and serverEmpty never happens (positive, default-off flag —
+  // learning #73). Dead-code-eliminated from production bundles.
+  useEffect(() => {
+    if (process.env.NODE_ENV !== "development") return;
+    if (new URLSearchParams(window.location.search).get("veil") !== "1") return;
+    setForceFallback(true);
+    setVeilPhase((p) => (p === "done" ? "hold" : p));
+  }, []);
+
+  // Hold: exit once the fallback settles (respecting the anti-flash min hold),
+  // or at the cap if it hasn't — past the cap what's beneath is the existing
+  // skeleton-card path (2026-07-08 skeleton ADR).
+  useEffect(() => {
+    if (veilPhase !== "hold") return;
+    if (!veilStartRef.current) veilStartRef.current = performance.now();
+    const elapsed = performance.now() - veilStartRef.current;
+    const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const delay = fallbackSettled
+      ? Math.max(0, tokenMs("--mc-veil-hold-min", 1200) - elapsed)
+      : Math.max(0, tokenMs("--mc-veil-hold-max", 10_000) - elapsed);
+    const t = window.setTimeout(
+      // Reduced motion skips the bloom: plain opacity fade only.
+      () => setVeilPhase(reduce ? "fade" : "swell"),
+      delay,
+    );
+    return () => window.clearTimeout(t);
+  }, [veilPhase, fallbackSettled]);
+
+  // Exit beats: swell (bloom) → fade (veil lifts, entrance runs) → done.
+  useEffect(() => {
+    if (veilPhase === "swell") {
+      const t = window.setTimeout(
+        () => setVeilPhase("fade"),
+        tokenMs("--mc-veil-swell", 600),
+      );
+      return () => window.clearTimeout(t);
+    }
+    if (veilPhase === "fade") {
+      const t = window.setTimeout(
+        () => setVeilPhase("done"),
+        tokenMs("--mc-entrance-duration", 900),
+      );
+      return () => window.clearTimeout(t);
+    }
+  }, [veilPhase]);
+
+  // While veiled, the covered page is inert — keyboard users can't tab into
+  // content under the veil. The veil itself (role="status") stays live. Inert
+  // everything except the veil's own ancestor chain: body-level siblings
+  // (SiteChrome) plus the veil slot's siblings inside the page wrapper.
+  useEffect(() => {
+    if (!veilActive) return;
+    const slot = veilSlotRef.current;
+    if (!slot) return;
+    const targets: Element[] = [];
+    for (const el of Array.from(document.body.children)) {
+      if (!el.contains(slot)) targets.push(el);
+    }
+    const parent = slot.parentElement;
+    if (parent) {
+      for (const el of Array.from(parent.children)) {
+        if (el !== slot) targets.push(el);
+      }
+    }
+    for (const el of targets) el.setAttribute("inert", "");
+    return () => {
+      for (const el of targets) el.removeAttribute("inert");
+    };
+  }, [veilActive]);
 
   // The hero photo is a fixed backdrop. When it decodes AFTER first paint (cold
   // network), Chrome doesn't always re-rasterize the fixed layer until a scroll
@@ -77,11 +185,22 @@ export function HomeScene({
 
   // Entrance: mark the body hidden before paint, reveal on the next frame so the
   // CSS transition runs. Reduced motion skips straight to the settled state.
+  // While the boot veil holds, the body stays "pending" — the entrance begins
+  // only when the veil's fade phase starts, so the hero arrives under the
+  // lifting veil.
   useLayoutEffect(() => {
     const { body } = document;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) {
+      // The entrance's reduced path is unchanged: settled immediately (the
+      // veil, when present, is a plain opacity fade over the settled page).
       body.dataset.home = "entered";
+      return () => {
+        delete body.dataset.home;
+      };
+    }
+    if (veilHolding) {
+      body.dataset.home = "pending";
       return () => {
         delete body.dataset.home;
       };
@@ -98,7 +217,7 @@ export function HomeScene({
       cancelAnimationFrame(raf2);
       delete body.dataset.home;
     };
-  }, []);
+  }, [veilHolding]);
 
   // Release: once the end-of-scene marker passes the release line — 48px
   // (--mc-space-6) above the viewport bottom — the fixed photo translates up at
@@ -202,10 +321,22 @@ export function HomeScene({
 
       <div className={styles.hero}>
         <div className={styles.heroInner}>
-          <ShowsSection upcoming={upcoming} justAdded={justAdded} past={past} />
+          <ShowsSection
+            upcoming={upcoming}
+            justAdded={justAdded}
+            past={past}
+            forceFallback={forceFallback}
+            onFallbackSettled={onFallbackSettled}
+          />
           <div ref={markerRef} className={styles.releaseMarker} aria-hidden="true" />
         </div>
       </div>
+
+      {veilActive && (
+        <div ref={veilSlotRef}>
+          <LoadingVeil phase={veilPhase} />
+        </div>
+      )}
     </>
   );
 }

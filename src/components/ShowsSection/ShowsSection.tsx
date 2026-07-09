@@ -66,11 +66,19 @@ export function ShowsSection({
   justAdded,
   past,
   variant = "home",
+  forceFallback = false,
+  onFallbackSettled,
 }: {
   upcoming: TribeEvent[];
   justAdded: TribeEvent[];
   past: TribeEvent[];
   variant?: "home" | "page";
+  /** Dev-only (home boot veil preview): run the browser fallback even though
+   *  the server render has data. */
+  forceFallback?: boolean;
+  /** Home boot veil: called once when the browser fallback settles (resolved
+   *  or failed), so the veil knows it can exit. */
+  onFallbackSettled?: () => void;
 }) {
   const isPage = variant === "page";
   const [active, setActive] = useState<TabId>("up-next");
@@ -88,6 +96,7 @@ export function ShowsSection({
   // CORS-allowed) and use that instead.
   const serverEmpty =
     upcoming.length === 0 && justAdded.length === 0 && past.length === 0;
+  const shouldFallback = serverEmpty || forceFallback;
   const [browserData, setBrowserData] = useState<{
     upcoming: TribeEvent[];
     justAdded: TribeEvent[];
@@ -95,8 +104,20 @@ export function ShowsSection({
   } | null>(null);
   const [loading, setLoading] = useState(serverEmpty);
 
+  // On the veiled home path the entrance animations (tabs / cards / skeletons)
+  // are held at their first frame until the veil's exit flips the body to
+  // "entered" — otherwise they'd play out invisibly under the veil before
+  // hydration. Latched once from the initial render; home-only (the veil never
+  // mounts on /shows, whose section has no body[data-home] to release it).
+  const [entranceHeld] = useState(serverEmpty && variant === "home");
+
+  // Ref so the fetch effect doesn't re-run if the parent re-creates the
+  // callback.
+  const onSettledRef = useRef(onFallbackSettled);
+  onSettledRef.current = onFallbackSettled;
+
   useEffect(() => {
-    if (!serverEmpty) return;
+    if (!shouldFallback) return;
     let alive = true;
     (async () => {
       try {
@@ -113,13 +134,16 @@ export function ShowsSection({
       } catch {
         // Leave the empty state; nothing more we can do from here.
       } finally {
-        if (alive) setLoading(false);
+        if (alive) {
+          setLoading(false);
+          onSettledRef.current?.();
+        }
       }
     })();
     return () => {
       alive = false;
     };
-  }, [serverEmpty]);
+  }, [shouldFallback]);
 
   const data = browserData ?? { upcoming, justAdded, past };
   const source: Record<TabId, TribeEvent[]> = {
@@ -224,11 +248,13 @@ export function ShowsSection({
 
   return (
     <section
-      className={
-        isPage
-          ? `${styles.section} ${styles.sectionPage}`
-          : `${styles.section} ${styles.sectionHome}`
-      }
+      className={[
+        styles.section,
+        isPage ? styles.sectionPage : styles.sectionHome,
+        entranceHeld ? styles.held : "",
+      ]
+        .filter(Boolean)
+        .join(" ")}
       aria-labelledby={`${baseId}-heading`}
     >
       <h2 id={`${baseId}-heading`} className={styles.heading}>
@@ -316,6 +342,7 @@ export function ShowsSection({
                     event={event}
                     index={i % STAGGER}
                     withCalendar={isPage || calendarOn}
+                    entranceHeld={entranceHeld}
                   />
                 ))}
               </ul>

@@ -162,6 +162,29 @@
   --mc-cascade-stagger: 150ms;   /* gap between each show card dropping in */
   --mc-tab-stagger: 80ms;        /* left-to-right gap between tab-row pills */
 
+  /* Home boot veil — the full-screen loading screen covering first paint when
+     the server render came back with zero shows (datacenter-blocked deploys;
+     2026-07-08 ADR). Figma 148:292 (desktop) / 148:295 (mobile): stage-lights
+     photo at 10% in luminosity blend over a lifted plum ground, the name
+     lockup centred. Motion is cinematic per client direction — concert haze:
+     long periods, transform/opacity only. */
+  --mc-veil-bg: #543343;            /* lifted plum ground (Figma 148:292 fill) */
+  --mc-veil-z: 150;                 /* over the persistent logo (100), under the menu overlay (200) */
+  --mc-veil-photo-opacity: 0.1;     /* base photo — luminosity blend on the plum */
+  --mc-veil-beam-max: 0.25;         /* screen-blend copy peak — brightens only the beams */
+  --mc-veil-drift: 36s;             /* base photo drift + scale breath, alternate */
+  --mc-veil-drift-scale: 1.06;      /* drift zoom ceiling */
+  --mc-veil-beam-cycle: 12s;        /* one beam-breath (0 → peak → 0) */
+  --mc-veil-logo-w: 319px;          /* lockup visual width, desktop (Figma 148:293) */
+  --mc-veil-logo-w-mobile: 221.5px; /* lockup visual width, mobile (Figma 148:296) */
+  --mc-veil-logo-settle: 900ms;     /* one settle-in: fade + rise */
+  --mc-veil-logo-rise: 8px;         /* settle-in rise distance */
+  --mc-veil-logo-exit: 420ms;       /* veil logo departs faster than the veil fade — hand-off, never two logos */
+  --mc-veil-swell: 600ms;           /* exit beat 1: the light blooms once */
+  --mc-veil-swell-opacity: 0.35;    /* bloom peak on the screen-blend copy */
+  --mc-veil-hold-min: 1200ms;       /* anti-flash floor — veil never shows shorter */
+  --mc-veil-hold-max: 10000ms;      /* cap — past this, exit to the skeleton/empty path */
+
   /* Content reveal on first paint — Sprint-6 Phase 3 (native routes /epk,
      /media, /booking). A quiet arrive-with-weight settle for a route's header
      copy: fade + slide up (--mc-entrance-offset) once, ease-out-strong. Shared

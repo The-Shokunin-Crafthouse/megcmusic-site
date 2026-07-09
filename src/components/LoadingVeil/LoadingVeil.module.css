@@ -1,0 +1,172 @@
+/* LoadingVeil — home boot veil (Figma 148:292 desktop / 148:295 mobile).
+   Concert haze, not an EDM rig: the photo itself moves — slow drift, a
+   screen-blend copy breathing the beams brighter — with long periods and
+   transform/opacity only. will-change is acceptable statically here because
+   the veil exists only while loading and unmounts on exit. Every duration /
+   colour / opacity / z-index is a --mc-veil-* token (token-map.css). */
+
+.veil {
+  position: fixed;
+  inset: 0;
+  z-index: var(--mc-veil-z);
+  overflow: hidden;
+  background: var(--mc-veil-bg);
+}
+
+.visuals {
+  position: absolute;
+  inset: 0;
+}
+
+.photo,
+.beams {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  will-change: transform;
+  animation: veil-drift var(--mc-veil-drift) ease-in-out infinite alternate;
+}
+
+.photo {
+  opacity: var(--mc-veil-photo-opacity);
+  mix-blend-mode: luminosity;
+}
+
+/* Same drift as the base copy (keeps the two registered) + the beam breath. */
+.beams {
+  opacity: 0;
+  mix-blend-mode: screen;
+  animation:
+    veil-drift var(--mc-veil-drift) ease-in-out infinite alternate,
+    veil-beams var(--mc-veil-beam-cycle) ease-in-out infinite;
+}
+
+@keyframes veil-drift {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  to {
+    transform: translate3d(-1.5%, 1%, 0) scale(var(--mc-veil-drift-scale));
+  }
+}
+
+@keyframes veil-beams {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: var(--mc-veil-beam-max);
+  }
+}
+
+/* Exit beat 1 — the light blooms once: the screen copy swells to the bloom
+   peak. The transition picks up from the breath's current animated value
+   (before-change style includes animation effects), so the bloom never jumps. */
+.veil[data-phase="swell"] .beams,
+.veil[data-phase="fade"] .beams {
+  animation: veil-drift var(--mc-veil-drift) ease-in-out infinite alternate;
+  opacity: var(--mc-veil-swell-opacity);
+  transition: opacity var(--mc-veil-swell) var(--mc-ease-out);
+}
+
+/* Exit beat 2 — the veil lifts over the entrance duration WHILE the hero
+   entrance runs beneath it (HomeScene flips body[data-home] to "entered" at
+   the same moment), so the two choreographies crossfade. */
+.veil[data-phase="fade"] {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity var(--mc-entrance-duration) var(--mc-ease-out-strong);
+}
+
+/* Lockup — centred, sized to the Figma visual width. logo-name.svg is the
+   name inside its 272.94² lockup box (shared with Logo.tsx — reused, not
+   re-exported), where the artwork spans 54.11% of the box width; the division
+   compensates so the VISIBLE name matches --mc-veil-logo-w. Asset-geometry
+   literals (measured getBBox), same precedent as ShowCard's Figma-exact badge
+   dimensions. */
+.logoBox {
+  --veil-logo-svg-fill: 0.5411;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: calc(var(--mc-veil-logo-w-mobile) / var(--veil-logo-svg-fill));
+  transform: translate(-50%, -50%);
+  animation: veil-logo-in var(--mc-veil-logo-settle) var(--mc-ease-out-strong)
+    backwards;
+}
+
+@media (min-width: 768px) {
+  .logoBox {
+    width: calc(var(--mc-veil-logo-w) / var(--veil-logo-svg-fill));
+  }
+}
+
+.logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  /* The artwork's bbox centre sits at (50.4%, 53.3%) of the lockup box
+     (measured getBBox); this static nudge re-centres the VISIBLE name without
+     touching the wrapper's animated transforms. */
+  transform: translate(-0.4%, -3.3%);
+}
+
+/* One settle-in: fade + a short rise. */
+@keyframes veil-logo-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, calc(-50% + var(--mc-veil-logo-rise)));
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+/* Hand-off: the veil logo departs faster than the veil fade — it lifts and is
+   gone as the hero logo arrives (never two logos at once). Opacity/transform
+   only; no FLIP morph. */
+.veil[data-phase="fade"] .logoBox {
+  opacity: 0;
+  transform: translate(-50%, calc(-50% - var(--mc-veil-logo-rise)));
+  transition:
+    opacity var(--mc-veil-logo-exit) var(--mc-ease-out-strong),
+    transform var(--mc-veil-logo-exit) var(--mc-ease-out-strong);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Reduced motion: static photo + logo, plain opacity fades. The beam copy and
+   the bloom are dropped entirely; the exit is a plain fade. Functional, never
+   blank. */
+@media (prefers-reduced-motion: reduce) {
+  .photo,
+  .beams,
+  .logoBox {
+    animation: none;
+  }
+  .beams,
+  .veil[data-phase="swell"] .beams,
+  .veil[data-phase="fade"] .beams {
+    opacity: 0;
+    transition: none;
+  }
+  .veil[data-phase="fade"] .logoBox {
+    transform: translate(-50%, -50%);
+    transition: opacity var(--mc-veil-logo-exit) var(--mc-ease-out);
+  }
+}
