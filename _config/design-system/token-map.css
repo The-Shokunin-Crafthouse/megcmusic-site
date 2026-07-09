@@ -84,11 +84,20 @@
   --mc-ease-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1); /* back-out: overshoots then settles */
   --mc-ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1); /* strong ease-out for premium micro-interactions (Emil) */
   --mc-motion-hover: 220ms; /* standard hover/reveal duration */
-  /* Loading spinner (Sprint 7 /shop). A fast spin reads as faster loading
-     (Emil); reduced-motion slows it rather than stopping, so the loading
-     affordance survives without the fast rotation. */
-  --mc-spinner-spin: 720ms;
-  --mc-spinner-spin-reduced: 1600ms;
+  /* Loading waveform (LoadingWave — the branded shop loader, 2026-07-09 ADR).
+     An audio-waveform silhouette (sine envelope) with a pulse travelling
+     left-to-right — the site "moves the way her music does". Bars carry the
+     teal-light accent; the traveling pulse is one --mc-wave-cycle. Reduced
+     motion keeps the silhouette static and breathes its opacity instead of
+     travelling — the loading affordance survives without vertical motion. */
+  --mc-wave-color: var(--mc-teal-light);
+  --mc-wave-bar-w: 3px;   /* bar thickness */
+  --mc-wave-gap: 3px;     /* gap between bars */
+  --mc-wave-h-min: 12px;  /* shortest bar (envelope edges) */
+  --mc-wave-h-max: 40px;  /* tallest bar (envelope centre) */
+  --mc-wave-bars: 24;     /* bar count — kept in lockstep with LoadingWave.tsx BAR_COUNT */
+  --mc-wave-cycle: 1800ms;         /* one pulse traversal */
+  --mc-wave-cycle-reduced: 2600ms; /* slow opacity breath under reduced motion */
   /* Skeleton placeholder pulse (Shows loading state, 2026-07-08). Slow and
      faint — a breath, not a shimmer; gated off under reduced motion. */
   --mc-skeleton-pulse: 1800ms;

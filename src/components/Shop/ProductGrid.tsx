@@ -5,6 +5,7 @@ import { fetchProductsBrowser } from "@/lib/api/woocommerce-browser";
 import { type ShopProduct } from "@/lib/shop";
 import { WP_ORIGIN } from "@/lib/wp-origin";
 import { ProductCard } from "./ProductCard";
+import { LoadingWave } from "@/components/LoadingWave/LoadingWave";
 import styles from "./ProductGrid.module.css";
 
 // Her live store — the honest destination when the headless fetch can't reach
@@ -51,7 +52,7 @@ export function ProductGrid({ initial }: { initial: ShopProduct[] }) {
   if (status === "loading") {
     return (
       <div className={styles.state} role="status" aria-live="polite">
-        <span className={styles.spinner} aria-hidden="true" />
+        <LoadingWave />
         <p className={styles.stateText}>Loading the shop…</p>
       </div>
     );
