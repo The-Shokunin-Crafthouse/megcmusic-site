@@ -115,6 +115,37 @@
   transform: translate(-0.4%, -3.3%);
 }
 
+/* Same left-to-right shimmer as the persistent Logo.tsx mark (mirrors
+   Logo.module.css .shimmer 1:1) — masked to the same name SVG so only the
+   glyphs catch the sweep. Shares the logo's own nudge so the mask registers. */
+.shimmer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  transform: translate(-0.4%, -3.3%);
+  background: linear-gradient(
+    100deg,
+    transparent 40%,
+    rgb(var(--mc-logo-sheen-rgb) / 0.78) 50%,
+    transparent 60%
+  );
+  background-size: 250% 100%;
+  background-repeat: no-repeat;
+  -webkit-mask: url(/images/hero/logo-name.svg) center / contain no-repeat;
+  mask: url(/images/hero/logo-name.svg) center / contain no-repeat;
+  animation: logo-shimmer 8s var(--mc-ease-out) infinite;
+}
+
+@keyframes logo-shimmer {
+  from {
+    background-position: 170% 0;
+  }
+  to {
+    background-position: -70% 0;
+  }
+}
+
 /* One settle-in: fade + a short rise. */
 @keyframes veil-logo-in {
   from {
@@ -156,8 +187,12 @@
 @media (prefers-reduced-motion: reduce) {
   .photo,
   .beams,
-  .logoBox {
+  .logoBox,
+  .shimmer {
     animation: none;
+  }
+  .shimmer {
+    background: none;
   }
   .beams,
   .veil[data-phase="swell"] .beams,

@@ -50,6 +50,9 @@ export function LoadingVeil({ phase }: { phase: VeilPhase }) {
             height={273}
             fetchPriority="high"
           />
+          {/* Same left-to-right brand-pink sweep as the persistent Logo.tsx
+              mark (Figma highlight #FFC3CF) — masked to the same name SVG. */}
+          <span className={styles.shimmer} aria-hidden="true" />
         </div>
       </div>
     </div>
