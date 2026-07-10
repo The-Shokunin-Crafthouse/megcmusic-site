@@ -251,6 +251,9 @@
   .beam {
     --beam-top: 6%;
     --beam-w: 78vw; /* ~2× the previous mobile width */
+    /* Slightly shorter than desktop so the cone light fades just ABOVE the
+       floor strip and doesn't wash down into it (which read as floor tilt). */
+    --beam-h: 90vh;
     /* Tip tightened so the doubled width only widens the BASE, not the source. */
     clip-path: polygon(49.4% 0%, 50.6% 0%, 100% 100%, 0% 100%);
   }
@@ -278,20 +281,19 @@
   .l7 { --lamp-x: 78%; }
   .l8 { --lamp-x: 90%; }
 
-  /* Floor: compress the pools into a SHALLOW band low in the frame and squish
-     their height further, so the floor plane reads nearly flat (a shallow
-     viewing angle) instead of tilting steeply up toward the camera. The far
-     edge drops from 74%→90%, so the band spans ~90–104% (a third of the old
-     spread) — the requested "+5/−5" flat floor rather than "+20/−10". */
-  .p1 { --pool-y: 90%;    --pool-h: 2.5vh; --pool-w: 40vw; }
-  .p2 { --pool-y: 92%;    --pool-h: 2.5vh; --pool-w: 46vw; }
-  .p3 { --pool-y: 94%;    --pool-h: 3vh;   --pool-w: 52vw; }
-  .p4 { --pool-y: 95.5%;  --pool-h: 3vh;   --pool-w: 48vw; }
-  .p5 { --pool-y: 97%;    --pool-h: 3vh;   --pool-w: 58vw; }
-  .p6 { --pool-y: 99%;    --pool-h: 3.5vh; --pool-w: 66vw; }
-  .p7 { --pool-y: 100.5%; --pool-h: 3vh;   --pool-w: 50vw; }
-  .p8 { --pool-y: 102%;   --pool-h: 3vh;   --pool-w: 46vw; }
-  .p9 { --pool-y: 103.5%; --pool-h: 3.5vh; --pool-w: 60vw; }
+  /* Floor: collapse the pools into a NEAR-FLAT line low in the frame (band
+     ~92–94.5%, a fraction of the original 74–105% spread) with very short
+     ellipses (0.9–1.3vh), so the floor reads essentially head-on flat, not a
+     tilted receding plane. Wide widths keep it reading as a floor, not dots. */
+  .p1 { --pool-y: 92%;   --pool-h: 0.9vh; --pool-w: 50vw; }
+  .p2 { --pool-y: 92.3%; --pool-h: 1vh;   --pool-w: 56vw; }
+  .p3 { --pool-y: 92.6%; --pool-h: 1.1vh; --pool-w: 62vw; }
+  .p4 { --pool-y: 92.9%; --pool-h: 1.1vh; --pool-w: 58vw; }
+  .p5 { --pool-y: 93.2%; --pool-h: 1.2vh; --pool-w: 68vw; }
+  .p6 { --pool-y: 93.6%; --pool-h: 1.3vh; --pool-w: 76vw; }
+  .p7 { --pool-y: 93.9%; --pool-h: 1.1vh; --pool-w: 60vw; }
+  .p8 { --pool-y: 94.2%; --pool-h: 1.1vh; --pool-w: 56vw; }
+  .p9 { --pool-y: 94.5%; --pool-h: 1.3vh; --pool-w: 70vw; }
 }
 
 /* ------------------------------- POOLS ------------------------------- */
