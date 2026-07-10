@@ -286,16 +286,18 @@
   /* Floor: collapse the pools into a NEAR-FLAT line low in the frame (band
      ~92–94.5%, a fraction of the original 74–105% spread) with very short
      ellipses (0.9–1.3vh), so the floor reads essentially head-on flat, not a
-     tilted receding plane. Wide widths keep it reading as a floor, not dots. */
-  .p1 { --pool-y: 92%;   --pool-h: 0.9vh; --pool-w: 50vw; }
-  .p2 { --pool-y: 92.3%; --pool-h: 1vh;   --pool-w: 56vw; }
-  .p3 { --pool-y: 92.6%; --pool-h: 1.1vh; --pool-w: 62vw; }
-  .p4 { --pool-y: 92.9%; --pool-h: 1.1vh; --pool-w: 58vw; }
-  .p5 { --pool-y: 93.2%; --pool-h: 1.2vh; --pool-w: 68vw; }
-  .p6 { --pool-y: 93.6%; --pool-h: 1.3vh; --pool-w: 76vw; }
-  .p7 { --pool-y: 93.9%; --pool-h: 1.1vh; --pool-w: 60vw; }
-  .p8 { --pool-y: 94.2%; --pool-h: 1.1vh; --pool-w: 56vw; }
-  .p9 { --pool-y: 94.5%; --pool-h: 1.3vh; --pool-w: 70vw; }
+     tilted receding plane. Wide widths keep it reading as a floor, not dots.
+     Selectors are .pool.pN (higher specificity) because the .pN base defs come
+     AFTER this media block in source — a plain .pN here would lose to them. */
+  .pool.p1 { --pool-y: 92%;   --pool-h: 0.9vh; --pool-w: 50vw; }
+  .pool.p2 { --pool-y: 92.3%; --pool-h: 1vh;   --pool-w: 56vw; }
+  .pool.p3 { --pool-y: 92.6%; --pool-h: 1.1vh; --pool-w: 62vw; }
+  .pool.p4 { --pool-y: 92.9%; --pool-h: 1.1vh; --pool-w: 58vw; }
+  .pool.p5 { --pool-y: 93.2%; --pool-h: 1.2vh; --pool-w: 68vw; }
+  .pool.p6 { --pool-y: 93.6%; --pool-h: 1.3vh; --pool-w: 76vw; }
+  .pool.p7 { --pool-y: 93.9%; --pool-h: 1.1vh; --pool-w: 60vw; }
+  .pool.p8 { --pool-y: 94.2%; --pool-h: 1.1vh; --pool-w: 56vw; }
+  .pool.p9 { --pool-y: 94.5%; --pool-h: 1.3vh; --pool-w: 70vw; }
 }
 
 /* ------------------------------- POOLS ------------------------------- */
