@@ -7,7 +7,7 @@
  * stays UI-shaped; this one is complete and lean for the automation.
  */
 
-import { outreachDb } from "@/lib/api/outreachDb";
+import { appDb } from "@/lib/api/appDb";
 import { fail, hasMachineSecret, ok, unauthorized } from "@/lib/outreach/http";
 import type { Prospect } from "@/lib/outreach/types";
 
@@ -19,7 +19,7 @@ export async function GET(req: Request): Promise<Response> {
   if (!hasMachineSecret(req)) return unauthorized();
 
   try {
-    const db = outreachDb();
+    const db = appDb();
 
     const prospectsRes = await db
       .from("prospects")

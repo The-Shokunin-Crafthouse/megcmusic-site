@@ -9,7 +9,7 @@
  *                            and cycle restarts.
  */
 
-import { outreachDb } from "@/lib/api/outreachDb";
+import { appDb } from "@/lib/api/appDb";
 import { fail, hasMachineSecret, ok } from "@/lib/outreach/http";
 import type { Prospect, ProspectStatus } from "@/lib/outreach/types";
 
@@ -106,7 +106,7 @@ export async function PATCH(
       updated_at: new Date().toISOString(),
     };
 
-    const db = outreachDb();
+    const db = appDb();
     const updatedRes = await db
       .from("prospects")
       .update(update)

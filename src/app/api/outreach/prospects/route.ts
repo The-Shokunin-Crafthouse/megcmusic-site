@@ -8,7 +8,7 @@
  * run can dedupe-verify what it sent.
  */
 
-import { outreachDb } from "@/lib/api/outreachDb";
+import { appDb } from "@/lib/api/appDb";
 import { fail, hasMachineSecret, ok, unauthorized } from "@/lib/outreach/http";
 import { isCategory } from "@/lib/outreach/types";
 
@@ -46,7 +46,7 @@ export async function POST(req: Request): Promise<Response> {
   }
 
   try {
-    const db = outreachDb();
+    const db = appDb();
 
     // Existing keys, lowercased, for the dedupe checks.
     const existingRes = await db.from("prospects").select("email, org");
