@@ -32,6 +32,7 @@
   margin: 0 0 var(--mc-space-4);
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-2xs);
+  line-height: 1.4;
   color: var(--mc-text-subtle);
 }
 
@@ -64,6 +65,7 @@
   padding: 0 var(--mc-space-4);
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-2xs);
+  line-height: 1.4;
   color: var(--mc-text-subtle);
 }
 
@@ -76,8 +78,13 @@
   margin: var(--mc-space-4) auto 0;
   padding: var(--mc-space-3) var(--mc-space-4);
   border-radius: var(--mc-radius-card);
+  border-left: 3px solid var(--mc-accent-red);
   background: rgb(var(--mc-accent-red-rgb) / 0.16);
-  color: var(--mc-accent-red-ink);
+  /* --mc-accent-red-ink is AA-tuned for text on cream (--mc-bg-card), not
+     this dark plum ground — measured 2.5:1 here, well under AA. Cream body
+     text + the red border carries the signal instead (learning #56: the
+     fill hue isn't the text-safe hue). */
+  color: var(--mc-text-primary);
   font-family: var(--mc-font-ui);
   font-weight: 600;
   font-size: var(--mc-text-sm);
@@ -136,8 +143,8 @@
 .thumb,
 .thumbPlaceholder {
   grid-area: thumb;
-  width: 56px;
-  height: 56px;
+  width: var(--mc-space-6);
+  height: var(--mc-space-6);
   border-radius: var(--mc-radius-card);
   flex-shrink: 0;
 }
@@ -154,6 +161,7 @@
   color: var(--mc-teal-light);
   font-family: var(--mc-font-display);
   font-size: var(--mc-text-lg);
+  line-height: 1;
 }
 
 .topInfo {
@@ -188,6 +196,7 @@
   background: rgb(var(--mc-teal-rgb) / 0.16);
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-2xs);
+  line-height: 1.2;
   font-weight: 600;
   letter-spacing: 0.02em;
   color: var(--mc-teal-light);
@@ -197,6 +206,7 @@
 .topDate {
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-2xs);
+  line-height: 1.3;
   color: var(--mc-text-subtle);
 }
 
@@ -210,6 +220,7 @@
   font-family: var(--mc-font-display);
   font-weight: 700;
   font-size: var(--mc-text-base);
+  line-height: 1.2;
   color: var(--mc-teal-light);
 }
 
@@ -217,6 +228,7 @@
   margin: 0;
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-2xs);
+  line-height: 1.3;
   color: var(--mc-text-subtle);
 }
 
@@ -243,6 +255,7 @@
   border-radius: var(--mc-radius-pill);
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-sm);
+  line-height: 1.2;
   font-weight: 600;
   cursor: pointer;
   appearance: none;
@@ -282,6 +295,7 @@
   margin: 0;
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-base);
+  line-height: 1.5;
   color: var(--mc-text-body);
 }
 

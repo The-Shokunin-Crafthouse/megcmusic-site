@@ -23,6 +23,7 @@
   font-family: var(--mc-font-display);
   font-weight: 700;
   font-size: var(--mc-text-base);
+  line-height: 1.2;
   color: var(--mc-text-primary);
 }
 
@@ -31,6 +32,7 @@
   margin: 0;
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-2xs);
+  line-height: 1.2;
   color: var(--mc-text-subtle);
 }
 
@@ -71,7 +73,7 @@
   flex-shrink: 0;
   width: 1.25rem;
   height: 1.25rem;
-  border-radius: 4px;
+  border-radius: var(--mc-space-1);
   border: 2px solid var(--mc-teal);
   background: transparent;
   cursor: pointer;
@@ -124,6 +126,7 @@
   flex-shrink: 0;
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-2xs);
+  line-height: 1.2;
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--mc-teal-light);
@@ -154,6 +157,7 @@
   color: var(--mc-teal-light);
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-sm);
+  line-height: 1.2;
   font-weight: 600;
   cursor: pointer;
   appearance: none;

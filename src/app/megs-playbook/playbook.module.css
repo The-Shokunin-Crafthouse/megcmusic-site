@@ -173,6 +173,7 @@
   margin: var(--mc-space-1) 0 0;
   font-family: var(--mc-font-ui);
   font-size: var(--mc-text-2xs);
+  line-height: 1.2;
   font-weight: 600;
   letter-spacing: 0.12em;
   text-transform: uppercase;
