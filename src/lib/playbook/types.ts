@@ -17,10 +17,8 @@ export type MediaType = "IMAGE" | "VIDEO" | "CAROUSEL_ALBUM";
  *  media item can still surface it before backfill filters it out. */
 export type ProductType = "FEED" | "REELS" | "STORY";
 
-export type SyncRunKind = "sync" | "generate" | "backfill";
+export type SyncRunKind = "sync" | "backfill";
 export type SyncRunStatus = "ok" | "error" | "auth_error";
-
-export type RecommendationStatus = "active" | "used" | "dismissed";
 
 /** A row of the `sp_posts` table. */
 export interface Post {
@@ -58,53 +56,6 @@ export interface MetricSnapshot {
   total_interactions: number | null;
 }
 
-export interface StoryboardShot {
-  shot: string;
-  direction: string;
-  duration_s: number;
-}
-
-export interface SuggestedTime {
-  dow: string;
-  local_time: string;
-  tz: "America/Denver";
-  rationale: string;
-}
-
-export interface RecommendationProvenance {
-  rule_ids: string[];
-  post_ids: string[];
-}
-
-export type GeneratedPostType = "reel" | "carousel" | "story" | "photo";
-
-/** A row of the `sp_recommendations` table. */
-export interface Recommendation {
-  id: string;
-  batch_id: string;
-  rank: number;
-  summary: string;
-  post_type: GeneratedPostType;
-  script_md: string;
-  storyboard: StoryboardShot[];
-  suggested_time: SuggestedTime;
-  based_on: RecommendationProvenance;
-  status: RecommendationStatus;
-  model: string;
-  generated_at: string;
-}
-
-/** A row of the `sp_idea_generations` table. */
-export interface IdeaGeneration {
-  id: string;
-  input: string;
-  script_md: string;
-  storyboard: StoryboardShot[];
-  suggested_time: SuggestedTime;
-  model: string;
-  created_at: string;
-}
-
 /** A row of the `sp_sync_runs` table. */
 export interface SyncRun {
   id: number;
@@ -133,10 +84,8 @@ export type DashboardHealth = "ok" | "stale" | "auth_error";
 
 /** Full response shape of GET /api/playbook/summary. */
 export interface PlaybookSummary {
-  recommendations: Recommendation[];
   topPosts: TopPost[];
   lastSync: string | null;
-  lastGenerate: string | null;
   health: DashboardHealth;
 }
 
