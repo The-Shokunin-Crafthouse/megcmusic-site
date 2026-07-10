@@ -257,19 +257,21 @@
     /* Tip tightened so the doubled width only widens the BASE, not the source. */
     clip-path: polygon(49.4% 0%, 50.6% 0%, 100% 100%, 0% 100%);
   }
-  /* Fixtures across the top (22%→78%), every beam AIMED AT THE LOGO (centre,
-     50%/50%) instead of hanging near-vertical — rest angle = atan(horizontal
-     offset to centre ÷ drop to the logo) per fixture, so all the cones point
-     at her name. rot-from/rot-to are overridden too (the sweep keyframes read
-     them directly), ~±6° pan around each rest. */
-  .b1 { --beam-x: 22%; --beam-rot-rest: 16deg;  --beam-rot-from: 10deg;  --beam-rot-to: 22deg; }
-  .b2 { --beam-x: 30%; --beam-rot-rest: 12deg;  --beam-rot-from: 6deg;   --beam-rot-to: 18deg; }
-  .b3 { --beam-x: 38%; --beam-rot-rest: 7deg;   --beam-rot-from: 1deg;   --beam-rot-to: 13deg; }
-  .b4 { --beam-x: 45%; --beam-rot-rest: 3deg;   --beam-rot-from: -3deg;  --beam-rot-to: 9deg; }
-  .b5 { --beam-x: 55%; --beam-rot-rest: -3deg;  --beam-rot-from: -9deg;  --beam-rot-to: 3deg; }
-  .b6 { --beam-x: 62%; --beam-rot-rest: -7deg;  --beam-rot-from: -13deg; --beam-rot-to: -1deg; }
-  .b7 { --beam-x: 70%; --beam-rot-rest: -12deg; --beam-rot-from: -18deg; --beam-rot-to: -6deg; }
-  .b8 { --beam-x: 78%; --beam-rot-rest: -16deg; --beam-rot-from: -22deg; --beam-rot-to: -10deg; }
+  /* Fixtures across the top (22%→78%), every beam AIMED INWARD AT THE LOGO
+     (centre, 50%/50%): the LEFT beams point RIGHT (negative rest), the RIGHT
+     beams point LEFT (positive rest) — converging on her name, not splaying
+     out. (+rotate swings the cone bottom LEFT, so a left-side beam needs a
+     negative angle to point at centre.) Sweep amplitudes vary per beam (±5–8°)
+     and each keeps its own period/phase (inherited), so they drift around
+     independently while staying pointed centreward. */
+  .b1 { --beam-x: 22%; --beam-rot-rest: -16deg; --beam-rot-from: -23deg; --beam-rot-to: -9deg; }
+  .b2 { --beam-x: 30%; --beam-rot-rest: -12deg; --beam-rot-from: -17deg; --beam-rot-to: -7deg; }
+  .b3 { --beam-x: 38%; --beam-rot-rest: -7deg;  --beam-rot-from: -15deg; --beam-rot-to: 1deg; }
+  .b4 { --beam-x: 45%; --beam-rot-rest: -3deg;  --beam-rot-from: -9deg;  --beam-rot-to: 3deg; }
+  .b5 { --beam-x: 55%; --beam-rot-rest: 3deg;   --beam-rot-from: -3deg;  --beam-rot-to: 9deg; }
+  .b6 { --beam-x: 62%; --beam-rot-rest: 7deg;   --beam-rot-from: -1deg;  --beam-rot-to: 15deg; }
+  .b7 { --beam-x: 70%; --beam-rot-rest: 12deg;  --beam-rot-from: 7deg;   --beam-rot-to: 17deg; }
+  .b8 { --beam-x: 78%; --beam-rot-rest: 16deg;  --beam-rot-from: 9deg;   --beam-rot-to: 23deg; }
 
   .lamp { --lamp-y: 6%; }
   .l1 { --lamp-x: 22%; }
