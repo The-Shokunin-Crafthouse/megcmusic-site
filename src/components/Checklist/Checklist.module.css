@@ -1,0 +1,192 @@
+/* Pre-publish checklist card. Dark plum surface matching the rest of the
+   Playbook tab. Real checkboxes, five states, ephemeral (no persistence). */
+
+.card {
+  max-width: var(--mc-card-max);
+  margin: 0 auto var(--mc-space-6);
+  padding: var(--mc-space-4);
+  border-radius: var(--mc-radius-card);
+  background: var(--mc-bg-section);
+  box-shadow: var(--mc-shadow-card);
+}
+
+.head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--mc-space-3);
+  margin-bottom: var(--mc-space-3);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-primary);
+}
+
+/* Text, not a progress bar — the slop-blocklist forbids the bar. */
+.progress {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  color: var(--mc-text-subtle);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--mc-space-3);
+  padding: var(--mc-space-1) 0;
+  border-top: 1px solid var(--mc-divider);
+}
+
+.item:first-child {
+  border-top: 0;
+}
+
+.itemLabel {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  min-height: var(--mc-touch-target);
+  cursor: pointer;
+  flex: 1;
+}
+
+/* Custom checkbox — default / hover / focus-visible / checked / disabled. */
+.input {
+  appearance: none;
+  -webkit-appearance: none;
+  flex-shrink: 0;
+  width: 1.25rem;
+  height: 1.25rem;
+  border-radius: 4px;
+  border: 2px solid var(--mc-teal);
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background var(--mc-motion-micro) var(--mc-ease-out),
+    border-color var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.itemLabel:hover .input {
+  border-color: var(--mc-teal-bright);
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 2px;
+}
+
+.input:checked {
+  background: var(--mc-teal);
+  border-color: var(--mc-teal);
+  background-image: linear-gradient(
+      -45deg,
+      transparent 40%,
+      var(--mc-teal-ink) 40%,
+      var(--mc-teal-ink) 48%,
+      transparent 48%
+    ),
+    linear-gradient(
+      45deg,
+      transparent 55%,
+      var(--mc-teal-ink) 55%,
+      var(--mc-teal-ink) 63%,
+      transparent 63%
+    );
+}
+
+.input:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.itemText {
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-sm);
+  line-height: 1.4;
+  color: var(--mc-text-body);
+}
+
+.ruleLink {
+  flex-shrink: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--mc-teal-light);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.ruleLink:hover {
+  color: var(--mc-teal-bright);
+}
+
+.ruleLink:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 2px;
+}
+
+.reset {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: var(--mc-touch-target);
+  margin-top: var(--mc-space-3);
+  padding: var(--mc-space-2) var(--mc-space-4);
+  border-radius: var(--mc-radius-pill);
+  border: 1px solid var(--mc-teal);
+  background: var(--mc-glass);
+  color: var(--mc-teal-light);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-sm);
+  font-weight: 600;
+  cursor: pointer;
+  appearance: none;
+  transition:
+    background var(--mc-motion-micro) var(--mc-ease-out),
+    transform var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.reset:hover {
+  background: rgb(var(--mc-glass-rgb) / 0.6);
+}
+
+.reset:active {
+  transform: scale(0.96);
+}
+
+.reset:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+.reset:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .reset {
+    transition: none;
+  }
+  .reset:active {
+    transform: none;
+  }
+}

@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import playbook from "@/data/playbook.json";
 import { PlaybookTabs } from "@/components/PlaybookTabs/PlaybookTabs";
+import { Disclosure } from "@/components/Disclosure/Disclosure";
+import { Checklist } from "@/components/Checklist/Checklist";
 import styles from "./playbook.module.css";
 
 // Fully static, build-time-only page: no fetch, no revalidate. Every future
@@ -36,7 +38,9 @@ type Source = { title: string; url: string; date: string | null };
 type Rule = {
   id: string;
   title: string;
+  action: string;
   rule: string;
+  insight: string;
   evidence: string;
   confidence: string;
   sources: Source[];
@@ -85,11 +89,11 @@ function SourceList({ sources }: { sources: Source[] }) {
 
 function RuleBlock({ rule }: { rule: Rule }) {
   return (
-    <li className={styles.rule}>
+    <li id={rule.id} className={styles.rule}>
       <p className={styles.ruleId}>{rule.id}</p>
-      <h3 className={styles.ruleTitle}>{rule.title}</h3>
+      <h3 className={styles.ruleAction}>{rule.action}</h3>
       <p className={styles.ruleText}>{rule.rule}</p>
-      <p className={styles.ruleEvidence}>{rule.evidence}</p>
+      <p className={styles.ruleInsight}>{rule.insight}</p>
       <div className={styles.ruleMeta}>
         <span
           className={styles.badge}
@@ -101,6 +105,10 @@ function RuleBlock({ rule }: { rule: Rule }) {
           Last verified {rule.lastVerified}
         </span>
       </div>
+      <Disclosure label="Evidence">
+        <p className={styles.ruleEvidence}>{rule.evidence}</p>
+      </Disclosure>
+      <p className={styles.goDeeperLabel}>Go deeper</p>
       <SourceList sources={rule.sources} />
     </li>
   );
@@ -167,6 +175,8 @@ export default function PlaybookPage() {
             {profileScan.scanLimitations}
           </p>
         </section>
+
+        <Checklist items={playbook.checklist} />
 
         <RuleSection platform="Instagram" rules={platforms.instagram.rules} />
         <RuleSection platform="Facebook" rules={platforms.facebook.rules} />
