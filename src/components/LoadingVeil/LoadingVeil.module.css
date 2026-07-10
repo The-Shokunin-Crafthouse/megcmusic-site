@@ -241,6 +241,66 @@
   --beam-sweep-delay: -40s; --beam-breath-delay: -10s;
 }
 
+/* Mobile perspective pass (max-width 767px) — the desktop fan reads too tall +
+   skinny on a narrow frame (like looking down a shaft). Correct it like a
+   wider lens with a lower horizon: fan the SOURCES wide across the top, roughly
+   double the cone width, and drop the floor pools lower + flatten them (short
+   ellipses) so the stage floor reads flat, not tilted up toward the camera.
+   Placed after .b1–.b8 / .p1–.p9 so these win. */
+@media (max-width: 767px) {
+  .beam {
+    --beam-top: 6%;
+    --beam-w: 78vw; /* ~2× the previous mobile width */
+    /* Slightly shorter than desktop so the cone light fades just ABOVE the
+       floor strip and doesn't wash down into it (which read as floor tilt). */
+    --beam-h: 90vh;
+    /* Tip tightened so the doubled width only widens the BASE, not the source. */
+    clip-path: polygon(49.4% 0%, 50.6% 0%, 100% 100%, 0% 100%);
+  }
+  /* Fixtures spread WIDE across the top (6%→94%, outermost near the edges) and
+     every beam AIMED INWARD at the logo (centre): LEFT beams point RIGHT
+     (negative rest), RIGHT beams point LEFT (positive rest). The wide spacing
+     makes the outer cones come in at a steep diagonal (±25°) — a converging
+     FAN, not a straight-down column. (+rotate swings the cone bottom LEFT, so a
+     left beam needs a negative angle to aim right.) Sweep amplitudes vary per
+     beam (±5–8°); each keeps its own inherited period/phase so they drift
+     independently while staying pointed centreward. */
+  .b1 { --beam-x: 6%;  --beam-rot-rest: -25deg; --beam-rot-from: -32deg; --beam-rot-to: -18deg; }
+  .b2 { --beam-x: 18%; --beam-rot-rest: -19deg; --beam-rot-from: -24deg; --beam-rot-to: -14deg; }
+  .b3 { --beam-x: 30%; --beam-rot-rest: -12deg; --beam-rot-from: -19deg; --beam-rot-to: -5deg; }
+  .b4 { --beam-x: 42%; --beam-rot-rest: -5deg;  --beam-rot-from: -11deg; --beam-rot-to: 1deg; }
+  .b5 { --beam-x: 58%; --beam-rot-rest: 5deg;   --beam-rot-from: -1deg;  --beam-rot-to: 11deg; }
+  .b6 { --beam-x: 70%; --beam-rot-rest: 12deg;  --beam-rot-from: 5deg;   --beam-rot-to: 19deg; }
+  .b7 { --beam-x: 82%; --beam-rot-rest: 19deg;  --beam-rot-from: 14deg;  --beam-rot-to: 24deg; }
+  .b8 { --beam-x: 94%; --beam-rot-rest: 25deg;  --beam-rot-from: 18deg;  --beam-rot-to: 32deg; }
+
+  .lamp { --lamp-y: 6%; }
+  .l1 { --lamp-x: 6%; }
+  .l2 { --lamp-x: 18%; }
+  .l3 { --lamp-x: 30%; }
+  .l4 { --lamp-x: 42%; }
+  .l5 { --lamp-x: 58%; }
+  .l6 { --lamp-x: 70%; }
+  .l7 { --lamp-x: 82%; }
+  .l8 { --lamp-x: 94%; }
+
+  /* Floor: SCATTERED pools (varied x is inherited from the base, varied y here)
+     but pushed LOWER and FLATTENED — band ~82–103% (vs the desktop 66–96%) with
+     short ellipses (2.8–3.6vh vs 7–14vh), so the floor reads as scattered light
+     on a shallow, low plane, not a steeply tilted receding one. Selectors are
+     .pool.pN (higher specificity) because the .pN base defs come AFTER this
+     media block in source — a plain .pN here would lose to them. */
+  .pool.p1 { --pool-y: 82%;  --pool-h: 3vh;   --pool-w: 30vw; }
+  .pool.p2 { --pool-y: 88%;  --pool-h: 3.2vh; --pool-w: 34vw; }
+  .pool.p3 { --pool-y: 92%;  --pool-h: 3vh;   --pool-w: 32vw; }
+  .pool.p4 { --pool-y: 86%;  --pool-h: 3vh;   --pool-w: 30vw; }
+  .pool.p5 { --pool-y: 96%;  --pool-h: 3.4vh; --pool-w: 34vw; }
+  .pool.p6 { --pool-y: 99%;  --pool-h: 3.6vh; --pool-w: 40vw; }
+  .pool.p7 { --pool-y: 102%; --pool-h: 3.2vh; --pool-w: 34vw; }
+  .pool.p8 { --pool-y: 94%;  --pool-h: 3vh;   --pool-w: 30vw; }
+  .pool.p9 { --pool-y: 100%; --pool-h: 3.6vh; --pool-w: 36vw; }
+}
+
 /* ------------------------------- POOLS ------------------------------- */
 /* Perspective-flattened gobo ellipses on the reflective floor; larger + more
    spaced toward the foreground (bottom). Opacity + scale breath. */
