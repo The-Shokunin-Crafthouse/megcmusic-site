@@ -241,21 +241,54 @@
   --beam-sweep-delay: -40s; --beam-breath-delay: -10s;
 }
 
-/* Mobile: raise the sources near the top of the viewport and widen the cone
-   BASES so the beams fan out fuller on a narrow frame — same narrow tip, wider
-   bottom = a wider cone shape. The tip clip is tightened to 48.9–51.1% so the
-   larger --beam-w only widens the BASE, not the source (23vw tip was 4% wide;
-   40vw × 2.2% ≈ the same absolute tip). Placed after .b1–.b8 so it overrides
-   their --beam-w (amber included). */
+/* Mobile perspective pass (max-width 767px) — the desktop fan reads too tall +
+   skinny on a narrow frame (like looking down a shaft). Correct it like a
+   wider lens with a lower horizon: fan the SOURCES wide across the top, roughly
+   double the cone width, and drop the floor pools lower + flatten them (short
+   ellipses) so the stage floor reads flat, not tilted up toward the camera.
+   Placed after .b1–.b8 / .p1–.p9 so these win. */
 @media (max-width: 767px) {
   .beam {
-    --beam-top: 7%;
-    --beam-w: 40vw;
-    clip-path: polygon(48.9% 0%, 51.1% 0%, 100% 100%, 0% 100%);
+    --beam-top: 6%;
+    --beam-w: 78vw; /* ~2× the previous mobile width */
+    /* Tip tightened so the doubled width only widens the BASE, not the source. */
+    clip-path: polygon(49.4% 0%, 50.6% 0%, 100% 100%, 0% 100%);
   }
-  .lamp {
-    --lamp-y: 7%;
-  }
+  /* Fan the fixtures wide across the top (10%→90%) AND flatten the beam angles
+     so the cones splay gently OUTWARD/down across a wide floor instead of all
+     converging into one bright central shaft (which is what read as too tall +
+     skinny). rot-from/rot-to are overridden too (the sweep keyframes read them
+     directly), keeping a ~±6° pan around each new rest. */
+  .b1 { --beam-x: 10%; --beam-rot-rest: -12deg; --beam-rot-from: -18deg; --beam-rot-to: -6deg; }
+  .b2 { --beam-x: 22%; --beam-rot-rest: -9deg;  --beam-rot-from: -15deg; --beam-rot-to: -3deg; }
+  .b3 { --beam-x: 33%; --beam-rot-rest: -6deg;  --beam-rot-from: -11deg; --beam-rot-to: 0deg; }
+  .b4 { --beam-x: 43%; --beam-rot-rest: -2deg;  --beam-rot-from: -7deg;  --beam-rot-to: 4deg; }
+  .b5 { --beam-x: 57%; --beam-rot-rest: 2deg;   --beam-rot-from: -4deg;  --beam-rot-to: 7deg; }
+  .b6 { --beam-x: 67%; --beam-rot-rest: 6deg;   --beam-rot-from: 0deg;   --beam-rot-to: 11deg; }
+  .b7 { --beam-x: 78%; --beam-rot-rest: 9deg;   --beam-rot-from: 3deg;   --beam-rot-to: 15deg; }
+  .b8 { --beam-x: 90%; --beam-rot-rest: 12deg;  --beam-rot-from: 6deg;   --beam-rot-to: 18deg; }
+
+  .lamp { --lamp-y: 6%; }
+  .l1 { --lamp-x: 10%; }
+  .l2 { --lamp-x: 22%; }
+  .l3 { --lamp-x: 33%; }
+  .l4 { --lamp-x: 43%; }
+  .l5 { --lamp-x: 57%; }
+  .l6 { --lamp-x: 67%; }
+  .l7 { --lamp-x: 78%; }
+  .l8 { --lamp-x: 90%; }
+
+  /* Floor lower + flat: push pools down and squish their height so they read
+     as flat pools on a receding floor, not up-tilted circles. */
+  .p1 { --pool-y: 74%;  --pool-h: 3vh;   --pool-w: 34vw; }
+  .p2 { --pool-y: 79%;  --pool-h: 3.5vh; --pool-w: 40vw; }
+  .p3 { --pool-y: 84%;  --pool-h: 4vh;   --pool-w: 46vw; }
+  .p4 { --pool-y: 88%;  --pool-h: 4vh;   --pool-w: 44vw; }
+  .p5 { --pool-y: 92%;  --pool-h: 4.5vh; --pool-w: 52vw; }
+  .p6 { --pool-y: 96%;  --pool-h: 5vh;   --pool-w: 60vw; }
+  .p7 { --pool-y: 99%;  --pool-h: 4.5vh; --pool-w: 46vw; }
+  .p8 { --pool-y: 102%; --pool-h: 4vh;   --pool-w: 42vw; }
+  .p9 { --pool-y: 105%; --pool-h: 5vh;   --pool-w: 56vw; }
 }
 
 /* ------------------------------- POOLS ------------------------------- */
