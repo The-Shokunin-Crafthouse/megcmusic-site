@@ -257,29 +257,29 @@
     /* Tip tightened so the doubled width only widens the BASE, not the source. */
     clip-path: polygon(49.4% 0%, 50.6% 0%, 100% 100%, 0% 100%);
   }
-  /* Fan the fixtures wide across the top (10%→90%) with gentle beam angles:
-     the END beams lean inward toward centre the most (±6°), tapering to near-
-     vertical by the unchanged middle pair (b4/b5) — a softly-converging fan,
-     not an outward splay and not a hard central shaft. rot-from/rot-to are
-     overridden too (the sweep keyframes read them directly), ~±6° pan. */
-  .b1 { --beam-x: 10%; --beam-rot-rest: 6deg;  --beam-rot-from: 0deg;   --beam-rot-to: 12deg; }
-  .b2 { --beam-x: 22%; --beam-rot-rest: 3deg;  --beam-rot-from: -3deg;  --beam-rot-to: 9deg; }
-  .b3 { --beam-x: 33%; --beam-rot-rest: 1deg;  --beam-rot-from: -5deg;  --beam-rot-to: 7deg; }
-  .b4 { --beam-x: 43%; --beam-rot-rest: -2deg; --beam-rot-from: -7deg;  --beam-rot-to: 4deg; }
-  .b5 { --beam-x: 57%; --beam-rot-rest: 2deg;  --beam-rot-from: -4deg;  --beam-rot-to: 7deg; }
-  .b6 { --beam-x: 67%; --beam-rot-rest: -1deg; --beam-rot-from: -7deg;  --beam-rot-to: 5deg; }
-  .b7 { --beam-x: 78%; --beam-rot-rest: -3deg; --beam-rot-from: -9deg;  --beam-rot-to: 3deg; }
-  .b8 { --beam-x: 90%; --beam-rot-rest: -6deg; --beam-rot-from: -12deg; --beam-rot-to: 0deg; }
+  /* Fixtures across the top (22%→78%) with converging beam angles: the END
+     beams lean inward toward centre the most (±10°), tapering to near-vertical
+     by the unchanged middle pair (b4/b5) — the cones gather toward the middle
+     instead of splaying apart. rot-from/rot-to are overridden too (the sweep
+     keyframes read them directly), ~±6° pan around each rest. */
+  .b1 { --beam-x: 22%; --beam-rot-rest: 10deg;  --beam-rot-from: 4deg;   --beam-rot-to: 16deg; }
+  .b2 { --beam-x: 30%; --beam-rot-rest: 6deg;   --beam-rot-from: 0deg;   --beam-rot-to: 12deg; }
+  .b3 { --beam-x: 38%; --beam-rot-rest: 2deg;   --beam-rot-from: -4deg;  --beam-rot-to: 8deg; }
+  .b4 { --beam-x: 45%; --beam-rot-rest: -2deg;  --beam-rot-from: -7deg;  --beam-rot-to: 4deg; }
+  .b5 { --beam-x: 55%; --beam-rot-rest: 2deg;   --beam-rot-from: -4deg;  --beam-rot-to: 7deg; }
+  .b6 { --beam-x: 62%; --beam-rot-rest: -2deg;  --beam-rot-from: -8deg;  --beam-rot-to: 4deg; }
+  .b7 { --beam-x: 70%; --beam-rot-rest: -6deg;  --beam-rot-from: -12deg; --beam-rot-to: 0deg; }
+  .b8 { --beam-x: 78%; --beam-rot-rest: -10deg; --beam-rot-from: -16deg; --beam-rot-to: -4deg; }
 
   .lamp { --lamp-y: 6%; }
-  .l1 { --lamp-x: 10%; }
-  .l2 { --lamp-x: 22%; }
-  .l3 { --lamp-x: 33%; }
-  .l4 { --lamp-x: 43%; }
-  .l5 { --lamp-x: 57%; }
-  .l6 { --lamp-x: 67%; }
-  .l7 { --lamp-x: 78%; }
-  .l8 { --lamp-x: 90%; }
+  .l1 { --lamp-x: 22%; }
+  .l2 { --lamp-x: 30%; }
+  .l3 { --lamp-x: 38%; }
+  .l4 { --lamp-x: 45%; }
+  .l5 { --lamp-x: 55%; }
+  .l6 { --lamp-x: 62%; }
+  .l7 { --lamp-x: 70%; }
+  .l8 { --lamp-x: 78%; }
 
   /* Floor: collapse the pools into a NEAR-FLAT line low in the frame (band
      ~92–94.5%, a fraction of the original 74–105% spread) with very short
