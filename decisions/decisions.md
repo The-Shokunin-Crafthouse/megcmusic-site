@@ -37,6 +37,17 @@ Append-only log of non-trivial decisions made on this project. Entries are not e
 
 <!-- Append new entries below. Newest at the bottom. Do not edit historical entries. -->
 
+## 2026-07-10 — Meta Graph API access: System User token over Instagram Login
+**Stage:** 03-build
+**Type:** Architecture
+**Status:** accepted
+
+**Context.** The existing Social Playbook tab (`megs-playbook`) showed static best-practice text with no real account stats — Instagram/Facebook block unauthenticated scraping, so live post-performance data requires an authenticated Graph API path. Meghan's Instagram (`@meghanclarissecave`) is linked to her "Meghan Clarisse Music" Facebook Page inside her Meta Business Portfolio ("Meghan"). Two credential paths were available: a Meta Business System User token, or an Instagram-Login (Instagram API with Instagram Login) user token tied to a logged-in Instagram account.
+**Decision.** Use a Meta Business System User (`megcmusic-automation`, Full access to both the Page and the Instagram account) with a long-lived System User access token, stored as `META_SYSTEM_USER_TOKEN` in Vercel (Production + Preview).
+**Rationale.** A System User token is designed for exactly this shape of integration — unattended, server-side, no human session to expire or re-authenticate. It's scoped to the business portfolio rather than a personal login, doesn't depend on Meghan's own Instagram session staying valid, and survives password/device changes on her end. The Instagram-Login path would have tied the integration to a personal account session with a shorter natural lifespan and no clean way to scope permissions to just the automation's needs.
+**Alternatives considered.** Instagram API with Instagram Login (user-token path) — rejected: ties the credential to a personal login session rather than a business-scoped service identity, more fragile for an unattended Vercel cron job.
+**Consequences.** Easier: token is decoupled from any individual's login state, permissions are explicitly scoped (`instagram_basic`, `instagram_manage_insights`, `pages_read_engagement`, `pages_show_list`), regeneration doesn't require Meghan's involvement. Harder: requires maintaining a Meta Developer app (`Business`, App ID `1020080587391692`) and system user in Business Settings as ongoing infrastructure; a second, orphaned "Business" app (App ID `3187283798124578`, Business: None) was created by accident mid-setup and should be deleted once the real one is confirmed stable, to avoid future mix-ups. Verified end-to-end 2026-07-10: `me/accounts` resolved Page ID `108048260606098` → Instagram Business Account ID `17841401582839394`, and a live `insights?metric=reach&period=day` call returned real data. The token used during that verification was pasted in a chat transcript (via Graph API paging URLs) and was rotated immediately after — the token now live in Vercel is a fresh regeneration, not the one exposed during testing.
+
 ## 2026-06-16 — Client project: isolated token system
 **Stage:** 01-brief
 **Type:** Stack / tech choice
