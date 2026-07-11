@@ -227,8 +227,7 @@
      stall). y1 tuned so the peak lands ~1.02 from the 0.75→1.0 range. */
   --mc-veil-logo-ease: cubic-bezier(0.34, 1.5, 0.64, 1);
   --mc-veil-logo-exit: 420ms;       /* veil logo departs faster than the veil fade — hand-off, never two logos */
-  --mc-veil-swell: 600ms;           /* exit beat 1: the light blooms once before the veil lifts */
-  --mc-veil-swell-opacity: 0.4;     /* bloom-layer peak opacity on swell/fade */
+  --mc-veil-swell: 600ms;           /* exit beat 1 hold, before the veil lifts (the full-screen brightness wash that used to run here was removed 2026-07-11 — read as an unwanted flash, not a beat) */
   --mc-veil-hold-min: 1200ms;       /* anti-flash floor — veil never shows shorter */
   --mc-veil-hold-max: 10000ms;      /* cap — past this, exit to the skeleton/empty path */
 

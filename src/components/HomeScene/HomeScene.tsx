@@ -42,8 +42,8 @@ export function HomeScene({
   // paint while the browser-side events fallback runs. Rendered in the server
   // HTML (phase starts "hold" when serverEmpty) so there is no hydration flash;
   // a server-populated render never mounts it. Lifecycle: hold (min 1200ms /
-  // max 10s) → swell (the light blooms once) → fade (veil lifts WHILE the hero
-  // entrance runs beneath it) → done (unmount).
+  // max 10s) → swell (a hold beat before the lift) → fade (veil lifts WHILE
+  // the hero entrance runs beneath it) → done (unmount).
   const serverEmpty =
     upcoming.length === 0 && justAdded.length === 0 && past.length === 0;
   const [veilPhase, setVeilPhase] = useState<VeilPhase | "done">(
@@ -100,14 +100,14 @@ export function HomeScene({
       ? Math.max(0, tokenMs("--mc-veil-hold-min", 1200) - elapsed)
       : Math.max(0, tokenMs("--mc-veil-hold-max", 10_000) - elapsed);
     const t = window.setTimeout(
-      // Reduced motion skips the bloom: plain opacity fade only.
+      // Reduced motion skips the swell hold and fades straight out.
       () => setVeilPhase(reduce ? "fade" : "swell"),
       delay,
     );
     return () => window.clearTimeout(t);
   }, [veilPhase, fallbackSettled]);
 
-  // Exit beats: swell (bloom) → fade (veil lifts, entrance runs) → done.
+  // Exit beats: swell (hold) → fade (veil lifts, entrance runs) → done.
   useEffect(() => {
     if (veilPhase === "swell") {
       const t = window.setTimeout(
