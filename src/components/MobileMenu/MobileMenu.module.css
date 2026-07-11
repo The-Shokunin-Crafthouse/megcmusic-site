@@ -103,7 +103,7 @@
   top: -43px;
   left: -28px;
   z-index: var(--mc-z-logo);
-  --logo-h: 126px;
+  --logo-h: 144.9px; /* 126px * 1.15, kept in lockstep with SiteChrome's mobile logoSlot (2026-07-11) */
 }
 
 .menuNav {
