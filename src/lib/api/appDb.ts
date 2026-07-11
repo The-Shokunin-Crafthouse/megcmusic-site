@@ -1,10 +1,13 @@
 /**
- * Server-only Supabase client for the Booking Outreach Engine.
+ * Server-only Supabase client for the project's scoped app database
+ * (`megcmusic-outreach` project — holds outreach state and, from Sprint 09,
+ * social-playbook state; WordPress remains the site's content source of
+ * truth).
  *
  * Uses the service-role key, so it must NEVER be imported into a client
- * component or any code that ships to the browser. RLS is disabled on the
- * outreach tables (see the init migration); the service role is the only path
- * to them and every route handler reaches the DB through this one client.
+ * component or any code that ships to the browser. RLS is disabled on every
+ * table (see the migrations); the service role is the only path to them and
+ * every route handler reaches the DB through this one client.
  *
  * `SUPABASE_URL` / `SUPABASE_SERVICE_ROLE_KEY` are server-only env (never
  * NEXT_PUBLIC_). We validate lazily so the module can be imported at build
@@ -15,7 +18,7 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
 let client: SupabaseClient | null = null;
 
-export function outreachDb(): SupabaseClient {
+export function appDb(): SupabaseClient {
   if (client) return client;
 
   const url = process.env.SUPABASE_URL;

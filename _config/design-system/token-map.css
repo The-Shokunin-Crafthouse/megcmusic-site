@@ -56,6 +56,7 @@
   --mc-accent-gold-rgb: 202 164 95;
   --mc-teal-rgb: 86 140 137; /* --mc-teal channels — faint tint behind outreach {{auto}} chips */
   --mc-bg-rgb: 36 20 32; /* --mc-bg channels — scrim over the /shows hero photo */
+  --mc-accent-red-rgb: 209 62 91; /* --mc-accent-red channels — faint tint behind the playbook auth_error banner */
 
   /* Typography */
   --mc-font-display: 'Lora', serif;

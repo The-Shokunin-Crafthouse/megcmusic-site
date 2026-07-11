@@ -1,30 +1,36 @@
 "use client";
 
 /**
- * Client tab bar for /megs-playbook. Two panels: the existing Social Playbook
- * (passed in already server-rendered, so it stays static and its markup is
- * untouched) and the Booking Outreach tool. The active tab is mirrored to the
- * URL hash (#outreach) so Meg can bookmark straight to it; no localStorage.
+ * Client tab bar for /megs-playbook. Three panels: the existing Social
+ * Playbook (passed in already server-rendered, so it stays static and its
+ * markup is untouched), Performance (Sprint 09 — top posts + sync health),
+ * and the Booking Outreach tool. The active tab is mirrored to the URL hash
+ * (#performance, #outreach) so Meg can bookmark straight to it; no
+ * localStorage.
  *
- * The Outreach panel mounts only once its tab is first opened (it fetches on
- * mount) and stays mounted-but-hidden afterward, so toggling tabs never
- * refetches.
+ * Performance and Outreach panels mount only once their tab is first opened
+ * (both fetch on mount) and stay mounted-but-hidden afterward, so toggling
+ * tabs never refetches.
  */
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import { Outreach } from "@/components/Outreach/Outreach";
+import { Performance } from "@/components/Performance/Performance";
 import styles from "./PlaybookTabs.module.css";
 
-type TabKey = "playbook" | "outreach";
+type TabKey = "playbook" | "performance" | "outreach";
 
 const TABS: { key: TabKey; label: string; hash: string }[] = [
   { key: "playbook", label: "Social Playbook", hash: "" },
+  { key: "performance", label: "Performance", hash: "#performance" },
   { key: "outreach", label: "Booking Outreach", hash: "#outreach" },
 ];
 
 function tabFromHash(): TabKey {
   if (typeof window === "undefined") return "playbook";
-  return window.location.hash === "#outreach" ? "outreach" : "playbook";
+  if (window.location.hash === "#performance") return "performance";
+  if (window.location.hash === "#outreach") return "outreach";
+  return "playbook";
 }
 
 export function PlaybookTabs({
@@ -33,6 +39,7 @@ export function PlaybookTabs({
   playbookPanel: React.ReactNode;
 }) {
   const [active, setActive] = useState<TabKey>("playbook");
+  const [performanceMounted, setPerformanceMounted] = useState(false);
   const [outreachMounted, setOutreachMounted] = useState(false);
   const baseId = useId();
   const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -42,6 +49,7 @@ export function PlaybookTabs({
     const apply = () => {
       const next = tabFromHash();
       setActive(next);
+      if (next === "performance") setPerformanceMounted(true);
       if (next === "outreach") setOutreachMounted(true);
     };
     apply();
@@ -51,6 +59,7 @@ export function PlaybookTabs({
 
   const selectTab = useCallback((key: TabKey) => {
     setActive(key);
+    if (key === "performance") setPerformanceMounted(true);
     if (key === "outreach") setOutreachMounted(true);
     const hash = TABS.find((t) => t.key === key)?.hash ?? "";
     // replaceState keeps the URL bookmarkable without a scroll jump or a pile
@@ -114,6 +123,16 @@ export function PlaybookTabs({
         tabIndex={0}
       >
         {playbookPanel}
+      </div>
+
+      <div
+        role="tabpanel"
+        id={panelId("performance")}
+        aria-labelledby={tabId("performance")}
+        hidden={active !== "performance"}
+        tabIndex={0}
+      >
+        {performanceMounted ? <Performance /> : null}
       </div>
 
       <div

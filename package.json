@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "preview": "next build && node --import tsx scripts/preview.ts",
-    "verify:apis": "node --env-file=.env.local --import tsx scripts/verify-apis.ts"
+    "verify:apis": "node --env-file=.env.local --import tsx scripts/verify-apis.ts",
+    "playbook:backfill": "node --env-file=.env.local --import tsx scripts/playbook-backfill.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
