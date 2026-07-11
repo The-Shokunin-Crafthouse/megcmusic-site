@@ -107,7 +107,9 @@
 }
 
 .menuNav {
-  padding: var(--mc-space-6) var(--mc-space-5);
+  /* Pushed 100px lower per direction (2026-07-11) — a literal offset, not a
+     spacing token. */
+  padding: calc(var(--mc-space-6) + 100px) var(--mc-space-5) var(--mc-space-6);
 }
 
 .list {
