@@ -132,6 +132,11 @@
 .itemMask {
   display: block;
   overflow: visible clip;
+  /* The tight 1.1 line-height clips descenders (Booking's "g") once overflow
+     is enforced — pad the box a touch and pull it back with a matching
+     negative margin so the list's visible row gap is unchanged. */
+  padding-bottom: 0.2em;
+  margin-bottom: -0.2em;
 }
 
 @keyframes menu-item-rise-drift {
