@@ -3,7 +3,7 @@
     "subject": "Meghan Clarisse Cave — IG/FB algorithm playbook",
     "accounts": [
       "https://www.instagram.com/meghanclarissecave/",
-      "https://www.facebook.com/meghancave/"
+      "https://www.facebook.com/meghanclarisse/"
     ],
     "lastFullRun": "2026-07-04",
     "version": 2
@@ -17,11 +17,11 @@
       "notes": "The profile URL https://www.instagram.com/meghanclarissecave/ (and the ?hl=en variant) returned an empty/blocked response on direct fetch — Instagram serves a login wall or JS-rendered shell to non-authenticated fetchers, so no bio, follower count, or post grid could be read directly. Search-indexed snippets confirm the handle @meghanclarissecave exists, is tagged by other local accounts (e.g. a November 2024 post from @cafeole_ promoting a performance), and at least one Reel permalink (instagram.com/reel/DXSmDm-kQhu/) is indexed, confirming she posts Reels. No numeric follower count, bio text, or post-mix ratio is exposed in any indexed search snippet."
     },
     "facebook": {
-      "followers": null,
+      "followers": 2961,
       "bio": null,
       "postMix": null,
       "cadence": null,
-      "notes": "The exact URL https://www.facebook.com/meghancave/ returned an empty/blocked response on direct fetch (Facebook requires login for profile/page content). Search indexing points to what is very likely the same artist's actual Facebook Page under a different vanity name: facebook.com/meghanclarisse ('Meghan Clarisse Music'), category Americana/Rock/Country, reported via search snippet at roughly 1.2K followers / ~200 following, promoting the 'Kindred Spirits' EP and a poetry book. This could not be confirmed as the identical entity behind the /meghancave/ URL given in the brief (it may redirect, be a legacy/duplicate handle, or a distinct secondary page) — treat the 1.2K figure as medium-confidence and unverified against the exact requested URL."
+      "notes": "Corrected 2026-07-11: the music Facebook Page is facebook.com/meghanclarisse ('Meghan Clarisse Music', Page ID 108048260606098, category Musician) — the /meghancave/ URL in the original brief was her personal profile and has been removed from this playbook's scope. Verified live via Graph API (System User token) 2026-07-11: followers_count 2961. This is the same Page that backs the Instagram Business Account sync (Page → IG 17841401582839394, @meghanclarissecave)."
     },
     "scanLimitations": "Both Instagram and Facebook block unauthenticated programmatic fetches of profile pages (return empty bodies / require login), consistent with Meta's standard anti-scraping behavior — this is expected and was not bypassed, per instructions not to log in. All profile-adjacent facts in this file come from: (1) the artist's own website megcmusic.com (fetched directly, high confidence), (2) third-party press coverage (CanvasRebel, Shoutout Colorado, Bold Journey, FoCoMA, local venue listings), and (3) search-engine-indexed snippets/metadata of the IG and FB pages, which do not include real-time follower counts, full bios, or post grids. No follower counts could be confirmed with high confidence for either platform. Numbers above are marked null in structured fields precisely because they could not be verified against the exact URLs given; the FB 1.2K figure is preserved only as narrative context in 'notes', not as a verified data point."
   },
@@ -437,6 +437,16 @@
     ]
   },
   "changelog": [
+    {
+      "date": "2026-07-11",
+      "entries": [
+        {
+          "type": "changed",
+          "ruleId": "all",
+          "summary": "Facebook target corrected from the personal profile (facebook.com/meghancave) to the music Page facebook.com/meghanclarisse ('Meghan Clarisse Music', Page ID 108048260606098); follower count 2,961 verified live via Graph API."
+        }
+      ]
+    },
     {
       "date": "2026-07-04",
       "entries": [
