@@ -146,6 +146,50 @@ export async function discoverAllMedia(): Promise<DiscoveredMedia[]> {
   return media;
 }
 
+export interface RecentMediaResult {
+  media: DiscoveredMedia[];
+  pages: number;
+}
+
+/** Pages media newest-first (the Graph API's default `/media` order,
+ *  confirmed live), stopping once an entire page is older than `cutoffISO`
+ *  — the daily sync only needs the active window, not full history (the
+ *  2026-07-11 timeout ADR: full-history discovery of 4,358 media was
+ *  consuming the whole 300s budget before the insights loop even started).
+ *  A page straddling the cutoff is kept whole (cheap, avoids an off-by-one
+ *  at the boundary) and paging stops after it. `discoverAllMedia` above is
+ *  unchanged and remains for scripts/playbook-backfill.ts, which needs full
+ *  history regardless of runtime. */
+export async function discoverRecentMedia(
+  cutoffISO: string,
+): Promise<RecentMediaResult> {
+  const cutoff = new Date(cutoffISO).getTime();
+  let url: string | undefined =
+    `${GRAPH_API_BASE}/${IG_USER_ID}/media?fields=${DISCOVERY_FIELDS}&limit=100&access_token=${accessToken()}`;
+  const media: DiscoveredMedia[] = [];
+  let pages = 0;
+  while (url) {
+    pages++;
+    const page = (await graphFetch(url)) as unknown as MediaPage;
+    const items = page.data ?? [];
+    media.push(...items);
+    const pageFullyPastCutoff =
+      items.length > 0 &&
+      items.every((item) => new Date(item.timestamp).getTime() < cutoff);
+    if (pageFullyPastCutoff) break;
+    url = page.paging?.next;
+  }
+  return { media, pages };
+}
+
+/** Refetches a single media node's discovery fields — used by the daily
+ *  sync to refresh the CDN-backed `thumbnail_url` for the current top-5
+ *  (Meta CDN URLs expire) without re-walking full media history every run. */
+export async function getMediaNode(mediaId: string): Promise<DiscoveredMedia> {
+  const url = `${GRAPH_API_BASE}/${mediaId}?fields=${DISCOVERY_FIELDS}&access_token=${accessToken()}`;
+  return (await graphFetch(url)) as unknown as DiscoveredMedia;
+}
+
 /** Working metric set per PLAN.md §0 — `impressions` is deprecated in favor
  *  of `views` (Graph API v21+). STORY is absent by design: sync v1 excludes
  *  Stories (24h lifespan, thin insights — §10 open item, default: exclude).

@@ -1,29 +1,33 @@
 /**
  * GET /api/playbook/sync — daily cron (vercel.json), guarded by CRON_SECRET.
  *
- * Discovers all IG media, upserts into sp_posts (caption/permalink/thumbnail
- * refreshed every run — Meta CDN thumbnail URLs expire), then refreshes
- * metrics for the active window (posted in the last 90 days, or never
- * synced). A single media's insights failure is logged and the sync moves
- * on (PLAN.md §3 step 5); a failed discovery page aborts the whole run,
- * since a broken discovery means the sync can't trust it has seen every
- * post. An OAuth 190 (token revoked/rotated) is the one failure mode the
- * non-expiring System User token has — it's surfaced as `auth_error` plus a
- * one-line alert email, distinct from a transient `error` the next day's
- * cron self-heals.
+ * Discovers only the active window's IG media (2026-07-11 ADR: walking full
+ * history — 4,358 media on this account — blew the 300s budget before the
+ * insights loop even started), upserts into sp_posts, then refreshes metrics
+ * for the active window (posted in the last 90 days, or never synced). A
+ * single media's insights failure is logged and the sync moves on (PLAN.md
+ * §3 step 5); a failed discovery page aborts the whole run, since a broken
+ * discovery means the sync can't trust it has seen every post in the
+ * window. Meta CDN thumbnail URLs expire, so after the insights loop the
+ * current top-5 scorable posts get a targeted thumbnail_url refresh — a
+ * handful of Graph calls instead of a full-history re-walk. An OAuth 190
+ * (token revoked/rotated) is the one failure mode the non-expiring System
+ * User token has — it's surfaced as `auth_error` plus a one-line alert
+ * email, distinct from a transient `error` the next day's cron self-heals.
  */
 
 import { appDb } from "@/lib/api/appDb";
 import { sendEmail } from "@/lib/api/gmail";
 import { fail, hasCronSecret, ok, unauthorized } from "@/lib/playbook/http";
 import {
-  discoverAllMedia,
+  discoverRecentMedia,
   displayThumbnail,
   getMediaInsights,
+  getMediaNode,
   isAuthError,
   isPreBusinessMediaError,
-  type DiscoveredMedia,
 } from "@/lib/playbook/meta";
+import { fetchScorablePosts, topPostsFrom } from "@/lib/playbook/scoring";
 import type { ProductType } from "@/lib/playbook/types";
 
 export const dynamic = "force-dynamic";
@@ -64,9 +68,16 @@ export async function GET(req: Request): Promise<Response> {
   if (runInsert.error) return fail(runInsert.error.message, 502);
   const runId = runInsert.data.id as number;
 
-  let media: DiscoveredMedia[];
+  const activeCutoff = new Date(
+    Date.now() - ACTIVE_WINDOW_DAYS * 24 * 60 * 60 * 1000,
+  ).toISOString();
+
+  let media: Awaited<ReturnType<typeof discoverRecentMedia>>["media"];
+  let discoveryPages: number;
   try {
-    media = await discoverAllMedia();
+    const discovery = await discoverRecentMedia(activeCutoff);
+    media = discovery.media;
+    discoveryPages = discovery.pages;
   } catch (err) {
     const message = err instanceof Error ? err.message : "Discovery failed.";
     const authError = isAuthError(err);
@@ -109,9 +120,6 @@ export async function GET(req: Request): Promise<Response> {
     }
   }
 
-  const activeCutoff = new Date(
-    Date.now() - ACTIVE_WINDOW_DAYS * 24 * 60 * 60 * 1000,
-  ).toISOString();
   const activeRes = await db
     .from("sp_posts")
     .select("id, product_type, posted_at, metrics_synced_at")
@@ -185,7 +193,31 @@ export async function GET(req: Request): Promise<Response> {
     }
   }
 
-  const detail = `discovered=${media.length} synced=${synced} skipped=${skipped} failed=${failed}${
+  // Preserve the thumbnail-expiry invariant (Meta CDN thumbnail URLs expire)
+  // without re-walking full media history every run: refresh only the
+  // current top-5 scorable posts' thumbnail_url, best-effort — a failure
+  // here is cosmetic and must never fail the sync itself.
+  let topRefreshed = 0;
+  try {
+    const scorableRows = await fetchScorablePosts(db);
+    const topIds = topPostsFrom(scorableRows).map((post) => post.id);
+    for (const id of topIds) {
+      try {
+        const node = await getMediaNode(id);
+        const updateRes = await db
+          .from("sp_posts")
+          .update({ thumbnail_url: displayThumbnail(node) })
+          .eq("id", id);
+        if (!updateRes.error) topRefreshed++;
+      } catch {
+        // best-effort — leave the existing thumbnail_url in place
+      }
+    }
+  } catch {
+    // scoring the top 5 is itself best-effort here (it re-runs next sync)
+  }
+
+  const detail = `discovered=${media.length} synced=${synced} skipped=${skipped} failed=${failed} pages=${discoveryPages} topRefreshed=${topRefreshed}${
     errorDetails.length > 0 ? ` | ${errorDetails.slice(0, 5).join("; ")}` : ""
   }`;
   const status = authErrorSeen ? "auth_error" : "ok";
