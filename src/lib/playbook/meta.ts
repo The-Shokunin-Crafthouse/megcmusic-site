@@ -17,8 +17,10 @@
 const GRAPH_API_VERSION = "v21.0";
 const GRAPH_API_BASE = `https://graph.facebook.com/${GRAPH_API_VERSION}`;
 
-/** Instagram Business Account ID, resolved from Page ID 108048260606098 and
- *  verified live 2026-07-10 (decisions.md — Meta Graph API access ADR). */
+/** Instagram Business Account ID (@meghanclarissecave), resolved from Page ID
+ *  108048260606098 and verified live 2026-07-10 (decisions.md — Meta Graph
+ *  API access ADR). Confirmed correct 2026-07-11 — do not confuse with
+ *  @megcavemusic (17841400063028343), an old/secondary account. */
 const IG_USER_ID = "17841401582839394";
 
 const FETCH_TIMEOUT_MS = 10_000;
