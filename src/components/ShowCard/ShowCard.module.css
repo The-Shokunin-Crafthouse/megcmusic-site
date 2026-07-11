@@ -45,7 +45,10 @@
 
 /* Date badge — cream month/day centred over the plum pick. Geometry mirrors
    Figma 39:23: the pick is an absolutely-positioned vector that frames the
-   date; the text flows above it. Decoration dimensions are Figma-exact. */
+   date; the text flows above it. Decoration dimensions are Figma-exact,
+   scaled .7x (2026-07-10, mobile card-height pass — mirror any further
+   change into ShowsSection.module.css's .skeletonBadge/.skeletonTitle,
+   studio learning #575). */
 .badge {
   position: relative;
   display: flex;
@@ -56,8 +59,8 @@
      left edge always lands at the card's 16px padding — otherwise 1- vs 2-digit
      days shift the whole group and the left margin reads inconsistent. */
   box-sizing: border-box;
-  width: 77.281px;
-  padding-top: 3px;
+  width: 54.097px;
+  padding-top: 2px;
   color: var(--mc-text-primary);
 }
 
@@ -69,15 +72,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 77.281px;
-  height: 69.991px;
+  width: 54.097px;
+  height: 48.994px;
   z-index: 0;
   pointer-events: none;
 }
 
 .pick {
-  width: 62.861px;
-  height: 71.059px;
+  width: 44.003px;
+  height: 49.741px;
   transform: rotate(-96.04deg);
 }
 
@@ -85,25 +88,26 @@
 .day {
   position: relative;
   z-index: 1;
-  /* Nudge the month/day 8px left over the pick to match the comp. */
-  left: -8px;
+  /* Nudge the month/day left over the pick to match the comp (8px at full
+     size, scaled .7x). */
+  left: -6px;
   font-family: var(--mc-font-display);
-  /* Figma uses normal leading; the month's -6px tuck relies on that leading to
+  /* Figma uses normal leading; the month's tuck relies on that leading to
      leave a couple px of breathing room under the month (line-height:1 kills it
      and reads flush). */
   line-height: normal;
 }
 
 .month {
-  margin-bottom: -6px; /* Figma 110:135 autolayout gap — a few px under the month */
+  margin-bottom: -4px; /* Figma 110:135 autolayout gap, scaled .7x */
   font-weight: 700;
-  font-size: var(--mc-text-2xs);
+  font-size: var(--mc-text-3xs);
   letter-spacing: 0.04em;
 }
 
 .day {
   font-weight: 400;
-  font-size: var(--mc-text-2xl);
+  font-size: var(--mc-text-lg);
 }
 
 .body {
@@ -119,7 +123,7 @@
   margin: 0;
   font-family: var(--mc-font-display);
   font-weight: 600;
-  font-size: var(--mc-text-lg);
+  font-size: var(--mc-text-md); /* 20px, -2px from 22px (2026-07-10) */
   line-height: 1.2;
   color: var(--mc-text-card);
 }

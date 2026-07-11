@@ -1,22 +1,38 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Logo } from "../Logo/Logo";
 import { NAV_ITEMS, isActiveRoute } from "../Nav/navItems";
 import styles from "./MobileMenu.module.css";
 
-// Mobile primary nav: a "Menu" pill that opens a full-screen overlay of large
-// links (Figma 112:191). Shown below 768; SiteChrome hides the desktop pill
-// there. Escape closes, focus is trapped while open, body scroll is locked, and
-// focus returns to the trigger on close.
+/** Millisecond value of a duration token (e.g. "320ms" / "0.6s"). Server-safe:
+    this component's render body runs during SSR too, where there's no DOM. */
+function tokenMs(name: string, fallback: number): number {
+  if (typeof window === "undefined") return fallback;
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue(name)
+    .trim();
+  const value = parseFloat(raw);
+  if (Number.isNaN(value)) return fallback;
+  return raw.endsWith("ms") ? value : raw.endsWith("s") ? value * 1000 : value;
+}
+
+// Mobile primary nav: a single persistent toggle button that morphs from the
+// teal "Menu" pill into a teal close-circle (Figma 112:191/202) with no
+// second element ever mounting on top of it — the old build rendered a
+// separate close button inside the overlay, which double-painted over the
+// still-mounted trigger while the overlay faded in (the reported "flash").
+// Escape closes, focus is trapped while open, body scroll is locked, and
+// focus never has to jump because the same button stays focused throughout.
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  const triggerRef = useRef<HTMLButtonElement>(null);
-  const closeRef = useRef<HTMLButtonElement>(null);
-  const overlayRef = useRef<HTMLDivElement>(null);
+  const prefersReducedMotion = useReducedMotion();
+  const rootRef = useRef<HTMLDivElement>(null);
+  const toggleRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     if (!open) return;
@@ -29,7 +45,9 @@ export function MobileMenu() {
         return;
       }
       if (e.key !== "Tab") return;
-      const focusables = overlayRef.current?.querySelectorAll<HTMLElement>(
+      // The trap spans the toggle button + every link in the overlay, in DOM
+      // order, so Tab cycles the whole menu including its own close control.
+      const focusables = rootRef.current?.querySelectorAll<HTMLElement>(
         'a[href], button',
       );
       if (!focusables || focusables.length === 0) return;
@@ -45,73 +63,88 @@ export function MobileMenu() {
     }
 
     document.addEventListener("keydown", onKey);
-    const raf = requestAnimationFrame(() => closeRef.current?.focus());
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
-      cancelAnimationFrame(raf);
     };
   }, [open]);
 
-  // Close on navigation and restore focus to the trigger.
+  // Close on navigation.
   useEffect(() => {
     setOpen(false);
   }, [pathname]);
 
-  function close() {
-    setOpen(false);
-    triggerRef.current?.focus();
-  }
+  const morphMs = prefersReducedMotion ? 0 : tokenMs("--mc-menu-morph", 320);
+  const fadeMs = prefersReducedMotion ? 0 : tokenMs("--mc-motion-hover", 220);
 
   return (
-    <>
-      <button
-        ref={triggerRef}
+    <div ref={rootRef} className={styles.root}>
+      <motion.button
+        ref={toggleRef}
         type="button"
-        className={styles.trigger}
+        layout
+        transition={{ duration: morphMs / 1000, ease: [0.23, 1, 0.32, 1] }}
+        className={open ? `${styles.trigger} ${styles.open}` : styles.trigger}
         aria-haspopup="dialog"
         aria-expanded={open}
-        onClick={() => setOpen(true)}
+        aria-controls="mobile-menu-overlay"
+        aria-label={open ? "Close menu" : "Open menu"}
+        onClick={() => setOpen((v) => !v)}
       >
-        Menu
-      </button>
+        <AnimatePresence mode="popLayout" initial={false}>
+          {open ? (
+            <motion.span
+              key="icon"
+              aria-hidden="true"
+              className={styles.triggerIcon}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: fadeMs / 1000 }}
+            >
+              <svg viewBox="0 0 32 32" width="20" height="20" fill="none" aria-hidden="true" focusable="false">
+                <path
+                  fill="currentColor"
+                  d="M20.7075 12.7075L17.4137 16L20.7075 19.2925C20.8004 19.3854 20.8741 19.4957 20.9244 19.6171C20.9747 19.7385 21.0006 19.8686 21.0006 20C21.0006 20.1314 20.9747 20.2615 20.9244 20.3829C20.8741 20.5043 20.8004 20.6146 20.7075 20.7075C20.6146 20.8004 20.5043 20.8741 20.3829 20.9244C20.2615 20.9747 20.1314 21.0006 20 21.0006C19.8686 21.0006 19.7385 20.9747 19.6171 20.9244C19.4957 20.8741 19.3854 20.8004 19.2925 20.7075L16 17.4137L12.7075 20.7075C12.6146 20.8004 12.5043 20.8741 12.3829 20.9244C12.2615 20.9747 12.1314 21.0006 12 21.0006C11.8686 21.0006 11.7385 20.9747 11.6171 20.9244C11.4957 20.8741 11.3854 20.8004 11.2925 20.7075C11.1996 20.6146 11.1259 20.5043 11.0756 20.3829C11.0253 20.2615 10.9994 20.1314 10.9994 20C10.9994 19.8686 11.0253 19.7385 11.0756 19.6171C11.1259 19.4957 11.1996 19.3854 11.2925 19.2925L14.5863 16L11.2925 12.7075C11.1049 12.5199 10.9994 12.2654 10.9994 12C10.9994 11.7346 11.1049 11.4801 11.2925 11.2925C11.4801 11.1049 11.7346 10.9994 12 10.9994C12.2654 10.9994 12.5199 11.1049 12.7075 11.2925L16 14.5863L19.2925 11.2925C19.3854 11.1996 19.4957 11.1259 19.6171 11.0756C19.7385 11.0253 19.8686 10.9994 20 10.9994C20.1314 10.9994 20.2615 11.0253 20.3829 11.0756C20.5043 11.1259 20.6146 11.1996 20.7075 11.2925C20.8004 11.3854 20.8741 11.4957 20.9244 11.6171C20.9747 11.7385 21.0006 11.8686 21.0006 12C21.0006 12.1314 20.9747 12.2615 20.9244 12.3829C20.8741 12.5043 20.8004 12.6146 20.7075 12.7075ZM29 16C29 18.5712 28.2376 21.0846 26.8091 23.2224C25.3806 25.3603 23.3503 27.0265 20.9749 28.0104C18.5994 28.9944 15.9856 29.2518 13.4638 28.7502C10.9421 28.2486 8.62569 27.0105 6.80761 25.1924C4.98953 23.3743 3.7514 21.0579 3.24979 18.5362C2.74818 16.0144 3.00563 13.4006 3.98957 11.0251C4.97351 8.64968 6.63975 6.61935 8.77759 5.1909C10.9154 3.76244 13.4288 3 16 3C19.4467 3.00364 22.7512 4.37445 25.1884 6.81163C27.6256 9.24882 28.9964 12.5533 29 16ZM27 16C27 13.8244 26.3549 11.6977 25.1462 9.88873C23.9375 8.07979 22.2195 6.66989 20.2095 5.83733C18.1995 5.00476 15.9878 4.78692 13.854 5.21136C11.7202 5.6358 9.7602 6.68345 8.22183 8.22183C6.68345 9.7602 5.6358 11.7202 5.21136 13.854C4.78692 15.9878 5.00476 18.1995 5.83733 20.2095C6.66989 22.2195 8.07979 23.9375 9.88873 25.1462C11.6977 26.3549 13.8244 27 16 27C18.9164 26.9967 21.7123 25.8367 23.7745 23.7745C25.8367 21.7123 26.9967 18.9164 27 16Z"
+                />
+              </svg>
+            </motion.span>
+          ) : (
+            <motion.span
+              key="label"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: fadeMs / 1000 }}
+            >
+              Menu
+            </motion.span>
+          )}
+        </AnimatePresence>
+      </motion.button>
 
       {open && (
         <div
-          ref={overlayRef}
+          id="mobile-menu-overlay"
           className={styles.overlay}
           role="dialog"
           aria-modal="true"
           aria-label="Site menu"
         >
-          <div className={styles.bar}>
-            <div className={styles.logoSlot}>
-              <Logo />
-            </div>
-            <button
-              ref={closeRef}
-              type="button"
-              className={styles.close}
-              aria-label="Close menu"
-              onClick={close}
-            >
-              <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false">
-                <path
-                  d="M6 6l12 12M18 6L6 18"
-                  stroke="currentColor"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </button>
+          <div className={styles.logoSlot}>
+            <Logo />
           </div>
 
           <nav className={styles.menuNav} aria-label="Primary">
             <ul className={styles.list}>
-              {NAV_ITEMS.map(({ label, href }) => {
+              {NAV_ITEMS.map(({ label, href }, i) => {
                 const active = isActiveRoute(pathname, href);
                 return (
-                  <li key={href}>
+                  <li
+                    key={href}
+                    className={styles.item}
+                    style={{ "--i": i } as CSSProperties}
+                  >
                     <Link
                       href={href}
                       prefetch={false}
@@ -128,6 +161,6 @@ export function MobileMenu() {
           </nav>
         </div>
       )}
-    </>
+    </div>
   );
 }

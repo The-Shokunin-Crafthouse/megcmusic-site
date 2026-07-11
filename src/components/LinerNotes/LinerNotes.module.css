@@ -3,7 +3,11 @@
 .section {
   position: relative;
   z-index: var(--mc-z-content);
-  padding: var(--mc-space-9) var(--mc-space-4);
+  /* Bottom trimmed on mobile (top holds the "arrive with weight" gap under
+     the section label) so Instastar sits closer beneath — mobile's stack of
+     96px-bottom + 96px-top gaps between every section was the long-scroll
+     complaint (2026-07-10). Desktop's symmetric 768px override is untouched. */
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-4);
   background: var(--mc-bg);
 }
 
@@ -77,7 +81,10 @@
   margin: 0;
   font-family: var(--mc-font-display);
   font-style: italic;
-  font-size: var(--mc-text-title);
+  /* Down from 28px (--mc-text-title) so it breaks at 2 lines on mobile, not
+     3 (2026-07-10, verified against the rendered column width); still one
+     line at the desktop nowrap override below. */
+  font-size: var(--mc-text-md);
   line-height: 1.2;
   color: var(--mc-text-primary);
 }
@@ -109,7 +116,7 @@
 .recHeading {
   margin: 0;
   font-family: var(--mc-font-display);
-  font-weight: 400;
+  font-weight: 700; /* bolder — was 400 (2026-07-10) */
   font-size: var(--mc-text-prose);
   line-height: 1.5;
   color: var(--mc-text-primary);

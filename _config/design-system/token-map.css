@@ -51,6 +51,14 @@
   --mc-glass: rgb(var(--mc-glass-rgb) / 0.4);
   --mc-glass-blur: 13px;
 
+  /* Mobile menu overlay scrim (Figma 112:191/193) — near-opaque plum over a
+     heavy backdrop blur, so the homepage stays legible-but-frosted underneath
+     instead of a flat opaque panel. Composed from --mc-bg-rgb like
+     --mc-scrim-hero below; a dedicated blur value (heavier than the nav
+     pill's --mc-glass-blur) since this covers full-bleed photo content. */
+  --mc-menu-overlay-bg: rgb(var(--mc-bg-rgb) / 0.94);
+  --mc-menu-overlay-blur: 28px;
+
   /* Channel triplets for rgba composition (R G B) */
   --mc-accent-pink-rgb: 246 132 154;
   --mc-accent-gold-rgb: 202 164 95;
@@ -107,6 +115,15 @@
   --mc-nav-roll: 460ms;         /* per-letter roll-up duration — slow, deliberate */
   --mc-nav-roll-stagger: 45ms;  /* gap between each letter as the label rolls */
 
+  /* Mobile menu toggle (Figma 112:191/202) — one persistent button morphs
+     pill ("Menu") -> circle (close icon); the overlay curtain-drops from the
+     top of the viewport (no fade) and the nav list cascades in on the
+     existing --mc-reveal-* rise (the same "arrive with weight" H1 settle
+     used on the Phase-3 route headers), so the menu opening reads as one
+     continuous cinematic beat, not three unrelated transitions. */
+  --mc-menu-morph: 320ms;   /* trigger shape morph (pill <-> circle) */
+  --mc-menu-slide: 640ms;   /* backdrop curtain-drop reveal from the top */
+
   /* Nav glass edge — a slow-panning light-source gradient border (Figma 39:97:
      the pill edge reads as white light, not the teal accent). The conic sweep
      rotates around the pill like a light source panning. */
@@ -138,11 +155,13 @@
   --mc-touch-target: 2.75rem; /* 44px — WCAG minimum touch size */
 
   /* Type sizes — absolute ramp mirrored from Figma (Sprint 3) */
-  --mc-text-2xs: 0.75rem;  /* 12px — date-badge month */
+  --mc-text-3xs: 0.5rem;   /* 8px — date-badge month, scaled .7x down from 12px (2026-07-10) */
+  --mc-text-2xs: 0.75rem;  /* 12px — date-badge month (pre-2026-07-10 scale-down; kept for other users) */
   --mc-text-sm: 0.875rem;  /* 14px — /shows sub-header (Figma 110:114) */
   --mc-text-base: 1rem;    /* 16px — tabs, time, venue, city, buttons */
-  --mc-text-lg: 1.375rem;  /* 22px — show title */
-  --mc-text-2xl: 2rem;     /* 32px — date-badge day */
+  --mc-text-md: 1.25rem;   /* 20px — show title (-2px from 22px) and the Liner Notes pull-quote (-8px from 28px, holds it to 2 lines on mobile) (2026-07-10) */
+  --mc-text-lg: 1.375rem;  /* 22px — date-badge day (scaled .7x down from 32px, 2026-07-10; also the pre-2026-07-10 show title size) */
+  --mc-text-2xl: 2rem;     /* 32px — date-badge day (pre-2026-07-10 scale-down; kept for other users) */
 
   /* Z-index scale — Sprint 6 homepage scroll scene. The persistent logo pins
      above everything on every route; the mobile menu overlay is the only thing
@@ -152,6 +171,7 @@
   --mc-z-chrome: 40;    /* nav pill / mobile Menu button */
   --mc-z-logo: 100;     /* persistent logo — always the top layer of the page */
   --mc-z-overlay: 200;  /* mobile menu full-screen overlay (sits over the logo) */
+  --mc-z-menu-trigger: 210; /* the persistent Menu/Close toggle button — above its own overlay so it never gets painted over mid-transition */
 
   /* Hero scrim — flat plum wash over the photo for AA behind the dates list
      (Figma 128:308: rgba(36,20,32,0.6) over the hero region). */
@@ -230,5 +250,5 @@
   --mc-text-lead: 1.3125rem;   /* 21px — EPK/video/discography lead + year */
   --mc-text-title: 1.75rem;    /* 28px — EPK/discography item titles */
   --mc-text-quote: 2.3125rem;  /* 37px — pull-quote */
-  --mc-text-dropcap: 6.625rem; /* 106px — Praise drop-cap */
+  --mc-text-dropcap: 6.125rem; /* 98px — Praise drop-cap, -8px from 106px (2026-07-10, more room for the copy) */
 }

@@ -3,7 +3,9 @@
   position: relative;
   z-index: var(--mc-z-content);
   overflow: hidden;
-  padding: var(--mc-space-9) var(--mc-space-4);
+  /* Bottom trimmed on mobile so her press kit sits closer beneath (2026-07-10
+     long-scroll pass); desktop's 768px override is untouched. */
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-4);
   background: var(--mc-bg);
 }
 

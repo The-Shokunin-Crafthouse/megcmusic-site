@@ -1,5 +1,23 @@
-/* Menu trigger — same pink pill language as the desktop nav. */
+/* A wrapping container that holds both the persistent toggle button and the
+   overlay it controls. display:contents so it never participates in
+   SiteChrome's flex layout (studio learning #1) — only .trigger is actually
+   positioned by the parent .mobileNav slot, same as before this component
+   wrapped itself in a ref'd root. */
+.root {
+  display: contents;
+}
+
+/* Toggle button — one persistent element for both states (Figma 112:191/202).
+   Closed = teal pill with the "Menu" label; open = teal circle with the
+   close glyph. Framer Motion's `layout` prop FLIP-animates the width/height/
+   padding change between the two, so it reads as one shape morphing rather
+   than two buttons swapping — the trigger and the close control were
+   previously separate DOM nodes, which is what produced the reported flash
+   (the overlay's own close button painted in on top of the still-mounted
+   trigger while the backdrop was mid-fade). */
 .trigger {
+  position: relative;
+  z-index: var(--mc-z-menu-trigger);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -13,13 +31,11 @@
   color: var(--mc-teal-ink);
   background: var(--mc-teal-light);
   cursor: pointer;
-  transition:
-    background var(--mc-motion-micro) var(--mc-ease-out),
-    transform var(--mc-motion-micro) var(--mc-ease-out);
+  transition: background var(--mc-motion-micro) var(--mc-ease-out);
 }
 
 .trigger:hover {
-  background: var(--mc-teal);
+  background: var(--mc-teal-bright);
 }
 
 .trigger:active {
@@ -31,72 +47,63 @@
   outline-offset: 3px;
 }
 
-/* Full-screen overlay menu. */
-.overlay {
-  position: fixed;
-  inset: 0;
-  /* Above the persistent logo (--mc-z-logo) — the overlay carries its own. */
-  z-index: var(--mc-z-overlay);
-  display: flex;
-  flex-direction: column;
-  background: var(--mc-bg);
-  animation: menu-in 220ms var(--mc-ease-out);
+/* Open state — the same button, now a circle (Figma 112:202: 32px glyph in a
+   44px touch target), solid teal ground with the teal-ink glyph on top. */
+.trigger.open {
+  width: var(--mc-touch-target);
+  height: var(--mc-touch-target);
+  padding: 0;
+  background: var(--mc-teal);
 }
 
-@keyframes menu-in {
-  from {
-    opacity: 0;
-    transform: translateY(-8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+.trigger.open:hover {
+  background: var(--mc-teal-bright);
 }
 
-.bar {
-  position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding: var(--mc-space-3);
-}
-
-/* Logo bleeds off the top-left corner, matching the page chrome (Figma 112:191). */
-.logoSlot {
-  position: absolute;
-  top: -4px;
-  left: -8px;
-  --logo-h: 140px;
-}
-
-.close {
+.triggerIcon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: var(--mc-touch-target);
-  height: var(--mc-touch-target);
-  border: 0;
-  border-radius: var(--mc-radius-pill);
-  color: var(--mc-text-card);
-  background: var(--mc-accent-pink);
-  cursor: pointer;
-  transition:
-    background var(--mc-motion-micro) var(--mc-ease-out),
-    transform var(--mc-motion-micro) var(--mc-ease-out);
+  color: var(--mc-teal-ink);
 }
 
-.close:hover {
-  background: var(--mc-accent-rose);
+/* Full-screen overlay menu — a near-opaque plum scrim over a heavy blur
+   (Figma 112:193: rgba(36,20,32,0.94) + 28px backdrop-blur), so the homepage
+   reads frosted underneath rather than fully hidden. It curtain-drops open
+   from the top edge of the viewport via clip-path (no fade), then the nav
+   list cascades in on the shared H1 "arrive with weight" rise. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--mc-z-overlay);
+  display: flex;
+  flex-direction: column;
+  background: var(--mc-menu-overlay-bg);
+  -webkit-backdrop-filter: blur(var(--mc-menu-overlay-blur));
+  backdrop-filter: blur(var(--mc-menu-overlay-blur));
+  clip-path: inset(0 0 100% 0);
+  animation: menu-curtain var(--mc-menu-slide) var(--mc-ease-out-strong) both;
 }
 
-.close:active {
-  transform: scale(0.94);
+@keyframes menu-curtain {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0% 0);
+  }
 }
 
-.close:focus-visible {
-  outline: 2px solid var(--mc-nav-underline);
-  outline-offset: 3px;
+/* Logo bleeds off the top-left corner — identical offsets to SiteChrome's
+   mobile logoSlot (SiteChrome.module.css) so it reads as the SAME persistent
+   logo continuing on top of the overlay, not a second logo jumping to a
+   different position/size. */
+.logoSlot {
+  position: absolute;
+  top: -43px;
+  left: -28px;
+  z-index: var(--mc-z-logo);
+  --logo-h: 126px;
 }
 
 .menuNav {
@@ -110,6 +117,29 @@
   margin: 0;
   padding: 0;
   list-style: none;
+}
+
+/* Each item rises in on the same rise-and-settle used for the Phase-3 route
+   H1s (epk.module.css `epk-rise`) — fade + slide up on --mc-entrance-offset,
+   staggered left-to-right by --mc-reveal-stagger. Held until the curtain is
+   most of the way open so the beat reads as one continuous reveal instead of
+   two unrelated animations racing each other. */
+.item {
+  opacity: 0;
+  animation: menu-item-rise var(--mc-reveal-duration) var(--mc-ease-out-strong)
+    calc(var(--mc-menu-slide) * 0.55 + var(--i, 0) * var(--mc-reveal-stagger))
+    both;
+}
+
+@keyframes menu-item-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--mc-entrance-offset));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .link {
@@ -132,19 +162,23 @@
 }
 
 .active {
-  color: var(--mc-accent-pink);
+  color: var(--mc-teal-light);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .overlay {
     animation: none;
+    clip-path: none;
   }
   .trigger,
-  .close {
+  .trigger.open {
     transition: none;
   }
-  .trigger:active,
-  .close:active {
+  .trigger:active {
     transform: none;
+  }
+  .item {
+    opacity: 1;
+    animation: none;
   }
 }

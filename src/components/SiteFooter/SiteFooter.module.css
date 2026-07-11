@@ -22,7 +22,14 @@
   z-index: -1;
   font-family: var(--mc-font-display);
   font-weight: 700;
-  font-size: clamp(5.5rem, 22vw, 17rem);
+  /* The old clamp (5.5rem floor, 22vw) sized "BOOK ME" wider than the
+     viewport at every mobile width — the floor alone rendered ~419px wide
+     against a 375px screen, so it always clipped mid-letter. 18vw keeps the
+     full word inside the viewport at any mobile width (measured against
+     Lora 700's actual character widths, 2026-07-10); the 4.5rem floor is
+     larger than the old crop ever let you *see*, so it reads bigger even
+     though the raw clamp ceiling is a touch lower. */
+  font-size: clamp(4.5rem, 18vw, 17rem);
   line-height: 1;
   white-space: nowrap;
   color: var(--mc-footer-wordmark);
