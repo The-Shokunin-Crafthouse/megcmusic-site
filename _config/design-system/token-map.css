@@ -123,6 +123,7 @@
      continuous cinematic beat, not three unrelated transitions. */
   --mc-menu-morph: 320ms;   /* trigger shape morph (pill <-> circle) */
   --mc-menu-slide: 640ms;   /* backdrop curtain-drop reveal from the top */
+  --mc-menu-item-drift: 14px; /* nav-item rise-and-drift settle (cinematic move #3 variant) — horizontal drift paired with the vertical --mc-entrance-offset rise */
 
   /* Nav glass edge — a slow-panning light-source gradient border (Figma 39:97:
      the pill edge reads as white light, not the teal accent). The conic sweep

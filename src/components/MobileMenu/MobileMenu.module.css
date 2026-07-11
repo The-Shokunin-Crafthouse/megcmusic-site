@@ -121,26 +121,27 @@
   list-style: none;
 }
 
-/* Each item rises in on the same rise-and-settle used for the Phase-3 route
-   H1s (epk.module.css `epk-rise`) — fade + slide up on --mc-entrance-offset,
-   staggered left-to-right by --mc-reveal-stagger. Held until the curtain is
+/* Each line is masked (cinematic move #3: split typography, per-line
+   stagger) so the label itself rises-and-drifts into frame from below-right
+   rather than just fading in place — the settle drifts diagonally as it
+   fades (--mc-menu-item-drift horizontal + --mc-entrance-offset vertical),
+   which the motion skill notes reads more alive than a flat vertical rise.
+   Staggered left-to-right by --mc-reveal-stagger; held until the curtain is
    most of the way open so the beat reads as one continuous reveal instead of
    two unrelated animations racing each other. */
-.item {
-  opacity: 0;
-  animation: menu-item-rise var(--mc-reveal-duration) var(--mc-ease-out-strong)
-    calc(var(--mc-menu-slide) * 0.55 + var(--i, 0) * var(--mc-reveal-stagger))
-    both;
+.itemMask {
+  display: block;
+  overflow: visible clip;
 }
 
-@keyframes menu-item-rise {
+@keyframes menu-item-rise-drift {
   from {
     opacity: 0;
-    transform: translateY(var(--mc-entrance-offset));
+    transform: translate(var(--mc-menu-item-drift), var(--mc-entrance-offset));
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: translate(0, 0);
   }
 }
 
@@ -151,6 +152,9 @@
   font-size: var(--mc-text-2xl);
   line-height: 1.1;
   color: var(--mc-text-primary);
+  animation: menu-item-rise-drift var(--mc-reveal-duration) var(--mc-ease-out-strong)
+    calc(var(--mc-menu-slide) * 0.55 + var(--i, 0) * var(--mc-reveal-stagger))
+    both;
 }
 
 .link:active {
@@ -179,8 +183,7 @@
   .trigger:active {
     transform: none;
   }
-  .item {
-    opacity: 1;
+  .link {
     animation: none;
   }
 }
