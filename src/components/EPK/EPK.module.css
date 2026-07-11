@@ -2,7 +2,10 @@
 .section {
   position: relative;
   z-index: var(--mc-z-content);
-  padding: var(--mc-space-9) var(--mc-space-4);
+  /* Bottom trimmed on mobile (2026-07-10 long-scroll pass); desktop's 768px
+     override is untouched. BootScene inset:0's to this section's box, so it
+     shrinks to match automatically. */
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-4);
   /* Transparent so the BootScene backdrop shows through; the bootWrap carries
      the plum ground. */
   background: transparent;

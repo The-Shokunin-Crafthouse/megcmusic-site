@@ -2,7 +2,9 @@
 .section {
   position: relative;
   z-index: var(--mc-z-content);
-  padding: var(--mc-space-9) var(--mc-space-4);
+  /* Bottom trimmed on mobile (2026-07-10 long-scroll pass); desktop's 768px
+     override is untouched. */
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-4);
   background: var(--mc-bg);
 }
 
@@ -37,7 +39,10 @@
 .meta {
   display: flex;
   align-items: center;
-  gap: var(--mc-space-6);
+  /* Matches the section's own horizontal (outer body) padding on mobile —
+     was --mc-space-6, wider than the page gutter (2026-07-10). Desktop
+     restores --mc-space-6 below. */
+  gap: var(--mc-space-4);
   min-width: 0;
 }
 
@@ -49,7 +54,13 @@
   box-shadow: 0 4px 28px rgb(0 0 0 / 0.55);
 }
 
-/* Titled placeholder until a real cover is added. */
+/* Titled placeholder until a real cover is added — no release has one wired
+   up yet (config/discography.ts: every `art` is null; there's no WooCommerce/
+   WP source this pulls from, it's a Levi-editable field awaiting the actual
+   files). A 1px gold hairline keeps the box legible as a deliberate
+   placeholder against the near-black page ground, not a blank space
+   (2026-07-10 — the low-contrast --mc-bg-quote fill on its own read as
+   "missing image" at a glance). */
 .artPlaceholder {
   flex-shrink: 0;
   width: 120px;
@@ -62,6 +73,7 @@
   padding: var(--mc-space-2);
   text-align: center;
   background: var(--mc-bg-quote);
+  border: 1px solid rgb(var(--mc-accent-gold-rgb) / 0.3);
   box-shadow: 0 4px 28px rgb(0 0 0 / 0.55);
 }
 
@@ -94,7 +106,7 @@
 .year,
 .type {
   font-family: var(--mc-font-ui);
-  font-size: var(--mc-text-lead);
+  font-size: var(--mc-text-detail); /* eyebrow, shrunk from 21px (2026-07-10) */
   color: var(--mc-accent-pink);
 }
 
@@ -107,7 +119,7 @@
   margin: 0;
   font-family: var(--mc-font-display);
   font-weight: 700;
-  font-size: var(--mc-text-title);
+  font-size: var(--mc-text-lead); /* album title, shrunk from 28px (2026-07-10) */
   line-height: 1.2;
   color: var(--mc-text-primary);
 }
@@ -125,7 +137,9 @@
    return at 768. (decisions.md 2026-07-05.) */
 @media (max-width: 767px) {
   .links {
+    flex-basis: 100%;
     flex-wrap: wrap;
+    justify-content: center;
     gap: var(--mc-space-3);
   }
   .linkWrap {
@@ -156,7 +170,7 @@
   border: 2px solid transparent;
   border-radius: var(--mc-radius-pill);
   font-family: var(--mc-font-ui);
-  font-size: var(--mc-text-lead);
+  font-size: var(--mc-text-base); /* the 3 buy/stream links, shrunk from 21px (2026-07-10) */
   color: var(--mc-text-primary);
   text-transform: uppercase;
   transition:
@@ -246,6 +260,9 @@
 @media (min-width: 768px) {
   .section {
     padding: var(--mc-space-9) var(--mc-space-6);
+  }
+  .meta {
+    gap: var(--mc-space-6);
   }
   .art,
   .artPlaceholder {

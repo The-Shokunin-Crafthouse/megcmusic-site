@@ -390,27 +390,6 @@
   mask-image: linear-gradient(to bottom, transparent 14%, #000 66%);
 }
 
-/* ------------------------------- BLOOM ------------------------------- */
-/* Exit beat 1 — the light blooms once before the veil lifts. A soft wash that
-   goes 0 → peak on the swell phase and holds through the fade. Sits under the
-   logo so the mark stays crisp. Opacity transition only. */
-.bloom {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  background: radial-gradient(
-    ellipse 70% 55% at 50% 42%,
-    rgb(var(--mc-veil-c-white) / 0.5) 0%,
-    rgb(var(--mc-veil-c-magenta) / 0.22) 45%,
-    rgb(var(--mc-veil-c-magenta) / 0) 78%
-  );
-}
-.veil[data-phase="swell"] .bloom,
-.veil[data-phase="fade"] .bloom {
-  opacity: var(--mc-veil-swell-opacity);
-  transition: opacity var(--mc-veil-swell) var(--mc-ease-out);
-}
-
 /* ----------------------------- KEYFRAMES ----------------------------- */
 /* rotate() values resolve from per-fixture custom props at compute time, then
    interpolate as concrete angles — smooth, compositor-driven. Shared by beams
@@ -551,8 +530,7 @@
 
 /* Reduced motion: freeze every light at its authored REST frame — a fully
    composed, lit stage, never blank. The base rules already encode the fanned
-   rest state, so disabling the animations leaves a finished poster. The exit
-   bloom still transitions on phase (a plain opacity change). */
+   rest state, so disabling the animations leaves a finished poster. */
 @media (prefers-reduced-motion: reduce) {
   .haze,
   .sweep,

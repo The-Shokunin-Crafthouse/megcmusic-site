@@ -18,11 +18,13 @@
 .logoSlot {
   position: absolute;
   /* Cropped hard off the top-left corner (Figma 39:4). Negative offsets are the
-     bleed; the artwork is tilted -6.04° in Logo.module.css. */
+     bleed; the artwork is tilted -6.04° in Logo.module.css. top/left are
+     unchanged by the 1.15x mobile scale-up below — the box grows down-right
+     from this fixed corner, so top-left stays the anchor. */
   top: -43px;
   left: -28px;
   z-index: var(--mc-z-logo);
-  --logo-h: 126px;
+  --logo-h: 144.9px; /* 126px * 1.15 (2026-07-11) */
 }
 
 .desktopNav {

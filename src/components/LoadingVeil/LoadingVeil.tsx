@@ -43,7 +43,6 @@ export function LoadingVeil({ phase }: { phase: VeilPhase }) {
         {/* Progressive blur over the cones: crisp at the source, hazier toward
             the floor. Above the light layers, below the logo. */}
         <div className={styles.coneBlur} />
-        <div className={styles.bloom} />
         <div className={styles.logoBox}>
           {/* Measured LCP element on veiled loads (the photo is excluded as a
               low-entropy backdrop), so it rides at high priority too. */}
