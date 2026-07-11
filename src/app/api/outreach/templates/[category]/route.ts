@@ -9,7 +9,7 @@
  * run always uses the latest copy.
  */
 
-import { outreachDb } from "@/lib/api/outreachDb";
+import { appDb } from "@/lib/api/appDb";
 import { fail, ok } from "@/lib/outreach/http";
 import {
   isCategory,
@@ -62,7 +62,7 @@ export async function PATCH(
     const patch = parseBody(await req.json().catch(() => null));
     if (!patch) return fail("Malformed request body.", 400);
 
-    const db = outreachDb();
+    const db = appDb();
 
     const existingRes = await db
       .from("templates")

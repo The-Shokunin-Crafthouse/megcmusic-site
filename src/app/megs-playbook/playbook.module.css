@@ -109,6 +109,17 @@
   display: flex;
   flex-direction: column;
   gap: var(--mc-space-2);
+  padding: var(--mc-space-2);
+  margin: calc(-1 * var(--mc-space-2));
+  border-left: 3px solid transparent;
+  border-radius: var(--mc-radius-card);
+}
+
+/* Deep-linked from the checklist's "Why" links (#ig-04 etc.) — a static
+   highlight on scroll-to-anchor, no animation needed. */
+.rule:target {
+  border-left-color: var(--mc-teal);
+  background: rgb(var(--mc-teal-rgb) / 0.08);
 }
 
 .ruleId {
@@ -119,7 +130,7 @@
   color: var(--mc-text-subtle);
 }
 
-.ruleTitle {
+.ruleAction {
   margin: 0;
   font-family: var(--mc-font-display);
   font-weight: 600;
@@ -137,6 +148,18 @@
   color: var(--mc-text-primary);
 }
 
+/* Quiet distinguished "why" paragraph — italic display face, quote-surface
+   precedent (LinerNotes .quoteText: --mc-font-display italic). */
+.ruleInsight {
+  margin: 0;
+  max-width: 72ch;
+  font-family: var(--mc-font-display);
+  font-style: italic;
+  font-size: var(--mc-text-base);
+  line-height: 1.4;
+  color: var(--mc-text-muted);
+}
+
 .ruleEvidence {
   margin: 0;
   max-width: 72ch;
@@ -144,6 +167,17 @@
   font-size: var(--mc-text-sm);
   line-height: 1.5;
   color: var(--mc-text-subtle);
+}
+
+.goDeeperLabel {
+  margin: var(--mc-space-1) 0 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
 }
 
 .ruleMeta {

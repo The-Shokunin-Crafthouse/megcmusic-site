@@ -7,7 +7,7 @@
  * fuller /run-state route instead — this one stays shaped for the page.
  */
 
-import { outreachDb } from "@/lib/api/outreachDb";
+import { appDb } from "@/lib/api/appDb";
 import { fail, ok } from "@/lib/outreach/http";
 import {
   CATEGORIES,
@@ -42,7 +42,7 @@ function sortByCategory<T extends { category: string }>(rows: T[]): T[] {
 
 export async function GET(): Promise<Response> {
   try {
-    const db = outreachDb();
+    const db = appDb();
 
     const [templatesRes, prospectsRes] = await Promise.all([
       db.from("templates").select("*"),

@@ -8,7 +8,7 @@
  *   neutral  → prospect untouched
  */
 
-import { outreachDb } from "@/lib/api/outreachDb";
+import { appDb } from "@/lib/api/appDb";
 import { fail, hasMachineSecret, ok, unauthorized } from "@/lib/outreach/http";
 import type { Message, Sentiment } from "@/lib/outreach/types";
 
@@ -40,7 +40,7 @@ export async function PATCH(
     }
     const sentiment = raw.sentiment as Sentiment;
 
-    const db = outreachDb();
+    const db = appDb();
 
     const updatedRes = await db
       .from("messages")

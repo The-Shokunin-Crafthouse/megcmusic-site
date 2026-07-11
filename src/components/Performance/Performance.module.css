@@ -1,0 +1,386 @@
+/* Performance tab. Dark plum surface shared with the playbook document and
+   Outreach tab; same section/state/skeleton conventions. All color/type/
+   spacing/motion from token-map.css. Focus-visible uses --mc-nav-underline
+   because --mc-focus-ring equals the page bg on this dark ground (playbook
+   precedent). */
+
+.root {
+  display: flex;
+  flex-direction: column;
+}
+
+.section {
+  max-width: var(--mc-card-max);
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+  padding: var(--mc-space-6) var(--mc-space-4);
+  border-bottom: 1px solid var(--mc-divider);
+  animation: section-in var(--mc-entrance-duration) var(--mc-ease-out) backwards;
+}
+
+.sectionTitle {
+  margin: 0 0 var(--mc-space-2);
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-lg);
+  line-height: 1.2;
+  color: var(--mc-text-primary);
+}
+
+.footnote {
+  margin: 0 0 var(--mc-space-4);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  line-height: 1.4;
+  color: var(--mc-text-subtle);
+}
+
+.emptyLine {
+  margin: 0;
+  max-width: 60ch;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-sm);
+  line-height: 1.5;
+  color: var(--mc-text-subtle);
+}
+
+@keyframes section-in {
+  from {
+    opacity: 0;
+    transform: translateY(var(--mc-entrance-offset));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Sync health strip -------------------------------------------------------- */
+
+.healthNote,
+.healthStale {
+  max-width: var(--mc-card-max);
+  margin: var(--mc-space-4) auto 0;
+  padding: 0 var(--mc-space-4);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  line-height: 1.4;
+  color: var(--mc-text-subtle);
+}
+
+.healthStale {
+  color: var(--mc-accent-gold);
+}
+
+.authBanner {
+  max-width: var(--mc-card-max);
+  margin: var(--mc-space-4) auto 0;
+  padding: var(--mc-space-3) var(--mc-space-4);
+  border-radius: var(--mc-radius-card);
+  border-left: 3px solid var(--mc-accent-red);
+  background: rgb(var(--mc-accent-red-rgb) / 0.16);
+  /* --mc-accent-red-ink is AA-tuned for text on cream (--mc-bg-card), not
+     this dark plum ground — measured 2.5:1 here, well under AA. Cream body
+     text + the red border carries the signal instead (learning #56: the
+     fill hue isn't the text-safe hue). */
+  color: var(--mc-text-primary);
+  font-family: var(--mc-font-ui);
+  font-weight: 600;
+  font-size: var(--mc-text-sm);
+  line-height: 1.4;
+}
+
+/* Top posts list ------------------------------------------------------------ */
+
+.topList {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+}
+
+.topRow {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto auto 1fr;
+  grid-template-areas:
+    "rank thumb info"
+    "rank thumb numbers";
+  align-items: center;
+  column-gap: var(--mc-space-3);
+  row-gap: var(--mc-space-1);
+  padding: var(--mc-space-3);
+  border-radius: var(--mc-radius-card);
+  background: var(--mc-bg-section);
+  box-shadow: var(--mc-shadow-card);
+  transition:
+    box-shadow var(--mc-motion-micro) var(--mc-ease-out),
+    transform var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.topRow:hover {
+  box-shadow: var(--mc-shadow-card-hover);
+}
+
+.topRow:has(.stretchedLink:active) {
+  transform: scale(0.99);
+}
+
+.rank {
+  grid-area: rank;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-2xl);
+  line-height: 1;
+  color: var(--mc-text-muted);
+  min-width: 1.6ch;
+  text-align: center;
+}
+
+.thumb,
+.thumbPlaceholder {
+  grid-area: thumb;
+  width: var(--mc-space-6);
+  height: var(--mc-space-6);
+  border-radius: var(--mc-radius-card);
+  flex-shrink: 0;
+}
+
+.thumb {
+  object-fit: cover;
+}
+
+.thumbPlaceholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--mc-bg-quote);
+  color: var(--mc-teal-light);
+  font-family: var(--mc-font-display);
+  font-size: var(--mc-text-lg);
+  line-height: 1;
+}
+
+.topInfo {
+  grid-area: info;
+  min-width: 0;
+}
+
+.topCaption {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-sm);
+  line-height: 1.4;
+  color: var(--mc-text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.topMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  margin-top: var(--mc-space-1);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  padding: var(--mc-space-1) var(--mc-space-2);
+  border-radius: var(--mc-radius-pill);
+  border: 1px solid var(--mc-teal);
+  background: rgb(var(--mc-teal-rgb) / 0.16);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  line-height: 1.2;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--mc-teal-light);
+  white-space: nowrap;
+}
+
+.topDate {
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  line-height: 1.3;
+  color: var(--mc-text-subtle);
+}
+
+.topNumbers {
+  grid-area: numbers;
+  text-align: right;
+}
+
+.topRate {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-base);
+  line-height: 1.2;
+  color: var(--mc-teal-light);
+}
+
+.topSupporting {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  line-height: 1.3;
+  color: var(--mc-text-subtle);
+}
+
+.stretchedLink {
+  position: absolute;
+  inset: 0;
+  border-radius: var(--mc-radius-card);
+}
+
+.stretchedLink:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 2px;
+}
+
+/* Buttons + states ---------------------------------------------------------- */
+
+.btnPrimary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-2) var(--mc-space-4);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-sm);
+  line-height: 1.2;
+  font-weight: 600;
+  cursor: pointer;
+  appearance: none;
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal);
+  border: 1px solid var(--mc-teal);
+  transition:
+    background var(--mc-motion-micro) var(--mc-ease-out),
+    transform var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.btnPrimary:hover {
+  background: var(--mc-teal-bright);
+  border-color: var(--mc-teal-bright);
+}
+
+.btnPrimary:active {
+  transform: scale(0.96);
+}
+
+.btnPrimary:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+.stateBox {
+  max-width: var(--mc-card-max);
+  margin: 0 auto;
+  padding: var(--mc-space-8) var(--mc-space-4);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--mc-space-4);
+}
+
+.stateText {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  line-height: 1.5;
+  color: var(--mc-text-body);
+}
+
+.skel {
+  border-radius: var(--mc-radius-card);
+  background: linear-gradient(
+    100deg,
+    var(--mc-bg-section) 30%,
+    var(--mc-bg-quote) 50%,
+    var(--mc-bg-section) 70%
+  );
+  background-size: 200% 100%;
+  animation: skel-shimmer 1400ms linear infinite;
+}
+
+.skelStrip {
+  max-width: var(--mc-card-max);
+  margin: var(--mc-space-4) auto 0;
+  height: 1rem;
+  width: 40%;
+}
+
+.skelTitle {
+  height: 1.6rem;
+  width: 40%;
+  margin-bottom: var(--mc-space-4);
+}
+
+.skelStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+}
+
+.skelRow {
+  height: 72px;
+  width: 100%;
+}
+
+@keyframes skel-shimmer {
+  from {
+    background-position: 200% 0;
+  }
+  to {
+    background-position: -200% 0;
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding-left: var(--mc-space-6);
+    padding-right: var(--mc-space-6);
+  }
+
+  .topRow {
+    grid-template-columns: auto auto 1fr auto;
+    grid-template-areas: "rank thumb info numbers";
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .section {
+    animation: none;
+  }
+  .topRow,
+  .btnPrimary {
+    transition: none;
+  }
+  .topRow:has(.stretchedLink:active),
+  .btnPrimary:active {
+    transform: none;
+  }
+  .skel {
+    animation: none;
+  }
+}

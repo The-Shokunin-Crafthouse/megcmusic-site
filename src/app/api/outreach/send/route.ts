@@ -11,7 +11,7 @@
  * run verification.
  */
 
-import { outreachDb } from "@/lib/api/outreachDb";
+import { appDb } from "@/lib/api/appDb";
 import { sendEmail } from "@/lib/api/gmail";
 import { fail, hasMachineSecret, ok, unauthorized } from "@/lib/outreach/http";
 import type {
@@ -93,7 +93,7 @@ export async function POST(req: Request): Promise<Response> {
   const newThread = raw.new_thread === true;
 
   try {
-    const db = outreachDb();
+    const db = appDb();
 
     const prospectRes = await db
       .from("prospects")

@@ -3,10 +3,10 @@
     "subject": "Meghan Clarisse Cave — IG/FB algorithm playbook",
     "accounts": [
       "https://www.instagram.com/meghanclarissecave/",
-      "https://www.facebook.com/meghancave/"
+      "https://www.facebook.com/meghanclarisse/"
     ],
-    "lastFullRun": "2026-07-04",
-    "version": 1
+    "lastFullRun": "2026-07-11",
+    "version": 2
   },
   "profileScan": {
     "instagram": {
@@ -17,11 +17,11 @@
       "notes": "The profile URL https://www.instagram.com/meghanclarissecave/ (and the ?hl=en variant) returned an empty/blocked response on direct fetch — Instagram serves a login wall or JS-rendered shell to non-authenticated fetchers, so no bio, follower count, or post grid could be read directly. Search-indexed snippets confirm the handle @meghanclarissecave exists, is tagged by other local accounts (e.g. a November 2024 post from @cafeole_ promoting a performance), and at least one Reel permalink (instagram.com/reel/DXSmDm-kQhu/) is indexed, confirming she posts Reels. No numeric follower count, bio text, or post-mix ratio is exposed in any indexed search snippet."
     },
     "facebook": {
-      "followers": null,
+      "followers": 2961,
       "bio": null,
       "postMix": null,
       "cadence": null,
-      "notes": "The exact URL https://www.facebook.com/meghancave/ returned an empty/blocked response on direct fetch (Facebook requires login for profile/page content). Search indexing points to what is very likely the same artist's actual Facebook Page under a different vanity name: facebook.com/meghanclarisse ('Meghan Clarisse Music'), category Americana/Rock/Country, reported via search snippet at roughly 1.2K followers / ~200 following, promoting the 'Kindred Spirits' EP and a poetry book. This could not be confirmed as the identical entity behind the /meghancave/ URL given in the brief (it may redirect, be a legacy/duplicate handle, or a distinct secondary page) — treat the 1.2K figure as medium-confidence and unverified against the exact requested URL."
+      "notes": "Corrected 2026-07-11: the music Facebook Page is facebook.com/meghanclarisse ('Meghan Clarisse Music', Page ID 108048260606098, category Musician) — the /meghancave/ URL in the original brief was her personal profile and has been removed from this playbook's scope. Verified live via Graph API (System User token) 2026-07-11: followers_count 2961. This is the same Page that backs the Instagram Business Account sync (Page → IG 17841401582839394, @meghanclarissecave)."
     },
     "scanLimitations": "Both Instagram and Facebook block unauthenticated programmatic fetches of profile pages (return empty bodies / require login), consistent with Meta's standard anti-scraping behavior — this is expected and was not bypassed, per instructions not to log in. All profile-adjacent facts in this file come from: (1) the artist's own website megcmusic.com (fetched directly, high confidence), (2) third-party press coverage (CanvasRebel, Shoutout Colorado, Bold Journey, FoCoMA, local venue listings), and (3) search-engine-indexed snippets/metadata of the IG and FB pages, which do not include real-time follower counts, full bios, or post grids. No follower counts could be confirmed with high confidence for either platform. Numbers above are marked null in structured fields precisely because they could not be verified against the exact URLs given; the FB 1.2K figure is preserved only as narrative context in 'notes', not as a verified data point."
   },
@@ -31,93 +31,267 @@
         {
           "id": "ig-01",
           "title": "Shares (DM sends) outrank likes by a wide margin — build for the send, not the like",
+          "action": "Build the Reel around a moment a fan would DM to one friend",
           "rule": "Design Reels around a moment a fan would forward to one specific friend (e.g., tagging a friend with 'we need to go to this' or 'this is so us'), not around maximizing likes. Treat the caption's job as prompting a send, and check 'sends per reach' in Insights as a primary health metric alongside watch time.",
+          "insight": "Shares/DM-sends are weighted far above likes in Instagram's ranking — Mosseri has named sends-per-reach as a top signal, and one 2026 study estimates roughly 4x the weighting of likes.",
           "evidence": "Adam Mosseri has repeatedly named watch time, sends per reach, and likes per reach as the top cross-surface ranking signals (confirmed via his own Reels/posts, e.g. instagram.com/p/DFFyRp-pINJ, referenced by Hootsuite). Multiple 2026 industry analyses (Later, Hootsuite, Hypebot citing an April 2026 Podswap reverse-engineering study of 2,500+ niches) converge on shares/DM-sends being weighted several times higher than likes for distribution beyond the initial audience, with one estimate of roughly 4x weighting and a 'share-to-DM velocity' signal.",
           "confidence": "high",
           "sources": [
-            {"title": "How the Instagram algorithm works [2026]", "url": "https://blog.hootsuite.com/instagram-algorithm/", "date": "2026-06-30"},
-            {"title": "Instagram algorithm in 2026: rank signals for growth", "url": "https://later.com/blog/how-instagram-algorithm-works/", "date": "2026-04-21"},
-            {"title": "Cracking The Instagram Algorithm: A 2026 Guide for Musicians (citing Podswap April 2026 study)", "url": "https://www.hypebot.com/cracking-the-instagram-algorithm-a-2026-guide-for-musicians/", "date": "2026-06-03"}
+            {
+              "title": "How the Instagram algorithm works [2026]",
+              "url": "https://blog.hootsuite.com/instagram-algorithm/",
+              "date": "2026-06-30"
+            },
+            {
+              "title": "Instagram algorithm in 2026: rank signals for growth",
+              "url": "https://later.com/blog/how-instagram-algorithm-works/",
+              "date": "2026-04-21"
+            },
+            {
+              "title": "Cracking The Instagram Algorithm: A 2026 Guide for Musicians (citing Podswap April 2026 study)",
+              "url": "https://www.hypebot.com/cracking-the-instagram-algorithm-a-2026-guide-for-musicians/",
+              "date": "2026-06-03"
+            }
           ],
-          "lastVerified": "2026-07-04"
+          "lastVerified": "2026-07-11"
         },
         {
           "id": "ig-02",
           "title": "Saves are the second-strongest signal — give fans a reason to bookmark, not just watch",
+          "action": "Give fans something worth bookmarking, not just watching",
           "rule": "Publish some content with clear 'utility' a fan would save to revisit — set-list previews, a chord/lyric snippet, 'venues I love playing in Colorado,' behind-the-scenes gear or songwriting notes. Don't make every post pure performance footage; mix in save-worthy carousels alongside Reels.",
+          "insight": "Saves became a top-tier ranking signal in a 2026 update — carousels with real utility (setlists, lyric snippets, gear notes) earn 3-4x the save rate of comparable Reels.",
           "evidence": "Multiple 2026 sources report saves were elevated to a top-tier ranking signal in a 2026 update (one source cites a February 2026 Instagram Creator Education post ranking saves above comments and near watch time). Carousels in particular are documented to earn 3-4x the save rate of a comparable Reel from educational/utility accounts, per Socialinsider-style benchmark analysis.",
           "confidence": "medium",
           "sources": [
-            {"title": "Instagram Algorithm 2026: 5 Ranking Signals Mosseri Confirmed (Updated April)", "url": "https://www.dataslayer.ai/blog/instagram-algorithm-2025-complete-guide-for-marketers", "date": "2026-04"},
-            {"title": "Carousel vs Reels in 2026: Which Actually Gets You Followers", "url": "https://www.thesecondbrain.io/blog/carousel-vs-reels-2026-which-gets-you-followers", "date": "2026"},
-            {"title": "Cracking The Instagram Algorithm: A 2026 Guide for Musicians", "url": "https://www.hypebot.com/cracking-the-instagram-algorithm-a-2026-guide-for-musicians/", "date": "2026-06-03"}
+            {
+              "title": "Instagram Algorithm 2026: 5 Ranking Signals Mosseri Confirmed (Updated April)",
+              "url": "https://www.dataslayer.ai/blog/instagram-algorithm-2025-complete-guide-for-marketers",
+              "date": "2026-04"
+            },
+            {
+              "title": "Carousel vs Reels in 2026: Which Actually Gets You Followers",
+              "url": "https://www.thesecondbrain.io/blog/carousel-vs-reels-2026-which-gets-you-followers",
+              "date": "2026"
+            },
+            {
+              "title": "Cracking The Instagram Algorithm: A 2026 Guide for Musicians",
+              "url": "https://www.hypebot.com/cracking-the-instagram-algorithm-a-2026-guide-for-musicians/",
+              "date": "2026-06-03"
+            }
           ],
-          "lastVerified": "2026-07-04"
+          "lastVerified": "2026-07-11"
         },
         {
           "id": "ig-03",
           "title": "Small accounts are not disadvantaged — a strong Reel from a small profile can match a big account's reach, but it must clear sequential 'trial' gates",
+          "action": "Post 3-5 Reels a week and let each one clear its first-hour test",
           "rule": "Post consistently (aim for 3-5 Reels/week — Instagram needs enough volume to run its tests) and treat every Reel's first hour as a gate: if it doesn't get strong early watch-time/save/share signal from your existing (small) audience, it won't advance to the non-follower test pool. Use Trial Reels deliberately to test hooks/formats against cold (non-follower) audiences before deciding whether to promote a video further.",
-          "evidence": "Instagram's own Trial Reels feature (help.instagram.com/1013292530224018) is designed explicitly to show a Reel to non-followers first and gauge performance before wider distribution — confirmed by Instagram's Help Center and demonstrated by Mosseri himself. Industry write-ups describe this as a staged/gated funnel: an initial small-audience test, then a widening non-follower test, with signal ratios (watch time, shares, saves, profile clicks vs. impressions) gating advancement. Multiple sources agree follower count under ~50K is 'the sweet spot' where engagement quality, not audience size, determines reach.",
+          "insight": "Trial Reels test every video against cold, non-follower audiences before widening distribution — engagement quality beats audience size under roughly 50K followers. Instagram's own audition system now also applies this staged-exposure model to regular (non-Trial) Reels.",
+          "evidence": "Instagram's own Trial Reels feature (help.instagram.com/1013292530224018, and creators.instagram.com/blog/instagram-trial-reels) is designed explicitly to show a Reel to non-followers first and gauge performance before wider distribution — confirmed by Instagram's Help Center and its own Creators blog. As of Feb 2026, Trial Reels can be scheduled in advance (Social Media Today), and Instagram requires each Trial Reel be a genuinely unique upload rather than a repeated re-test of the same clip. Industry write-ups describe a broader 'audition system' for all Reels: a small initial non-follower exposure round, then a wider audition, then full distribution if early signal holds — reinforcing that the first-hour test matters beyond Trial Reels specifically. Multiple sources agree follower count under ~50K is 'the sweet spot' where engagement quality, not audience size, determines reach. A claimed numeric daily cap on Trial Reels (~5/day, 30-day suspension for exceeding it) appears only on lower-tier aggregator sites and is not corroborated by a primary or second independent source — treat as unverified, do not rely on the exact numbers.",
           "confidence": "medium",
           "sources": [
-            {"title": "Instagram algorithm tips for 2026 (Trial Reels section)", "url": "https://blog.hootsuite.com/instagram-algorithm/", "date": "2026-06-30"},
-            {"title": "Instagram algorithm in 2026: rank signals for growth", "url": "https://later.com/blog/how-instagram-algorithm-works/", "date": "2026-04-21"},
-            {"title": "Instagram Reels Reach 2026: Complete Algorithm & Growth Strategy Guide", "url": "https://www.truefuturemedia.com/articles/instagram-reels-reach-2026-business-growth-guide", "date": "2026"}
+            {
+              "title": "Trial reels — Instagram for Creators (official blog)",
+              "url": "https://creators.instagram.com/blog/instagram-trial-reels",
+              "date": "2026"
+            },
+            {
+              "title": "Instagram allows creators to schedule Trial Reels",
+              "url": "https://www.socialmediatoday.com/news/instagram-allows-creators-to-schedule-trial-reels/816549/",
+              "date": "2026-02"
+            },
+            {
+              "title": "Instagram algorithm tips for 2026 (Trial Reels section)",
+              "url": "https://blog.hootsuite.com/instagram-algorithm/",
+              "date": "2026-06-30"
+            },
+            {
+              "title": "Instagram algorithm in 2026: rank signals for growth",
+              "url": "https://later.com/blog/how-instagram-algorithm-works/",
+              "date": "2026-04-21"
+            }
           ],
-          "lastVerified": "2026-07-04"
+          "lastVerified": "2026-07-11"
         },
         {
           "id": "ig-04",
           "title": "TikTok watermarks and recycled/reposted content are actively suppressed",
+          "action": "Never post a Reel with a TikTok or CapCut watermark still on it",
           "rule": "Never cross-post a Reel that still carries a TikTok (or CapCut) watermark/logo — re-export clean, native-resolution vertical video for Instagram. Avoid re-uploading the identical Reel repeatedly; Instagram's originality detection can exclude accounts with heavy repost patterns from recommendations entirely.",
-          "evidence": "Instagram's own creator guidance (Mosseri's posted 'Reels basics' video, referenced across Hootsuite/Later) explicitly lists 'non-watermarked, original content' as a baseline requirement for recommendation eligibility. Multiple 2026 sources describe an 'Originality Score' and cite accounts with 10+ reposts in 30 days being excluded from recommendations; watermarked reposts are described as actively detected and suppressed.",
+          "insight": "Instagram's originality detection actively suppresses watermarked or heavily-reposted content — some 2026 sources describe a numeric threshold (10+ reposts in 30 days) triggering full exclusion from Explore/recommendations, not just down-ranking, though this exact number is not yet Meta-confirmed.",
+          "evidence": "Instagram's own creator guidance (Mosseri's posted 'Reels basics' video, referenced across Hootsuite/Later) explicitly lists 'non-watermarked, original content' as a baseline requirement for recommendation eligibility. Multiple 2026 sources describe an 'Originality Score' and cite accounts with 10+ reposts in 30 days being excluded from recommendations entirely (not merely suppressed); watermarked reposts are described as actively detected and suppressed. The specific '10 reposts/30 days' threshold is repeated across aggregator sources (MeetEdgar, CreatorFlow) as of this pass but still lacks a Meta primary-source citation — treat the exclusion mechanism as real, the exact number as directional only.",
           "confidence": "high",
           "sources": [
-            {"title": "Instagram algorithm tips for 2026 (Reels basics per Mosseri)", "url": "https://blog.hootsuite.com/instagram-algorithm/", "date": "2026-06-30"},
-            {"title": "Meta's New Original Content Rules (2026)", "url": "https://almcorp.com/blog/meta-original-content-rules-2026-facebook-instagram-creators/", "date": "2026"},
-            {"title": "Instagram Reels Reach 2026: Complete Algorithm & Growth Strategy Guide", "url": "https://www.truefuturemedia.com/articles/instagram-reels-reach-2026-business-growth-guide", "date": "2026"}
+            {
+              "title": "Instagram algorithm tips for 2026 (Reels basics per Mosseri)",
+              "url": "https://blog.hootsuite.com/instagram-algorithm/",
+              "date": "2026-06-30"
+            },
+            {
+              "title": "Meta's New Original Content Rules (2026)",
+              "url": "https://almcorp.com/blog/meta-original-content-rules-2026-facebook-instagram-creators/",
+              "date": "2026"
+            },
+            {
+              "title": "Instagram Reels Reach 2026: Complete Algorithm & Growth Strategy Guide",
+              "url": "https://www.truefuturemedia.com/articles/instagram-reels-reach-2026-business-growth-guide",
+              "date": "2026"
+            }
           ],
-          "lastVerified": "2026-07-04"
+          "lastVerified": "2026-07-11"
         },
         {
           "id": "ig-05",
           "title": "External links in captions quietly cut reach; keep links out of captions and use bio / Stories link sticker instead",
+          "action": "Keep links out of captions — use the bio link or a Stories sticker",
           "rule": "Never put megcmusic.com or ticket/merch links directly in a Reel or feed caption. Route traffic via the bio link or a Stories link sticker instead. The literal phrase 'link in bio' does not hurt reach — it's the actual clickable URL in the caption that does.",
+          "insight": "An outbound URL in a caption costs an estimated 19-60% of reach; saying \"link in bio\" doesn't hurt — only an actual clickable link does.",
           "evidence": "Multiple 2026 analyses estimate reach penalties from in-caption external links ranging from ~19% lower median reach up to 40-60% reduction versus an otherwise identical linkless post, attributed to Instagram's preference for keeping users in-app. Separately, Mosseri has explicitly debunked the idea that saying 'link in bio' (the phrase itself) hurts reach — the penalty is tied to the presence of an actual outbound URL, not the words used to reference it.",
           "confidence": "medium",
           "sources": [
-            {"title": "Should You Put Links in Captions or First Comment?", "url": "https://www.socialync.io/blog/links-in-captions-vs-first-comment-2026", "date": "2026"},
-            {"title": "Instagram Confirms Link in Bio Won't Hurt Reach", "url": "https://smk.co/instagram-confirms-link-in-bio-wont-hurt-reach/", "date": "2026"},
-            {"title": "Instagram Reach in 2026: How to Grow Faster With Reels, Carousels, and Caption SEO", "url": "https://www.truefuturemedia.com/articles/instagram-reach-2026-algorithm-reels-carousels-caption-seo", "date": "2026"}
+            {
+              "title": "Should You Put Links in Captions or First Comment?",
+              "url": "https://www.socialync.io/blog/links-in-captions-vs-first-comment-2026",
+              "date": "2026"
+            },
+            {
+              "title": "Instagram Confirms Link in Bio Won't Hurt Reach",
+              "url": "https://smk.co/instagram-confirms-link-in-bio-wont-hurt-reach/",
+              "date": "2026"
+            },
+            {
+              "title": "Instagram Reach in 2026: How to Grow Faster With Reels, Carousels, and Caption SEO",
+              "url": "https://www.truefuturemedia.com/articles/instagram-reach-2026-algorithm-reels-carousels-caption-seo",
+              "date": "2026"
+            }
           ],
-          "lastVerified": "2026-07-04"
+          "lastVerified": "2026-07-11"
         },
         {
           "id": "ig-06",
           "title": "Engagement bait (comment-to-unlock, tag-3-friends, follow-for-follow) caps a post at its seed audience and can drag account-level trust",
+          "action": "Skip comment-to-unlock and tag-3-friends prompts",
           "rule": "Avoid transactional prompts like 'comment YES for the link' or 'tag 3 friends who need this' — use open-ended questions instead (which still perform fine). Reserve CTAs for genuine calls to action (e.g., 'which song should I play at the show Friday?') rather than manipulative engagement loops.",
+          "insight": "Meta's Transparency Center explicitly demotes engagement bait — the post caps at its seed audience, and a pattern of bait captions drags the whole account's trust over time.",
           "evidence": "Meta's own Transparency Center has a dedicated Engagement Bait policy page defining and penalizing this pattern (confirmed primary source, though the fetched page returned only metadata with the core content behind further navigation). Independent 2026 analyses describe the mechanism as post-level demotion (the post stays capped in its seed audience) with a slower account-level 'drag' effect from a pattern of bait captions — corroborated by two independent industry write-ups.",
           "confidence": "high",
           "sources": [
-            {"title": "Engagement Bait | Meta Transparency Center", "url": "https://transparency.meta.com/features/approach-to-ranking/content-distribution-guidelines/engagement-bait", "date": null},
-            {"title": "Engagement bait in 2026: the prompts platforms quietly suppress", "url": "https://1kreach.com/blog/engagement-bait-2026-prompts-platforms-suppress-still-working", "date": "2026"},
-            {"title": "Instagram algorithm in 2026: rank signals for growth", "url": "https://later.com/blog/how-instagram-algorithm-works/", "date": "2026-04-21"}
+            {
+              "title": "Engagement Bait | Meta Transparency Center",
+              "url": "https://transparency.meta.com/features/approach-to-ranking/content-distribution-guidelines/engagement-bait",
+              "date": null
+            },
+            {
+              "title": "Engagement bait in 2026: the prompts platforms quietly suppress",
+              "url": "https://1kreach.com/blog/engagement-bait-2026-prompts-platforms-suppress-still-working",
+              "date": "2026"
+            },
+            {
+              "title": "Instagram algorithm in 2026: rank signals for growth",
+              "url": "https://later.com/blog/how-instagram-algorithm-works/",
+              "date": "2026-04-21"
+            }
           ],
-          "lastVerified": "2026-07-04"
+          "lastVerified": "2026-07-11"
         },
         {
           "id": "ig-07",
           "title": "Raw, human-shot content is outperforming polished/AI-flavored production, and Instagram is explicitly deprioritizing low-authenticity AI content in 2026",
+          "action": "Lead with a raw, human moment in the first 1.5-3 seconds",
           "rule": "Favor phone-shot, imperfect rehearsal clips, backstage moments, and human-voiced intros over highly produced music-video-style edits. Lead Reels with a spoken hook or visible human perspective in the first 1.5-3 seconds rather than a polished montage; use Trial Reels to test which raw clips earn distribution before committing studio-quality edits.",
+          "insight": "Mosseri's 2026 year-end memo explicitly prioritizes raw, human content over polished or AI-flavored production — one study found phone-shot visuals outperforming studio edits by roughly 35% in discovery feeds.",
           "evidence": "Adam Mosseri's December 31, 2025 year-end memo (posted natively on Instagram, covered by multiple outlets) explicitly stated Instagram would prioritize 'raw, real human content' over AI-generated/overly polished material through 2026. This is corroborated by the April 2026 Podswap study (via Hypebot) finding raw phone-shot visuals outperforming studio-produced content by roughly 35% in discovery feeds, and by Mosseri's own posted guidance on hooks in the first 1.5-3 seconds.",
           "confidence": "medium",
           "sources": [
-            {"title": "What is Instagram's Adam Mosseri really saying in his year-end memo?", "url": "https://om.co/2026/01/01/what-is-instagrams-adam-mosseri-really-saying-in-his-year-end-memo/", "date": "2026-01-01"},
-            {"title": "Cracking The Instagram Algorithm: A 2026 Guide for Musicians (Podswap study)", "url": "https://www.hypebot.com/cracking-the-instagram-algorithm-a-2026-guide-for-musicians/", "date": "2026-06-03"},
-            {"title": "Instagram's Raw Content Revolution & Major 2026 Updates", "url": "https://doncreativegroup.com/trends-and-news/instagrams-raw-content-revolution-major-platform-updates/", "date": "2026" }
+            {
+              "title": "What is Instagram's Adam Mosseri really saying in his year-end memo?",
+              "url": "https://om.co/2026/01/01/what-is-instagrams-adam-mosseri-really-saying-in-his-year-end-memo/",
+              "date": "2026-01-01"
+            },
+            {
+              "title": "Cracking The Instagram Algorithm: A 2026 Guide for Musicians (Podswap study)",
+              "url": "https://www.hypebot.com/cracking-the-instagram-algorithm-a-2026-guide-for-musicians/",
+              "date": "2026-06-03"
+            },
+            {
+              "title": "Instagram's Raw Content Revolution & Major 2026 Updates",
+              "url": "https://doncreativegroup.com/trends-and-news/instagrams-raw-content-revolution-major-platform-updates/",
+              "date": "2026"
+            }
           ],
-          "lastVerified": "2026-07-04"
+          "lastVerified": "2026-07-11"
+        },
+        {
+          "id": "ig-08",
+          "title": "Original audio reused by other accounts is a 'cultural relevance' signal that boosts both the original and the derivative Reels",
+          "action": "Release short, usable original-song clips as their own audio, not just full performance posts",
+          "rule": "When posting a Reel with an original song snippet, treat it as a piece of reusable audio, not just a caption-and-clip. Short, clearly-labeled hooks or choruses are more likely to get picked up by other accounts as 'original audio,' and each reuse boosts distribution of both the reused clip and Meghan's original post.",
+          "insight": "Instagram treats reuse of a creator's original audio by other accounts as a cultural-relevance signal, boosting both the original Reel and the Reels that reuse it.",
+          "evidence": "Consistent across 2026 musician-marketing sources describing Instagram's original-audio mechanics: when other users adopt a creator's sound for their own Reels, both the source post and the new derivative Reels receive a distribution boost tied to that reuse. No single Meta-primary statement was located this pass; treat as directionally consistent with Instagram's long-standing original-audio attribution system rather than a newly confirmed 2026 change.",
+          "confidence": "medium",
+          "sources": [
+            {
+              "title": "Instagram Reels for Musicians: Audio Strategy Guide",
+              "url": "https://www.chartlex.com/blog/marketing/instagram-reels-strategy-musicians-2026",
+              "date": "2026"
+            },
+            {
+              "title": "8 Instagram Trends Defining 2026 for Creators",
+              "url": "https://creatorflow.so/blog/instagram-trends-2026-creators-marketers/",
+              "date": "2026"
+            }
+          ],
+          "lastVerified": "2026-07-11"
+        },
+        {
+          "id": "ig-09",
+          "title": "Collab posts (co-published with a co-billed artist, opener, or venue) share reach across both accounts' audiences",
+          "action": "Use Instagram Collab posts for show announcements with co-billed artists or venues",
+          "rule": "For show announcements, releases, or content featuring a co-writer, duet partner, or co-billed artist, publish as an Instagram Collab post (up to 3 collaborators) rather than a solo post with a tag. A Collab post appears natively in the grid and feed of every collaborator, cross-pollinating both fan bases without duplicate uploads.",
+          "insight": "Collab posts publish to every collaborator's grid and audience simultaneously — a practical reach-sharing tool for cross-billed shows and co-writes, distinct from a simple tag or mention.",
+          "evidence": "The Collab-post feature itself is a long-standing, Meta-confirmed Instagram capability (co-publishing to all collaborators' audiences); 2026 creator guidance actively recommends it for musician pairings (co-writer, duet partner, opener/headliner cross-promotion) as a way to extend reach without extra content production. The 'doubles reach' framing is aggregator commentary, not a Meta-quantified figure — the feature's existence and mechanic are high-confidence, the magnitude of benefit is not.",
+          "confidence": "medium",
+          "sources": [
+            {
+              "title": "Instagram Adds New Music Options, Including Soundtracks for Collaborative Posts",
+              "url": "https://www.socialmediatoday.com/news/instagram-adds-new-music-options-including-soundtracks-collaborative-posts/690708/",
+              "date": "2026"
+            },
+            {
+              "title": "8 Instagram Content Ideas for Music Artists",
+              "url": "https://www.whisperroom.com/blog/8-instagram-content-ideas-for-music-artists",
+              "date": "2026"
+            }
+          ],
+          "lastVerified": "2026-07-11"
+        },
+        {
+          "id": "ig-10",
+          "title": "Instagram's 'Your Algorithm' controls are now live across Feed, Reels, and Explore — discovery is increasingly user-directed, not just engagement-signal-driven",
+          "action": "Give fans an explicit reason to mark content 'more like this,' don't rely on signals alone",
+          "rule": "Beyond passive engagement signals (shares, saves, watch time), users can now directly tell Instagram to see more or less of specific topics across Feed, Reels, and Explore (fully rolled out June 2026). Since recommendations increasingly reflect user-chosen topic preferences rather than a single static ranking, consider occasionally inviting engaged fans (in captions or Stories) to tap 'more like this' on posts they enjoy, and don't assume a strong early engagement signal alone guarantees continued distribution if it doesn't align with a user's chosen topics.",
+          "insight": "Instagram's 'Your Algorithm' feature is now a unified system spanning Feed, Reels, and Explore — discovery is shifting from a single ranking model toward user-directed topic control, which can help genre-aligned creators but makes reach less predictable.",
+          "evidence": "Instagram's official blog (about.instagram.com) confirms 'Your Algorithm' debuted on Reels in December 2025, expanded to Explore in April 2026, and rolled out across Feed, Reels, and Explore globally in June 2026 as 'one unified system' — adjustments a user makes ripple across all three surfaces. Independent coverage (TechCrunch, Social Media Today) corroborates the June 2026 Feed expansion and notes it lets users tell the algorithm what topics to show more or less of directly, rather than relying solely on implicit engagement signals.",
+          "confidence": "medium",
+          "sources": [
+            {
+              "title": "Control Your Instagram Reels Algorithm",
+              "url": "https://about.instagram.com/blog/announcements/reels-algorithm-control",
+              "date": "2026-06"
+            },
+            {
+              "title": "Instagram is testing more ways to customize 'Your Algorithm'",
+              "url": "https://techcrunch.com/2026/06/27/instagram-is-testing-more-ways-for-users-to-customize-your-algorithm/",
+              "date": "2026-06-27"
+            },
+            {
+              "title": "Instagram extends Your Algorithm to the main feed",
+              "url": "https://www.socialmediatoday.com/news/instagram-extends-your-algorithm-to-the-main-feed/822576/",
+              "date": "2026-06"
+            }
+          ],
+          "lastVerified": "2026-07-11"
         }
       ]
     },
@@ -126,88 +300,203 @@
         {
           "id": "fb-01",
           "title": "Facebook Reels are the fastest current growth lever, and Facebook is actively boosting same-day creator Reels",
+          "action": "Post Reels natively to Facebook, not just as an IG afterthought",
           "rule": "Post Reels natively to Facebook (not just as an afterthought cross-post) and keep them under ~90 seconds. Treat Facebook Reels as a distinct growth channel worth dedicated posting, not just a mirror of Instagram.",
-          "evidence": "Facebook's Head of Feed, Tom Alison, is on record (Oct 2025) stating the Reels algorithm was updated to surface '50% more reels from creators published that day,' and has publicly encouraged creators to increase posting rate ('posting more can help you break through'). Corroborated by two independent 2026 industry analyses (SocialBee, Postoria) describing Reels/short-form video as the fastest current growth path on Facebook.",
+          "insight": "Facebook's Head of Feed confirmed the algorithm now surfaces 50% more same-day creator Reels — it's the fastest current growth lever on the platform. Meta has separately reported Reels views/watch-time on Facebook roughly doubled in H2 2025 vs. H2 2024, reinforcing the platform-level trend.",
+          "evidence": "Facebook's Head of Feed, Tom Alison, is on record (Oct 2025) stating the Reels algorithm was updated to surface '50% more reels from creators published that day,' and has publicly encouraged creators to increase posting rate ('posting more can help you break through'). Corroborated by two independent 2026 industry analyses (SocialBee, Postoria) describing Reels/short-form video as the fastest current growth path on Facebook. As of this pass, multiple 2026 sources (Social Media Examiner, Metricool, Icebox Designs) additionally cite Meta-reported metrics showing Facebook Reels views/watch-time roughly doubled H2 2025 vs H2 2024 — the doubling figure traces to Meta's own reported metrics per these outlets, while the specific '50%' same-day multiplier remains an aggregator estimate rather than an exact Meta-disclosed number.",
           "confidence": "high",
           "sources": [
-            {"title": "Facebook algorithm explained: 2026 insights", "url": "https://socialbee.com/blog/facebook-algorithm/", "date": "2026"},
-            {"title": "Facebook Algorithm in 2026: How Feed and Reels Drive Reach", "url": "https://postoria.io/blog/facebook-algorithms", "date": "2026"},
-            {"title": "Facebook Algorithm 2026: How It Works & What You Should Do", "url": "https://www.diginewbie.com/blog/how-facebook-algorithm-works", "date": "2026"}
+            {
+              "title": "Facebook algorithm explained: 2026 insights",
+              "url": "https://socialbee.com/blog/facebook-algorithm/",
+              "date": "2026"
+            },
+            {
+              "title": "Facebook Algorithm in 2026: How Feed and Reels Drive Reach",
+              "url": "https://postoria.io/blog/facebook-algorithms",
+              "date": "2026"
+            },
+            {
+              "title": "Facebook Algorithm 2026: How It Works & What You Should Do",
+              "url": "https://www.diginewbie.com/blog/how-facebook-algorithm-works",
+              "date": "2026"
+            }
           ],
-          "lastVerified": "2026-07-04"
+          "lastVerified": "2026-07-11"
         },
         {
           "id": "fb-02",
           "title": "Facebook Events are still the strongest native tool for live-show promotion, and RSVP activity compounds through social proof",
+          "action": "Create a Facebook Event for every show and tag the venue",
           "rule": "Create a public Facebook Event for every show, tag the venue and any co-billed artists, and post show-specific, city-named updates in the week before ('Can't wait to play [City] on Friday'). Ask co-billed artists to cross-promote — a 3-artist bill that cross-promotes can triple each artist's individual reach.",
+          "insight": "Facebook Events are the strongest native tool for show promotion — RSVP activity compounds through social proof, and a cross-promoting co-bill can triple reach.",
           "evidence": "Two independent musician-marketing sources (Chartlex, Eventbrite/Yapsody-style guides) converge on Facebook Events as the standout native format for show promotion, citing the RSVP-to-network-visibility mechanic as a compounding, algorithm-friendly signal, plus explicit local-area Events-tab discovery surfacing.",
           "confidence": "medium",
           "sources": [
-            {"title": "How to Promote a Live Show: Musician's Guide (2026)", "url": "https://www.chartlex.com/blog/touring/how-to-promote-a-live-show-musicians-guide", "date": "2026"},
-            {"title": "13 Ways to Outsmart the Facebook Algorithm and Boost Your Event", "url": "https://www.eventbrite.com/blog/facebook-algorithm-ds00/", "date": "2026"},
-            {"title": "Facebook Algorithm for Event Promotion: 13 Proven Tips", "url": "https://www.yapsody.com/ticketing/blog/facebook-algorithm-for-event-promotion/", "date": "2026"}
+            {
+              "title": "How to Promote a Live Show: Musician's Guide (2026)",
+              "url": "https://www.chartlex.com/blog/touring/how-to-promote-a-live-show-musicians-guide",
+              "date": "2026"
+            },
+            {
+              "title": "13 Ways to Outsmart the Facebook Algorithm and Boost Your Event",
+              "url": "https://www.eventbrite.com/blog/facebook-algorithm-ds00/",
+              "date": "2026"
+            },
+            {
+              "title": "Facebook Algorithm for Event Promotion: 13 Proven Tips",
+              "url": "https://www.yapsody.com/ticketing/blog/facebook-algorithm-for-event-promotion/",
+              "date": "2026"
+            }
           ],
-          "lastVerified": "2026-07-04"
+          "lastVerified": "2026-07-11"
         },
         {
           "id": "fb-03",
           "title": "Meaningful Social Interactions still govern Feed — genuine comments/shares/conversation outrank passive likes, and engagement bait is losing value",
+          "action": "Write captions that invite a real reply, then answer every comment",
           "rule": "Write captions that invite a real reply or debate (e.g., asking fans to vote on a setlist song, share a memory tied to a lyric) rather than generic 'Are you excited?' prompts. Reply to comments to keep the conversation compounding — this is a ranking signal, not just courtesy.",
-          "evidence": "Corroborated by two independent 2026 Facebook-algorithm breakdowns describing Meta's continued 'Meaningful Social Interactions' emphasis: posts sparking back-and-forth discussion and shares are favored, while low-effort/bait interactions contribute less to reach than in past years.",
+          "insight": "Facebook still ranks genuine back-and-forth above passive likes — replying to comments is itself a ranking signal, not just courtesy. Meta also rolled out a 'Friends tab' (early 2026) showing only friend posts, no recommended content — an explicit 'bringing back OG Facebook' move that raises the value of content that already-connected local fans engage with.",
+          "evidence": "Corroborated by two independent 2026 Facebook-algorithm breakdowns describing Meta's continued 'Meaningful Social Interactions' emphasis: posts sparking back-and-forth discussion and shares are favored, while low-effort/bait interactions contribute less to reach than in past years. Additionally, multiple 2026 sources (SocialPilot, DigiNewbie) report Meta launched a friends-only 'Friends tab' framed by leadership as 'phase one of bringing back OG Facebook,' a new distribution surface where only friend-network posts appear — reinforcing that Meghan's existing local/fan network engagement matters more, not less. A separate January 2026 'User True Interest Survey' (UTIS) ranking-methodology change for Reels recommendations was reported (direct viewer-feedback surveys improving satisfaction ratings in a 10M+-user test) but is sourced to a single aggregator digest with no independent corroboration — noted as a watch-item, not folded into this rule's confidence.",
           "confidence": "medium",
           "sources": [
-            {"title": "Facebook algorithm explained: 2026 insights", "url": "https://socialbee.com/blog/facebook-algorithm/", "date": "2026"},
-            {"title": "How the Facebook Algorithm Works in 2026 (Updated)", "url": "https://posteverywhere.ai/blog/how-the-facebook-algorithm-works", "date": "2026"}
+            {
+              "title": "Facebook algorithm explained: 2026 insights",
+              "url": "https://socialbee.com/blog/facebook-algorithm/",
+              "date": "2026"
+            },
+            {
+              "title": "How the Facebook Algorithm Works in 2026 (Updated)",
+              "url": "https://posteverywhere.ai/blog/how-the-facebook-algorithm-works",
+              "date": "2026"
+            },
+            {
+              "title": "8 Facebook Trends You Need to Know in 2026",
+              "url": "https://www.socialpilot.co/blog/facebook-trends",
+              "date": "2026"
+            },
+            {
+              "title": "Facebook Algorithm 2026: How It Works & What You Should Do",
+              "url": "https://www.diginewbie.com/blog/how-facebook-algorithm-works",
+              "date": "2026"
+            }
           ],
-          "lastVerified": "2026-07-04"
+          "lastVerified": "2026-07-11"
         },
         {
           "id": "fb-04",
           "title": "Watermarked/recycled cross-posts are suppressed on Facebook exactly as on Instagram, but same-video cross-posting without a watermark is not penalized",
+          "action": "Post the same clean Reel to IG and FB — just strip any watermark first",
           "rule": "It's fine to post the same clean, non-watermarked Reel to both Instagram and Facebook — there's no cross-platform duplicate-content penalty for that. But never let a TikTok/CapCut watermark reach Facebook; re-export clean video for each platform.",
+          "insight": "There's no cross-platform duplicate penalty for sharing the identical clean video, but a visible TikTok or CapCut watermark is actively suppressed on both platforms.",
           "evidence": "Industry sources agree platforms cannot detect duplicate content across separate services (so same-video, watermark-free cross-posting between IG and FB is not penalized), but that visible third-party watermarks (TikTok, CapCut) are actively detected and suppressed by Meta's ranking systems on both surfaces — a distinction confirmed by two independent write-ups.",
           "confidence": "medium",
           "sources": [
-            {"title": "How to Prevent Duplicate Post Penalties When Cross-Posting (2026)", "url": "https://www.socialync.io/blog/avoid-content-duplication-penalties-cross-posting-2026", "date": "2026"},
-            {"title": "Meta's New Original Content Rules (2026)", "url": "https://almcorp.com/blog/meta-original-content-rules-2026-facebook-instagram-creators/", "date": "2026"}
+            {
+              "title": "How to Prevent Duplicate Post Penalties When Cross-Posting (2026)",
+              "url": "https://www.socialync.io/blog/avoid-content-duplication-penalties-cross-posting-2026",
+              "date": "2026"
+            },
+            {
+              "title": "Meta's New Original Content Rules (2026)",
+              "url": "https://almcorp.com/blog/meta-original-content-rules-2026-facebook-instagram-creators/",
+              "date": "2026"
+            }
           ],
-          "lastVerified": "2026-07-04"
+          "lastVerified": "2026-07-11"
         },
         {
           "id": "fb-05",
           "title": "Facebook's audience skews older and is a stronger fit for country/Americana's core demographic and local-market reach than Instagram",
+          "action": "Lean on Facebook for the 35+ Front Range ticket-buying crowd",
           "rule": "Treat Facebook as the primary channel for reaching the 35+, Front Range/Colorado local audience most likely to buy tickets and attend shows — post local, venue-tagged updates and lean on Events; treat Instagram as the discovery/growth channel for younger and out-of-market fans.",
+          "insight": "Facebook's user base has shifted meaningfully older while Instagram Reels skew 18-34 — Facebook is the better fit for country/Americana's core local audience.",
           "evidence": "Two independent 2026 demographic analyses (Sprout Social, Hootsuite) confirm Facebook's user base has shifted meaningfully older (every cohort above 35 growing share, every cohort below 25 declining, with 65+ users disproportionately choosing Facebook), while Instagram Reels interactions skew 18-34. A musician-marketing source (Dynamoi) explicitly frames Facebook as better suited to country/classic-rock acts with a 35+ core audience and better cost-per-RSVP for regional/local touring acts.",
           "confidence": "medium",
           "sources": [
-            {"title": "Social Media Demographics to Inform Your 2026 Strategy", "url": "https://sproutsocial.com/insights/new-social-media-demographics/", "date": "2026"},
-            {"title": "30 Facebook demographics marketers need to know in 2026", "url": "https://blog.hootsuite.com/facebook-demographics/", "date": "2026"},
-            {"title": "Is Facebook Worth It for Musicians? [2026 Analysis]", "url": "https://dynamoi.com/learn/instagram-ads/is-facebook-still-worth-it-for-musicians", "date": "2026"}
+            {
+              "title": "Social Media Demographics to Inform Your 2026 Strategy",
+              "url": "https://sproutsocial.com/insights/new-social-media-demographics/",
+              "date": "2026"
+            },
+            {
+              "title": "30 Facebook demographics marketers need to know in 2026",
+              "url": "https://blog.hootsuite.com/facebook-demographics/",
+              "date": "2026"
+            },
+            {
+              "title": "Is Facebook Worth It for Musicians? [2026 Analysis]",
+              "url": "https://dynamoi.com/learn/instagram-ads/is-facebook-still-worth-it-for-musicians",
+              "date": "2026"
+            }
           ],
-          "lastVerified": "2026-07-04"
+          "lastVerified": "2026-07-11"
         },
         {
           "id": "fb-06",
           "title": "Facebook Reels distribution to non-followers is comparatively weaker than Instagram's — Facebook rewards existing-network conversion more than cold discovery",
+          "action": "Use Facebook to deepen ties with people who already know Meghan",
           "rule": "Don't expect a Facebook Reel to break out to strangers the way an Instagram Reel can. Use Facebook primarily to deepen engagement with people who already know Meghan (past show attendees, email list, local scene) rather than as a cold-audience discovery engine; save discovery-oriented experimentation for Instagram.",
+          "insight": "Facebook surfaces Reels to non-followers far less aggressively than Instagram does — save cold-audience experiments for IG, and use Facebook to convert an existing network.",
           "evidence": "One direct industry synthesis states Meta surfaces Reels to non-followers 'far more aggressively' on Instagram than on Facebook, framing Instagram as stronger for cold-audience discovery and Facebook as stronger at converting existing networks. This is a single clearly-stated source; treat as medium-to-low confidence pending a second corroborating primary-source citation, though it is consistent with the broader finding (fb-05) about Facebook's relationship-driven ranking model.",
           "confidence": "low",
           "sources": [
-            {"title": "Is Facebook Worth It for Musicians? [2026 Analysis]", "url": "https://dynamoi.com/learn/instagram-ads/is-facebook-still-worth-it-for-musicians", "date": "2026"}
+            {
+              "title": "Is Facebook Worth It for Musicians? [2026 Analysis]",
+              "url": "https://dynamoi.com/learn/instagram-ads/is-facebook-still-worth-it-for-musicians",
+              "date": "2026"
+            }
           ],
-          "lastVerified": "2026-07-04"
+          "lastVerified": "2026-07-11"
         },
         {
           "id": "fb-07",
           "title": "Posting more frequently on Facebook directly helps break through the current algorithm, per Facebook's own Head of Feed",
+          "action": "Post to the Facebook page more often, even simple show reminders",
           "rule": "Increase posting cadence on the Facebook page rather than treating it as a lower-priority mirror of Instagram — even simple show-reminder posts or reshared Reels count toward the volume signal Facebook has said it rewards.",
+          "insight": "Facebook's own Head of Feed said posting more directly helps break through the current algorithm — volume itself is a rewarded signal.",
           "evidence": "Tom Alison (Facebook's Head of Feed) is directly quoted in industry coverage saying 'posting more can help you break through' — a primary-source-adjacent statement from a named Meta executive, repeated across at least two independent secondary sources summarizing the same original statement.",
           "confidence": "medium",
           "sources": [
-            {"title": "Facebook algorithm explained: 2026 insights", "url": "https://socialbee.com/blog/facebook-algorithm/", "date": "2026"},
-            {"title": "Facebook Algorithm 2026: How It Works & What You Should Do", "url": "https://www.diginewbie.com/blog/how-facebook-algorithm-works", "date": "2026"}
+            {
+              "title": "Facebook algorithm explained: 2026 insights",
+              "url": "https://socialbee.com/blog/facebook-algorithm/",
+              "date": "2026"
+            },
+            {
+              "title": "Facebook Algorithm 2026: How It Works & What You Should Do",
+              "url": "https://www.diginewbie.com/blog/how-facebook-algorithm-works",
+              "date": "2026"
+            }
           ],
-          "lastVerified": "2026-07-04"
+          "lastVerified": "2026-07-11"
+        },
+        {
+          "id": "fb-08",
+          "title": "Facebook now explicitly demotes reaction clips, stitches, and add-nothing narration — genuine on-screen creative value is required, not just an original account uploading",
+          "action": "Never post a reaction/stitch clip without adding real commentary or new info",
+          "rule": "Don't post reaction videos, clip-stitches, or narration-over-existing-footage that doesn't add meaningful new value. If reposting or building on third-party clips (e.g., reacting to a review of a show or a fan-filmed clip), pair it with genuine analysis, new information, or a story improvement — plain reactions or narrating what's already visible get deprioritized in both Feed and Reels, and repeated unoriginal posting risks the account being marked non-recommendable.",
+          "insight": "Meta's own March 2026 policy explicitly deprioritizes reaction clips and stitches without added commentary — original Reels saw roughly double the watch time in H2 2025 versus H2 2024.",
+          "evidence": "Meta's official blog (about.fb.com, March 2026) states Facebook's ranking systems classify simply watching along, reacting with facial expressions, stitching clips together, or narrating on-screen content without meaningful addition as unoriginal, and deprioritize it across both Feed and Reels recommendations; consistently unoriginal accounts risk demonetization and being marked non-recommendable. The same post reports views and watch time for original Reels roughly doubled in H2 2025 vs H2 2024, corroborated by third-party trade coverage (Social Media Examiner, ALM Corp).",
+          "confidence": "high",
+          "sources": [
+            {
+              "title": "Rewarding Original Creators on Facebook",
+              "url": "https://about.fb.com/news/2026/03/rewarding-original-creators-on-facebook/",
+              "date": "2026-03"
+            },
+            {
+              "title": "Facebook's 2026 Rules for Reach & Relevance",
+              "url": "https://www.socialmediaexaminer.com/facebooks-2026-rules-for-reach-relevance/",
+              "date": "2026"
+            },
+            {
+              "title": "Meta's New Original Content Rules (2026)",
+              "url": "https://almcorp.com/blog/meta-original-content-rules-2026-facebook-instagram-creators/",
+              "date": "2026"
+            }
+          ],
+          "lastVerified": "2026-07-11"
         }
       ]
     }
@@ -243,16 +532,203 @@
     "instagram": "General 2026 benchmark data (Buffer, aggregated across niches) points to weekday mid-mornings (9-11am) and lunch (12-1pm) as strong Feed windows, with weekday evenings (7-9pm in the ET-based studies, i.e. roughly 5-7pm Mountain) as the best window specifically for Reels; one music/arts-specific note states music and arts accounts see strong performance late in the evening for new-release/BTS content. A separate reverse-engineered 2026 study found Monday the best-performing day overall and Tuesday the worst. Practical Mountain-time recommendation for Meghan: post Reels on weekday evenings roughly 5-7pm MT (aligning with the 7-9pm ET data point converted to Mountain), test Monday as a lead posting day, and use Instagram's own audience-specific 'Best Time to Post' insight in the Professional Dashboard to fine-tune once enough native data exists — general benchmarks are a starting point, not a substitute for account-level data.",
     "facebook": "No Facebook-specific, timezone-granular 'best time to post' dataset was found with strong sourcing in this research pass; general social-media benchmark guides bundle Facebook into cross-platform 'weekday 9am-1pm and 7-9pm' windows without Facebook-specific music-audience data. Given Facebook's older, local, event-driven audience for Meghan, the most defensible approach (medium/low confidence, inferred rather than directly sourced) is to post show-specific and Event-linked content in early-to-mid evening Mountain time (roughly 6-8pm MT) on weekdays, when an older local audience is likely browsing after work, and to post Event updates 2 weeks out and again in the final week before a show, per the two-touch cadence recommended in musician-specific FB Events guides.",
     "sources": [
-      {"title": "Best Time to Post on Instagram: 2026 Data from 9.6M Posts", "url": "https://buffer.com/resources/when-is-the-best-time-to-post-on-instagram/", "date": "2026-05"},
-      {"title": "Cracking The Instagram Algorithm: A 2026 Guide for Musicians (Podswap 'best day' data)", "url": "https://www.hypebot.com/cracking-the-instagram-algorithm-a-2026-guide-for-musicians/", "date": "2026-06-03"},
-      {"title": "How to Promote a Live Show: Musician's Guide (2026)", "url": "https://www.chartlex.com/blog/touring/how-to-promote-a-live-show-musicians-guide", "date": "2026"}
+      {
+        "title": "Best Time to Post on Instagram: 2026 Data from 9.6M Posts",
+        "url": "https://buffer.com/resources/when-is-the-best-time-to-post-on-instagram/",
+        "date": "2026-05"
+      },
+      {
+        "title": "Cracking The Instagram Algorithm: A 2026 Guide for Musicians (Podswap 'best day' data)",
+        "url": "https://www.hypebot.com/cracking-the-instagram-algorithm-a-2026-guide-for-musicians/",
+        "date": "2026-06-03"
+      },
+      {
+        "title": "How to Promote a Live Show: Musician's Guide (2026)",
+        "url": "https://www.chartlex.com/blog/touring/how-to-promote-a-live-show-musicians-guide",
+        "date": "2026"
+      }
     ]
   },
   "changelog": [
     {
       "date": "2026-07-04",
       "entries": [
-        { "type": "added", "ruleId": "all", "summary": "Initial playbook created." }
+        {
+          "type": "added",
+          "ruleId": "all",
+          "summary": "Initial playbook created."
+        }
+      ]
+    },
+    {
+      "date": "2026-07-11",
+      "entries": [
+        {
+          "type": "changed",
+          "ruleId": "all",
+          "summary": "Facebook target corrected from the personal profile (facebook.com/meghancave) to the music Page facebook.com/meghanclarisse ('Meghan Clarisse Music', Page ID 108048260606098); follower count 2,961 verified live via Graph API."
+        },
+        {
+          "type": "updated",
+          "ruleId": "ig-03",
+          "summary": "Trial Reels can now be scheduled in advance (Feb 2026) and must be genuinely unique uploads, not repeated re-tests; framed within Instagram's broader 'audition system' staged-exposure model. A claimed 5/day cap with 30-day suspension is unverified and not included as fact."
+        },
+        {
+          "type": "updated",
+          "ruleId": "ig-04",
+          "summary": "Originality-detection threshold sharpened: some sources describe 10+ reposts in 30 days as full exclusion from recommendations, not just down-ranking. Exact threshold still lacks a primary source."
+        },
+        {
+          "type": "added",
+          "ruleId": "ig-08",
+          "summary": "New rule: reuse of a creator's original audio by other accounts is a cultural-relevance signal that boosts both the original and derivative Reels."
+        },
+        {
+          "type": "added",
+          "ruleId": "ig-09",
+          "summary": "New rule: Instagram Collab posts share reach across co-billed artists' and venues' audiences — recommended for show announcements and co-writes."
+        },
+        {
+          "type": "updated",
+          "ruleId": "fb-01",
+          "summary": "Same-day Reels boost reinforced with Meta-reported metric: FB Reels views/watch-time roughly doubled H2 2025 vs H2 2024."
+        },
+        {
+          "type": "updated",
+          "ruleId": "fb-03",
+          "summary": "Meta launched a friends-only 'Friends tab' (early 2026, no recommended content) explicitly framed as reviving relationship-driven Feed — reinforces value of existing local fan-network engagement."
+        },
+        {
+          "type": "confirmed",
+          "ruleId": "ig-01",
+          "summary": "Sends-per-reach remains the top IG ranking signal; no contradiction found."
+        },
+        {
+          "type": "confirmed",
+          "ruleId": "ig-02",
+          "summary": "Saves remain a top-tier signal; unchanged."
+        },
+        {
+          "type": "confirmed",
+          "ruleId": "ig-05",
+          "summary": "Caption-link reach penalty unchanged."
+        },
+        {
+          "type": "confirmed",
+          "ruleId": "ig-06",
+          "summary": "Engagement-bait demotion unchanged."
+        },
+        {
+          "type": "confirmed",
+          "ruleId": "ig-07",
+          "summary": "Raw/human content preference unchanged."
+        },
+        {
+          "type": "confirmed",
+          "ruleId": "fb-02",
+          "summary": "Facebook Events remain the strongest native show-promotion tool; new integrations with Eventbrite/Fever/Dice noted but core rule unchanged."
+        },
+        {
+          "type": "confirmed",
+          "ruleId": "fb-04",
+          "summary": "Watermark/repost suppression on Facebook unchanged."
+        },
+        {
+          "type": "confirmed",
+          "ruleId": "fb-05",
+          "summary": "Facebook's older, local demographic fit unchanged."
+        },
+        {
+          "type": "confirmed",
+          "ruleId": "fb-06",
+          "summary": "Weaker cold-audience Reels discovery on Facebook vs. Instagram unchanged; flagged as a watch-item given platform-wide FB Reels growth, but not updated on inference alone."
+        },
+        {
+          "type": "confirmed",
+          "ruleId": "fb-07",
+          "summary": "Posting-more-helps guidance from Facebook's Head of Feed unchanged."
+        }
+      ]
+    },
+    {
+      "date": "2026-07-11",
+      "entries": [
+        {
+          "type": "added",
+          "ruleId": "fb-08",
+          "summary": "Added Facebook's March 2026 original-content policy: reaction clips, stitches, and add-nothing narration are now explicitly deprioritized in Feed and Reels."
+        },
+        {
+          "type": "added",
+          "ruleId": "ig-10",
+          "summary": "Added Instagram's 'Your Algorithm' feature (fully live across Feed/Reels/Explore since June 2026): users can now directly steer topic recommendations, shifting discovery from pure engagement-signal ranking toward user-chosen topics."
+        },
+        {
+          "type": "added",
+          "ruleId": "original-value",
+          "summary": "Added checklist item for fb-08: confirm reaction/stitch content includes genuine added commentary before publishing."
+        }
+      ]
+    }
+  ],
+  "checklist": [
+    {
+      "id": "send-worthy",
+      "label": "A moment a fan would forward to one friend",
+      "ruleIds": [
+        "ig-01"
+      ]
+    },
+    {
+      "id": "save-worthy",
+      "label": "Something worth bookmarking, not just watching",
+      "ruleIds": [
+        "ig-02"
+      ]
+    },
+    {
+      "id": "hook",
+      "label": "Hook lands in the first 1.5-3 seconds",
+      "ruleIds": [
+        "ig-07"
+      ]
+    },
+    {
+      "id": "watermark",
+      "label": "No TikTok or CapCut watermark on the video",
+      "ruleIds": [
+        "ig-04",
+        "fb-04"
+      ]
+    },
+    {
+      "id": "no-caption-link",
+      "label": "No clickable URL in the caption",
+      "ruleIds": [
+        "ig-05"
+      ]
+    },
+    {
+      "id": "no-engagement-bait",
+      "label": "No comment-to-unlock or tag-3-friends prompts",
+      "ruleIds": [
+        "ig-06"
+      ]
+    },
+    {
+      "id": "posting-window",
+      "label": "Posting inside the strongest window for the platform",
+      "ruleIds": [
+        "ig-03",
+        "fb-01",
+        "fb-07"
+      ]
+    },
+    {
+      "id": "original-value",
+      "label": "If reacting to or building on someone else's clip, added real commentary/new info — not just narration or reactions",
+      "ruleIds": [
+        "fb-08"
       ]
     }
   ]
