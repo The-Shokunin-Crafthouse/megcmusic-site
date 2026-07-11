@@ -18,6 +18,7 @@ import { sendEmail } from "@/lib/api/gmail";
 import { fail, hasCronSecret, ok, unauthorized } from "@/lib/playbook/http";
 import {
   discoverAllMedia,
+  displayThumbnail,
   getMediaInsights,
   isAuthError,
   type DiscoveredMedia,
@@ -86,7 +87,7 @@ export async function GET(req: Request): Promise<Response> {
     product_type: item.media_product_type,
     caption: item.caption,
     permalink: item.permalink,
-    thumbnail_url: item.thumbnail_url,
+    thumbnail_url: displayThumbnail(item),
     posted_at: item.timestamp,
   }));
   if (upsertRows.length > 0) {

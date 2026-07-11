@@ -11,8 +11,10 @@
 import { appDb } from "../src/lib/api/appDb";
 import {
   discoverAllMedia,
+  displayThumbnail,
   getMediaInsights,
   isAuthError,
+  isPreBusinessMediaError,
 } from "../src/lib/playbook/meta";
 
 const SYNCED_PRODUCT_TYPES = new Set(["FEED", "REELS"]);
@@ -40,7 +42,7 @@ async function main(): Promise<void> {
     product_type: item.media_product_type,
     caption: item.caption,
     permalink: item.permalink,
-    thumbnail_url: item.thumbnail_url,
+    thumbnail_url: displayThumbnail(item),
     posted_at: item.timestamp,
   }));
   const upsertRes = await db
@@ -51,6 +53,7 @@ async function main(): Promise<void> {
   let synced = 0;
   let unavailable = 0;
   let skipped = 0;
+  let failed = 0;
 
   for (const item of media) {
     if (!SYNCED_PRODUCT_TYPES.has(item.media_product_type)) {
@@ -83,23 +86,28 @@ async function main(): Promise<void> {
       synced++;
       console.log(`✓ ${item.id} (${item.media_product_type})`);
     } catch (err) {
-      // isAuthError vs. everything else is the only distinction meta.ts can
-      // currently draw (see its isPreBusinessMediaError comment) — a 190
-      // aborts the whole backfill (retrying won't help until the token is
-      // fixed); anything else is treated as "no insights ever available for
-      // this media" and marked so, never retried.
+      // A 190 aborts the whole backfill — retrying won't help until the
+      // token is fixed. Confirmed-permanent (subcode 2108006, "posted before
+      // business conversion") gets marked once, never retried. Anything else
+      // is a real, possibly-transient failure — log it and leave
+      // metrics_available untouched so the next run retries this media.
       if (isAuthError(err)) throw err;
-      const markRes = await db
-        .from("sp_posts")
-        .update({ metrics_available: false })
-        .eq("id", item.id);
-      if (markRes.error) throw new Error(markRes.error.message);
-      unavailable++;
-      console.log(`– ${item.id} marked metrics_available=false (${err instanceof Error ? err.message : err})`);
+      if (isPreBusinessMediaError(err)) {
+        const markRes = await db
+          .from("sp_posts")
+          .update({ metrics_available: false })
+          .eq("id", item.id);
+        if (markRes.error) throw new Error(markRes.error.message);
+        unavailable++;
+        console.log(`– ${item.id} marked metrics_available=false (pre-business-conversion media)`);
+        continue;
+      }
+      failed++;
+      console.error(`✗ ${item.id}:`, err instanceof Error ? err.message : err);
     }
   }
 
-  const detail = `discovered=${media.length} synced=${synced} unavailable=${unavailable} skipped=${skipped}`;
+  const detail = `discovered=${media.length} synced=${synced} unavailable=${unavailable} skipped=${skipped} failed=${failed}`;
   await db
     .from("sp_sync_runs")
     .update({ status: "ok", detail, finished_at: new Date().toISOString() })

@@ -6,15 +6,12 @@
  * mode is revocation, surfaced as an OAuth error (code 190) — see
  * `isAuthError()`.
  *
- * UNVERIFIED LIVE (PLAN.md §0/§10): the metric list below and the
- * pre-business-media error classification in `isPreBusinessMediaError()` are
- * the plan's documented best-known set, not yet confirmed against a live
- * insights call. A single bad metric name 400s the whole insights call for
- * that media, but never the run — every call site treats one media's
- * insights failure as non-fatal (log + continue), so an unverified list is
- * safe to ship; it just needs a throwaway-script pass against the live
- * account (and possibly per-product_type adjustment here) before the metric
- * set is considered frozen.
+ * Metric list verified live 2026-07-10 against the real account via
+ * scripts/playbook-backfill.ts: 4358 discovered, 1522 synced clean across
+ * both FEED and REELS, 2836 marked unavailable — 100% of a sampled subset of
+ * the unavailable set carried `error_subcode: 2108006`
+ * ("Media Posted Before Business Account Conversion"), confirming
+ * `isPreBusinessMediaError()` below.
  */
 
 const GRAPH_API_VERSION = "v21.0";
@@ -36,12 +33,14 @@ function accessToken(): string {
 
 export interface GraphApiError extends Error {
   code?: number;
+  subcode?: number;
   isAuthError: boolean;
 }
 
-function graphError(message: string, code?: number): GraphApiError {
+function graphError(message: string, code?: number, subcode?: number): GraphApiError {
   const error = new Error(message) as GraphApiError;
   error.code = code;
+  error.subcode = subcode;
   error.isAuthError = code === 190;
   return error;
 }
@@ -52,26 +51,46 @@ export function isAuthError(error: unknown): boolean {
   return error instanceof Error && (error as GraphApiError).isAuthError === true;
 }
 
-/** Best-known proxy for "Instagram has no insights for media posted before
- *  the account became a Business account" (§3 backfill spec). Graph API
- *  does not document a single stable code for this; treat any non-auth
- *  insights failure as this case for now — precise enough for backfill's
- *  purpose (mark once, never retry), refine once real error payloads from a
- *  live run are seen. */
+/** True for "Instagram has no insights for media posted before the account
+ *  became a Business account" — Meta's own error_user_title for
+ *  `error_subcode: 2108006` on `code: 100` ("Invalid parameter"). Confirmed
+ *  live 2026-07-10 against every sampled member of a 2836-media unavailable
+ *  set during backfill — this media never gets insights, ever; mark once,
+ *  never retry. */
 export function isPreBusinessMediaError(error: unknown): boolean {
-  return error instanceof Error && !isAuthError(error);
+  return (
+    error instanceof Error && (error as GraphApiError).subcode === 2108006
+  );
+}
+
+const MAX_RETRIES = 1;
+
+// fetch() only rejects on network/timeout (not HTTP status), so a retry here
+// covers exactly the transient-slowness case — confirmed live: graph.facebook.com
+// occasionally resets the connection on the first attempt (events.ts precedent).
+async function rawFetch(url: string): Promise<Response> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
 }
 
 async function graphFetch(url: string): Promise<Record<string, unknown>> {
-  const res = await fetch(url, { signal: AbortSignal.timeout(FETCH_TIMEOUT_MS) });
+  const res = await rawFetch(url);
   const body = (await res.json().catch(() => null)) as Record<string, unknown> | null;
   if (!res.ok) {
     const apiError = body?.error as
-      | { message?: string; code?: number }
+      | { message?: string; code?: number; error_subcode?: number }
       | undefined;
     throw graphError(
       apiError?.message ?? `Graph API ${res.status} ${res.statusText}`,
       apiError?.code,
+      apiError?.error_subcode,
     );
   }
   if (!body) throw graphError("Graph API returned an unparsable response.");
@@ -87,6 +106,17 @@ export interface DiscoveredMedia {
   thumbnail_url: string | null;
   media_url: string | null;
   timestamp: string;
+}
+
+/** The Graph API only populates `thumbnail_url` for VIDEO/REELS media —
+ *  IMAGE and CAROUSEL_ALBUM come back with it null. Confirmed live
+ *  2026-07-10: both return a usable static image in `media_url` instead
+ *  (a carousel's `media_url` is its cover image). VIDEO's `media_url` is
+ *  the raw .mp4, never a valid `<img>` source, so it's excluded from the
+ *  fallback — VIDEO always has `thumbnail_url` set directly. */
+export function displayThumbnail(item: DiscoveredMedia): string | null {
+  if (item.thumbnail_url) return item.thumbnail_url;
+  return item.media_type === "VIDEO" ? null : item.media_url;
 }
 
 interface MediaPage {
@@ -123,6 +153,25 @@ const METRICS_BY_PRODUCT_TYPE: Partial<Record<string, readonly string[]>> = {
   REELS: ["reach", "views", "likes", "comments", "saved", "shares", "total_interactions"],
 };
 
+/** Old-style `FEED`+`VIDEO` media (pre-Reels-consolidation, e.g. legacy
+ *  IGTV-era posts) only supports `reach` — confirmed live 2026-07-10 via
+ *  backfill against 11 media from 2022 ("The Media Insights API does not
+ *  support the views, likes, comments, shares, total_interactions metric
+ *  for this media product type", code 100, no subcode). Not worth a
+ *  media_type-keyed table for 11 posts out of 4358 — retry once with this
+ *  reduced set instead of failing the whole media. */
+const FALLBACK_METRICS: readonly string[] = ["reach"];
+
+function isUnsupportedMetricError(error: unknown): boolean {
+  const err = error as GraphApiError;
+  return (
+    error instanceof Error &&
+    err.code === 100 &&
+    err.subcode === undefined &&
+    error.message.includes("does not support")
+  );
+}
+
 export interface MediaInsights {
   reach: number | null;
   views: number | null;
@@ -155,6 +204,18 @@ export async function getMediaInsights(
   const metrics = METRICS_BY_PRODUCT_TYPE[productType];
   if (!metrics) return null;
 
+  try {
+    return await fetchInsights(mediaId, metrics);
+  } catch (err) {
+    if (!isUnsupportedMetricError(err)) throw err;
+    return await fetchInsights(mediaId, FALLBACK_METRICS);
+  }
+}
+
+async function fetchInsights(
+  mediaId: string,
+  metrics: readonly string[],
+): Promise<MediaInsights> {
   const url = `${GRAPH_API_BASE}/${mediaId}/insights?metric=${metrics.join(",")}&access_token=${accessToken()}`;
   const body = (await graphFetch(url)) as unknown as {
     data?: Array<{ name: string; values?: Array<{ value: unknown }> }>;
