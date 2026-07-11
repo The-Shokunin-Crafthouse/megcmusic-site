@@ -5,7 +5,7 @@
       "https://www.instagram.com/meghanclarissecave/",
       "https://www.facebook.com/meghancave/"
     ],
-    "lastFullRun": "2026-07-04",
+    "lastFullRun": "2026-07-11",
     "version": 2
   },
   "profileScan": {
@@ -216,6 +216,33 @@
             }
           ],
           "lastVerified": "2026-07-04"
+        },
+        {
+          "id": "ig-08",
+          "title": "Instagram's 'Your Algorithm' controls are now live across Feed, Reels, and Explore — discovery is increasingly user-directed, not just engagement-signal-driven",
+          "action": "Give fans an explicit reason to mark content 'more like this,' don't rely on signals alone",
+          "rule": "Beyond passive engagement signals (shares, saves, watch time), users can now directly tell Instagram to see more or less of specific topics across Feed, Reels, and Explore (fully rolled out June 2026). Since recommendations increasingly reflect user-chosen topic preferences rather than a single static ranking, consider occasionally inviting engaged fans (in captions or Stories) to tap 'more like this' on posts they enjoy, and don't assume a strong early engagement signal alone guarantees continued distribution if it doesn't align with a user's chosen topics.",
+          "insight": "Instagram's 'Your Algorithm' feature is now a unified system spanning Feed, Reels, and Explore — discovery is shifting from a single ranking model toward user-directed topic control, which can help genre-aligned creators but makes reach less predictable.",
+          "evidence": "Instagram's official blog (about.instagram.com) confirms 'Your Algorithm' debuted on Reels in December 2025, expanded to Explore in April 2026, and rolled out across Feed, Reels, and Explore globally in June 2026 as 'one unified system' — adjustments a user makes ripple across all three surfaces. Independent coverage (TechCrunch, Social Media Today) corroborates the June 2026 Feed expansion and notes it lets users tell the algorithm what topics to show more or less of directly, rather than relying solely on implicit engagement signals.",
+          "confidence": "medium",
+          "sources": [
+            {
+              "title": "Control Your Instagram Reels Algorithm",
+              "url": "https://about.instagram.com/blog/announcements/reels-algorithm-control",
+              "date": "2026-06"
+            },
+            {
+              "title": "Instagram is testing more ways to customize 'Your Algorithm'",
+              "url": "https://techcrunch.com/2026/06/27/instagram-is-testing-more-ways-for-users-to-customize-your-algorithm/",
+              "date": "2026-06-27"
+            },
+            {
+              "title": "Instagram extends Your Algorithm to the main feed",
+              "url": "https://www.socialmediatoday.com/news/instagram-extends-your-algorithm-to-the-main-feed/822576/",
+              "date": "2026-06"
+            }
+          ],
+          "lastVerified": "2026-07-11"
         }
       ]
     },
@@ -384,6 +411,33 @@
             }
           ],
           "lastVerified": "2026-07-04"
+        },
+        {
+          "id": "fb-08",
+          "title": "Facebook now explicitly demotes reaction clips, stitches, and add-nothing narration — genuine on-screen creative value is required, not just an original account uploading",
+          "action": "Never post a reaction/stitch clip without adding real commentary or new info",
+          "rule": "Don't post reaction videos, clip-stitches, or narration-over-existing-footage that doesn't add meaningful new value. If reposting or building on third-party clips (e.g., reacting to a review of a show or a fan-filmed clip), pair it with genuine analysis, new information, or a story improvement — plain reactions or narrating what's already visible get deprioritized in both Feed and Reels, and repeated unoriginal posting risks the account being marked non-recommendable.",
+          "insight": "Meta's own March 2026 policy explicitly deprioritizes reaction clips and stitches without added commentary — original Reels saw roughly double the watch time in H2 2025 versus H2 2024.",
+          "evidence": "Meta's official blog (about.fb.com, March 2026) states Facebook's ranking systems classify simply watching along, reacting with facial expressions, stitching clips together, or narrating on-screen content without meaningful addition as unoriginal, and deprioritize it across both Feed and Reels recommendations; consistently unoriginal accounts risk demonetization and being marked non-recommendable. The same post reports views and watch time for original Reels roughly doubled in H2 2025 vs H2 2024, corroborated by third-party trade coverage (Social Media Examiner, ALM Corp).",
+          "confidence": "high",
+          "sources": [
+            {
+              "title": "Rewarding Original Creators on Facebook",
+              "url": "https://about.fb.com/news/2026/03/rewarding-original-creators-on-facebook/",
+              "date": "2026-03"
+            },
+            {
+              "title": "Facebook's 2026 Rules for Reach & Relevance",
+              "url": "https://www.socialmediaexaminer.com/facebooks-2026-rules-for-reach-relevance/",
+              "date": "2026"
+            },
+            {
+              "title": "Meta's New Original Content Rules (2026)",
+              "url": "https://almcorp.com/blog/meta-original-content-rules-2026-facebook-instagram-creators/",
+              "date": "2026"
+            }
+          ],
+          "lastVerified": "2026-07-11"
         }
       ]
     }
@@ -446,6 +500,26 @@
           "summary": "Initial playbook created."
         }
       ]
+    },
+    {
+      "date": "2026-07-11",
+      "entries": [
+        {
+          "type": "added",
+          "ruleId": "fb-08",
+          "summary": "Added Facebook's March 2026 original-content policy: reaction clips, stitches, and add-nothing narration are now explicitly deprioritized in Feed and Reels."
+        },
+        {
+          "type": "added",
+          "ruleId": "ig-08",
+          "summary": "Added Instagram's 'Your Algorithm' feature (fully live across Feed/Reels/Explore since June 2026): users can now directly steer topic recommendations, shifting discovery from pure engagement-signal ranking toward user-chosen topics."
+        },
+        {
+          "type": "added",
+          "ruleId": "original-value",
+          "summary": "Added checklist item for fb-08: confirm reaction/stitch content includes genuine added commentary before publishing."
+        }
+      ]
     }
   ],
   "checklist": [
@@ -499,6 +573,13 @@
         "ig-03",
         "fb-01",
         "fb-07"
+      ]
+    },
+    {
+      "id": "original-value",
+      "label": "If reacting to or building on someone else's clip, added real commentary/new info — not just narration or reactions",
+      "ruleIds": [
+        "fb-08"
       ]
     }
   ]
