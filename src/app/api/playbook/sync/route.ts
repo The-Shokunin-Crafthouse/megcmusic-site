@@ -21,11 +21,13 @@ import {
   displayThumbnail,
   getMediaInsights,
   isAuthError,
+  isPreBusinessMediaError,
   type DiscoveredMedia,
 } from "@/lib/playbook/meta";
 import type { ProductType } from "@/lib/playbook/types";
 
 export const dynamic = "force-dynamic";
+export const maxDuration = 300;
 
 const ACTIVE_WINDOW_DAYS = 90;
 const SYNCED_PRODUCT_TYPES = new Set<ProductType>(["FEED", "REELS"]);
@@ -113,6 +115,7 @@ export async function GET(req: Request): Promise<Response> {
   const activeRes = await db
     .from("sp_posts")
     .select("id, product_type, posted_at, metrics_synced_at")
+    .eq("metrics_available", true)
     .or(`posted_at.gt.${activeCutoff},metrics_synced_at.is.null`);
   if (activeRes.error) {
     await db
@@ -158,6 +161,23 @@ export async function GET(req: Request): Promise<Response> {
       if (snapshotRes.error) throw new Error(snapshotRes.error.message);
       synced++;
     } catch (err) {
+      if (isPreBusinessMediaError(err)) {
+        // Mirrors the backfill script's marking, plus metrics_synced_at —
+        // the backfill's own gap (metrics_available=false, synced_at left
+        // null) is what caused this post to keep re-matching the active
+        // window's `metrics_synced_at.is.null` clause on every run.
+        const markRes = await db
+          .from("sp_posts")
+          .update({ metrics_available: false, metrics_synced_at: new Date().toISOString() })
+          .eq("id", post.id);
+        if (markRes.error) {
+          failed++;
+          errorDetails.push(`${post.id}: ${markRes.error.message}`);
+        } else {
+          skipped++;
+        }
+        continue;
+      }
       failed++;
       const message = err instanceof Error ? err.message : "Insights fetch failed.";
       if (isAuthError(err)) authErrorSeen = true;
