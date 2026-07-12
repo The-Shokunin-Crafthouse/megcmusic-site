@@ -254,4 +254,90 @@
   --mc-text-title: 1.75rem;    /* 28px — EPK/discography item titles */
   --mc-text-quote: 2.3125rem;  /* 37px — pull-quote */
   --mc-text-dropcap: 6.125rem; /* 98px — Praise drop-cap, -8px from 106px (2026-07-10, more room for the copy) */
+
+  /* ── Megs Playbook PWA (isolated dark surface) ──────────────────────
+     Extracted from Figma 908TLdOM0e6xRtnzOj2nNv, node 155:2 and siblings
+     (Sprint 10 redesign, 2026-07-12; full extraction notes in
+     stages/02-design/output/playbook-redesign-spec.md). This surface does
+     NOT consume the public-site --mc-* tokens even where a value is an
+     exact duplicate (--pb-bg/--pb-teal/--pb-cta-bg/--pb-accent-red/
+     --pb-bg-takeover all happen to match an existing --mc-* value) — the
+     isolation is a logged decision (2026-06-16), not an oversight. Two
+     values below (--pb-nav-icon-circle, --pb-mic-circle-bg) are pixel-
+     sampled from the rendered PNG rather than extracted as vector fills
+     (Figma returned them as flattened image assets) — flagged low-
+     confidence in the spec; verify in Figma desktop if pixel precision
+     matters before shipping. */
+
+  /* Base surface — Home / Stats / Booking / Checklist (blurred-photo +
+     plum scrim background) */
+  --pb-bg: #241420;                 /* duplicates --mc-bg — kept isolated by decision */
+  --pb-bg-overlay-rgb: 36 20 32;    /* duplicates --mc-bg-rgb */
+  --pb-bg-overlay-alpha: 0.94;
+  --pb-bg-blur: 28px;
+  --pb-card-rgb: 163 88 135;        /* #A35887 — universal translucent card fill */
+  --pb-card-bg: rgb(var(--pb-card-rgb) / 0.10);
+  --pb-card-text: #a35887;          /* solid use of the card-fill hue (weekly-post descriptions) */
+  --pb-teal: #60b1ad;               /* duplicates --mc-teal-light */
+  --pb-teal-ink: #271621;           /* text on the active --pb-teal filter/tab pill */
+  --pb-cta-bg: #f7eadd;             /* duplicates --mc-bg-card */
+  --pb-cta-ink: #2b1821;            /* text on --pb-cta-bg (close to but distinct from --pb-bg) */
+  --pb-accent-red: #d13e5b;         /* duplicates --mc-accent-red */
+  --pb-accent-red-rgb: 209 62 91;   /* duplicates --mc-accent-red-rgb */
+  --pb-stat-number: #b09c89;        /* stat big numbers, last-post/stat-card title text */
+  --pb-text-muted: #705f57;         /* sublabels, inactive chip/tab text, meta text, Reel/Post badge */
+  --pb-divider: #3c2736;            /* ★ row glyph color */
+  --pb-slash: #463c31;              /* "/" separators in the Booking pipeline meta row */
+  --pb-wtw-body: #7e5d6f;           /* "Why this works" expanded numbered-list body text */
+  --pb-success: #2bc28c;            /* checked checkbox + up-trend arrow (pixel-sampled, high confidence) */
+  --pb-post-card-border: #9a597f;   /* Stats #1-ranked post card only */
+  --pb-post-card-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); /* Stats #1-ranked post card only */
+
+  /* Bottom icon-cluster nav (glassmorphic pill, frame-pinned) */
+  --pb-nav-pill-shadow: -8px 7px 28px rgba(0, 0, 0, 0.25);
+  --pb-nav-pill-blur: 2px;
+  --pb-nav-pill-border-rgb: 255 255 255;     /* alpha 0.5 */
+  --pb-nav-pill-grad-from-rgb: 255 255 255;  /* alpha 0.4 */
+  --pb-nav-pill-grad-to-rgb: 153 153 153;    /* alpha 0.4 */
+  --pb-nav-icon-circle: rgba(255, 255, 255, 0.08); /* pixel-sampled, LOW confidence — flattened asset, re-verify in Figma desktop */
+
+  /* Creation-flow take-over — idea entry / question page (solid dark-teal
+     background, confirmed distinct from the base surface's plum scrim by
+     pixel-sampling the rendered PNG against the explicit #0D3333 Exit-bar
+     fill in the extracted code — see spec §"Screen 5" for the full trace). */
+  --pb-bg-takeover: #0d3333;        /* duplicates --mc-teal-ink */
+  --pb-input-bg: #f7f7f7;           /* idea-entry textarea card */
+  --pb-input-text: #000000;         /* only pure-black text on this surface */
+  --pb-mic-circle-bg: #155454;      /* pixel-sampled, LOW confidence — flattened asset, re-verify in Figma desktop */
+
+  /* Type sizes (Open Sans unless noted) */
+  --pb-text-divider: 0.375rem;   /* 6px — Lora Bold ★ row glyph, letter-spacing 4.08px */
+  --pb-text-2xs: 0.75rem;        /* 12px — labels, sublabels, chips, buttons, meta text */
+  --pb-text-sm: 0.875rem;        /* 14px — body copy, card descriptions, checklist rows */
+  --pb-text-base: 1rem;          /* 16px — Booking venue name, Exit bar label */
+  --pb-text-md: 1.25rem;         /* 20px — creation-flow headlines + idea-entry input text */
+  --pb-text-lg: 1.5rem;          /* 24px — stat numbers */
+  --pb-text-xl: 1.875rem;        /* 30px — Home recommendation headline (gradient text, Light weight) */
+  --pb-text-watermark: 10.6875rem; /* 171px — Stats rank-number background numeral */
+
+  /* Focus — dedicated ring for this dark surface (studio learning #32;
+     --mc-focus-ring #241420 equals --pb-bg and would vanish here). Cream
+     measures ~13:1 on --pb-bg and ~11:1 on --pb-bg-takeover — clears the
+     3:1 non-text minimum on both grounds with wide margin. */
+  --pb-focus-ring: #f7eadd;
+
+  /* Spacing / radii */
+  --pb-space-content: 24px;  /* base-surface outer content padding, all sides */
+  --pb-space-section: 24px;  /* gap between major stacked blocks */
+  --pb-space-card: 16px;     /* card internal padding; most inter-element gaps */
+  --pb-space-tight: 8px;     /* Booking/Checklist row-to-row gap; tight internal stacks */
+  --pb-space-micro: 4px;     /* icon-to-label gaps */
+  --pb-radius-card: 16px;    /* universal card/row radius */
+  --pb-radius-pill: 999px;   /* CTA buttons */
+  --pb-radius-badge: 88px;   /* "Reel"/"Post" meta badges, active filter/tab pill */
+  --pb-radius-nav: 80px;     /* bottom icon-cluster nav pill */
+  --pb-radius-chip-row: 256px; /* filter-chip / tab row container */
+  --pb-icon-size: 24px;      /* nav glyph size */
+  --pb-icon-circle: 40px;    /* nav icon circle diameter */
+  --pb-checkbox-size: 32px;  /* Checklist row icon size */
 }
