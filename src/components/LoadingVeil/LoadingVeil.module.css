@@ -372,6 +372,23 @@
   --pool-dur: 10s; --pool-delay: -2s;
 }
 
+/* ------------------------------- NOISE ------------------------------- */
+/* Static film grain over the whole scene (no blend mode — the 2026-07-09 ADR
+   above flagged mix-blend-mode as the compositing-flash cause, so this is a
+   plain low-alpha texture, same treatment as the light layers). Inline SVG
+   feTurbulence baked to a small tile and repeated; the grain's own alpha
+   (feColorMatrix last value) carries the "very subtle" tuning, not a CSS
+   opacity, so it never uniformly veils the lights beneath it. No animation —
+   a transient loading-screen overlay, static like .coneBlur. */
+.noise {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.05 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+}
+
 /* ------------------------- PROGRESSIVE CONE BLUR -------------------- */
 /* Gradient blur over the cones: crisp at the source, hazier toward the floor
    (light scattering through more air lower down). One masked backdrop-filter —

@@ -20,32 +20,30 @@ export function Discography() {
             ];
             return (
               <li key={r.title} className={styles.row}>
-                <div className={styles.meta}>
-                  {r.art ? (
-                    // eslint-disable-next-line @next/next/no-img-element
-                    <img
-                      className={styles.art}
-                      src={r.art}
-                      alt={`${r.title} cover art`}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  ) : (
-                    <span className={styles.artPlaceholder} aria-hidden="true">
-                      <span className={styles.artStar}>★</span>
-                      <span className={styles.artTitle}>{r.title}</span>
+                {r.art ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    className={styles.art}
+                    src={r.art}
+                    alt={`${r.title} cover art`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  <span className={styles.artPlaceholder} aria-hidden="true">
+                    <span className={styles.artStar}>★</span>
+                    <span className={styles.artTitle}>{r.title}</span>
+                  </span>
+                )}
+                <div className={styles.text}>
+                  <p className={styles.release}>
+                    <span className={styles.year}>{r.year}</span>
+                    <span className={styles.star} aria-hidden="true">
+                      ★
                     </span>
-                  )}
-                  <div className={styles.text}>
-                    <p className={styles.release}>
-                      <span className={styles.year}>{r.year}</span>
-                      <span className={styles.star} aria-hidden="true">
-                        ★
-                      </span>
-                      <span className={styles.type}>{r.type}</span>
-                    </p>
-                    <h3 className={styles.title}>{r.title}</h3>
-                  </div>
+                    <span className={styles.type}>{r.type}</span>
+                  </p>
+                  <h3 className={styles.title}>{r.title}</h3>
                 </div>
 
                 <div className={styles.links}>

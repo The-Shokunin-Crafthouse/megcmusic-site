@@ -89,6 +89,20 @@
   color: var(--mc-text-primary);
 }
 
+/* Mobile: shorter footer (-80px), symmetric top/bottom padding so the
+   watermark, CTA, and copyright all sit dead-centre in the shorter box
+   (desktop's 128/64 split is asymmetric by design; mobile isn't). */
+@media (max-width: 767px) {
+  .footer {
+    padding-top: calc(var(--mc-space-6) + var(--mc-space-2));
+    padding-bottom: calc(var(--mc-space-6) + var(--mc-space-2));
+  }
+
+  .copyright {
+    font-size: var(--mc-text-2xs);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .cta {
     transition: none;

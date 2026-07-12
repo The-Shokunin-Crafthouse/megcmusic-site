@@ -37,8 +37,9 @@
   min-height: 100svh;
 }
 
-/* Drop the dates into the lower hero so ~3 rows show on load and the 4th is
-   clipped by the fold (scroll affordance, Figma 39:12). Mobile uses a smaller
+/* Drop the dates into the lower hero so ~2 rows show on load and the 3rd is
+   clipped by the fold (scroll affordance, Figma 39:12) — kept short so more
+   of the hero photo reads above the list (2026-07-11). Mobile uses a smaller
    offset since wrapped titles make each card taller. */
 .heroInner {
   padding-top: max(

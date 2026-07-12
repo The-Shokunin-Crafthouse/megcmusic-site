@@ -136,13 +136,15 @@
      (Figma highlight #FFC3CF). Subtle: noticed only on a close look. */
   --mc-logo-sheen-rgb: 255 195 207; /* #FFC3CF */
 
-  /* Hero dates framing — bottom-anchor the dates so EXACTLY ~3.5 rows show on
-     load (3 full + the 4th clipped mid) regardless of viewport height. The
-     reserve is the fixed pixel run from the tabs down through 3.5 cards; the
-     pills therefore sit at a different Y per viewport height (by design).
-     Cards are taller on mobile (wrapped titles), so the reserve is larger. */
-  --mc-hero-dates-reserve: 448px;
-  --mc-hero-dates-reserve-mobile: 512px;
+  /* Hero dates framing — bottom-anchor the dates so EXACTLY ~2.5 rows show on
+     load (2 full + the 3rd clipped mid) regardless of viewport height, so
+     more of the hero photo (Meghan's face) reads above the list on first
+     paint (2026-07-11). The reserve is the fixed pixel run from the tabs
+     down through 2.5 cards; the pills therefore sit at a different Y per
+     viewport height (by design). Cards are taller on mobile (wrapped
+     titles), so the reserve is larger. */
+  --mc-hero-dates-reserve: 345px;
+  --mc-hero-dates-reserve-mobile: 409px;
 
   /* Focus — dedicated ring, AA on the pink pill (not the brand accent) */
   --mc-focus-ring: #241420;
