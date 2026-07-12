@@ -3,9 +3,11 @@
  *
  * Sends one email via Gmail and records it. This route is the LAST line of
  * defense, not the only one — the weekly run is expected to pre-check, but the
- * route independently refuses (409) to send when the category template isn't
+ * route independently refuses (409) to send when the governing template isn't
  * approved, the prospect has opted out or replied negatively, or the same kind
- * was already sent this cycle.
+ * was already sent this cycle. For `kind: initial` (and `reply`), the
+ * governing template is the prospect's category row; for `kind: followup_N`
+ * it's the global follow-up row for that kind (no category).
  *
  * Test mode ({ test_to, subject, body }) sends without touching the DB, for
  * run verification.
@@ -111,16 +113,23 @@ export async function POST(req: Request): Promise<Response> {
       );
     }
 
-    const templateRes = await db
-      .from("templates")
-      .select("*")
-      .eq("category", prospect.category)
-      .maybeSingle();
+    const followup = followupNumber(kind);
+    const templateRes =
+      followup !== null
+        ? await db.from("templates").select("*").eq("kind", kind).maybeSingle()
+        : await db
+            .from("templates")
+            .select("*")
+            .eq("category", prospect.category)
+            .eq("kind", "initial")
+            .maybeSingle();
     if (templateRes.error) return fail(templateRes.error.message, 502);
     const template = templateRes.data as Template | null;
     if (!template || template.status !== "approved") {
       return fail(
-        `Refusing to send: template for "${prospect.category}" is not approved.`,
+        followup !== null
+          ? `Refusing to send: follow-up template "${kind}" is not approved.`
+          : `Refusing to send: template for "${prospect.category}" is not approved.`,
         409,
       );
     }
@@ -171,7 +180,6 @@ export async function POST(req: Request): Promise<Response> {
       last_contacted_at: now,
       updated_at: now,
     };
-    const followup = followupNumber(kind);
     if (followup !== null) prospectUpdate.followups_sent = followup;
     // Record the thread id on the sends that open a thread.
     if (kind === "initial" || newThread || !prospect.gmail_thread_id) {
