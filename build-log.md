@@ -53,3 +53,23 @@
 2. Bound ISR server fetches with `AbortSignal.timeout`
 3. Tokenize off-grid Figma values when client has signed off the spec
 4. Add `-ink` token variant when a brand fill color fails AA as text
+
+---
+
+## Sprint 04 — /shows Listing
+**Closed:** 2026-07-01 (approved, Levi Bahn)
+*(Entry written retroactively 2026-07-12 by the COO apply pass — Flag 16; reconstructed from the sprint CONTEXT.md and decisions.md 2026-07-01 entries.)*
+
+**What shipped:** `/shows` grown from the Sprint-3 home section into a full destination — every upcoming and past date, cream tickets on deep plum, extending the Sprint-3 vocabulary (mask / tabs / card nodes) with no new visual language. Page header carries the ★★★ brand motif with no new tokens; nav active state became route-aware.
+
+**Key decisions (see decisions.md 2026-07-01):** show pipeline email → WP → Bandsintown via a standalone GitHub Action; past-shows pagination as backward-walk through a same-origin proxy.
+
+---
+
+## Sprint 05 — /shows Archive Enhancements
+**Closed:** 2026-07-02 (approved, Levi Bahn — live directive after the Sprint-4 preview)
+*(Entry written retroactively 2026-07-12 by the COO apply pass — Flag 16; reconstructed from the sprint CONTEXT.md and decisions.md 2026-07-02 entries.)*
+
+**What shipped:** search filtering the active tab live (with a written empty-search state), numbered pagination with a 20/50/100 page-size dropdown (keyboard-operable, five states), per-show add-to-calendar via `add-to-calendar-button`, persistent site chrome with the full-screen portrait backdrop extended to `/shows`, and the mobile treatment (Menu overlay, lazy-load, search-as-icon).
+
+**Scope reversals (logged in decisions.md):** search and numbered pagination — anti-defaults in Sprint 4 — reversed by live directive; the full archive now loads at build, retiring the `/api/shows/past` proxy and "Show more" append.
