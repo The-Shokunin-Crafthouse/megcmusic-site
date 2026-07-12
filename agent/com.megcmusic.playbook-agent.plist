@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  com.megcmusic.playbook-agent.plist — launchd job for the Megs Playbook
+  local generation daemon (agent/playbook-agent.mjs).
+
+  This is a TEMPLATE, not meant to be bootstrapped directly from this repo
+  path: it contains the placeholder token `__REPO__` in place of the
+  absolute repo path, and `__NODE__` in place of the absolute `node`
+  binary path (launchd runs jobs without your shell's PATH/nvm setup, so a
+  bare "node" will not resolve). `agent/install-launchd.sh` copies this
+  file to ~/Library/LaunchAgents/, substitutes both tokens, and bootstraps
+  it. Do not bootstrap this file in place — always go through the install
+  script so the substitution happens.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.megcmusic.playbook-agent</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__NODE__</string>
+    <string>__REPO__/agent/playbook-agent.mjs</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__REPO__</string>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>__REPO__/agent/logs/agent.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>__REPO__/agent/logs/agent-error.log</string>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+</dict>
+</plist>

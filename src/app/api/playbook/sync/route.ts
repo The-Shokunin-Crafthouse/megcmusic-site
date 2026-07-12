@@ -16,6 +16,8 @@
  * email, distinct from a transient `error` the next day's cron self-heals.
  */
 
+import type { SupabaseClient } from "@supabase/supabase-js";
+
 import { appDb } from "@/lib/api/appDb";
 import { sendEmail } from "@/lib/api/gmail";
 import { fail, hasCronSecret, ok, unauthorized } from "@/lib/playbook/http";
@@ -28,7 +30,9 @@ import {
   isPreBusinessMediaError,
 } from "@/lib/playbook/meta";
 import { fetchScorablePosts, topPostsFrom } from "@/lib/playbook/scoring";
+import type { MediaInsights } from "@/lib/playbook/meta";
 import type { ProductType } from "@/lib/playbook/types";
+import playbookData from "@/data/playbook.json";
 
 export const dynamic = "force-dynamic";
 export const maxDuration = 300;
@@ -36,6 +40,102 @@ export const maxDuration = 300;
 const ACTIVE_WINDOW_DAYS = 90;
 const SYNCED_PRODUCT_TYPES = new Set<ProductType>(["FEED", "REELS"]);
 const ALERT_EMAIL = process.env.BOOKING_TO ?? "meghanclarisse@gmail.com";
+
+/**
+ * P6 enqueue hook 1/2 (agent-daemon generation queue, PLAN.md §4/§5): the
+ * first time a post's metrics land (metrics_synced_at transitions from
+ * null) within the active window, queue a `tip_derivation` job so the local
+ * daemon (agent/playbook-agent.mjs) can mine 2–4 new tips from its real
+ * numbers. Best-effort — never throws past the caller, and skips if a
+ * tip_derivation job for this post id was already enqueued (e.g. a retried
+ * sync run).
+ */
+async function enqueueTipDerivationIfNew(
+  db: SupabaseClient,
+  post: { id: string; caption: string | null; product_type: string; posted_at: string },
+  insights: MediaInsights,
+): Promise<void> {
+  try {
+    const existing = await db
+      .from("generation_jobs")
+      .select("id")
+      .eq("kind", "tip_derivation")
+      .eq("input->post->>id", post.id)
+      .limit(1);
+    if (existing.error) throw new Error(existing.error.message);
+    if ((existing.data ?? []).length > 0) return; // already enqueued for this post
+
+    const insertRes = await db.from("generation_jobs").insert({
+      kind: "tip_derivation",
+      status: "queued",
+      input: {
+        post: {
+          id: post.id,
+          caption: post.caption,
+          product_type: post.product_type,
+          posted_at: post.posted_at,
+          reach: insights.reach,
+          likes: insights.likes,
+          comments: insights.comments,
+          saved: insights.saved,
+          shares: insights.shares,
+          total_interactions: insights.total_interactions,
+        },
+      },
+    });
+    if (insertRes.error) throw new Error(insertRes.error.message);
+  } catch (err) {
+    // Best-effort — a queue-enqueue failure must never fail the sync itself.
+    console.error(
+      `tip_derivation enqueue failed for post ${post.id}:`,
+      err instanceof Error ? err.message : err,
+    );
+  }
+}
+
+/**
+ * P6 enqueue hook 2/2: after a successful sync, check whether
+ * `src/data/playbook.json`'s `meta.lastFullRun` has moved past what the
+ * most recent `tip_review` job saw. If so (or if no tip_review job exists
+ * yet), enqueue one with the full current rule set and the prior job's rule
+ * set (for the daemon to diff) — this drives tip retirement (PLAN.md §4).
+ * Best-effort — never throws past the caller.
+ */
+async function enqueueTipReviewIfRulesChanged(db: SupabaseClient): Promise<void> {
+  try {
+    const lastFullRun = playbookData.meta.lastFullRun;
+    const rules = [
+      ...playbookData.platforms.instagram.rules,
+      ...playbookData.platforms.facebook.rules,
+    ];
+
+    const latest = await db
+      .from("generation_jobs")
+      .select("input")
+      .eq("kind", "tip_review")
+      .order("created_at", { ascending: false })
+      .limit(1);
+    if (latest.error) throw new Error(latest.error.message);
+
+    const latestJob = (latest.data ?? [])[0] as { input?: { lastFullRun?: string; rules?: unknown[] } } | undefined;
+    if (latestJob && latestJob.input?.lastFullRun === lastFullRun) {
+      return; // already reviewed against this playbook.json run
+    }
+
+    const previousRules = latestJob?.input?.rules ?? null;
+    const insertRes = await db.from("generation_jobs").insert({
+      kind: "tip_review",
+      status: "queued",
+      input: { lastFullRun, rules, previousRules },
+    });
+    if (insertRes.error) throw new Error(insertRes.error.message);
+  } catch (err) {
+    console.error(
+      "tip_review enqueue failed:",
+      err instanceof Error ? err.message : err,
+    );
+  }
+}
 
 function isSyncedProductType(value: string): value is ProductType {
   return SYNCED_PRODUCT_TYPES.has(value as ProductType);
@@ -122,7 +222,7 @@ export async function GET(req: Request): Promise<Response> {
 
   const activeRes = await db
     .from("sp_posts")
-    .select("id, product_type, posted_at, metrics_synced_at")
+    .select("id, caption, product_type, posted_at, metrics_synced_at")
     .eq("metrics_available", true)
     .or(`posted_at.gt.${activeCutoff},metrics_synced_at.is.null`);
   if (activeRes.error) {
@@ -168,6 +268,27 @@ export async function GET(req: Request): Promise<Response> {
         .insert({ post_id: post.id, captured_at: syncedAt, ...insights });
       if (snapshotRes.error) throw new Error(snapshotRes.error.message);
       synced++;
+
+      // P6 hook 1/2: metrics_synced_at transitioning from null, within the
+      // active window, is exactly "a post's metrics landed for the first
+      // time" — enqueue tip_derivation so new tips get mined from this
+      // post's real numbers (best-effort, never fails the sync).
+      const isFirstSync = post.metrics_synced_at === null;
+      const isWithinActiveWindow =
+        new Date(post.posted_at as string).getTime() >=
+        new Date(activeCutoff).getTime();
+      if (isFirstSync && isWithinActiveWindow) {
+        await enqueueTipDerivationIfNew(
+          db,
+          {
+            id: post.id as string,
+            caption: post.caption as string | null,
+            product_type: post.product_type as string,
+            posted_at: post.posted_at as string,
+          },
+          insights,
+        );
+      }
     } catch (err) {
       if (isPreBusinessMediaError(err)) {
         // Mirrors the backfill script's marking, plus metrics_synced_at —
@@ -226,6 +347,13 @@ export async function GET(req: Request): Promise<Response> {
     .update({ status, detail, finished_at: new Date().toISOString() })
     .eq("id", runId);
   if (authErrorSeen) await alertAuthError(detail);
+
+  // P6 hook 2/2: only after a clean run — an auth_error run hasn't proven
+  // the sync actually reflects the current account state, so it shouldn't
+  // drive tip retirement.
+  if (status === "ok") {
+    await enqueueTipReviewIfRulesChanged(db);
+  }
 
   return ok({ status, detail });
 }

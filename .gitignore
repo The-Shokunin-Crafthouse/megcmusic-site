@@ -83,3 +83,9 @@ stages/02-design/figma/exports/
 
 # Playwright MCP scratch artifacts
 .playwright-mcp/
+
+# Megs Playbook local generation daemon (Sprint 10) — real Supabase service
+# role key lives in agent/.env, never committed; runtime logs are local only.
+agent/.env
+agent/logs/*
+!agent/logs/.gitkeep

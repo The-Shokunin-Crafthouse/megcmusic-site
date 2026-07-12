@@ -101,11 +101,20 @@ export const jobInputSchemas = {
   storyboard: z.object({
     idea: z.string().min(1),
     answers: answersSchema,
+    // Per-frame regeneration (P5 spec, Screen 7): the existing frames plus
+    // the index to rewrite. The daemon appends a REGENERATE note to the
+    // prompt; the response is still a full frames array with only that
+    // frame changed. Both optional — absent means a fresh storyboard.
+    existingFrames: z.array(z.unknown()).optional(),
+    regenerateFrameIndex: z.number().int().min(0).optional(),
   }),
   make_it_better: z.object({ idea: z.string().min(1) }),
   titles: z.object({
     idea: z.string().min(1),
     context: z.string().optional(),
+    // Titles already offered — the prompt forbids repeating them (P5 spec,
+    // "Fresh titles" action).
+    previousTitles: z.array(z.string()).optional(),
   }),
 } satisfies Record<PageCreatableKind, z.ZodTypeAny>;
 

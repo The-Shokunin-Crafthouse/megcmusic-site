@@ -1,7 +1,9 @@
 # Job: storyboard
-<!-- Placeholders: {{IDEA}}; {{ANSWERS}} — JSON array of {question, answer}; {{STATS_CONTEXT}} — recent top/bottom performers -->
+<!-- Placeholders: {{IDEA}}; {{ANSWERS}} — JSON array of {question, answer}; {{STATS_CONTEXT}} — recent top/bottom performers; {{REGENERATE_NOTE}} — empty for a fresh storyboard; for a per-frame regenerate the daemon substitutes: "REGENERATE: Keep every frame below exactly as given EXCEPT frame N (0-indexed) — rewrite only that frame, keeping the arc intact. Existing frames: <json>" -->
 
 Build Meghan's post from idea to shootable storyboard. This is the product's core deliverable: she should be able to read it once, pick up her phone, and start filming.
+
+{{REGENERATE_NOTE}}
 
 HER IDEA:
 {{IDEA}}
