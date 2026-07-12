@@ -1,0 +1,62 @@
+{
+  "frames": [
+    {
+      "description": "Backstage close-up: Meghan tuning her acoustic guitar under string lights, direct-to-camera energy before she looks up.",
+      "onScreenText": "I almost didn't play this one tonight.",
+      "assetPrompt": "Vertical 9:16 reel opener: close-up of a woman's hands tuning an acoustic guitar backstage, warm string lights softly blurred in the background, golden-hour color grade, shallow depth of field, handheld documentary style, no text baked into the image."
+    },
+    {
+      "description": "Cut to Meghan sitting on a stage amp, guitar resting against her leg, talking straight to camera about the night the song was born.",
+      "onScreenText": "Denver, February — a show that almost got cancelled.",
+      "assetPrompt": "Vertical 9:16 shot: woman sitting on a stage amp in a small venue, guitar leaning against her leg, talking directly to camera, string lights and exposed brick wall behind her, warm intimate lighting, mid-shot framing."
+    },
+    {
+      "description": "Quick insert of a hand writing lyrics in a worn notebook by lamp light — the writing-process beat.",
+      "onScreenText": "Wrote the whole thing in the green room, that night.",
+      "assetPrompt": "Close-up overhead shot: a hand writing lyrics in a worn spiral notebook under a single warm desk lamp, a guitar pick and half-full coffee cup at the edge of frame, cinematic low-key lighting, shallow depth of field."
+    },
+    {
+      "description": "Live performance snippet — first chorus of the new song, small crowd swaying, phones mostly down.",
+      "onScreenText": "This is \"Tuesday Night.\"",
+      "assetPrompt": "Vertical 9:16 live performance clip: woman singing and playing acoustic guitar on a small stage, string lights overhead, a modest crowd swaying with phones lowered, warm amber stage lighting, slight motion blur for energy."
+    },
+    {
+      "description": "Soft turn: Meghan direct to camera again, quieter this time, before the ask.",
+      "onScreenText": "Still can't believe you were all there for it.",
+      "assetPrompt": "Close-up direct-to-camera shot: warm, unguarded smile, string-light bokeh behind her, soft natural light, intimate handheld framing, no overlay text in the image."
+    },
+    {
+      "description": "CTA card: Meghan standing with her guitar outside a small venue at dusk, room left in the lower third for a show-date overlay.",
+      "onScreenText": "Come sing it with me — The Skylark Lounge, Friday 8pm.",
+      "assetPrompt": "Vertical 9:16 shot: woman standing with an acoustic guitar in front of a small venue's lit entrance sign at dusk, warm inviting expression toward camera, string lights overhead, negative space reserved in the lower third for a show-date text overlay."
+    }
+  ],
+  "titleOptions": [
+    {
+      "title": "I almost didn't play this one tonight.",
+      "rationale": "Leads with vulnerability and curiosity — matches the hook frame, strong scroll-stop for a Reel."
+    },
+    {
+      "title": "The song I wrote in a green room",
+      "rationale": "Behind-the-scenes framing draws in the fans who engage most with your writing-process content."
+    },
+    {
+      "title": "Tuesday Night — the story behind it",
+      "rationale": "Direct and searchable, useful for fans who look up the song title after hearing it live."
+    },
+    {
+      "title": "Almost cancelled. Then this happened.",
+      "rationale": "Tension-forward hook that works well on FEED, where you have less time to earn the first three seconds."
+    }
+  ],
+  "caption": "Some songs almost don't happen. \"Tuesday Night\" is one of them — written in a green room the night I almost cancelled the whole show. Here's the story, and the song. Come hear the rest of it live this Friday at The Skylark Lounge.",
+  "hashtags": [
+    "#coloradosingersongwriter",
+    "#denvermusic",
+    "#skylarklounge",
+    "#tuesdaynight",
+    "#livemusicdenver",
+    "#singersongwriter"
+  ],
+  "postingWindow": "Thursday 5-7pm — the day before the show, catches the after-work scroll and still leaves 24 hours for people to plan on coming Friday."
+}

@@ -8,7 +8,8 @@
     "start": "next start",
     "preview": "next build && node --import tsx scripts/preview.ts",
     "verify:apis": "node --env-file=.env.local --import tsx scripts/verify-apis.ts",
-    "playbook:backfill": "node --env-file=.env.local --import tsx scripts/playbook-backfill.ts"
+    "playbook:backfill": "node --env-file=.env.local --import tsx scripts/playbook-backfill.ts",
+    "playbook:seed-tips": "node --env-file=.env.local --import tsx scripts/seed-tips.ts"
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",
@@ -21,6 +22,7 @@
     "react": "19.2.4",
     "react-dom": "19.2.4",
     "three": "^0.184.0",
+    "zod": "^4.4.3",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
