@@ -58,6 +58,7 @@ app:
   ci: .github/workflows/           # deploy.yml, preview-deploy.yml, preview-cleanup.yml
   env_example: .env.local.example
   database: supabase/              # Booking Outreach Engine migrations (Supabase, outreach-only; WordPress stays the site's content source — logged 2026-07-05)
+  agent: agent/                    # Local Mac generation daemon (playbook-agent.mjs) + claude -p prompt contracts — Sprint 10 playbook redesign (2026-07-12)
   rest_bases:
     wordpress: "https://megcmusic.com/wp-json/wp/v2"
     woocommerce: "https://megcmusic.com/wp-json/wc/v3"

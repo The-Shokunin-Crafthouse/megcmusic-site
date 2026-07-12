@@ -739,3 +739,33 @@ When the email-to-create-event feature is built, the venue handling must auto-cr
 **Rationale.** Levi's call. The two kinds now intentionally behave differently, but each matches what's actually specified: initials match the standing ADR, follow-ups match the new brief's explicit requirement.
 **Alternatives considered.** Reverse the initials ADR too, for uniform behavior — rejected: no one asked for that change, and it would remove the "approve once, the weekly run always uses the latest copy" property PERSONAL_TOUCH-gated initials depend on.
 **Consequences.** Easier: follow-up copy (which has no per-prospect research pass, unlike `{{PERSONAL_TOUCH}}`-gated initials) always gets a fresh look after a content change before the automation can send it. Harder: the two template kinds now have genuinely different edit semantics — worth a one-line callout if this ever confuses a future session skimming the route.
+
+## 2026-07-12 — Sprint 10: Megs Playbook redesigned as an iOS-feel PWA with a local-Mac Claude generation daemon
+**Stage:** 03-build
+**Type:** Architecture · Product / scope call
+**Status:** accepted — reopens the LLM-generation door the 2026-07-10 "Sprint 09: LLM generation features cut" entry closed, via the architecture that entry said didn't exist yet
+
+**Context.** Levi's sprint brief (stages/03-build/sprint-10-playbook-redesign/CONTEXT.md) directs a full redesign of `/megs-playbook` as a mobile-first PWA (installed from megcmusic.com, native-feel push/pop transitions, four surfaces + a guided AI creation flow). Sprint 09 cut LLM features because no free auth path exists for Vercel serverless. The brief resolves that with the health-dashboard operating pattern: the PWA never calls an LLM — it enqueues a `generation_jobs` row in Supabase; a local daemon on Meghan's Mac (`agent/playbook-agent.mjs`) polls, runs `claude -p` under her Claude subscription's local OAuth session, and streams results back into the row.
+**Decision.** Build per the brief: PWA stays at `/megs-playbook` on Vercel (HTTPS for SW install); new Supabase tables `generation_jobs`, `storyboards`, `tips`, `checklist_state` (RLS on + service_role policy + grants, per the 2026-07-12 outreach RLS posture); daemon in a new top-level `agent/` folder (manifest updated); Zustand for creation-flow state, TanStack Query for server state; Framer Motion under the Systemic Restraint philosophy; Serwist service worker. Existing Meta Graph sync, outreach engine, and playbook.json v2 plumbing are consumed as-is.
+**Alternatives considered.** (1) Anthropic API keys on Vercel — rejected 2026-07-10 (spend). (2) Keep the static playbook page — rejected: the brief's whole point. (3) Tunnel a local web server for the UI — rejected: Vercel already serves HTTPS; only generation needs the Mac.
+**Consequences.** Easier: LLM features ship with zero API spend; generation state is inspectable rows; the PWA is testable without the daemon via MOCK_GENERATION fixtures. Harder: generation availability now depends on Meghan's Mac being awake (accepted — same dependency class as the weekly outreach run); the daemon is new ongoing infrastructure with launchd lifecycle to verify by runtime artifacts (learnings #86/#87).
+
+## 2026-07-12 — Generation status via server-proxied polling, not client-side Supabase Realtime
+**Stage:** 03-build
+**Type:** Architecture
+**Status:** accepted — narrows the brief's §2 "Supabase Realtime (fallback: polling)" line
+
+**Context.** Client-side Realtime requires shipping `NEXT_PUBLIC_SUPABASE_*` anon credentials and RLS select policies on `generation_jobs`. This app has zero client-side Supabase (all DB access is server-side service-role via `appDb.ts` — logged posture), and `/megs-playbook` is an unauthenticated slug-obscurity route: an anon-readable `generation_jobs` table would make Meghan's ideas and storyboards publicly readable by anyone with the anon key, violating the same brief's §6 security bar.
+**Decision.** The PWA polls `GET /api/playbook/jobs/[id]` (server-proxied, service-role behind the route handler) at 2.5s while a job is non-terminal, stopping on `done`/`error` — well inside the 2-minute cap the brief itself sanctions for the polling path. No `NEXT_PUBLIC_SUPABASE_*` env is ever introduced.
+**Alternatives considered.** (1) Realtime with anon key + RLS policies — rejected: public readability of private creative data on an unauthenticated surface. (2) Server-Sent Events from a route handler — rejected: Vercel function duration cost for a 30s–2min stream, no gain over 2.5s polling at this scale. Revisit Realtime if the page gains real auth (the deferred JWT sprint).
+**Consequences.** Easier: security posture unchanged (service key server-only, no new public surface); one fewer client dependency. Harder: streaming-in progress arrives with up to 2.5s latency (imperceptible against a 30s–2min generation); the staged progress narrative reads job status, not a push channel.
+
+## 2026-07-12 — Tips seed ships as reviewed per-surface JSON + an idempotent script, not a SQL seed migration
+**Stage:** 03-build
+**Type:** Stack / tech choice
+**Status:** accepted
+
+**Context.** The brief requires a 200+ tip seed library "as a reviewed seed script," explicitly so Levi can read every tip in review. The repo precedent for seeding is a SQL migration (outreach templates), but 210 tips as SQL INSERT literals is hostile to review and to Meghan's later reading.
+**Decision.** Tips live in `scripts/tips-seed/{daily-insight,booking-insight,stat-insight,why-this-works,checklist}.json` (52/42/42/42/32 = 210, each `{body, tags}`), inserted by `npm run playbook:seed-tips` (`scripts/seed-tips.ts`) which validates shape, refuses to double-seed (counts existing `source='seed'` rows; `--force` to override), and inserts per surface.
+**Alternatives considered.** (1) SQL seed migration per the outreach precedent — rejected: unreadable diff for 210 prose rows and migrations aren't re-runnable for a content refresh. (2) Committing tips into the app bundle — rejected: tips are DB rows the daemon grows/retires; a bundled copy would drift.
+**Consequences.** Easier: every tip is a readable line in review; re-seeding is explicit and guarded. Harder: one more manual go-live step (run the seed after applying the migration — captured in the final report's checklist).
