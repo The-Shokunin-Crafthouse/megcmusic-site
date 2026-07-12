@@ -1,8 +1,10 @@
 /**
- * PATCH /api/outreach/templates/[key] — page-facing (unguarded).
+ * PATCH /api/outreach/templates/[category] — page-facing (unguarded).
  *
- * Edit and/or approve one template. `key` is a category slug for an initial
- * template or a follow-up kind (followup_1/2/3) for a global one. Approval
+ * The dynamic segment is named `category` for history (see PR #44), but it
+ * accepts either a category slug (initial template) or a follow-up kind
+ * (followup_1/2/3, global) — destructured below as `key` to reflect that.
+ * Approval
  * authorizes the weekly run to send from this template without per-draft
  * review:
  *   - Initial templates: refused (422) unless the effective body still
@@ -61,10 +63,10 @@ function parseBody(raw: unknown): PatchBody | null {
 
 export async function PATCH(
   req: Request,
-  ctx: { params: Promise<{ key: string }> },
+  ctx: { params: Promise<{ category: string }> },
 ): Promise<Response> {
   try {
-    const { key } = await ctx.params;
+    const { category: key } = await ctx.params;
     const isInitial = isCategory(key);
     const isFollowup = isFollowupKind(key);
     if (!isInitial && !isFollowup) {
