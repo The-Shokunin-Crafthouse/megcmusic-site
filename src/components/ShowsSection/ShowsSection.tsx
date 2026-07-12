@@ -34,9 +34,9 @@ const MAX_ROWS = 7;
 const BATCH = 20;
 
 /** Skeleton rows while the browser fallback fetches — matches the hero's
- *  ~3.5-visible-row framing so the loading state fills the same silhouette
+ *  ~2.5-visible-row framing so the loading state fills the same silhouette
  *  the real cards will. */
-const SKELETON_ROWS = 4;
+const SKELETON_ROWS = 3;
 
 /** Entrance stagger wraps every 7 rows so a batch cascades in waves instead of
  *  trailing the last row a second behind. Home's 0–6 indices are unchanged. */
