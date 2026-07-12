@@ -11,6 +11,7 @@ import { appDb } from "@/lib/api/appDb";
 import { fail, ok } from "@/lib/outreach/http";
 import {
   CATEGORIES,
+  FOLLOWUP_KINDS,
   type Message,
   type NeedsActionItem,
   type OutreachSummary,
@@ -32,12 +33,15 @@ function snippetOf(body: string | null): string {
     : collapsed;
 }
 
-function sortByCategory<T extends { category: string }>(rows: T[]): T[] {
-  const order = new Map<string, number>(CATEGORIES.map((c, i) => [c, i]));
-  return [...rows].sort(
-    (a, b) =>
-      (order.get(a.category) ?? 99) - (order.get(b.category) ?? 99),
-  );
+// Initials sort in category order; the three global follow-ups sort after,
+// in kind order (followup_1, 2, 3).
+function sortTemplates(rows: Template[]): Template[] {
+  const order = new Map<string, number>([
+    ...CATEGORIES.map((c, i): [string, number] => [c, i]),
+    ...FOLLOWUP_KINDS.map((k, i): [string, number] => [k, CATEGORIES.length + i]),
+  ]);
+  const keyOf = (t: Template) => (t.kind === "initial" ? (t.category ?? "") : t.kind);
+  return [...rows].sort((a, b) => (order.get(keyOf(a)) ?? 99) - (order.get(keyOf(b)) ?? 99));
 }
 
 export async function GET(): Promise<Response> {
@@ -55,7 +59,7 @@ export async function GET(): Promise<Response> {
     if (templatesRes.error) return fail(templatesRes.error.message, 502);
     if (prospectsRes.error) return fail(prospectsRes.error.message, 502);
 
-    const templates = sortByCategory((templatesRes.data ?? []) as Template[]);
+    const templates = sortTemplates((templatesRes.data ?? []) as Template[]);
     const prospects = (prospectsRes.data ?? []) as Prospect[];
 
     // Latest inbound message per needs-action prospect, in one query.

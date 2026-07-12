@@ -34,6 +34,15 @@ export type ProspectSource = "apollo" | "apify" | "web" | "manual";
 
 export type TemplateStatus = "pending" | "approved";
 
+/** Global follow-up kinds — no category, no subject; they thread as replies. */
+export const FOLLOWUP_KINDS = ["followup_1", "followup_2", "followup_3"] as const;
+export type FollowupKind = (typeof FOLLOWUP_KINDS)[number];
+export type TemplateKind = "initial" | FollowupKind;
+
+export function isFollowupKind(value: string): value is FollowupKind {
+  return (FOLLOWUP_KINDS as readonly string[]).includes(value);
+}
+
 export type MessageDirection = "outbound" | "inbound";
 
 export type MessageKind =
@@ -67,18 +76,29 @@ export interface Prospect {
   updated_at: string;
 }
 
-/** A row of the `templates` table. */
+/**
+ * A row of the `templates` table. `kind` distinguishes per-category
+ * initials from the three global follow-ups: follow-up rows carry
+ * `category`/`subject_template`/`signature` as null (no subject — they
+ * thread onto the original message — and the sign-off lives in the body).
+ */
 export interface Template {
   id: string;
-  category: string;
+  category: string | null;
+  kind: TemplateKind;
   label: string;
   audience: string;
-  subject_template: string;
+  subject_template: string | null;
   body_template: string;
-  signature: string;
+  signature: string | null;
   status: TemplateStatus;
   approved_at: string | null;
   updated_at: string;
+}
+
+/** Route-param / list-key for a template: category for initials, kind for follow-ups. */
+export function templateKey(t: Pick<Template, "kind" | "category">): string {
+  return t.kind === "initial" ? (t.category ?? "") : t.kind;
 }
 
 /** A row of the `messages` table. */

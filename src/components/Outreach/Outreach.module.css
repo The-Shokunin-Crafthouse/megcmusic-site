@@ -393,6 +393,25 @@
   margin-top: var(--mc-space-4);
 }
 
+.placeholderNotes {
+  margin: var(--mc-space-3) 0 0;
+  padding: var(--mc-space-3);
+  border-radius: var(--mc-radius-card);
+  background: rgb(var(--mc-teal-rgb) / 0.08);
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+}
+
+.placeholderNote {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  line-height: 1.5;
+  color: var(--mc-text-subtle);
+}
+
 .inlineError {
   margin: var(--mc-space-3) 0 0;
   font-family: var(--mc-font-ui);

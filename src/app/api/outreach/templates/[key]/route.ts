@@ -1,21 +1,31 @@
 /**
- * PATCH /api/outreach/templates/[category] — page-facing (unguarded).
+ * PATCH /api/outreach/templates/[key] — page-facing (unguarded).
  *
- * Edit and/or approve one category's template. Approval authorizes the weekly
- * run to send from this template without per-draft review, so approve is
- * refused (422) unless the effective body still contains {{PERSONAL_TOUCH}} —
- * the one human, per-prospect sentence the automation must always write.
- * Editing an already-approved template does NOT reset its approval: the weekly
- * run always uses the latest copy.
+ * Edit and/or approve one template. `key` is a category slug for an initial
+ * template or a follow-up kind (followup_1/2/3) for a global one. Approval
+ * authorizes the weekly run to send from this template without per-draft
+ * review:
+ *   - Initial templates: refused (422) unless the effective body still
+ *     contains {{PERSONAL_TOUCH}}. Editing an already-approved initial does
+ *     NOT reset its approval — the weekly run always uses the latest copy.
+ *   - Follow-up templates: no {{PERSONAL_TOUCH}} requirement. Editing an
+ *     already-approved follow-up DOES reset it to pending — unlike initials,
+ *     follow-up copy is fixed (no per-prospect research pass), so a content
+ *     change needs a fresh look before the automation can send it again.
+ * Every save (any kind) is blocked (422) if the incoming subject/body/
+ * signature contains an em dash or en dash — Meg's copy rule, validation
+ * only, never auto-rewritten.
  */
 
 import { appDb } from "@/lib/api/appDb";
 import { fail, ok } from "@/lib/outreach/http";
 import {
   isCategory,
+  isFollowupKind,
   PERSONAL_TOUCH_TOKEN,
   type Template,
 } from "@/lib/outreach/types";
+import { bannedDashFields } from "@/lib/outreach/voiceGuard";
 
 export const dynamic = "force-dynamic";
 
@@ -51,27 +61,49 @@ function parseBody(raw: unknown): PatchBody | null {
 
 export async function PATCH(
   req: Request,
-  ctx: { params: Promise<{ category: string }> },
+  ctx: { params: Promise<{ key: string }> },
 ): Promise<Response> {
   try {
-    const { category } = await ctx.params;
-    if (!isCategory(category)) {
-      return fail(`Unknown category "${category}".`, 404);
+    const { key } = await ctx.params;
+    const isInitial = isCategory(key);
+    const isFollowup = isFollowupKind(key);
+    if (!isInitial && !isFollowup) {
+      return fail(`Unknown template "${key}".`, 404);
     }
 
     const patch = parseBody(await req.json().catch(() => null));
     if (!patch) return fail("Malformed request body.", 400);
+
+    if (isFollowup && patch.subject_template !== undefined) {
+      return fail(
+        "Follow-up templates have no subject — they thread onto the original message.",
+        400,
+      );
+    }
+
+    const dashHits = bannedDashFields({
+      subject_template: patch.subject_template,
+      body_template: patch.body_template,
+      signature: patch.signature,
+    });
+    if (dashHits.length > 0) {
+      return fail(
+        `Can't save: ${dashHits.join(", ")} contains an em dash (—) or en dash (–) — Meg's copy rule bans both. Rewrite without one.`,
+        422,
+      );
+    }
 
     const db = appDb();
 
     const existingRes = await db
       .from("templates")
       .select("*")
-      .eq("category", category)
+      .eq(isInitial ? "category" : "kind", key)
+      .eq("kind", isInitial ? "initial" : key)
       .maybeSingle();
     if (existingRes.error) return fail(existingRes.error.message, 502);
     const existing = existingRes.data as Template | null;
-    if (!existing) return fail(`No template for category "${category}".`, 404);
+    if (!existing) return fail(`No template for "${key}".`, 404);
 
     const update: Record<string, unknown> = {
       updated_at: new Date().toISOString(),
@@ -84,26 +116,38 @@ export async function PATCH(
     }
     if (patch.signature !== undefined) update.signature = patch.signature;
 
+    const isContentEdit =
+      patch.subject_template !== undefined ||
+      patch.body_template !== undefined ||
+      patch.signature !== undefined;
+
     if (patch.approve === true) {
-      // Validate against the body that will be stored, edit-in-same-call aware.
-      const effectiveBody =
-        patch.body_template !== undefined
-          ? patch.body_template
-          : existing.body_template;
-      if (!effectiveBody.includes(PERSONAL_TOUCH_TOKEN)) {
-        return fail(
-          `Can't approve: the body must keep the ${PERSONAL_TOUCH_TOKEN} line — that's the one personal sentence written fresh for each recipient.`,
-          422,
-        );
+      if (isInitial) {
+        // Validate against the body that will be stored, edit-in-same-call aware.
+        const effectiveBody =
+          patch.body_template !== undefined
+            ? patch.body_template
+            : existing.body_template;
+        if (!effectiveBody.includes(PERSONAL_TOUCH_TOKEN)) {
+          return fail(
+            `Can't approve: the body must keep the ${PERSONAL_TOUCH_TOKEN} line — that's the one personal sentence written fresh for each recipient.`,
+            422,
+          );
+        }
       }
       update.status = "approved";
       update.approved_at = new Date().toISOString();
+    } else if (isFollowup && isContentEdit) {
+      // Follow-up copy is fixed (no per-prospect research pass) — an edit
+      // needs a fresh look before the automation can send it again.
+      update.status = "pending";
+      update.approved_at = null;
     }
 
     const updatedRes = await db
       .from("templates")
       .update(update)
-      .eq("category", category)
+      .eq("id", existing.id)
       .select("*")
       .maybeSingle();
     if (updatedRes.error) return fail(updatedRes.error.message, 502);

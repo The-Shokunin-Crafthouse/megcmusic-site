@@ -11,7 +11,13 @@
  */
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { OutreachSummary, Template } from "@/lib/outreach/types";
+import {
+  isFollowupKind,
+  templateKey,
+  type OutreachSummary,
+  type Template,
+} from "@/lib/outreach/types";
+import { FOLLOWUP_PLACEHOLDER_NOTES, SHARED_PLACEHOLDER_NOTE } from "@/lib/outreach/followupPlaceholders";
 import { NeedsReply } from "./NeedsReply";
 import { Pipeline } from "./Pipeline";
 import { TemplateCard } from "./TemplateCard";
@@ -86,7 +92,7 @@ export function Outreach() {
         ? {
             ...current,
             templates: current.templates.map((t) =>
-              t.category === next.category ? next : t,
+              templateKey(t) === templateKey(next) ? next : t,
             ),
           }
         : current,
@@ -110,6 +116,9 @@ export function Outreach() {
 
   if (!summary) return null;
 
+  const initialTemplates = summary.templates.filter((t) => t.kind === "initial");
+  const followupTemplates = summary.templates.filter((t) => isFollowupKind(t.kind));
+
   return (
     <div className={styles.root}>
       <NeedsReply items={summary.needsAction} onMarkHandled={markHandled} />
@@ -118,19 +127,47 @@ export function Outreach() {
         <h3 className={styles.sectionTitle} id="outreach-templates">
           Email templates
         </h3>
-        {summary.templates.length === 0 ? (
+        {initialTemplates.length === 0 ? (
           <p className={styles.emptyLine}>
             Templates aren&apos;t loaded yet — run the seed migration.
           </p>
         ) : (
           <div className={styles.templateGrid}>
-            {summary.templates.map((template) => (
+            {initialTemplates.map((template) => (
               <TemplateCard
-                key={template.category}
+                key={templateKey(template)}
                 template={template}
                 onUpdated={updateTemplate}
               />
             ))}
+          </div>
+        )}
+      </section>
+
+      <section className={styles.section} aria-labelledby="outreach-followups">
+        <h3 className={styles.sectionTitle} id="outreach-followups">
+          Follow-up templates
+        </h3>
+        <p className={styles.emptyLine}>
+          Global — one set shared across every category, sent as replies on the
+          original thread. {SHARED_PLACEHOLDER_NOTE}
+        </p>
+        {followupTemplates.length === 0 ? (
+          <p className={styles.emptyLine}>
+            Follow-up templates aren&apos;t loaded yet — run the seed migration.
+          </p>
+        ) : (
+          <div className={styles.templateGrid}>
+            {followupTemplates.map((template) =>
+              isFollowupKind(template.kind) ? (
+                <TemplateCard
+                  key={templateKey(template)}
+                  template={template}
+                  onUpdated={updateTemplate}
+                  placeholderNotes={FOLLOWUP_PLACEHOLDER_NOTES[template.kind]}
+                />
+              ) : null,
+            )}
           </div>
         )}
       </section>

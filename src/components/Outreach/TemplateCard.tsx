@@ -1,29 +1,40 @@
 "use client";
 
 /**
- * One category's email template: read view with placeholder chips and a
- * pending/approved badge, an inline edit mode (subject input + body/signature
- * textareas), and Approve. Approve surfaces the 422 "personal touch missing"
- * error inline. Editing an approved template does not reset approval — the
- * server keeps the status and the weekly run always uses the latest copy.
+ * One template's card: read view with placeholder chips and a
+ * pending/approved badge, an inline edit mode, and Approve. Approve surfaces
+ * the 422 "personal touch missing" / dash-guard error inline. Handles both
+ * shapes:
+ *   - Initial (per-category): subject + body + signature. Editing an
+ *     approved initial does not reset approval — the server keeps the
+ *     status and the weekly run always uses the latest copy.
+ *   - Follow-up (global, no category): body only — no subject, sign-off
+ *     lives in the body, no signature field. Editing an approved follow-up
+ *     DOES reset it to pending, enforced server-side.
  */
 
 import { useState } from "react";
-import type { Template } from "@/lib/outreach/types";
+import { templateKey, type Template } from "@/lib/outreach/types";
 import { PlaceholderText } from "./Placeholders";
 import styles from "./Outreach.module.css";
 
 export function TemplateCard({
   template,
   onUpdated,
+  placeholderNotes,
 }: {
   template: Template;
   onUpdated: (next: Template) => void;
+  placeholderNotes?: string[];
 }) {
+  const key = templateKey(template);
+  const showSubject = template.subject_template !== null;
+  const showSignature = template.signature !== null;
+
   const [editing, setEditing] = useState(false);
-  const [subject, setSubject] = useState(template.subject_template);
+  const [subject, setSubject] = useState(template.subject_template ?? "");
   const [body, setBody] = useState(template.body_template);
-  const [signature, setSignature] = useState(template.signature);
+  const [signature, setSignature] = useState(template.signature ?? "");
   const [busy, setBusy] = useState<null | "save" | "approve">(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,14 +47,11 @@ export function TemplateCard({
     setBusy(which);
     setError(null);
     try {
-      const res = await fetch(
-        `/api/outreach/templates/${encodeURIComponent(template.category)}`,
-        {
-          method: "PATCH",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        },
-      );
+      const res = await fetch(`/api/outreach/templates/${encodeURIComponent(key)}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
       const data = (await res.json().catch(() => null)) as
         | Template
         | { error: string }
@@ -64,9 +72,9 @@ export function TemplateCard({
   }
 
   function startEdit() {
-    setSubject(template.subject_template);
+    setSubject(template.subject_template ?? "");
     setBody(template.body_template);
-    setSignature(template.signature);
+    setSignature(template.signature ?? "");
     setError(null);
     setEditing(true);
   }
@@ -74,6 +82,16 @@ export function TemplateCard({
   function cancelEdit() {
     setEditing(false);
     setError(null);
+  }
+
+  function save() {
+    // The PATCH route matches on *_template keys — sending bare `subject`/
+    // `body` here would silently no-op those fields (pre-existing bug fixed
+    // in this pass: only `signature` happened to share its key name).
+    const payload: Record<string, unknown> = { body_template: body };
+    if (showSubject) payload.subject_template = subject;
+    if (showSignature) payload.signature = signature;
+    patch(payload, "save");
   }
 
   return (
@@ -92,15 +110,17 @@ export function TemplateCard({
 
       {editing ? (
         <div className={styles.editFields}>
-          <label className={styles.fieldLabel}>
-            Subject
-            <input
-              type="text"
-              className={styles.input}
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-            />
-          </label>
+          {showSubject ? (
+            <label className={styles.fieldLabel}>
+              Subject
+              <input
+                type="text"
+                className={styles.input}
+                value={subject}
+                onChange={(e) => setSubject(e.target.value)}
+              />
+            </label>
+          ) : null}
           <label className={styles.fieldLabel}>
             Body
             <textarea
@@ -110,31 +130,49 @@ export function TemplateCard({
               onChange={(e) => setBody(e.target.value)}
             />
           </label>
-          <label className={styles.fieldLabel}>
-            Signature
-            <textarea
-              className={styles.textarea}
-              rows={4}
-              value={signature}
-              onChange={(e) => setSignature(e.target.value)}
-            />
-          </label>
+          {showSignature ? (
+            <label className={styles.fieldLabel}>
+              Signature
+              <textarea
+                className={styles.textarea}
+                rows={4}
+                value={signature}
+                onChange={(e) => setSignature(e.target.value)}
+              />
+            </label>
+          ) : null}
         </div>
       ) : (
         <div className={styles.templateBody}>
-          <p className={styles.fieldTag}>Subject</p>
-          <p className={styles.subjectLine}>
-            <PlaceholderText text={template.subject_template} />
-          </p>
+          {showSubject ? (
+            <>
+              <p className={styles.fieldTag}>Subject</p>
+              <p className={styles.subjectLine}>
+                <PlaceholderText text={template.subject_template ?? ""} />
+              </p>
+            </>
+          ) : null}
           <p className={styles.fieldTag}>Body</p>
           <div className={styles.bodyText}>
             <PlaceholderText text={template.body_template} />
           </div>
-          <div className={styles.signatureText}>
-            <PlaceholderText text={template.signature} />
-          </div>
+          {showSignature ? (
+            <div className={styles.signatureText}>
+              <PlaceholderText text={template.signature ?? ""} />
+            </div>
+          ) : null}
         </div>
       )}
+
+      {placeholderNotes && placeholderNotes.length > 0 ? (
+        <ul className={styles.placeholderNotes}>
+          {placeholderNotes.map((note) => (
+            <li key={note} className={styles.placeholderNote}>
+              {note}
+            </li>
+          ))}
+        </ul>
+      ) : null}
 
       {error ? (
         <p className={styles.inlineError} role="alert">
@@ -148,7 +186,7 @@ export function TemplateCard({
             <button
               type="button"
               className={styles.btnPrimary}
-              onClick={() => patch({ subject, body, signature }, "save")}
+              onClick={save}
               disabled={busy !== null}
             >
               {busy === "save" ? "Saving…" : "Save"}
