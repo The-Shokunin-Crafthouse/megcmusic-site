@@ -224,8 +224,11 @@ export default function PlaybookPage() {
         <section className={styles.section}>
           <h2 className={styles.sectionTitle}>Insights log</h2>
           <div className={styles.ledger}>
-            {changelogByDate.map((entry) => (
-              <div key={entry.date} className={styles.ledgerEntry}>
+            {changelogByDate.map((entry, entryIndex) => (
+              <div
+                key={`${entry.date}-${entryIndex}`}
+                className={styles.ledgerEntry}
+              >
                 <p className={styles.ledgerDate}>{entry.date}</p>
                 <ul className={styles.ledgerItems}>
                   {entry.entries.map((item, index) => (
