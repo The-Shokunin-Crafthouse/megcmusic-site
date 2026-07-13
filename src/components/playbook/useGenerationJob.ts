@@ -93,7 +93,15 @@ async function postJob(body: CreateJobInput): Promise<CreateJobResult> {
 /** Enqueues a generation job (`questions` | `storyboard` | `make_it_better`
  *  | `titles` — the four page-creatable kinds). On success, seeds the
  *  react-query cache for that job id so the first `useGenerationJob` poll
- *  has an immediate value instead of a loading flash. */
+ *  has an immediate value instead of a loading flash.
+ *
+ *  The seed's status is pinned to "queued" regardless of what POST returned:
+ *  under MOCK_GENERATION=1 the route answers `status: "done"` immediately,
+ *  and seeding done-with-null-output made consumers that branch on
+ *  `status === "done"` read a finished-but-empty job before the first real
+ *  fetch delivered the output (found by the e2e known-bugs spec). The first
+ *  poll response overwrites the seed with the true status AND output
+ *  together. */
 export function useCreateJob() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -105,7 +113,7 @@ export function useCreateJob() {
           prev ?? {
             id: result.id,
             kind: "questions", // overwritten by the first poll response
-            status: result.status,
+            status: "queued",
             output: null,
             error: null,
             createdAt: new Date().toISOString(),

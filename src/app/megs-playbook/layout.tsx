@@ -22,6 +22,12 @@ import styles from "./pwa-layout.module.css";
 // build output). Same URL either way, so nothing downstream cares.
 export const metadata: Metadata = {
   manifest: "/megs-playbook/manifest.webmanifest",
+  // iOS reads the home-screen icon from this link, not the manifest —
+  // without it Add to Home Screen falls back to a page screenshot
+  // (found by e2e/install.spec.ts).
+  icons: {
+    apple: "/megs-playbook/icons/apple-touch-icon.png",
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

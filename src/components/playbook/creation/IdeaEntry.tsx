@@ -61,7 +61,10 @@ export function IdeaEntry({ onExit, onWillAdvance }: IdeaEntryProps) {
 
   useEffect(() => {
     if (!genJobId || !genJob.data) return;
-    if (genJob.data.status === "done") {
+    // done-with-no-output = a cache seed or a partial row; wait for the poll
+    // that carries the real output (same guard as CreationFlow's storyboard
+    // effect — e2e known-bugs spec).
+    if (genJob.data.status === "done" && genJob.data.output !== null) {
       const parsed = questionsOutputSchema.safeParse(genJob.data.output);
       if (parsed.success) {
         onWillAdvance();
@@ -97,7 +100,8 @@ export function IdeaEntry({ onExit, onWillAdvance }: IdeaEntryProps) {
 
   useEffect(() => {
     if (!mibJobId || !mibJob.data) return;
-    if (mibJob.data.status === "done") {
+    // Same done-with-no-output guard as the questions effect above.
+    if (mibJob.data.status === "done" && mibJob.data.output !== null) {
       const parsed = makeItBetterOutputSchema.safeParse(mibJob.data.output);
       if (parsed.success) {
         setIdeaDraft(parsed.data.sharpened);
