@@ -1,0 +1,54 @@
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-card);
+  padding: var(--pb-space-card);
+  background: var(--pb-card-bg);
+  border-radius: var(--pb-radius-chip-row);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.row::-webkit-scrollbar {
+  display: none;
+}
+
+/* Comp gives the Checklist tab row an explicit 56px (spec §Screen 4). */
+.fixedHeight {
+  height: 56px;
+  box-sizing: border-box;
+}
+
+.chip {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pb-space-micro);
+  min-height: var(--mc-touch-target);
+  padding: 0 var(--pb-space-tight);
+  border: none;
+  border-radius: var(--pb-radius-badge);
+  background: transparent;
+  font-size: var(--pb-text-2xs);
+  font-weight: 600;
+  color: var(--pb-text-muted);
+  white-space: nowrap;
+}
+
+.chip.active {
+  background: var(--pb-teal);
+  color: var(--pb-teal-ink);
+  font-weight: 700;
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--pb-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Spec: 12x12 caret — 1em at the chip's own --pb-text-2xs (12px) font-size,
+   rather than a mismatched spacing token or a raw px value. */
+.caret {
+  width: 1em;
+  height: 1em;
+}

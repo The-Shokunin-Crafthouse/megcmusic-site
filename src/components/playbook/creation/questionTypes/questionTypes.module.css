@@ -1,0 +1,122 @@
+/* Question-engine type layouts (specs.md §9.11). Only `multiselect` has a
+   real Figma comp (the Checklist row, repurposed); the rest are P5 design
+   work in the same vocabulary, confirmed here: row/icon/button colors
+   match Screen 4 (Checklist) per the P1 extraction spec. */
+
+.hint {
+  margin: 0 0 calc(-1 * var(--pb-space-tight)) 0;
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-text-muted);
+}
+
+/* ---- multiselect / single row list (70px rows, 8px gap) ---- */
+.rowList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+}
+
+.row {
+  composes: focusable from "../creation.module.css";
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-card);
+  min-height: 70px;
+  width: 100%;
+  border: none;
+  border-radius: var(--pb-radius-card);
+  background: var(--pb-card-bg);
+  padding: var(--pb-space-card);
+  text-align: left;
+}
+
+.row[aria-disabled="true"],
+.row:disabled {
+  opacity: 0.5;
+}
+
+.rowIconChecked {
+  flex-shrink: 0;
+  color: var(--pb-success);
+}
+
+.rowIconUnchecked {
+  flex-shrink: 0;
+  color: var(--pb-cta-bg);
+}
+
+.rowLabel {
+  font-size: var(--pb-text-sm);
+  font-weight: 400;
+  color: var(--pb-cta-bg);
+}
+
+/* ---- text_short / text_long ---- */
+.paperCardShort {
+  min-height: 96px;
+}
+
+/* ---- yes_no: two full-width 70px rows ---- */
+.yesNoList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+}
+
+.yesNoRow {
+  composes: focusable from "../creation.module.css";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 70px;
+  width: 100%;
+  border: none;
+  border-radius: var(--pb-radius-card);
+  background: var(--pb-card-bg);
+  color: var(--pb-cta-bg);
+  font-size: var(--pb-text-base);
+  font-weight: 600;
+}
+
+.yesNoRowSelected {
+  background: var(--pb-teal);
+  color: var(--pb-teal-ink);
+}
+
+/* ---- scale: five circles + optional pole labels ---- */
+.scaleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-tight);
+}
+
+.scaleCircle {
+  composes: focusable from "../creation.module.css";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  min-width: 44px;
+  min-height: 44px;
+  border-radius: 50%;
+  border: 1px solid var(--pb-cta-bg);
+  background: transparent;
+  color: var(--pb-cta-bg);
+  font-size: var(--pb-text-sm);
+  font-weight: 700;
+}
+
+.scaleCircleSelected {
+  border-color: var(--pb-teal);
+  background: var(--pb-teal);
+  color: var(--pb-teal-ink);
+}
+
+.scalePoles {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--pb-space-micro);
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-text-muted);
+}

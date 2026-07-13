@@ -1,0 +1,126 @@
+/* Shared chrome for the creation-flow take-over screens (idea entry +
+   question page) — spec §Screen 5 / §Screen 6 / specs.md §9.9-9.11. One
+   dark-teal surface family (`--pb-bg-takeover`), isolated from the plum
+   browse surfaces per the 2026-06-16 token decision. `TakeoverModal`
+   already fills the viewport and pads for safe-area on every side, so a
+   screen here only needs to be at least one viewport tall (`min-height:
+   100dvh`) and let its Exit bar fall to the bottom via flex — no
+   `position: fixed` needed, which keeps this correct wherever
+   `TakeoverModal` mounts.
+
+   Every color/type/space value below is a `--pb-*` token
+   (`_config/design-system/token-map.css`) — no raw hex, no arbitrary px. */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+}
+
+.content {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-section);
+  padding: var(--pb-space-content);
+}
+
+.headlineRow {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--pb-space-card);
+}
+
+.headline {
+  margin: 0;
+  font-size: var(--pb-text-md);
+  font-weight: 700;
+  color: var(--pb-white);
+}
+
+/* ---- Focus ring (studio learning #32 / spec Screen 10) ---- */
+.focusable:focus-visible {
+  outline: 2px solid var(--pb-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ---- "Paper" input card — idea entry + text_long/text_short question
+   types (spec §Screen 5 Components). Only pure-black text on the whole
+   creation surface lives here. ---- */
+.paperCard {
+  composes: focusable;
+  display: block;
+  width: 100%;
+  min-height: 200px;
+  resize: none;
+  border: none;
+  border-radius: var(--pb-radius-card);
+  background: var(--pb-input-bg);
+  color: var(--pb-input-text);
+  font-family: inherit;
+  font-size: var(--pb-text-md);
+  font-weight: 600;
+  padding: var(--pb-space-content);
+  line-height: 1.4;
+}
+
+.paperCard::placeholder {
+  color: var(--pb-input-text);
+  opacity: 0.45;
+}
+
+/* ---- Pill / text buttons (spec §Screen 5 Components) ---- */
+.pillButton {
+  composes: focusable;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--pb-cta-bg);
+  background: transparent;
+  border-radius: var(--pb-radius-pill);
+  padding: var(--pb-space-card) var(--pb-space-content);
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-cta-bg);
+  white-space: nowrap;
+}
+
+.pillButton[aria-disabled="true"],
+.pillButton:disabled {
+  opacity: 0.5;
+}
+
+.textButton {
+  composes: focusable;
+  border: none;
+  background: transparent;
+  padding: var(--pb-space-tight) 0;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-cta-bg);
+}
+
+.textButton:disabled {
+  opacity: 0.5;
+}
+
+/* ---- Exit bar (spec §Screen 5 / §Screen 6 — identical component on both)
+   Sits as the last flex child of `.screen`, so it reads at the visual
+   bottom of a short screen (the comp's "fixed" look) and scrolls into
+   view naturally if content ever runs long — no position:fixed z-index
+   bookkeeping needed on top of TakeoverModal's own safe-area handling. ---- */
+.exitBar {
+  composes: focusable;
+  flex-shrink: 0;
+  width: 100%;
+  min-height: 70px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--pb-bg-takeover);
+  color: var(--pb-cta-bg);
+  font-size: var(--pb-text-base);
+  font-weight: 700;
+}

@@ -1,0 +1,58 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-micro);
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-micro);
+}
+
+.icon {
+  width: var(--pb-space-card);
+  height: var(--pb-space-card);
+  color: var(--pb-teal);
+  transform: rotate(180deg);
+}
+
+.label {
+  font-size: var(--pb-text-2xs);
+  font-weight: 600;
+  color: var(--pb-teal);
+}
+
+.body {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  font-weight: 400;
+  color: var(--pb-cta-bg);
+  line-height: 1.5;
+}
+
+/* specs.md §10: shaped skeleton blocks in --pb-card-bg pulsing 60%->100%
+   alpha, 450ms ease cycle. Reduced motion: static 80%. */
+.skeletonLine {
+  height: 1.5em;
+  width: 80%;
+  border-radius: var(--pb-space-micro);
+  background: var(--pb-card-bg);
+  animation: tipCardPulse 450ms ease-in-out infinite alternate;
+}
+
+@keyframes tipCardPulse {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonLine {
+    animation: none;
+    opacity: 0.8;
+  }
+}

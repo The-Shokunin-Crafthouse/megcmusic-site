@@ -1,0 +1,13 @@
+.row {
+  margin: 0;
+  font-family: var(--mc-font-display); /* Lora — spec's one non-Open-Sans usage */
+  font-weight: 700;
+  font-size: var(--pb-text-divider);
+  line-height: 1;
+  /* Spec: letter-spacing 4.08px at the 6px (--pb-text-divider) font-size —
+     expressed relative (em) rather than a raw px value: 4.08 / 6 = 0.68em. */
+  letter-spacing: 0.68em;
+  color: var(--pb-divider);
+  overflow: hidden;
+  white-space: nowrap;
+}

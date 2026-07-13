@@ -1,0 +1,143 @@
+/* Idea entry (spec §Screen 5). Button row is left-aligned gap-24 — the
+   deliberate contrast with QuestionPage's justify-between row. */
+
+.micButton {
+  composes: focusable from "./creation.module.css";
+  position: relative;
+  flex-shrink: 0;
+  width: var(--pb-icon-circle);
+  height: var(--pb-icon-circle);
+  border: none;
+  border-radius: 50%;
+  background: var(--pb-mic-circle-bg);
+  color: var(--pb-cta-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.micButton svg {
+  width: var(--pb-icon-size);
+  height: var(--pb-icon-size);
+}
+
+.micListening {
+  color: var(--pb-teal);
+}
+
+.micRing {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid var(--pb-teal);
+  animation: micPulse 1.4s ease-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .micRing {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+@keyframes micPulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.35);
+    opacity: 0;
+  }
+}
+
+.restoreRow {
+  composes: focusable from "./creation.module.css";
+  display: flex;
+  align-items: center;
+  min-height: 44px;
+  border: none;
+  background: transparent;
+  padding: 0;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-teal);
+  text-align: left;
+}
+
+.buttonRow {
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-content);
+}
+
+.waitBlock {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-card);
+}
+
+.waitLabel {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-teal);
+  text-align: center;
+}
+
+/* ---- Make-it-better compare strip (specs.md §9.12) ---- */
+.mibStrip {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+}
+
+.mibWhy {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-micro);
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-teal);
+}
+
+.mibWhy svg {
+  flex-shrink: 0;
+}
+
+.mibBefore {
+  margin: 0;
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-text-muted);
+  font-style: italic;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.mibActions {
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-card);
+}
+
+.mibKeep {
+  composes: focusable from "./creation.module.css";
+  border: none;
+  border-radius: var(--pb-radius-pill);
+  background: var(--pb-cta-bg);
+  color: var(--pb-cta-ink);
+  padding: var(--pb-space-tight) var(--pb-space-card);
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+}
+
+.mibRevert {
+  composes: focusable from "./creation.module.css";
+  border: none;
+  background: transparent;
+  padding: var(--pb-space-tight) 0;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-cta-bg);
+}

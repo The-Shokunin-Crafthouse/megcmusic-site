@@ -1,0 +1,45 @@
+.row {
+  display: flex;
+  align-items: flex-start;
+}
+
+.col {
+  flex: 1 1 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: var(--pb-space-micro);
+}
+
+.value {
+  margin: 0;
+  font-size: var(--pb-text-lg);
+  font-weight: 800;
+  color: var(--pb-stat-number);
+  line-height: 1.1;
+}
+
+.label {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pb-space-micro);
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-text-muted);
+}
+
+.trendUp,
+.trendDown {
+  width: 1em;
+  height: 1em;
+}
+
+.trendUp {
+  color: var(--pb-success);
+}
+
+.trendDown {
+  color: var(--pb-accent-red);
+  transform: rotate(180deg);
+}

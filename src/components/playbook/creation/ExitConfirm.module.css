@@ -1,0 +1,53 @@
+/* Exit confirm sheet (specs.md §9.5). Rendered inside the shared
+   `BottomSheet` primitive (motion/) — this file only styles the content. */
+
+.title {
+  margin: 0 0 var(--pb-space-tight) 0;
+  font-size: var(--pb-text-base);
+  font-weight: 600;
+  color: var(--pb-white);
+}
+
+.body {
+  margin: 0 0 var(--pb-space-section) 0;
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+}
+
+.saveButton {
+  composes: focusable from "./creation.module.css";
+  min-height: 44px;
+  border: none;
+  border-radius: var(--pb-radius-pill);
+  background: var(--pb-cta-bg);
+  color: var(--pb-cta-ink);
+  font-size: var(--pb-text-sm);
+  font-weight: 700;
+}
+
+.keepButton {
+  composes: focusable from "./creation.module.css";
+  min-height: 44px;
+  border: 1px solid var(--pb-cta-bg);
+  border-radius: var(--pb-radius-pill);
+  background: transparent;
+  color: var(--pb-cta-bg);
+  font-size: var(--pb-text-sm);
+  font-weight: 700;
+}
+
+.discardButton {
+  composes: focusable from "./creation.module.css";
+  min-height: 44px;
+  border: none;
+  background: transparent;
+  color: var(--pb-accent-red);
+  font-size: var(--pb-text-sm);
+  font-weight: 700;
+}

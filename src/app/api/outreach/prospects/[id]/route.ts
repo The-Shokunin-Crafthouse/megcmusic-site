@@ -1,7 +1,11 @@
 /**
- * PATCH /api/outreach/prospects/[id] — one route, two callers, field-level
- * guard.
+ * /api/outreach/prospects/[id]
  *
+ * GET — page-facing (unguarded, same posture as GET /api/outreach/summary):
+ *   the full prospect row plus its message history (newest-first, capped at
+ *   50) for the Booking venue-detail sheet.
+ *
+ * PATCH — one route, two callers, field-level guard.
  *   Meg's page (no secret):  only { needs_action } — the "Mark handled" button.
  *                            Any other field in the body → 403.
  *   Weekly run (x-outreach-secret): additionally status, cooling_until, cycle,
@@ -11,9 +15,51 @@
 
 import { appDb } from "@/lib/api/appDb";
 import { fail, hasMachineSecret, ok } from "@/lib/outreach/http";
-import type { Prospect, ProspectStatus } from "@/lib/outreach/types";
+import type { Message, Prospect, ProspectStatus } from "@/lib/outreach/types";
 
 export const dynamic = "force-dynamic";
+
+const UUID_RE =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+export async function GET(
+  _req: Request,
+  ctx: { params: Promise<{ id: string }> },
+): Promise<Response> {
+  try {
+    const { id } = await ctx.params;
+    if (!UUID_RE.test(id)) {
+      return fail(`"${id}" is not a valid prospect id.`, 400);
+    }
+
+    const db = appDb();
+    const prospectRes = await db
+      .from("prospects")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (prospectRes.error) return fail(prospectRes.error.message, 502);
+    if (!prospectRes.data) return fail(`No prospect with id "${id}".`, 404);
+
+    const messagesRes = await db
+      .from("messages")
+      .select("*")
+      .eq("prospect_id", id)
+      .order("created_at", { ascending: false })
+      .range(0, 49);
+    if (messagesRes.error) return fail(messagesRes.error.message, 502);
+
+    return ok({
+      prospect: prospectRes.data as Prospect,
+      messages: (messagesRes.data ?? []) as Message[],
+    });
+  } catch (err) {
+    return fail(
+      err instanceof Error ? err.message : "Failed to load prospect.",
+      500,
+    );
+  }
+}
 
 const PAGE_FIELDS = ["needs_action"] as const;
 const MACHINE_FIELDS = [

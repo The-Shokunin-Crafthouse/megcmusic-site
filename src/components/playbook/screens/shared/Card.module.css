@@ -1,0 +1,11 @@
+.card {
+  background: var(--pb-card-bg);
+  border-radius: var(--pb-radius-card);
+  padding: var(--pb-space-card);
+}
+
+/* Stats #1-ranked post card only (spec §Screen 2 Colors). */
+.bordered {
+  border: 1px solid var(--pb-post-card-border);
+  box-shadow: var(--pb-post-card-shadow);
+}

@@ -1,0 +1,48 @@
+/* CreationFlow's own two screens: the storyboard-generating wait and the
+   TODO(P5-impl) storyboard placeholder (Screen 7 proper is a later
+   agent's build). */
+
+.frameCount {
+  flex-shrink: 0;
+  padding-top: 4px;
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-text-muted);
+  white-space: nowrap;
+}
+
+.waitLabel {
+  margin: 0 0 var(--pb-space-card) 0;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-teal);
+  text-align: center;
+}
+
+.partialText {
+  margin: 0;
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-text-muted);
+  text-align: center;
+}
+
+.placeholderNote {
+  margin: 0;
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-text-muted);
+}
+
+.placeholderFrameList {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+}
+
+.placeholderFrame {
+  border-radius: var(--pb-radius-card);
+  background: var(--pb-mic-circle-bg);
+  padding: var(--pb-space-card);
+  font-size: var(--pb-text-sm);
+  color: var(--pb-cta-bg);
+}

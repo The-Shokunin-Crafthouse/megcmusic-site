@@ -278,6 +278,11 @@
   --pb-card-rgb: 163 88 135;        /* #A35887 — universal translucent card fill */
   --pb-card-bg: rgb(var(--pb-card-rgb) / 0.10);
   --pb-card-text: #a35887;          /* solid use of the card-fill hue (weekly-post descriptions) */
+  --pb-white: #ffffff;              /* pure white text (P1 spec §Screen 3/4 type tables list raw #FFFFFF
+                                        for "Pipeline"/venue-name/"Checklist" nodes but the Token Table
+                                        never minted a token for it — added at P4-B build time to keep
+                                        "zero raw hex in component CSS" true; duplicates --mc-white but
+                                        stays isolated per the 2026-06-16 decision like every other --pb-* color) */
   --pb-teal: #60b1ad;               /* duplicates --mc-teal-light */
   --pb-teal-ink: #271621;           /* text on the active --pb-teal filter/tab pill */
   --pb-cta-bg: #f7eadd;             /* duplicates --mc-bg-card */

@@ -78,3 +78,63 @@ export function topPostsFrom(rows: ScorablePost[]): TopPost[] {
     .sort((a, b) => b.rate - a.rate)
     .slice(0, TOP_N);
 }
+
+/** Sprint 10 P4-A — Stats screen / GET /api/playbook/posts (§scoring
+ *  extension: "extend, never change existing exports"). `score` is an
+ *  alias of `rate` (same engagement-rate definition as `topPostsFrom`,
+ *  named `score` because that's the Stats chip's own vocabulary) — kept as
+ *  its own field rather than reusing `rate` under a new name so the wire
+ *  shape matches the sprint contract exactly. */
+export type PostSort = "score" | "reach" | "engagement";
+export type PostRange = "all" | "week";
+
+export interface ScoredPost extends TopPost {
+  score: number;
+}
+
+const WEEK_MS = 7 * 24 * 60 * 60 * 1000;
+
+/** Builds the full (not Top-5-sliced) derived-metric list for the Stats
+ *  screen, sorted per `sort` and optionally windowed by `range`. Reuses
+ *  `fetchScorablePosts`'s DB shape and the same engagement-rate derivation
+ *  as `topPostsFrom` so the two can never drift (learning #96 — derive
+ *  once, read everywhere). */
+export function scoredPostsFrom(
+  rows: ScorablePost[],
+  opts: { sort: PostSort; range: PostRange },
+): ScoredPost[] {
+  const cutoff = Date.now() - WEEK_MS;
+  const windowed =
+    opts.range === "week"
+      ? rows.filter((row) => new Date(row.posted_at).getTime() >= cutoff)
+      : rows;
+
+  const scored: ScoredPost[] = windowed.map((row) => {
+    const engagement =
+      (row.likes ?? 0) +
+      (row.comments ?? 0) +
+      (row.saved ?? 0) +
+      (row.shares ?? 0);
+    const rate = engagement / row.reach;
+    return {
+      id: row.id,
+      permalink: row.permalink,
+      thumbnailUrl: row.thumbnail_url,
+      caption: row.caption,
+      productType: row.product_type as ProductType,
+      postedAt: row.posted_at,
+      reach: row.reach,
+      engagement,
+      rate,
+      score: rate,
+    };
+  });
+
+  const sortKey: Record<PostSort, "score" | "reach" | "engagement"> = {
+    score: "score",
+    reach: "reach",
+    engagement: "engagement",
+  };
+  const key = sortKey[opts.sort];
+  return scored.sort((a, b) => b[key] - a[key]);
+}
