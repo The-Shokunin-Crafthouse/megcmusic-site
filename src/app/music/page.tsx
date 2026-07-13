@@ -15,12 +15,11 @@ import styles from "./music.module.css";
 // intro copy appears without a redeploy. Same ISR window as /media and /epk.
 export const revalidate = 3600;
 
-// Meg's WordPress Music page. Two published pages are titled "Music": the
-// legacy `music` (id 4346, last edited 2025-07) and `music-2` (id 5562), the
-// maintained superset with the 2026 gallery. We consume the maintained one.
-// (Flagged in decisions.md — Levi to confirm the canonical page / retire the
-// duplicate; the menu location couldn't be read, that REST route is auth-gated.)
-const MUSIC_SLUG = "music-2";
+// Meg's WordPress Music page — the source for the optional intro prose. The old
+// duplicate was retired and the maintained page took the clean `music` slug
+// (2026-07-13). We read intro copy from here; everything else on /music is
+// config, so this page only feeds the top paragraph when she writes one.
+const MUSIC_SLUG = "music";
 
 export const metadata: Metadata = {
   title: "Music — MegCMusic",
