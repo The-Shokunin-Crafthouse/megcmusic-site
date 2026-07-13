@@ -5,6 +5,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "Shows", href: "/shows" },
   { label: "Music", href: "/music" },
   { label: "Media", href: "/media" },
+  { label: "Poetry", href: "/poetry" },
   { label: "Booking", href: "/booking" },
   { label: "Shop", href: "/shop" },
 ];

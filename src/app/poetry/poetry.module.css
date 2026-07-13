@@ -1,0 +1,289 @@
+/* /poetry — "Secrets From a Songbird" landing. Same plum-scrim shell as the
+   other surfaces; a cover-beside-title hero, then the book's story. Tokens only. */
+
+.page {
+  position: relative;
+  min-height: 100svh;
+  background: var(--mc-bg);
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgb(var(--mc-bg-rgb) / 0.95) 0%,
+    rgb(var(--mc-bg-rgb) / 0.9) 30%,
+    rgb(var(--mc-bg-rgb) / 0.85) 60%,
+    rgb(var(--mc-bg-rgb) / 0.85) 100%
+  );
+}
+
+.main {
+  position: relative;
+  z-index: 2;
+}
+
+/* ---- Hero ----------------------------------------------------------- */
+.hero {
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-7);
+}
+
+.heroInner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--mc-space-6);
+  text-align: center;
+  animation: poetry-rise var(--mc-reveal-duration) var(--mc-ease-out-strong) both;
+}
+
+.coverWrap {
+  flex-shrink: 0;
+  width: 240px;
+  max-width: 70vw;
+}
+
+.coverArt {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--mc-radius-card);
+  box-shadow: var(--mc-shadow-card);
+}
+
+.coverPlaceholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mc-space-2);
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  padding: var(--mc-space-4);
+  border-radius: var(--mc-radius-card);
+  background: rgb(var(--mc-bg-rgb) / 0.6);
+  border: 1px solid var(--mc-divider);
+  box-shadow: var(--mc-shadow-card);
+}
+
+.coverStar {
+  color: var(--mc-accent-gold);
+  font-size: var(--mc-text-lead);
+}
+
+.coverName {
+  font-family: var(--mc-font-display);
+  font-size: var(--mc-text-base);
+  line-height: 1.25;
+  color: var(--mc-text-liner);
+}
+
+.heroText {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.eyebrow {
+  margin: 0 0 var(--mc-space-3);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--mc-accent-gold);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-2xl);
+  line-height: 1.1;
+  color: var(--mc-text-primary);
+}
+
+.subtitle {
+  margin: var(--mc-space-2) 0 0;
+  font-family: var(--mc-font-display);
+  font-style: italic;
+  font-size: var(--mc-text-lg);
+  line-height: 1.3;
+  color: var(--mc-text-liner);
+}
+
+.lede {
+  margin: var(--mc-space-4) 0 0;
+  max-width: 46ch;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-prose);
+  line-height: 1.55;
+  color: var(--mc-text-body);
+}
+
+.actions {
+  margin-top: var(--mc-space-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--mc-space-2);
+}
+
+.buy {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-3) var(--mc-space-6);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-weight: 700;
+  font-size: var(--mc-text-base);
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal-light);
+  transition:
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .buy:hover {
+    background: var(--mc-teal-bright);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
+}
+
+.buy:active {
+  transform: scale(0.96);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.buy:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+.note {
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  color: var(--mc-text-body);
+}
+
+@keyframes poetry-rise {
+  from {
+    opacity: 0;
+    transform: translateY(var(--mc-entrance-offset));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ---- About ---------------------------------------------------------- */
+.section {
+  position: relative;
+  z-index: var(--mc-z-content);
+  padding: var(--mc-space-6) var(--mc-space-4) var(--mc-space-9);
+}
+
+.inner {
+  max-width: 720px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-5);
+}
+
+.prose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-4);
+}
+
+.para {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-prose);
+  line-height: 1.65;
+  color: var(--mc-text-body);
+}
+
+.buyGhost {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  font-family: var(--mc-font-ui);
+  font-weight: 600;
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mc-teal-light);
+  transition: gap var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.buyGhost:hover {
+  gap: var(--mc-space-3);
+}
+
+.buyGhost:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---- Wider layout: cover beside text -------------------------------- */
+@media (min-width: 768px) {
+  .hero {
+    padding: var(--mc-space-9) var(--mc-space-6) var(--mc-space-8);
+  }
+  .heroInner {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--mc-space-8);
+    text-align: left;
+  }
+  .coverWrap {
+    width: 300px;
+  }
+  .heroText {
+    align-items: flex-start;
+  }
+  .actions {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--mc-space-4);
+  }
+  .section {
+    padding: var(--mc-space-6) var(--mc-space-6) var(--mc-space-9);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .heroInner {
+    animation: none;
+  }
+  .buy,
+  .buyGhost {
+    transition: none;
+  }
+  .buy:active {
+    transform: none;
+  }
+}
