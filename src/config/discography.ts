@@ -22,6 +22,9 @@ export interface Release {
   pageSlug?: string;
   /** Shop product whose image is the cover fallback (admin → Products). */
   productSlug?: string;
+  /** Route slug of this release's detail page (/music/<detailSlug>), if it has
+   *  one — the row links there. See config/releases.ts. */
+  detailSlug?: string;
   /** Per-release overrides; fall back to the artist profiles below. */
   spotify?: string;
   apple?: string;
@@ -46,6 +49,7 @@ export const RELEASES: Release[] = [
     art: null,
     pageSlug: "shadows-of-a-ghost-town",
     productSlug: "shadows-of-a-ghost-town-cd",
+    detailSlug: "shadows-of-a-ghost-town",
   },
   {
     year: "2024",
@@ -54,6 +58,7 @@ export const RELEASES: Release[] = [
     art: null,
     pageSlug: "kindred-spirits",
     productSlug: "kindred-spirits-ep",
+    detailSlug: "kindred-spirits",
   },
   {
     year: "2023",
@@ -62,5 +67,6 @@ export const RELEASES: Release[] = [
     art: null,
     pageSlug: "songs-from-the-sofa",
     productSlug: "songs-from-the-sofa-cd",
+    detailSlug: "songs-from-the-sofa",
   },
 ];

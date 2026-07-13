@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { Discography } from "@/components/Discography/Discography";
 import { getPage } from "@/lib/api/wordpress";
 import { paragraphsFromHtml } from "@/lib/wp-content";
+import { SINGLE_SLUGS, getReleaseDetail } from "@/config/releases";
 import styles from "./music.module.css";
 
 // The Music page changes only when Meg edits WordPress; refresh hourly so new
@@ -86,6 +89,39 @@ export default async function MusicPage() {
 
         {/* Release + track listings — the shared discography (home, /epk). */}
         <Discography />
+
+        {/* Standalone singles — their own detail pages, off the album list. */}
+        <section className={styles.section} aria-labelledby="music-singles">
+          <div className={styles.inner}>
+            <SectionLabel id="music-singles">Singles</SectionLabel>
+            <ul className={styles.singles}>
+              {SINGLE_SLUGS.map((slug) => {
+                const single = getReleaseDetail(slug);
+                if (!single) return null;
+                return (
+                  <li key={slug} className={styles.single}>
+                    <Link className={styles.singleLink} href={`/music/${slug}`}>
+                      <span className={styles.singleMeta}>
+                        <span className={styles.singleYear}>{single.year}</span>
+                        <span className={styles.singleStar} aria-hidden="true">
+                          ★
+                        </span>
+                        <span className={styles.singleType}>{single.type}</span>
+                      </span>
+                      <span className={styles.singleTitle}>{single.title}</span>
+                      <ArrowUpRight
+                        className={styles.singleArrow}
+                        size={18}
+                        weight="bold"
+                        aria-hidden="true"
+                      />
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </div>
+        </section>
       </main>
     </div>
   );

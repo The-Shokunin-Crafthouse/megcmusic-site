@@ -1,14 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import { resolveReleaseCover } from "@/lib/discography-covers";
+import { useReleaseCover } from "@/lib/use-release-cover";
 import styles from "./Discography.module.css";
 
 /**
- * A release's cover art. Renders the titled placeholder (which reserves the exact
- * art box, so the swap-in causes no layout shift), then resolves the real cover
- * from WP on the client — the datacenter build can't read WP, so covers arrive a
- * beat after load. A hard-pinned `art` string skips the fetch entirely.
+ * A release's cover art in the discography row. Renders the titled placeholder
+ * (which reserves the exact art box, so the swap-in causes no layout shift),
+ * then resolves the real cover from WP on the client — the datacenter build
+ * can't read WP, so covers arrive a beat after load.
  */
 export function ReleaseCover({
   title,
@@ -21,20 +20,7 @@ export function ReleaseCover({
   pageSlug?: string;
   productSlug?: string;
 }) {
-  const [url, setUrl] = useState<string | null>(art);
-  const ran = useRef(false);
-
-  useEffect(() => {
-    if (ran.current || art || (!pageSlug && !productSlug)) return;
-    ran.current = true;
-    let alive = true;
-    resolveReleaseCover(pageSlug, productSlug).then((resolved) => {
-      if (alive && resolved) setUrl(resolved);
-    });
-    return () => {
-      alive = false;
-    };
-  }, [art, pageSlug, productSlug]);
+  const url = useReleaseCover(art, pageSlug, productSlug);
 
   if (url) {
     return (
