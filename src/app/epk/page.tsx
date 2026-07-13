@@ -7,6 +7,8 @@ import { Discography } from "@/components/Discography/Discography";
 import { EpkPressKit } from "@/components/EpkPressKit/EpkPressKit";
 import { getPage } from "@/lib/api/wordpress";
 import { parseDownloadableAssets, type EpkAsset } from "@/lib/epk-assets";
+import { parseSetList, type SetGroup } from "@/lib/set-list";
+import { SetList } from "./SetList";
 import { EPK_ITEMS } from "@/config/epk";
 import { PRESS_ITEMS } from "@/config/press";
 import { BIO_PARAGRAPHS } from "@/config/bio";
@@ -46,8 +48,19 @@ async function serverAssets(): Promise<EpkAsset[]> {
   }
 }
 
+// Sample set list from the WP page. Blocked datacenter deploy returns nothing;
+// SetList refetches from the visitor's residential IP.
+async function serverSetList(): Promise<SetGroup[]> {
+  try {
+    const page = await getPage("sample-set-list");
+    return page ? parseSetList(page.content.rendered) : [];
+  } catch {
+    return [];
+  }
+}
+
 export default async function EpkPage() {
-  const assets = await serverAssets();
+  const [assets, setList] = await Promise.all([serverAssets(), serverSetList()]);
 
   return (
     <div className={styles.page}>
@@ -157,6 +170,18 @@ export default async function EpkPage() {
 
         {/* ---- Music (reuse the homepage discography) -------------------- */}
         <Discography />
+
+        {/* ---- Sample set list ------------------------------------------- */}
+        <section className={styles.section} aria-labelledby="epk-setlist">
+          <div className={styles.inner}>
+            <SectionLabel id="epk-setlist">Sample Set List</SectionLabel>
+            <p className={styles.setIntro}>
+              A taste of the room — crowd-pleasing covers alongside Meghan&apos;s
+              originals, shaped to the night.
+            </p>
+            <SetList server={setList} />
+          </div>
+        </section>
 
         {/* ---- Resources + booking CTA ----------------------------------- */}
         <section className={styles.section} aria-labelledby="epk-resources">
