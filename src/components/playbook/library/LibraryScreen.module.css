@@ -1,0 +1,141 @@
+/* Screen 8 — Storyboard library (specs.md §"Screen 8"). Browse-surface
+   chrome (plum-tint cards, `--pb-card-bg`) — this screen owns its own 24px
+   content inset since it renders inside `LibraryTakeover`, not
+   `PlaybookShell`'s tab-content `.wrap` (which supplies that padding for
+   the four real tabs only). */
+
+.stack {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-section);
+  padding: var(--pb-space-content);
+  background: var(--pb-bg);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-white);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+}
+
+.rowItem {
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--pb-space-card);
+  background: var(--pb-card-bg);
+  border-radius: var(--pb-radius-card);
+  text-align: left;
+}
+
+.rowTitle {
+  margin: 0;
+  font-size: var(--pb-text-base);
+  font-weight: 600;
+  color: var(--pb-white);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rowMeta {
+  margin: 0;
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-text-muted);
+}
+
+.slash {
+  color: var(--pb-slash);
+}
+
+.rowSkeleton {
+  height: 78px;
+  border-radius: var(--pb-radius-card);
+  background: var(--pb-card-bg);
+  animation: pulse 450ms ease-in-out infinite alternate;
+}
+
+.rowSkeleton + .rowSkeleton {
+  margin-top: var(--pb-space-tight);
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.stateBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pb-space-card);
+  padding: var(--pb-space-section) var(--pb-space-card);
+  text-align: center;
+}
+
+.errorText,
+.emptyText {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-text-muted);
+}
+
+.errorText {
+  color: var(--pb-accent-red);
+}
+
+.retryText {
+  min-height: var(--mc-touch-target);
+  padding: 0 var(--pb-space-card);
+  border: none;
+  background: transparent;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-accent-red);
+}
+
+.outlinePill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--mc-touch-target);
+  padding: var(--pb-space-tight) var(--pb-space-section);
+  border: 1px solid var(--pb-cta-bg);
+  border-radius: var(--pb-radius-pill);
+  background: transparent;
+  color: var(--pb-cta-bg);
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+}
+
+.row:focus-visible,
+.retryText:focus-visible,
+.outlinePill:focus-visible {
+  outline: 2px solid var(--pb-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rowSkeleton {
+    animation: none;
+    opacity: 0.8;
+  }
+}

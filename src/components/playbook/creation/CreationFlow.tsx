@@ -123,29 +123,34 @@ export function CreationFlow({ renderStoryboard }: CreationFlowProps) {
       </div>
     );
   } else if (creationPhase === "storyboard" && storyboard) {
+    // Screen 7 (Storyboard result, specs.md §"Screen 7") — this component
+    // owns only the outer `shared.screen` flex column + the shared
+    // ExitBar/ExitConfirm sheet, identical to every other creation-flow
+    // screen; `renderStoryboard` supplies the content + bottom action bar
+    // (StoryboardResult, mode="creation") as a fragment that lands above
+    // the ExitBar. Falls back to a minimal placeholder when no
+    // `renderStoryboard` is supplied (e.g. an isolated preview route).
     screenKey = "storyboard";
-    content = renderStoryboard ? (
-      renderStoryboard(storyboard)
-    ) : (
-      // TODO(P5-impl): replaced by the real Screen 7 (Storyboard result)
-      // build. Minimal, honest placeholder so the flow has a reachable
-      // terminus today — not a substitute for that screen's spec
-      // (specs.md §"Screen 7").
+    content = (
       <div className={shared.screen}>
-        <div className={shared.content}>
-          <div className={shared.headlineRow}>
-            <h1 className={shared.headline}>Your storyboard</h1>
-            <span className={styles.frameCount}>{storyboard.frames.length} frames</span>
+        {renderStoryboard ? (
+          renderStoryboard(storyboard)
+        ) : (
+          <div className={shared.content}>
+            <div className={shared.headlineRow}>
+              <h1 className={shared.headline}>Your storyboard</h1>
+              <span className={styles.frameCount}>{storyboard.frames.length} frames</span>
+            </div>
+            <p className={styles.placeholderNote}>Save coming soon.</p>
+            <ul className={styles.placeholderFrameList}>
+              {storyboard.frames.map((frame, index) => (
+                <li key={index} className={styles.placeholderFrame}>
+                  {frame.description}
+                </li>
+              ))}
+            </ul>
           </div>
-          <p className={styles.placeholderNote}>Save coming soon.</p>
-          <ul className={styles.placeholderFrameList}>
-            {storyboard.frames.map((frame, index) => (
-              <li key={index} className={styles.placeholderFrame}>
-                {frame.description}
-              </li>
-            ))}
-          </ul>
-        </div>
+        )}
         <ExitBar onExit={openExit} />
       </div>
     );

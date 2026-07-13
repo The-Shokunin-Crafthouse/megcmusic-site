@@ -1,0 +1,79 @@
+/* LibraryTakeover — browse-surface (plum) chrome layered over the shared
+   TakeoverModal primitive's creation-surface (teal) background; see the
+   file header comment in LibraryTakeover.tsx. */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--pb-bg);
+}
+
+.backRow {
+  composes: focusable from "../creation/creation.module.css";
+  flex-shrink: 0;
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pb-space-micro);
+  min-height: var(--mc-touch-target);
+  padding: var(--pb-space-content) var(--pb-space-content) 0;
+  border: none;
+  background: transparent;
+  color: var(--pb-cta-bg);
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+}
+
+/* Screen 7 (Storyboard result) is always creation-surface, even reached
+   from this browse-surface takeover — this wrapper re-applies the teal
+   background for just the pushed detail view. */
+.storyboardSurface {
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--pb-bg-takeover);
+}
+
+.detailSkeleton {
+  height: 96px;
+  border-radius: var(--pb-radius-card);
+  background: var(--pb-mic-circle-bg);
+  animation: pulse 450ms ease-in-out infinite alternate;
+}
+
+.detailSkeleton + .detailSkeleton {
+  margin-top: var(--pb-space-tight);
+}
+
+.errorText {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-accent-red);
+}
+
+.retryText {
+  min-height: var(--mc-touch-target);
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-accent-red);
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .detailSkeleton {
+    animation: none;
+    opacity: 0.8;
+  }
+}

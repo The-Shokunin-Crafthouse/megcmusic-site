@@ -83,7 +83,7 @@ export async function GET(): Promise<Response> {
     const db = appDb();
     const listRes = await db
       .from("storyboards")
-      .select("id, idea, chosen_title, created_at, frames")
+      .select("id, idea, chosen_title, created_at, frames, posting_window")
       .order("created_at", { ascending: false })
       .range(0, LIST_CAP - 1);
     if (listRes.error) return fail(listRes.error.message, 502);
