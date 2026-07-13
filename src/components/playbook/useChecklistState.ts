@@ -52,10 +52,14 @@ export function useChecklistState(): UseChecklistStateResult {
       .then(async (res) => {
         const json = await res.json().catch(() => null);
         if (!res.ok) {
-          throw new Error(
-            (json as { error?: string } | null)?.error ??
-              "Couldn't load today's checklist.",
+          // The server's error string is for the console, not for Meghan —
+          // a raw PostgREST message on screen reads as breakage. The UI
+          // always gets the same quiet line.
+          console.error(
+            "checklist load failed:",
+            (json as { error?: string } | null)?.error ?? res.status,
           );
+          throw new Error("Couldn't load today's check-offs — showing unchecked.");
         }
         return json as { items: Record<string, boolean> };
       })
@@ -70,7 +74,7 @@ export function useChecklistState(): UseChecklistStateResult {
         setError(
           err instanceof Error
             ? err.message
-            : "Couldn't load today's checklist — showing unchecked.",
+            : "Couldn't load today's check-offs — showing unchecked.",
         );
         setStatus("error");
       });
@@ -98,10 +102,11 @@ export function useChecklistState(): UseChecklistStateResult {
           .then(async (res) => {
             if (!res.ok) {
               const json = await res.json().catch(() => null);
-              throw new Error(
-                (json as { error?: string } | null)?.error ??
-                  "Couldn't save that check.",
+              console.error(
+                "checklist save failed:",
+                (json as { error?: string } | null)?.error ?? res.status,
               );
+              throw new Error("Couldn't save that check — it's unchecked again.");
             }
             setError(null);
           })
