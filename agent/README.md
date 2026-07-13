@@ -87,6 +87,62 @@ Two files make up the daemon:
 
    To remove it: `bash agent/uninstall-launchd.sh`.
 
+## Alternative: LaunchDaemon under a dedicated user (running on Levi's Mac)
+
+**Decided 2026-07-13** (decisions.md) — Meghan's own laptop (Windows, 8GB
+RAM, 11th-gen i3) isn't a good fit for this. Instead: a second macOS user
+account on Levi's Mac, logged into **Meghan's own Claude subscription**,
+running the daemon as a system-wide **LaunchDaemon** rather than the
+per-user LaunchAgent above.
+
+Why a LaunchDaemon and not the LaunchAgent instructions above run under
+that second account: a LaunchAgent lives in the `gui/<uid>` domain and
+only runs while that user has an active session. Fast User Switching
+(switching away without logging out) keeps it alive; a full log-out does
+not — and nobody's going to remember to never log that account out. A
+LaunchDaemon runs in the system-wide `system` domain and doesn't care
+whether that user is logged in at all.
+
+Setup:
+
+1. Create the second macOS user account (System Settings → Users &
+   Groups). Log into it at least once, interactively.
+2. **While logged into that account**, do the normal setup: clone the
+   repo (into that user's own home directory, not the admin's — the
+   daemon runs as this user and needs to read/write `agent/.env` and
+   `agent/logs/`), `npm install`, `cp agent/.env.example agent/.env` +
+   fill it in, then run `claude -p "say hi"` yourself. This step matters
+   beyond a sanity check: it's what unlocks Keychain access for whatever
+   token store the CLI uses — a LaunchDaemon spawned before this first
+   interactive login can fail to read those credentials.
+3. Test with `node agent/playbook-agent.mjs --once` against a real queued
+   job, same as the LaunchAgent flow.
+4. Install Node **system-wide** (Homebrew: `brew install node`), not via
+   nvm under the admin's own home — a per-user nvm install is invisible
+   to the second account's LaunchDaemon process.
+5. From an admin shell (can be either account, just needs `sudo`):
+   ```bash
+   sudo bash agent/install-launchdaemon.sh <macos-username>
+   ```
+   Mirrors `install-launchd.sh`'s runtime-artifact verification
+   (`launchctl list` + non-empty log file, printed PASS/FAIL), but
+   installs into `/Library/LaunchDaemons/` with a `UserName`/`GroupName`
+   pair set to the target account instead of `~/Library/LaunchAgents/`.
+   The script checks the target user can actually execute the resolved
+   `node` binary before installing, and warns if the repo isn't owned by
+   that user.
+   Remove with `sudo bash agent/uninstall-launchdaemon.sh`.
+
+Trade-off worth knowing: this moves the "is the daemon awake" dependency
+from Meghan's machine to Levi's, and her Claude Code login now lives on
+his laptop rather than hers. Accepted 2026-07-13 given her hardware.
+
+**Untested as of this writing** — built and syntax/plist-checked in the
+studio's dev environment (`bash -n`, `plutil -lint`, all pass), but the
+actual `sudo bash agent/install-launchdaemon.sh` bootstrap, the Keychain
+unlock, and a real `--once` run under the second account have not been
+run on Levi's actual Mac.
+
 ## Verification
 
 Never trust that a launchd job is running just because the plist exists

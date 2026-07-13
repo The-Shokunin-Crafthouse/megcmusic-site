@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<!--
+  com.megcmusic.playbook-agent-daemon.plist — LaunchDaemon variant of the
+  Megs Playbook local generation daemon (agent/playbook-agent.mjs).
+
+  Use this instead of com.megcmusic.playbook-agent.plist (the LaunchAgent
+  template) when the daemon runs under a DEDICATED macOS user account that
+  is not the machine's primary interactive user — e.g. a second account on
+  Levi's Mac logged into Meghan's Claude subscription, because her own
+  laptop is underpowered for this (8GB RAM, 11th-gen i3) — decided and
+  logged in decisions.md, 2026-07-13.
+
+  A LaunchDaemon runs system-wide via root's launchd domain and does not
+  require that user to have an active GUI session at all — unlike a
+  LaunchAgent (gui/<uid> domain), which stops the moment that user fully
+  logs out (Fast User Switching keeps a LaunchAgent alive when you switch
+  away; a full Log Out does not).
+
+  TEMPLATE — contains __REPO__ / __NODE__ / __USER__ / __GROUP__
+  placeholders. Always install via agent/install-launchdaemon.sh, which
+  substitutes them and writes the result to
+  /Library/LaunchDaemons/com.megcmusic.playbook-agent.plist, owned
+  root:wheel with 644 permissions (launchd silently ignores LaunchDaemons
+  with looser permissions). Do not bootstrap this file directly.
+-->
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.megcmusic.playbook-agent</string>
+
+  <key>UserName</key>
+  <string>__USER__</string>
+
+  <key>GroupName</key>
+  <string>__GROUP__</string>
+
+  <key>ProgramArguments</key>
+  <array>
+    <string>__NODE__</string>
+    <string>__REPO__/agent/playbook-agent.mjs</string>
+  </array>
+
+  <key>WorkingDirectory</key>
+  <string>__REPO__</string>
+
+  <key>KeepAlive</key>
+  <true/>
+
+  <key>RunAtLoad</key>
+  <true/>
+
+  <key>StandardOutPath</key>
+  <string>__REPO__/agent/logs/agent.log</string>
+
+  <key>StandardErrorPath</key>
+  <string>__REPO__/agent/logs/agent-error.log</string>
+
+  <key>ProcessType</key>
+  <string>Background</string>
+
+  <key>ThrottleInterval</key>
+  <integer>10</integer>
+</dict>
+</plist>
