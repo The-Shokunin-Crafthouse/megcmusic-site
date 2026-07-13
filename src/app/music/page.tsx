@@ -6,6 +6,9 @@ import { Discography } from "@/components/Discography/Discography";
 import { getPage } from "@/lib/api/wordpress";
 import { paragraphsFromHtml } from "@/lib/wp-content";
 import { SINGLE_SLUGS, getReleaseDetail } from "@/config/releases";
+import { LIVE_FORMATS } from "@/config/formats";
+import { COLLAB_GROUPS, CAVE_CREW_URL } from "@/config/collaborate";
+import { FormatCard } from "./FormatCard";
 import styles from "./music.module.css";
 
 // The Music page changes only when Meg edits WordPress; refresh hourly so new
@@ -120,6 +123,55 @@ export default async function MusicPage() {
                 );
               })}
             </ul>
+          </div>
+        </section>
+
+        {/* How she performs — photos from her WP format pages. */}
+        <section className={styles.section} aria-labelledby="music-formats">
+          <div className={styles.inner}>
+            <SectionLabel id="music-formats">Live Formats</SectionLabel>
+            <div className={styles.formats}>
+              {LIVE_FORMATS.map((f) => (
+                <FormatCard key={f.slug} format={f} />
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Work with me — community + business, from the WP Collabs page. */}
+        <section className={styles.section} aria-labelledby="music-collab">
+          <div className={styles.inner}>
+            <SectionLabel id="music-collab">Work With Me</SectionLabel>
+            <div className={styles.collab}>
+              {COLLAB_GROUPS.map((g) => (
+                <div key={g.heading} className={styles.collabGroup}>
+                  <h3 className={styles.collabHeading}>{g.heading}</h3>
+                  <p className={styles.collabBlurb}>{g.blurb}</p>
+                  <ul className={styles.collabList}>
+                    {g.offerings.map((o) => (
+                      <li key={o} className={styles.collabItem}>
+                        {o}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              ))}
+            </div>
+            <div className={styles.collabActions}>
+              <Link className={styles.collabCta} href="/booking">
+                Book or collaborate
+                <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
+              </Link>
+              <a
+                className={styles.collabGhost}
+                href={CAVE_CREW_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Join the Cave Crew
+                <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+              </a>
+            </div>
           </div>
         </section>
       </main>
