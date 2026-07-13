@@ -1,7 +1,7 @@
 # Sprint 10 Final Report — Megs Playbook Redesign
 
 **PR:** https://github.com/The-Shokunin-Crafthouse/megcmusic-site/pull/46 (13 commits, branch `playbook-redesign`)
-**Preview URL:** CI sticky comment on the PR (`…-meggy-cb-ahn.vercel.app`) — the only URL that opens without a Vercel login.
+**Preview URL:** https://megcmusic-site-eew9rhsw9-meggy-cb-ahn.vercel.app/megs-playbook — answers 302 → Vercel SSO for anonymous visitors (deployment protection); opens normally when signed into the `meggy-cb-ahn` team. A quietly useful property pre-merge: the private playbook surface isn't publicly reachable on the preview. Playbook data calls on the preview hit the live Supabase project, whose new tables aren't applied yet — expect the designed empty/error states there until go-live step 1.
 **Status: awaiting Levi's review. Nothing merged, nothing deployed, no production env touched.**
 
 ## What shipped (all internal review loops passed)
