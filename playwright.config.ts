@@ -41,7 +41,9 @@ export default defineConfig({
         deviceScaleFactor: 3,
         isMobile: true,
         hasTouch: true,
-        reducedMotion: null,
+        contextOptions: {
+          reducedMotion: null,
+        },
       },
     },
   ],

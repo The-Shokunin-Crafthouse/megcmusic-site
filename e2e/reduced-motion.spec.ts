@@ -9,7 +9,7 @@ import { gotoPastFirstRun } from "./fixtures/helpers";
 // still work, not that any transform is skipped (that's a visual/CSS
 // concern, not a Playwright-testable one without pixel diffing).
 test.describe("reduced motion", () => {
-  test.use({ reducedMotion: "reduce" });
+  test.use({ contextOptions: { reducedMotion: "reduce" } });
 
   test.beforeEach(async ({ page }) => {
     await mockAll(page);
