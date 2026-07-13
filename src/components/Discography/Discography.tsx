@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SectionLabel } from "../SectionLabel/SectionLabel";
 import { ReleaseCover } from "./ReleaseCover";
 import { ARTIST_LINKS, RELEASES } from "@/config/discography";
@@ -21,12 +22,28 @@ export function Discography() {
             ];
             return (
               <li key={r.title} className={styles.row}>
-                <ReleaseCover
-                  title={r.title}
-                  art={r.art}
-                  pageSlug={r.pageSlug}
-                  productSlug={r.productSlug}
-                />
+                {r.detailSlug ? (
+                  <Link
+                    className={styles.artLink}
+                    href={`/music/${r.detailSlug}`}
+                    aria-label={`${r.title} — release page`}
+                    tabIndex={-1}
+                  >
+                    <ReleaseCover
+                      title={r.title}
+                      art={r.art}
+                      pageSlug={r.pageSlug}
+                      productSlug={r.productSlug}
+                    />
+                  </Link>
+                ) : (
+                  <ReleaseCover
+                    title={r.title}
+                    art={r.art}
+                    pageSlug={r.pageSlug}
+                    productSlug={r.productSlug}
+                  />
+                )}
                 <div className={styles.text}>
                   <p className={styles.release}>
                     <span className={styles.year}>{r.year}</span>
@@ -35,7 +52,15 @@ export function Discography() {
                     </span>
                     <span className={styles.type}>{r.type}</span>
                   </p>
-                  <h3 className={styles.title}>{r.title}</h3>
+                  <h3 className={styles.title}>
+                    {r.detailSlug ? (
+                      <Link className={styles.titleLink} href={`/music/${r.detailSlug}`}>
+                        {r.title}
+                      </Link>
+                    ) : (
+                      r.title
+                    )}
+                  </h3>
                 </div>
 
                 <div className={styles.links}>
