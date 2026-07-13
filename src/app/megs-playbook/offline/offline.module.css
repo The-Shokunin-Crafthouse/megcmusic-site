@@ -1,0 +1,27 @@
+.wrap {
+  display: flex;
+  min-height: 100dvh;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pb-space-content);
+  text-align: center;
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--pb-text-base);
+  font-weight: 700;
+  color: var(--pb-cta-bg);
+}
+
+.body {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-text-muted);
+}

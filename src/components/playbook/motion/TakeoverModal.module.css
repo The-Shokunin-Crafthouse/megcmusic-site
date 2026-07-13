@@ -1,0 +1,17 @@
+/* Portalled to document.body (repo learning #98) — a transformed ancestor
+   participating in StackNavigator/scroll-timeline motion would otherwise
+   trap a `position: fixed` child's z-index in a local stacking context. */
+.takeover {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  background: var(--pb-bg-takeover);
+  overscroll-behavior: contain;
+  overflow-y: auto;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}

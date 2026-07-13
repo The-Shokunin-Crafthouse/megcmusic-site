@@ -1,0 +1,57 @@
+/* Megs Playbook PWA shell — base-surface backdrop (spec §"Global structural
+   notes"): blurred full-bleed photo under the plum scrim, plain --pb-bg
+   fallback if the image fails to load. The creation-flow take-over
+   (TakeoverModal, --pb-bg-takeover) portals to document.body and fully
+   covers this when open, so the same backdrop can stay mounted underneath
+   unconditionally. */
+
+.shell {
+  position: relative;
+  min-height: 100dvh;
+  overscroll-behavior: none;
+  background: var(--pb-bg);
+  isolation: isolate;
+}
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.backdropImage {
+  position: absolute;
+  /* Overscan by the blur radius so the blurred edges never show a hard
+     transparent seam at the viewport edge. */
+  inset: calc(var(--pb-bg-blur) * -1);
+  background-image: url("/images/hero/meghan-hero.jpg");
+  background-size: cover;
+  background-position: center;
+  filter: blur(var(--pb-bg-blur));
+}
+
+.backdropScrim {
+  position: absolute;
+  inset: 0;
+  background: rgb(var(--pb-bg-overlay-rgb) / var(--pb-bg-overlay-alpha));
+}
+
+.column {
+  position: relative;
+  min-height: 100dvh;
+  margin: 0 auto;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Desktop: centered mobile-width column, not a responsive redesign — this
+   surface is designed at 390px and stays that shape on larger viewports. */
+@media (min-width: 768px) {
+  .column {
+    max-width: 430px;
+  }
+}

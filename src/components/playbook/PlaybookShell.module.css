@@ -1,0 +1,17 @@
+.wrap {
+  position: relative;
+  min-height: 100%;
+  padding: var(--pb-space-content);
+  /* Clear the frame-pinned bottom-right nav pill + home mark. */
+  padding-bottom: calc(var(--pb-space-content) + 96px);
+}
+
+.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+  color: var(--pb-text-muted);
+  font-size: var(--pb-text-sm);
+  text-align: center;
+}

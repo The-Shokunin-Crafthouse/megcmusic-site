@@ -1,0 +1,96 @@
+/* Bottom-right glassmorphic icon cluster ("Frame 57" in the comp) — spec
+   §"Global structural notes". Frame-pinned, safe-area aware. */
+.pill {
+  position: fixed;
+  right: 18px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-card);
+  padding: var(--pb-space-micro);
+  border-radius: var(--pb-radius-nav);
+  background: linear-gradient(
+    to right,
+    rgb(var(--pb-nav-pill-grad-from-rgb) / 0.4),
+    rgb(var(--pb-nav-pill-grad-to-rgb) / 0.4)
+  );
+  border: 0.5px solid rgb(var(--pb-nav-pill-border-rgb) / 0.5);
+  backdrop-filter: blur(var(--pb-nav-pill-blur));
+  -webkit-backdrop-filter: blur(var(--pb-nav-pill-blur));
+  box-shadow: var(--pb-nav-pill-shadow);
+}
+
+.iconButton {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--pb-icon-circle);
+  height: var(--pb-icon-circle);
+  border-radius: 50%;
+  background: var(--pb-nav-icon-circle);
+  color: var(--pb-cta-bg);
+  /* 44x44 minimum touch target via hit-slop beyond the 40px visual circle. */
+  position: relative;
+}
+
+.iconButton::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+}
+
+.iconButton svg {
+  width: var(--pb-icon-size);
+  height: var(--pb-icon-size);
+}
+
+/* ---- Bottom-left brand mark (Home tap target) ---- */
+/* Sized/positioned to bleed a wedge into the bottom-left corner, per spec
+   §"Global structural notes" — geometry is an approximation from the
+   extraction notes (no exact frame-relative pixel anchor was recoverable
+   from the flattened comp); flag for visual QA against the live render
+   once P4 places it against real screen content. */
+.homeMarkWrap {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 60;
+  width: 88px;
+  height: 88px;
+  overflow: visible;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.homeMarkButton {
+  position: absolute;
+  left: -32px;
+  bottom: -32px;
+  width: 216px;
+  height: 216px;
+  display: block;
+}
+
+.pickSvg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  transform: rotate(-72.72deg);
+  transform-origin: center;
+}
+
+.lightbulb {
+  position: absolute;
+  right: 30px;
+  top: 30px;
+  width: 32px;
+  height: 32px;
+  color: var(--pb-cta-bg);
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.4));
+}
+
+.homeMarkButton:focus-visible {
+  outline: 2px solid var(--pb-focus-ring);
+  outline-offset: 4px;
+}

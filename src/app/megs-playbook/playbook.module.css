@@ -251,7 +251,7 @@
   text-decoration-color: currentColor;
 }
 
-/* --mc-focus-ring (#241420) is the same color as --mc-bg — invisible on this
+/* --mc-focus-ring matches --mc-bg's value exactly — invisible on this
    page's dark ground. Substituting --mc-nav-underline (a light cream,
    already used this way for the MobileMenu's dark-background links) so the
    ring is actually visible here. */
