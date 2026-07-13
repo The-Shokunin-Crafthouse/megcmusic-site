@@ -277,7 +277,10 @@
   --pb-bg-blur: 28px;
   --pb-card-rgb: 163 88 135;        /* #A35887 — universal translucent card fill */
   --pb-card-bg: rgb(var(--pb-card-rgb) / 0.10);
-  --pb-card-text: #a35887;          /* solid use of the card-fill hue (weekly-post descriptions) */
+  --pb-card-text: #b4769d;          /* weekly-post description text. Comp value #a35887 measures 3.60:1
+                                        on the card ground — sub-AA for 14px text (WORKSPACE §3 non-negotiable).
+                                        Lifted along its own hue to 4.56:1 (learning #56: text gets an
+                                        AA-tuned ink; the card FILL keeps the comp hue via --pb-card-rgb). */
   --pb-white: #ffffff;              /* pure white text (P1 spec §Screen 3/4 type tables list raw #FFFFFF
                                         for "Pipeline"/venue-name/"Checklist" nodes but the Token Table
                                         never minted a token for it — added at P4-B build time to keep
@@ -287,13 +290,21 @@
   --pb-teal-ink: #271621;           /* text on the active --pb-teal filter/tab pill */
   --pb-cta-bg: #f7eadd;             /* duplicates --mc-bg-card */
   --pb-cta-ink: #2b1821;            /* text on --pb-cta-bg (close to but distinct from --pb-bg) */
-  --pb-accent-red: #d13e5b;         /* duplicates --mc-accent-red */
-  --pb-accent-red-rgb: 209 62 91;   /* duplicates --mc-accent-red-rgb */
+  --pb-accent-red: #da637a;         /* red TEXT on the dark grounds ("Show Insight", "Why this works?",
+                                        "What worked:", error lines). Comp value #d13e5b measures 3.81:1 —
+                                        sub-AA; lifted along-hue to 4.58:1 on the card ground. Decorative
+                                        alpha fills (Stats rank watermark) keep the comp channels below. */
+  --pb-accent-red-rgb: 209 62 91;   /* comp #d13e5b channels — decorative watermark/tint fills only */
   --pb-stat-number: #b09c89;        /* stat big numbers, last-post/stat-card title text */
-  --pb-text-muted: #705f57;         /* sublabels, inactive chip/tab text, meta text, Reel/Post badge */
+  --pb-text-muted: #948781;         /* sublabels, inactive chip/tab text, meta text, Reel/Post badge.
+                                        Comp value #705f57 measures 2.90:1 — fails AA (4.5:1 for 12px
+                                        text) and even the 3:1 non-text floor for the badge border;
+                                        lifted along-hue to 4.57:1 on the card ground. */
   --pb-divider: #3c2736;            /* ★ row glyph color */
   --pb-slash: #463c31;              /* "/" separators in the Booking pipeline meta row */
-  --pb-wtw-body: #7e5d6f;           /* "Why this works" expanded numbered-list body text */
+  --pb-wtw-body: #9c8290;           /* "Why this works" expanded numbered-list body text. Comp value
+                                        #7e5d6f measures 3.08:1 — sub-AA for 14px text; lifted along-hue
+                                        to 4.55:1 on the card ground. */
   --pb-success: #2bc28c;            /* checked checkbox + up-trend arrow (pixel-sampled, high confidence) */
   --pb-post-card-border: #9a597f;   /* Stats #1-ranked post card only */
   --pb-post-card-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); /* Stats #1-ranked post card only */

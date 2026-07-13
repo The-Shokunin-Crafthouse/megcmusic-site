@@ -49,6 +49,18 @@
   outline-offset: 2px;
 }
 
+/* Hover/active tints (desktop cursor shell) — same baseline pair as
+   TapScale's shared pressable states, lifted over the row's own card fill. */
+@media (hover: hover) {
+  .row:hover {
+    background: rgb(var(--pb-card-rgb) / 0.14);
+  }
+}
+
+.row:active {
+  background: rgb(var(--pb-card-rgb) / 0.2);
+}
+
 .iconWrap {
   display: flex;
   align-items: center;

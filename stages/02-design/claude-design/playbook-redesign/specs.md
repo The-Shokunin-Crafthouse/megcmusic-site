@@ -18,7 +18,7 @@ The core deliverable. Meghan reads it once, picks a title, copies what she needs
 ### Structure (top → bottom, 24px content inset, gap `--pb-space-section`)
 
 1. **Headline** — "Your storyboard" (`--pb-text-md` Bold, white) — same position formula as the other creation headlines. To its right-aligned baseline: frame count "6 frames" (`--pb-text-2xs`, `--pb-text-muted`).
-2. **Title options** (she names the post first — the choice colors how she reads the rest):
+2. **Title options** — REVISED in crit (design-crit-p5-screens.md F-01): titles now render AFTER the frame cards (read-then-decide; a title can't be judged before the storyboard is read, and the Save gate sits directly below the choice it needs). Original rationale ("she names the post first") superseded. Card anatomy unchanged:
    - Eyebrow "Pick a title" (`--pb-text-2xs` Bold, `--pb-teal`).
    - 3–5 selectable cards, gap `--pb-space-tight`. Card: radius `--pb-radius-card`, padding `--pb-space-card`. Unselected: 1px cream border (idea-screen "Generate Storyboard" pill vocabulary), transparent fill; title `--pb-text-sm` SemiBold cream, rationale `--pb-text-2xs` `--pb-text-muted` beneath (2-line clamp). Selected: `--pb-teal` fill, `--pb-teal-ink` title, rationale `--pb-teal-ink` at 70% — the active-chip pattern scaled up. Radio semantics (`role="radiogroup"`), TapScale on press.
    - Below the cards, right-aligned text button "Fresh titles" (`--pb-text-2xs` Bold cream + Phosphor `ArrowsClockwise` 16) — enqueues a `titles` job carrying all previously offered titles; new options replace unselected cards via crossfade 220ms.

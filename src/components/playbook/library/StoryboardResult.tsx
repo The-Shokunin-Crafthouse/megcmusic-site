@@ -425,6 +425,24 @@ export function StoryboardResult({
           <span className={styles.frameCount}>{frames.length} frames</span>
         </div>
 
+        {/* Read-then-decide order (design-crit F-01): frames first, title
+            choice after — a title can only be judged once the storyboard has
+            been read, and the Save gate sits below the titles it needs. */}
+        <Staggered className={styles.frameList} itemClassName={styles.frameItem}>
+          {frames.map((frame, index) => (
+            <FrameCard
+              key={index}
+              frame={frame}
+              index={index}
+              total={frames.length}
+              canRegenerate={isCreation}
+              regenerateDisabled={regenBusy}
+              isRegenerating={activeRegen?.type === "frame" && activeRegen.index === index}
+              onRegenerate={() => handleRegenerateFrame(index)}
+            />
+          ))}
+        </Staggered>
+
         <section aria-label="Pick a title" className={styles.titleSection}>
           <p className={styles.sectionEyebrow}>Pick a title</p>
           <div
@@ -466,21 +484,6 @@ export function StoryboardResult({
             </TapScale>
           ) : null}
         </section>
-
-        <Staggered className={styles.frameList} itemClassName={styles.frameItem}>
-          {frames.map((frame, index) => (
-            <FrameCard
-              key={index}
-              frame={frame}
-              index={index}
-              total={frames.length}
-              canRegenerate={isCreation}
-              regenerateDisabled={regenBusy}
-              isRegenerating={activeRegen?.type === "frame" && activeRegen.index === index}
-              onRegenerate={() => handleRegenerateFrame(index)}
-            />
-          ))}
-        </Staggered>
 
         <div className={styles.captionCard}>
           <p className={styles.sectionEyebrowInCard}>Caption</p>

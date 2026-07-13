@@ -46,6 +46,19 @@
   outline-offset: 2px;
 }
 
+/* Hover/active tints for the desktop (cursor) shell — same baseline pair
+   as TapScale's shared pressable states. The active (teal) chip already
+   carries its own fill and stays put. */
+@media (hover: hover) {
+  .chip:not(.active):hover {
+    background: rgb(var(--pb-card-rgb) / 0.14);
+  }
+}
+
+.chip:not(.active):active {
+  background: rgb(var(--pb-card-rgb) / 0.2);
+}
+
 /* Spec: 12x12 caret — 1em at the chip's own --pb-text-2xs (12px) font-size,
    rather than a mismatched spacing token or a raw px value. */
 .caret {
