@@ -1,4 +1,5 @@
 import { SectionLabel } from "../SectionLabel/SectionLabel";
+import { ReleaseCover } from "./ReleaseCover";
 import { ARTIST_LINKS, RELEASES } from "@/config/discography";
 import styles from "./Discography.module.css";
 
@@ -20,21 +21,12 @@ export function Discography() {
             ];
             return (
               <li key={r.title} className={styles.row}>
-                {r.art ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img
-                    className={styles.art}
-                    src={r.art}
-                    alt={`${r.title} cover art`}
-                    loading="lazy"
-                    decoding="async"
-                  />
-                ) : (
-                  <span className={styles.artPlaceholder} aria-hidden="true">
-                    <span className={styles.artStar}>★</span>
-                    <span className={styles.artTitle}>{r.title}</span>
-                  </span>
-                )}
+                <ReleaseCover
+                  title={r.title}
+                  art={r.art}
+                  pageSlug={r.pageSlug}
+                  productSlug={r.productSlug}
+                />
                 <div className={styles.text}>
                   <p className={styles.release}>
                     <span className={styles.year}>{r.year}</span>
