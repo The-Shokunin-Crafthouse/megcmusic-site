@@ -1,7 +1,61 @@
+/* Registered so the sweep angle interpolates; an unregistered custom
+   property would step rather than travel. */
+@property --pb-tip-edge-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: var(--pb-space-micro);
+}
+
+/* Two highlight arcs on opposite corners, travelling counter-clockwise
+   around the card's edge. Painted as a conic gradient clipped to a 1px
+   ring by an xor mask, so it is a border highlight rather than a glow —
+   the card's fill underneath is untouched. */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--pb-tip-edge-angle),
+    transparent 0deg,
+    var(--pb-tip-edge) 24deg,
+    transparent 58deg,
+    transparent 180deg,
+    var(--pb-tip-edge) 204deg,
+    transparent 238deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  /* Negative end angle = counter-clockwise. */
+  animation: tipEdgeTravel var(--pb-tip-edge-cycle) linear infinite;
+  pointer-events: none;
+}
+
+@keyframes tipEdgeTravel {
+  to {
+    --pb-tip-edge-angle: -360deg;
+  }
+}
+
+.card > * {
+  position: relative;
+  z-index: 1;
 }
 
 .labelRow {
@@ -54,5 +108,11 @@
   .skeletonLine {
     animation: none;
     opacity: 0.8;
+  }
+
+  /* The edge keeps its two highlights, parked — the card still reads as
+     the live one, nothing travels. */
+  .card::before {
+    animation: none;
   }
 }

@@ -1,0 +1,86 @@
+/* One pick, two scales. See the --pb-pick-* block in token-map.css: the
+   corner mark (155:38) and the creation take-over's ground (155:1146) are
+   the same object, so they are the same element here, differing only in
+   --pb-pick-scale. The lightbulb is deliberately NOT part of this — it has
+   its own press/fade behaviour and must never scale (see BottomNav). */
+
+/* Registered so the scale can be driven (and interpolated) as a real
+   number through the custom property, which is how the curtain animates
+   the pick without a second transform wrapper fighting the clip. */
+@property --pb-pick-scale {
+  syntax: "<number>";
+  inherits: true;
+  initial-value: 1;
+}
+
+/* The clip window and the transform have to be separate elements: scaling
+   the clipping box scales the window too, which at the corner scale would
+   shrink the viewport-sized mask to ~40px and hide the wedge entirely. */
+.layer {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.inner {
+  position: absolute;
+  inset: 0;
+  transform: scale(var(--pb-pick-scale));
+  transform-origin: var(--pb-pick-anchor-x) calc(100% + var(--pb-pick-anchor-below));
+  will-change: transform;
+}
+
+.pick {
+  position: absolute;
+  left: var(--pb-pick-left);
+  bottom: var(--pb-pick-bottom);
+  width: var(--pb-pick-box);
+  height: var(--pb-pick-box);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pickGlyph {
+  width: var(--pb-pick-glyph);
+  height: var(--pb-pick-glyph);
+  transform: rotate(var(--pb-pick-rotate));
+}
+
+/* The pick's grain. It lives in CSS rather than in the SVG's own
+   feTurbulence because the noise has to hold a constant on-screen size
+   while the shape grows ~10.6x — an SVG filter's baseFrequency is in user
+   space, so it magnifies with the element and the fine grain would coarsen
+   into blotches. Here the tile is divided by the same scale the parent
+   multiplies by, so the two cancel and the grain never changes size. The
+   pick's own silhouette masks it, so it stays inside the shape. */
+.grain {
+  position: absolute;
+  width: var(--pb-pick-glyph);
+  height: var(--pb-pick-glyph);
+  transform: rotate(var(--pb-pick-rotate));
+  background-image: url("/images/playbook/grain.png");
+  background-repeat: repeat;
+  background-size: calc(128px / var(--pb-pick-scale));
+  opacity: 0.5;
+  mask-image: url("/images/playbook/pick-mark.svg");
+  mask-repeat: no-repeat;
+  mask-size: contain;
+  mask-position: center;
+  -webkit-mask-image: url("/images/playbook/pick-mark.svg");
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-size: contain;
+  -webkit-mask-position: center;
+}
+
+/* The corner instance sits above page content but under the nav pill, and
+   offsets with the safe area the way the rest of the frame chrome does.
+   It also pins its own scale: a registered custom property always has a
+   value (the @property initial-value), so a `var(..., fallback)` never
+   reaches its fallback and the corner mark would render full-size. */
+.corner {
+  --pb-pick-scale: var(--pb-pick-corner-scale);
+  z-index: 55;
+  bottom: env(safe-area-inset-bottom);
+}

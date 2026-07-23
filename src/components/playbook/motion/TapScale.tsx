@@ -33,6 +33,10 @@ interface TapScaleProps {
   /** Fires a 120ms accent-flash background tint alongside (or, under
    *  reduced motion, instead of) the scale. */
   accentFlash?: boolean;
+  /** Reports press state for consumers whose affordance lives outside this
+   *  element — the idea mark's lightbulb fills while held, and the mark's
+   *  own tap region sits on top of it. */
+  onPressChange?: (pressed: boolean) => void;
 }
 
 export function TapScale({
@@ -45,6 +49,7 @@ export function TapScale({
   ariaCurrent,
   disabled = false,
   accentFlash = false,
+  onPressChange,
 }: TapScaleProps) {
   const reducedMotion = useReducedMotion();
   const [flashing, setFlashing] = useState(false);
@@ -55,6 +60,11 @@ export function TapScale({
     window.setTimeout(() => setFlashing(false), 120);
   }
 
+  function press(next: boolean) {
+    if (disabled) return;
+    onPressChange?.(next);
+  }
+
   const combinedClassName = [styles.pressable, flashing ? styles.flash : "", className]
     .filter(Boolean)
     .join(" ");
@@ -62,7 +72,15 @@ export function TapScale({
   const sharedProps = {
     className: combinedClassName,
     onClick: disabled ? undefined : onClick,
-    onPointerDown: disabled ? undefined : fireFlash,
+    onPointerDown: disabled
+      ? undefined
+      : () => {
+          fireFlash();
+          press(true);
+        },
+    onPointerUp: () => press(false),
+    onPointerCancel: () => press(false),
+    onPointerLeave: () => press(false),
     "aria-label": ariaLabel,
     "aria-current": ariaCurrent,
     whileTap: reducedMotion || disabled ? undefined : { scale: 0.92 },

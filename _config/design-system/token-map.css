@@ -310,6 +310,12 @@
   --pb-wtw-body: #9c8290;           /* "Why this works" expanded numbered-list body text. Comp value
                                         #7e5d6f measures 3.08:1 — sub-AA for 14px text; lifted along-hue
                                         to 4.55:1 on the card ground. */
+  /* Daily Insight card edge: two highlight arcs travelling counter-
+     clockwise around the card's 1px border. Shares the literal with
+     --pb-stat-number but is its own token — it is an edge treatment, not
+     a text ink, and the two should be able to move apart. */
+  --pb-tip-edge: #b09c89;
+  --pb-tip-edge-cycle: 14s;
   --pb-success: #2bc28c;            /* checked checkbox (pixel-sampled, high confidence) */
   /* Trend arrows carry their own primitives rather than aliasing the
      success/brand-red bands (studio learning #39). Both values are the
@@ -380,7 +386,56 @@
   --pb-radius-nav: 80px;     /* bottom icon-cluster nav pill */
   --pb-radius-chip-row: 256px; /* filter-chip / tab row container */
   --pb-icon-size: 24px;      /* nav glyph size */
+  --pb-icon-size-pick: 19px; /* the Home pick glyph is smaller (310:90, 13.3 / 0.7) */
   --pb-icon-circle: 40px;    /* nav icon circle diameter */
+  /* Scrolled nav: comp 310:85 is 168x39.2 with 28px circles and 16.8px
+     glyphs — a flat 0.7 of the resting pill, about its own centre. */
+  --pb-nav-scale-scrolled: 0.7;
+
+  /* ── Pick lockup (corner mark <-> creation-flow ground) ──────────────
+     The creation take-over's background (155:1146) is the SAME pick +
+     lightbulb lockup as the bottom-left corner mark (155:38), scaled
+     1/0.0942873 about a point just off the bottom-left corner. Solving
+     both frames' placements for a common origin lands on x 49.7 /
+     66.7px below the frame bottom, and reproduces every one of the
+     comp's four numbers exactly. So the two are one object at two
+     scales, and the take-over entrance is that object growing. All
+     geometry below is the take-over (scale 1) state; the corner mark is
+     the same layer at --pb-pick-corner-scale. */
+  --pb-pick-corner-scale: 0.0942873;
+  --pb-pick-anchor-x: 49.7px;
+  --pb-pick-anchor-below: 66.7px; /* below the viewport bottom edge */
+  --pb-pick-rotate: -72.72deg;
+  --pb-pick-box: 2288.837px;   /* 215.809855 / 0.0942873 */
+  --pb-pick-glyph: 1828.364px; /* 172.393 / 0.0942873 */
+  --pb-pick-left: -943.95px;
+  --pb-pick-bottom: -693.69px;
+  /* The lightbulb stays at its comped corner size — it is a press
+     affordance, not part of the growing artwork, so it never scales. */
+  --pb-bulb-size: 32px;
+  --pb-bulb-corner-left: 22px;
+  --pb-bulb-corner-bottom: 16px;
+
+  /* ── Creation take-over choreography (Cinematic Direction) ───────────
+     This one transition runs on Cinematic Direction rather than the
+     project's Systemic Restraint, at the client's direction: the pick
+     sweeping in is a narrative beat, and the screen it lands on is
+     revealed in ordered acts rather than appearing at once. Curves are
+     authored for this surface — the fill accelerates out of the corner
+     and settles; the reveal arrives without overshoot. */
+  --pb-ease-fill: cubic-bezier(0.65, 0, 0.2, 1);
+  --pb-ease-reveal: cubic-bezier(0.19, 1, 0.28, 1);
+  --pb-motion-fill: 520ms;
+  --pb-motion-reveal: 300ms;
+  /* Stagger carries hierarchy, so the beats are uneven by intent: the
+     heading is the subject, the mic is secondary to it, the input is what
+     she acts on, the buttons follow it, and the exit bar closes the
+     sequence by sliding up. */
+  --pb-beat-heading: 320ms;
+  --pb-beat-mic: 390ms;
+  --pb-beat-input: 450ms;
+  --pb-beat-actions: 510ms;
+  --pb-beat-exit: 560ms;
   --pb-icon-trend: 16px;     /* StatTriple trend arrow (comp 155:159 etc.) */
   --pb-space-chip-y: 4px;    /* active filter/tab chip vertical padding (24px pill) */
   --pb-space-chip-x: 12px;   /* active filter/tab chip horizontal padding */

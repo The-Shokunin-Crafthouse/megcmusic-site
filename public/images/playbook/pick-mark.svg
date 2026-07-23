@@ -15,19 +15,6 @@
 <feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.3 0"/>
 <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_0_6"/>
 <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
-<feTurbulence type="fractalNoise" baseFrequency="2 2" stitchTiles="stitch" numOctaves="3" result="noise" seed="120" />
-<feColorMatrix in="noise" type="luminanceToAlpha" result="alphaNoise" />
-<feComponentTransfer in="alphaNoise" result="coloredNoise1">
-<feFuncA type="discrete" tableValues="1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 "/>
-</feComponentTransfer>
-<feComposite operator="in" in2="shape" in="coloredNoise1" result="noise1Clipped" />
-<feFlood flood-color="rgba(0, 0, 0, 0.25)" result="color1Flood" />
-<feComposite operator="in" in2="noise1Clipped" in="color1Flood" result="color1" />
-<feMerge result="effect2_noise_0_6">
-<feMergeNode in="shape" />
-<feMergeNode in="color1" />
-</feMerge>
-<feBlend mode="normal" in="effect2_noise_0_6" in2="effect1_dropShadow_0_6" result="effect2_noise_0_6"/>
 </filter>
 <linearGradient id="paint0_linear_0_6" x1="149.372" y1="40.4686" x2="95.898" y2="57.0984" gradientUnits="userSpaceOnUse">
 <stop stop-color="#084744"/>

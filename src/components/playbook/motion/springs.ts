@@ -59,3 +59,22 @@ export const bottomSheetSpring = {
 
 /** Staggered — list-entrance helper, 60ms stagger between children. */
 export const STAGGER_DELAY = 0.06;
+
+/** Nav cluster resting <-> scrolled (0.7) scale. A short standard-duration
+ *  ease rather than a spring: the cluster is chrome reacting to scroll, and
+ *  an overshoot on a control that sits under the thumb reads as wobble. */
+export const navScaleTransition = {
+  duration: DURATION_STANDARD,
+  ease: EASE_OUT,
+} as const;
+
+/** The creation take-over's pick curtain — the corner mark growing until
+ *  it is the screen. This one beat runs on Cinematic Direction rather than
+ *  the project's Systemic Restraint (client-directed, logged): the fill is
+ *  a narrative move, so it uses the surface's own authored curve
+ *  (--pb-ease-fill) and sits in the orchestrated band rather than the
+ *  120-220ms micro budget. Kept in lockstep with --pb-motion-fill. */
+export const pickCurtainTransition = {
+  duration: 0.52,
+  ease: [0.65, 0, 0.2, 1],
+} as const;

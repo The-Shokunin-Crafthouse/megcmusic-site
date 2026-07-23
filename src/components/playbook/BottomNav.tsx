@@ -1,26 +1,37 @@
 "use client";
 
 /**
- * Bottom-right glass icon cluster (Stats/Booking/Checklist) + bottom-left
- * brand-mark Home target — spec §"Nav icon semantics" + §"Global structural
- * notes". Home has no slot in the 3-icon cluster; the pick+lightbulb mark
- * is its own tap target (confirmed by all three cluster icons rendering
- * outline/unselected on the Home screen in the comp).
+ * Bottom-right glass icon cluster + the bottom-left pick mark.
  *
- * `fediverse-logo` has no Phosphor equivalent. It ships as the glyph
- * exported from the comp (`public/images/playbook/fediverse-logo.svg`,
- * masked so it takes currentColor like its Phosphor siblings) rather than
- * the `Sparkle` stand-in specs.md §62 picked when the export wasn't in
- * hand — a different glyph is a visible mismatch against the comp.
+ * The cluster is four circles (comp `310:85`): a small guitar-pick glyph
+ * for Home, then Lightning (Stats), the fediverse logo (Booking) and
+ * ListChecks (Checklist). The earlier three-icon read of `155:191` had no
+ * Home target at all — `310:15` supplies the fourth, and shows it active
+ * on the Home screen.
  *
- * Active tab = filled icon (`weight="fill"`) in `--pb-nav-icon-active`;
- * inactive = regular in `--pb-nav-icon-inactive`. 44x44 minimum touch
- * targets via hit-slop beyond the 40px visual circle.
+ * `fediverse-logo` and the Home pick have no Phosphor equivalents, so both
+ * ship as the comp's own exports under `public/images/playbook/`, masked
+ * so they take `currentColor` like their Phosphor siblings.
+ *
+ * The bottom-left pick+lightbulb is the **idea** entry, not Home: the
+ * take-over it opens is that same lockup grown to fill the screen (see
+ * `PickLockup`), which is what the comp draws as the creation-flow ground.
+ *
+ * Active tab = filled glyph in `--pb-nav-icon-active` over the unchanged
+ * purple disc; inactive = `--pb-nav-icon-inactive`. On scroll the whole
+ * cluster scales to `--pb-nav-scale-scrolled` about its own centre
+ * (comp `310:85` is a flat 0.7 of the resting pill).
  */
 
+import { useState } from "react";
 import { Lightbulb, Lightning, ListChecks } from "@phosphor-icons/react";
+import { motion, useReducedMotion } from "framer-motion";
 import type { TabId } from "./store";
+import { usePlaybookStore } from "./store";
 import { TapScale } from "./motion/TapScale";
+import { PickLockup } from "./PickLockup";
+import { useScrolledPastTop } from "./useScrolledPastTop";
+import { navScaleTransition } from "./motion/springs";
 import styles from "./BottomNav.module.css";
 
 interface BottomNavProps {
@@ -28,44 +39,63 @@ interface BottomNavProps {
   onNavigate: (tab: TabId) => void;
 }
 
-const NAV_ITEMS: {
-  tab: Extract<TabId, "stats" | "booking" | "checklist">;
+type NavItem = {
+  tab: TabId;
   label: string;
   Icon?: typeof Lightning;
-}[] = [
+  /** Masked export under public/images/playbook/, for glyphs Phosphor
+   *  has no equivalent of. */
+  mask?: string;
+};
+
+const NAV_ITEMS: NavItem[] = [
+  { tab: "home", label: "Home", mask: styles.maskHome },
   { tab: "stats", label: "Stats", Icon: Lightning },
-  { tab: "booking", label: "Booking" },
+  { tab: "booking", label: "Booking", mask: styles.maskFediverse },
   { tab: "checklist", label: "Checklist", Icon: ListChecks },
 ];
 
 export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
+  const reducedMotion = useReducedMotion();
+  const scrolled = useScrolledPastTop();
+  const startCreation = usePlaybookStore((state) => state.startCreation);
+  const creationOpen = usePlaybookStore((state) => state.creationPhase !== "idle");
+  const [pressed, setPressed] = useState(false);
+
   return (
     <>
+      <PickLockup corner />
+      {/* The bulb is not part of the pick lockup: it fills under the
+          finger and then fades out where it stands while the pick sweeps
+          past it. Scaling it with the artwork would throw a 32px glyph
+          across the whole screen. */}
+      <motion.span
+        className={styles.cornerBulb}
+        aria-hidden="true"
+        animate={{ opacity: creationOpen ? 0 : 1 }}
+        transition={
+          reducedMotion ? { duration: 0 } : { duration: 0.24, ease: [0.19, 1, 0.28, 1] }
+        }
+      >
+        <Lightbulb weight={pressed ? "fill" : "regular"} />
+      </motion.span>
       <TapScale
         as="div"
-        className={styles.homeMarkButton}
-        onClick={() => onNavigate("home")}
-        ariaLabel="Home"
-        ariaCurrent={activeTab === "home" ? "page" : undefined}
+        className={styles.ideaButton}
+        onClick={() => startCreation()}
+        onPressChange={setPressed}
+        ariaLabel="Start a new idea"
       >
-        <span className={styles.pickBleed} aria-hidden="true">
-          <img
-            className={styles.pickSvg}
-            src="/images/playbook/pick-mark.svg"
-            alt=""
-            width={172}
-            height={172}
-          />
-        </span>
-        <Lightbulb
-          className={styles.lightbulb}
-          weight={activeTab === "home" ? "fill" : "regular"}
-          aria-hidden="true"
-        />
+        <span className={styles.srOnly}>Start a new idea</span>
       </TapScale>
 
-      <nav className={styles.pill} aria-label="Playbook sections">
-        {NAV_ITEMS.map(({ tab, label, Icon }) => {
+      <motion.nav
+        className={styles.pill}
+        aria-label="Playbook sections"
+        animate={{ scale: scrolled ? 0.7 : 1 }}
+        transition={reducedMotion ? { duration: 0 } : navScaleTransition}
+      >
+        {NAV_ITEMS.map(({ tab, label, Icon, mask }) => {
           const isActive = activeTab === tab;
           return (
             <TapScale
@@ -79,12 +109,12 @@ export function BottomNav({ activeTab, onNavigate }: BottomNavProps) {
               {Icon ? (
                 <Icon weight={isActive ? "fill" : "regular"} aria-hidden="true" />
               ) : (
-                <span className={styles.maskIcon} aria-hidden="true" />
+                <span className={mask} aria-hidden="true" />
               )}
             </TapScale>
           );
         })}
-      </nav>
+      </motion.nav>
     </>
   );
 }

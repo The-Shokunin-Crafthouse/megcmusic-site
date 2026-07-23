@@ -151,3 +151,26 @@
 .ideaCard {
   margin-top: var(--pb-space-tight);
 }
+
+/* The mic is secondary to the heading it sits beside, so it arrives on its
+   own beat rather than riding in with the title. Held invisible until then
+   by `both`, so it is absent during the pick fill. */
+[data-pick-reveal="true"] .micButton {
+  animation: micReveal var(--pb-motion-reveal) var(--pb-ease-reveal) both;
+  animation-delay: var(--pb-beat-mic);
+}
+
+@keyframes micReveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-pick-reveal="true"] .micButton {
+    animation: none;
+  }
+}

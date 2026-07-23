@@ -141,3 +141,61 @@
   font-size: var(--pb-text-base);
   font-weight: 700;
 }
+
+/* ---- Pick-curtain entrance choreography (Cinematic Direction) ----
+   Set by TakeoverModal's `pick` entrance. Nothing on the screen is visible
+   while the pick sweeps in — `both` fill-mode holds each block at its
+   from-state through its delay — and then the screen is revealed in
+   ordered acts rather than all at once. The beats are deliberately uneven:
+   stagger carries hierarchy, and an equal interval would read as noise.
+   The exit bar closes the sequence by sliding up from the bottom edge. */
+[data-pick-reveal="true"] .content > * {
+  animation: pickRevealRise var(--pb-motion-reveal) var(--pb-ease-reveal) both;
+  animation-delay: var(--pb-beat-actions);
+}
+
+/* Heading first — it is the subject of the screen. */
+[data-pick-reveal="true"] .content > *:nth-child(1) {
+  animation-delay: var(--pb-beat-heading);
+}
+
+/* Then whatever she acts on: the input card, or the question's options. */
+[data-pick-reveal="true"] .content > *:nth-child(2) {
+  animation-delay: var(--pb-beat-input);
+}
+
+[data-pick-reveal="true"] .exitBar {
+  animation: pickRevealSlideUp var(--pb-motion-reveal) var(--pb-ease-reveal) both;
+  animation-delay: var(--pb-beat-exit);
+}
+
+@keyframes pickRevealRise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pickRevealSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Reduced motion resolves the whole sequence to its final state — the
+   screen is simply there, complete and readable, with no beats. */
+@media (prefers-reduced-motion: reduce) {
+  [data-pick-reveal="true"] .content > *,
+  [data-pick-reveal="true"] .exitBar {
+    animation: none;
+  }
+}

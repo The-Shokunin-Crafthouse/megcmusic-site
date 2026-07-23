@@ -158,7 +158,7 @@ export function CreationFlow({ renderStoryboard }: CreationFlowProps) {
 
   return (
     <>
-      <TakeoverModal isOpen ariaLabel="Create a new post">
+      <TakeoverModal isOpen ariaLabel="Create a new post" entrance="pick">
         <StackNavigator screenKey={screenKey} direction={direction}>
           {content}
         </StackNavigator>
