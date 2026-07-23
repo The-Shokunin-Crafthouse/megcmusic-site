@@ -1,36 +1,46 @@
+"use client";
+
+import type { CSSProperties } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { NAV_ITEMS, isActiveRoute } from "./navItems";
 import styles from "./Nav.module.css";
 
-type NavItem = { label: string; href: string };
-
-const ITEMS: NavItem[] = [
-  { label: "Home", href: "/" },
-  { label: "Shows", href: "/shows" },
-  { label: "Media", href: "/media" },
-  { label: "Booking", href: "/booking" },
-  { label: "Shop", href: "/shop" },
-];
-
-// Sprint 2 ships a static active route (Home). Routes other than "/" are not
-// built yet; prefetch is off until they exist. Dynamic active state arrives
-// with routing in a later sprint.
-const ACTIVE_HREF = "/";
-
+// Desktop primary nav — the floating pink pill. Hidden below 768, where
+// SiteChrome shows the Menu button instead.
 export function Nav() {
+  const pathname = usePathname();
+
   return (
     <nav className={styles.nav} aria-label="Primary">
       <ul className={styles.list}>
-        {ITEMS.map(({ label, href }) => {
-          const active = href === ACTIVE_HREF;
+        {NAV_ITEMS.map(({ label, href }) => {
+          const active = isActiveRoute(pathname, href);
           return (
             <li key={href}>
               <Link
                 href={href}
                 prefetch={false}
+                aria-label={label}
                 aria-current={active ? "page" : undefined}
                 className={active ? `${styles.link} ${styles.active}` : styles.link}
               >
-                {label}
+                {/* Each letter rolls up on its own, staggered left-to-right; a
+                    teal copy rolls in behind it. Labels are single words, so the
+                    split reads fine to a screen reader (Link carries aria-label). */}
+                <span className={styles.roll} aria-hidden="true">
+                  {label.split("").map((ch, i) => (
+                    <span
+                      key={i}
+                      className={styles.rollChar}
+                      style={{ "--i": i } as CSSProperties}
+                    >
+                      <span className={styles.rollInner} data-ch={ch}>
+                        {ch}
+                      </span>
+                    </span>
+                  ))}
+                </span>
               </Link>
             </li>
           );

@@ -2,3 +2,16 @@
   position: relative;
   min-height: 100svh;
 }
+
+/* Anchors the 3D boot backdrop behind the discography (BootScene is absolute,
+   z:0; the transparent Discography section sits above it). The plum ground
+   lives here so the boot reads on the brand base. */
+.bootWrap {
+  position: relative;
+  /* Every body section must sit at content level or the fixed hero backdrop
+     (z-backdrop, below content) paints over its ground — the wrapper carries
+     the plum + boot canvas for the EPK section, so it needs the same lift. */
+  z-index: var(--mc-z-content);
+  overflow: hidden;
+  background: var(--mc-bg);
+}

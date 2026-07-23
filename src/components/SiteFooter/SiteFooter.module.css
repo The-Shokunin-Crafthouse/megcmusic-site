@@ -1,0 +1,168 @@
+/* Footer (Figma 39:286) — a giant BOOK ME watermark behind the booking CTA. */
+.footer {
+  position: relative;
+  z-index: var(--mc-z-content);
+  overflow: hidden;
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-7);
+  background: var(--mc-bg-section);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  isolation: isolate;
+}
+
+/* Oversized wordmark, clipped, sitting just behind the content. */
+.watermark {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: -1;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  /* The old clamp (5.5rem floor, 22vw) sized "BOOK ME" wider than the
+     viewport at every mobile width — the floor alone rendered ~419px wide
+     against a 375px screen, so it always clipped mid-letter. 18vw keeps the
+     full word inside the viewport at any mobile width (measured against
+     Lora 700's actual character widths, 2026-07-10); the 4.5rem floor is
+     larger than the old crop ever let you *see*, so it reads bigger even
+     though the raw clamp ceiling is a touch lower. */
+  font-size: clamp(4.5rem, 18vw, 17rem);
+  line-height: 1;
+  white-space: nowrap;
+  color: var(--mc-footer-wordmark);
+  pointer-events: none;
+  user-select: none;
+}
+
+.inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--mc-space-4);
+  text-align: center;
+}
+
+/* Connect icons + gig button on one row: 16px between icons, 32px from the
+   icon group to the button. Stays on a single line down to the smallest
+   mobile width. */
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: var(--mc-space-5);
+  max-width: 100%;
+}
+
+.socials {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.socialItem {
+  display: flex;
+}
+
+.social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--mc-touch-target);
+  height: var(--mc-touch-target);
+  color: var(--mc-text-primary);
+  transition:
+    color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .social:hover {
+    color: var(--mc-teal-light);
+    transform: translateY(-2px);
+  }
+}
+
+.social:active {
+  transform: scale(0.9);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.social:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-3) var(--mc-space-5);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-weight: 700;
+  font-size: var(--mc-text-base);
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal-light);
+  transition:
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  /* Brighten on hover (lighter teal), never darken. */
+  .cta:hover {
+    background: var(--mc-teal-bright);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
+}
+
+.cta:active {
+  transform: translateY(0) scale(0.96);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.cta:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+.copyright {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-primary);
+}
+
+/* Mobile: shorter footer (-80px), symmetric top/bottom padding so the
+   watermark, CTA, and copyright all sit dead-centre in the shorter box
+   (desktop's 128/64 split is asymmetric by design; mobile isn't). */
+@media (max-width: 767px) {
+  .footer {
+    padding-top: calc(var(--mc-space-6) + var(--mc-space-2));
+    padding-bottom: calc(var(--mc-space-6) + var(--mc-space-2));
+  }
+
+  .copyright {
+    font-size: var(--mc-text-2xs);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta {
+    transition: none;
+  }
+  .cta:active {
+    transform: none;
+  }
+}

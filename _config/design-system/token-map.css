@@ -23,6 +23,7 @@
   --mc-text-body: #e5d0bc;
   --mc-text-muted: #caa45f;
   --mc-text-card: #4f2c3d;
+  --mc-text-subtle: #9d9286; /* muted taupe — /shows sub-header (Figma 110:114) */
 
   /* Accents */
   --mc-accent-pink: #f6849a;
@@ -32,9 +33,38 @@
   --mc-accent-red: #d13e5b;
   --mc-accent-red-ink: #bb314f; /* text-only red; AA (4.85:1) on cream — base #d13e5b fails at 16px */
 
+  /* Stark white — booking left-column bullets + booking form input fields
+     (2026-07-05 booking refresh). The only pure white in the register. */
+  --mc-white: #ffffff;
+  --mc-input-border: #d4d4d4;      /* faint grey 1px border on white inputs */
+  --mc-input-placeholder: #6b6b6b; /* AA (5.1:1) placeholder grey on white */
+
+  /* Teal accent — 2026 refresh (Figma 39:2 / 110:2). Replaces pink as the
+     primary interactive accent; pink retained only for venue red. */
+  --mc-teal: #568c89;        /* solid teal — active tab, glass borders */
+  --mc-teal-light: #60b1ad;  /* light teal — menu/link/active, inactive-tab text */
+  --mc-teal-bright: #7cc6c1; /* brighter teal — hover highlight (brighten, never darken) */
+  --mc-teal-ink: #0d3333;    /* dark teal — text on teal fills */
+
+  /* Glassmorphism (intentional anti-default override, logged) */
+  --mc-glass-rgb: 60 15 37;  /* plum #3c0f25 for translucent fills */
+  --mc-glass: rgb(var(--mc-glass-rgb) / 0.4);
+  --mc-glass-blur: 13px;
+
+  /* Mobile menu overlay scrim (Figma 112:191/193) — near-opaque plum over a
+     heavy backdrop blur, so the homepage stays legible-but-frosted underneath
+     instead of a flat opaque panel. Composed from --mc-bg-rgb like
+     --mc-scrim-hero below; a dedicated blur value (heavier than the nav
+     pill's --mc-glass-blur) since this covers full-bleed photo content. */
+  --mc-menu-overlay-bg: rgb(var(--mc-bg-rgb) / 0.94);
+  --mc-menu-overlay-blur: 28px;
+
   /* Channel triplets for rgba composition (R G B) */
   --mc-accent-pink-rgb: 246 132 154;
   --mc-accent-gold-rgb: 202 164 95;
+  --mc-teal-rgb: 86 140 137; /* --mc-teal channels — faint tint behind outreach {{auto}} chips */
+  --mc-bg-rgb: 36 20 32; /* --mc-bg channels — scrim over the /shows hero photo */
+  --mc-accent-red-rgb: 209 62 91; /* --mc-accent-red channels — faint tint behind the playbook auth_error banner */
 
   /* Typography */
   --mc-font-display: 'Lora', serif;
@@ -61,9 +91,60 @@
   --mc-ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
   --mc-motion-underline: 360ms;
   --mc-ease-overshoot: cubic-bezier(0.34, 1.56, 0.64, 1); /* back-out: overshoots then settles */
+  --mc-ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1); /* strong ease-out for premium micro-interactions (Emil) */
+  --mc-motion-hover: 220ms; /* standard hover/reveal duration */
+  /* Loading waveform (LoadingWave — the branded shop loader, 2026-07-09 ADR).
+     An audio-waveform silhouette (sine envelope) with a pulse travelling
+     left-to-right — the site "moves the way her music does". Bars carry the
+     teal-light accent; the traveling pulse is one --mc-wave-cycle. Reduced
+     motion keeps the silhouette static and breathes its opacity instead of
+     travelling — the loading affordance survives without vertical motion. */
+  --mc-wave-color: var(--mc-teal-light);
+  --mc-wave-bar-w: 3px;   /* bar thickness */
+  --mc-wave-gap: 3px;     /* gap between bars */
+  --mc-wave-h-min: 12px;  /* shortest bar (envelope edges) */
+  --mc-wave-h-max: 40px;  /* tallest bar (envelope centre) */
+  --mc-wave-bars: 24;     /* bar count — kept in lockstep with LoadingWave.tsx BAR_COUNT */
+  --mc-wave-cycle: 1800ms;         /* one pulse traversal */
+  --mc-wave-cycle-reduced: 2600ms; /* slow opacity breath under reduced motion */
+  /* Skeleton placeholder pulse (Shows loading state, 2026-07-08). Slow and
+     faint — a breath, not a shimmer; gated off under reduced motion. */
+  --mc-skeleton-pulse: 1800ms;
 
   /* Nav */
   --mc-nav-underline: #fffcdb; /* cream highlight under active nav link */
+  --mc-nav-roll: 460ms;         /* per-letter roll-up duration — slow, deliberate */
+  --mc-nav-roll-stagger: 45ms;  /* gap between each letter as the label rolls */
+
+  /* Mobile menu toggle (Figma 112:191/202) — one persistent button morphs
+     pill ("Menu") -> circle (close icon); the overlay curtain-drops from the
+     top of the viewport (no fade) and the nav list cascades in on the
+     existing --mc-reveal-* rise (the same "arrive with weight" H1 settle
+     used on the Phase-3 route headers), so the menu opening reads as one
+     continuous cinematic beat, not three unrelated transitions. */
+  --mc-menu-morph: 320ms;   /* trigger shape morph (pill <-> circle) */
+  --mc-menu-slide: 640ms;   /* backdrop curtain-drop reveal from the top */
+  --mc-menu-item-drift: 14px; /* nav-item rise-and-drift settle (cinematic move #3 variant) — horizontal drift paired with the vertical --mc-entrance-offset rise */
+
+  /* Nav glass edge — a slow-panning light-source gradient border (Figma 39:97:
+     the pill edge reads as white light, not the teal accent). The conic sweep
+     rotates around the pill like a light source panning. */
+  --mc-nav-edge-rgb: 255 255 255; /* white light */
+  --mc-nav-spin: 16s;             /* one slow full pan of the light source */
+
+  /* Logo name sheen — a barely-there brand-pink sweep over the script
+     (Figma highlight #FFC3CF). Subtle: noticed only on a close look. */
+  --mc-logo-sheen-rgb: 255 195 207; /* #FFC3CF */
+
+  /* Hero dates framing — bottom-anchor the dates so EXACTLY ~2.5 rows show on
+     load (2 full + the 3rd clipped mid) regardless of viewport height, so
+     more of the hero photo (Meghan's face) reads above the list on first
+     paint (2026-07-11). The reserve is the fixed pixel run from the tabs
+     down through 2.5 cards; the pills therefore sit at a different Y per
+     viewport height (by design). Cards are taller on mobile (wrapped
+     titles), so the reserve is larger. */
+  --mc-hero-dates-reserve: 345px;
+  --mc-hero-dates-reserve-mobile: 409px;
 
   /* Focus — dedicated ring, AA on the pink pill (not the brand accent) */
   --mc-focus-ring: #241420;
@@ -78,8 +159,99 @@
   --mc-touch-target: 2.75rem; /* 44px — WCAG minimum touch size */
 
   /* Type sizes — absolute ramp mirrored from Figma (Sprint 3) */
-  --mc-text-2xs: 0.75rem;  /* 12px — date-badge month */
+  --mc-text-3xs: 0.5rem;   /* 8px — date-badge month, scaled .7x down from 12px (2026-07-10) */
+  --mc-text-2xs: 0.75rem;  /* 12px — date-badge month (pre-2026-07-10 scale-down; kept for other users) */
+  --mc-text-sm: 0.875rem;  /* 14px — /shows sub-header (Figma 110:114) */
   --mc-text-base: 1rem;    /* 16px — tabs, time, venue, city, buttons */
-  --mc-text-lg: 1.375rem;  /* 22px — show title */
-  --mc-text-2xl: 2rem;     /* 32px — date-badge day */
+  --mc-text-md: 1.25rem;   /* 20px — show title (-2px from 22px) and the Liner Notes pull-quote (-8px from 28px, holds it to 2 lines on mobile) (2026-07-10) */
+  --mc-text-lg: 1.375rem;  /* 22px — date-badge day (scaled .7x down from 32px, 2026-07-10; also the pre-2026-07-10 show title size) */
+  --mc-text-2xl: 2rem;     /* 32px — date-badge day (pre-2026-07-10 scale-down; kept for other users) */
+
+  /* Z-index scale — Sprint 6 homepage scroll scene. The persistent logo pins
+     above everything on every route; the mobile menu overlay is the only thing
+     allowed above it (it carries its own logo). No ad-hoc 9999s. */
+  --mc-z-backdrop: 1;   /* fixed hero photo + scrim, behind all content */
+  --mc-z-content: 10;   /* normal-flow page sections */
+  --mc-z-chrome: 40;    /* nav pill / mobile Menu button */
+  --mc-z-logo: 100;     /* persistent logo — always the top layer of the page */
+  --mc-z-overlay: 200;  /* mobile menu full-screen overlay (sits over the logo) */
+  --mc-z-menu-trigger: 210; /* the persistent Menu/Close toggle button — above its own overlay so it never gets painted over mid-transition */
+
+  /* Hero scrim — flat plum wash over the photo for AA behind the dates list
+     (Figma 128:308: rgba(36,20,32,0.6) over the hero region). */
+  --mc-scrim-hero: rgb(var(--mc-bg-rgb) / 0.6);
+
+  /* Hero entrance choreography — Sprint 6. A one-time orchestrated reveal:
+     the plum scrim fades in, then logo → nav → dates each scale up from 0.94
+     (never 0) as they slide + fade, settling with the back-out overshoot for
+     an "arriving with weight" feel. 640ms is over the 600ms UI ceiling by
+     design: this is a scripted first-paint hero reveal seen once per visit,
+     not a repeated micro-interaction (logged 2026-07-04 ADR). */
+  --mc-scrim-fade: 1100ms;       /* slow plum wash — cinematic */
+  --mc-entrance-duration: 900ms; /* logo/nav/card settle — slow, deliberate */
+  --mc-entrance-stagger: 200ms;  /* gap between logo → nav → dates */
+  --mc-entrance-offset: 20px;    /* slide distance into place */
+  --mc-entrance-scale: 0.94;     /* start scale — Emil: never scale(0) */
+  --mc-cascade-stagger: 150ms;   /* gap between each show card dropping in */
+  --mc-tab-stagger: 80ms;        /* left-to-right gap between tab-row pills */
+
+  /* Home boot veil — the full-screen loading screen covering first paint when
+     the server render came back with zero shows (datacenter-blocked deploys;
+     2026-07-08 ADR). Figma 148:292 (desktop) / 148:295 (mobile) art-direct a
+     concert stage; the scene is now built procedurally (beam cones + lamp
+     blooms + floor gobo pools, palette below) rather than a photo, so the
+     lights actually move and nothing blend-flashes (2026-07-09 ADR). Motion is
+     cinematic per client direction — concert haze: long periods, slow sweeps,
+     transform/opacity only. */
+  --mc-veil-bg: #543343;            /* lifted plum ground (Figma 148:292 fill) */
+  --mc-veil-z: 150;                 /* over the persistent logo (100), under the menu overlay (200) */
+  /* Procedural stage-light palette (R G B triplets, all brighter than the plum
+     ground) — the moving-light veil that REPLACED the stage photo (2026-07-09
+     ADR). Beams + floor pools compose from these over --mc-veil-bg with no
+     blend mode: the photo's mix-blend-mode flipped to unblended on compositing
+     (the flash the client saw), and its beams were baked-in / couldn't move.
+     Per-fixture geometry + phase live as documented literals in the module
+     (composition, not reusable tokens — Instastar/ShowCard precedent). */
+  --mc-veil-c-magenta: 240 120 200;      /* dominant beam */
+  --mc-veil-c-white: 236 232 246;        /* cool-white beam */
+  --mc-veil-c-amber: 255 186 122;        /* warm accent — far edges only, never centre */
+  --mc-veil-c-pool-magenta: 236 128 198; /* floor gobo pool — magenta */
+  --mc-veil-c-pool-white: 230 224 244;   /* floor gobo pool — white */
+  --mc-veil-c-pool-amber: 255 190 132;   /* floor gobo pool — amber */
+  --mc-veil-cone-blur: 11px;        /* progressive cone blur — full strength at the floor, masked off at the source */
+  --mc-veil-logo-w: 319px;          /* lockup visual width, desktop (Figma 148:293) */
+  --mc-veil-logo-w-mobile: 221.5px; /* lockup visual width, mobile (Figma 148:296) */
+  --mc-veil-logo-settle: 2000ms;    /* one settle-in: fade + rise + elastic scale pop — slow, cinematic */
+  --mc-veil-logo-rise: 8px;         /* settle-in rise distance */
+  --mc-veil-logo-scale-from: 0.75;  /* entrance start — smaller */
+  /* Back-out (spring-like) easing: the scale overshoots past 1.0 to ~1.02 and
+     settles, in ONE fluid motion — the overshoot lives in the CURVE, not an
+     intermediate keyframe (a mid keyframe made it decelerate into the peak and
+     stall). y1 tuned so the peak lands ~1.02 from the 0.75→1.0 range. */
+  --mc-veil-logo-ease: cubic-bezier(0.34, 1.5, 0.64, 1);
+  --mc-veil-logo-exit: 420ms;       /* veil logo departs faster than the veil fade — hand-off, never two logos */
+  --mc-veil-swell: 600ms;           /* exit beat 1 hold, before the veil lifts (the full-screen brightness wash that used to run here was removed 2026-07-11 — read as an unwanted flash, not a beat) */
+  --mc-veil-hold-min: 1200ms;       /* anti-flash floor — veil never shows shorter */
+  --mc-veil-hold-max: 10000ms;      /* cap — past this, exit to the skeleton/empty path */
+
+  /* Content reveal on first paint — Sprint-6 Phase 3 (native routes /epk,
+     /media, /booking). A quiet arrive-with-weight settle for a route's header
+     copy: fade + slide up (--mc-entrance-offset) once, ease-out-strong. Shared
+     across the Phase-3 destinations so the reveal reads the same everywhere. */
+  --mc-reveal-duration: 460ms;   /* header settle — under the 600ms UI ceiling */
+  --mc-reveal-stagger: 80ms;     /* gap between title → lede */
+
+  /* Homepage body sections — Sprint 6 Phase 2 (Figma 39:2). */
+  --mc-text-liner: #e5d8cc;   /* Liner Notes bio prose */
+  --mc-radius-quote: 24px;    /* pull-quote / framed corners */
+  --mc-grain-opacity: 0.07;   /* film-grain overlay (brand texture, comp) */
+  --mc-footer-wordmark: #261522; /* BOOK ME watermark — barely off --mc-bg-section (#291724), a whisper */
+
+  /* Type sizes used by the sections (mirrored absolute from the comp). */
+  --mc-text-detail: 0.8125rem; /* 13px — captions, recognition detail, video sub */
+  --mc-text-prose: 1.125rem;   /* 18px — bio + recognition body */
+  --mc-text-lead: 1.3125rem;   /* 21px — EPK/video/discography lead + year */
+  --mc-text-title: 1.75rem;    /* 28px — EPK/discography item titles */
+  --mc-text-quote: 2.3125rem;  /* 37px — pull-quote */
+  --mc-text-dropcap: 6.125rem; /* 98px — Praise drop-cap, -8px from 106px (2026-07-10, more room for the copy) */
 }

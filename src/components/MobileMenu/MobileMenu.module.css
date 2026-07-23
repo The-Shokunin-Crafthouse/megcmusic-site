@@ -1,0 +1,194 @@
+/* A wrapping container that holds both the persistent toggle button and the
+   overlay it controls. display:contents so it never participates in
+   SiteChrome's flex layout (studio learning #1) — only .trigger is actually
+   positioned by the parent .mobileNav slot, same as before this component
+   wrapped itself in a ref'd root. */
+.root {
+  display: contents;
+}
+
+/* Toggle button — one persistent element for both states (Figma 112:191/202).
+   Closed = teal pill with the "Menu" label; open = teal circle with the
+   close glyph. Framer Motion's `layout` prop FLIP-animates the width/height/
+   padding change between the two, so it reads as one shape morphing rather
+   than two buttons swapping — the trigger and the close control were
+   previously separate DOM nodes, which is what produced the reported flash
+   (the overlay's own close button painted in on top of the still-mounted
+   trigger while the backdrop was mid-fade). */
+.trigger {
+  position: relative;
+  z-index: var(--mc-z-menu-trigger);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-2) var(--mc-space-4);
+  border: 0;
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-weight: 600;
+  font-size: 1rem;
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal-light);
+  cursor: pointer;
+  transition: background var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.trigger:hover {
+  background: var(--mc-teal-bright);
+}
+
+.trigger:active {
+  transform: scale(0.96);
+}
+
+.trigger:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+}
+
+/* Open state — the same button, now a circle (Figma 112:202: 32px glyph in a
+   44px touch target), solid teal ground with the teal-ink glyph on top. */
+.trigger.open {
+  width: var(--mc-touch-target);
+  height: var(--mc-touch-target);
+  padding: 0;
+  background: var(--mc-teal);
+}
+
+.trigger.open:hover {
+  background: var(--mc-teal-bright);
+}
+
+.triggerIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mc-teal-ink);
+}
+
+/* Full-screen overlay menu — a near-opaque plum scrim over a heavy blur
+   (Figma 112:193: rgba(36,20,32,0.94) + 28px backdrop-blur), so the homepage
+   reads frosted underneath rather than fully hidden. It curtain-drops open
+   from the top edge of the viewport via clip-path (no fade), then the nav
+   list cascades in on the shared H1 "arrive with weight" rise. */
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: var(--mc-z-overlay);
+  display: flex;
+  flex-direction: column;
+  background: var(--mc-menu-overlay-bg);
+  -webkit-backdrop-filter: blur(var(--mc-menu-overlay-blur));
+  backdrop-filter: blur(var(--mc-menu-overlay-blur));
+  clip-path: inset(0 0 100% 0);
+  animation: menu-curtain var(--mc-menu-slide) var(--mc-ease-out-strong) both;
+}
+
+@keyframes menu-curtain {
+  from {
+    clip-path: inset(0 0 100% 0);
+  }
+  to {
+    clip-path: inset(0 0 0% 0);
+  }
+}
+
+/* Logo bleeds off the top-left corner — identical offsets to SiteChrome's
+   mobile logoSlot (SiteChrome.module.css) so it reads as the SAME persistent
+   logo continuing on top of the overlay, not a second logo jumping to a
+   different position/size. */
+.logoSlot {
+  position: absolute;
+  top: -43px;
+  left: -28px;
+  z-index: var(--mc-z-logo);
+  --logo-h: 144.9px; /* 126px * 1.15, kept in lockstep with SiteChrome's mobile logoSlot (2026-07-11) */
+}
+
+.menuNav {
+  /* Pushed 100px lower per direction (2026-07-11) — a literal offset, not a
+     spacing token. */
+  padding: calc(var(--mc-space-6) + 100px) var(--mc-space-5) var(--mc-space-6);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Each line is masked (cinematic move #3: split typography, per-line
+   stagger) so the label itself rises-and-drifts into frame from below-right
+   rather than just fading in place — the settle drifts diagonally as it
+   fades (--mc-menu-item-drift horizontal + --mc-entrance-offset vertical),
+   which the motion skill notes reads more alive than a flat vertical rise.
+   Staggered left-to-right by --mc-reveal-stagger; held until the curtain is
+   most of the way open so the beat reads as one continuous reveal instead of
+   two unrelated animations racing each other. */
+.itemMask {
+  display: block;
+  overflow: visible clip;
+  /* The tight 1.1 line-height clips descenders (Booking's "g") once overflow
+     is enforced — pad the box a touch and pull it back with a matching
+     negative margin so the list's visible row gap is unchanged. */
+  padding-bottom: 0.2em;
+  margin-bottom: -0.2em;
+}
+
+@keyframes menu-item-rise-drift {
+  from {
+    opacity: 0;
+    transform: translate(var(--mc-menu-item-drift), var(--mc-entrance-offset));
+  }
+  to {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+}
+
+.link {
+  display: inline-block;
+  font-family: var(--mc-font-display);
+  font-weight: 600;
+  font-size: var(--mc-text-2xl);
+  line-height: 1.1;
+  color: var(--mc-text-primary);
+  animation: menu-item-rise-drift var(--mc-reveal-duration) var(--mc-ease-out-strong)
+    calc(var(--mc-menu-slide) * 0.55 + var(--i, 0) * var(--mc-reveal-stagger))
+    both;
+}
+
+.link:active {
+  opacity: 0.7;
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+.active {
+  color: var(--mc-teal-light);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay {
+    animation: none;
+    clip-path: none;
+  }
+  .trigger,
+  .trigger.open {
+    transition: none;
+  }
+  .trigger:active {
+    transform: none;
+  }
+  .link {
+    animation: none;
+  }
+}

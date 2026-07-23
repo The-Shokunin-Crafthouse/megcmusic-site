@@ -7,6 +7,22 @@
   background: var(--mc-bg);
 }
 
+/* On /shows the page header owns the top spacing, so the section drops its own
+   top padding and lets the header set the gap to the tabs. Transparent so the
+   page's fixed hero photo + scrim show through behind the cards. */
+.sectionPage {
+  padding-top: 0;
+  background: transparent;
+}
+
+/* On home the section is the hero content, riding over HomeScene's fixed photo:
+   transparent, and the scene owns the vertical rhythm (heroInner padding). */
+.sectionHome {
+  padding-top: 0;
+  padding-bottom: 0;
+  background: transparent;
+}
+
 .heading {
   position: absolute;
   width: 1px;
@@ -33,27 +49,68 @@
   margin-bottom: var(--mc-space-4);
 }
 
+/* Tab-row pills stagger in left-to-right (--col-index), overlapping the card
+   cascade. Each pill pulls in from the left as it fades. */
+.tab,
+.searchToggle {
+  animation: tab-in var(--mc-entrance-duration) var(--mc-ease-out) backwards;
+  animation-delay: calc(var(--col-index, 0) * var(--mc-tab-stagger));
+}
+
+/* Home boot veil (2026-07-08 ADR): on a veiled load the entrance animations
+   are held at their first frame — from the SSR paint onward — and released
+   when the veil's exit flips body[data-home] to "entered", so tabs, skeletons,
+   and cards arrive AS the veil lifts instead of playing out invisibly beneath
+   it. Home-only: the .held class is never applied on /shows. */
+.held .tab,
+.held .searchToggle,
+.held .skeletonCard {
+  animation-play-state: paused;
+}
+:global(body[data-home="entered"]) .held .tab,
+:global(body[data-home="entered"]) .held .searchToggle,
+:global(body[data-home="entered"]) .held .skeletonCard {
+  animation-play-state: running;
+}
+
+@keyframes tab-in {
+  from {
+    opacity: 0;
+    transform: translateX(calc(-1 * var(--mc-space-2)));
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
 .tab {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   appearance: none;
-  border: 0;
+  box-sizing: border-box;
   cursor: pointer;
   padding: var(--mc-space-2) var(--mc-space-3);
   border-radius: var(--mc-radius-pill);
   font-family: var(--mc-font-ui);
   font-weight: 400;
-  font-size: var(--mc-text-base);
-  color: var(--mc-text-card);
-  background: var(--mc-accent-blush);
+  /* Figma 39:12: pill labels are 12px, not the 16px body size. */
+  font-size: var(--mc-text-2xs);
+  /* Inactive = glass pill (Figma 110:119): translucent plum + blur + teal edge. */
+  color: var(--mc-teal-light);
+  background: var(--mc-glass);
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  backdrop-filter: blur(var(--mc-glass-blur));
+  border: 1px solid var(--mc-teal);
   transition:
     background var(--mc-motion-micro) var(--mc-ease-out),
+    color var(--mc-motion-micro) var(--mc-ease-out),
     transform var(--mc-motion-micro) var(--mc-ease-out);
 }
 
 .tab:hover {
-  background: var(--mc-accent-rose);
+  background: rgb(var(--mc-glass-rgb) / 0.6);
 }
 
 .tab:active {
@@ -61,14 +118,17 @@
 }
 
 .tab:focus-visible {
-  outline: 2px solid var(--mc-focus-ring);
+  outline: 2px solid var(--mc-teal-light);
   outline-offset: 3px;
 }
 
+/* Active = solid teal (Figma 110:116). */
 .tabActive,
 .tabActive:hover {
-  background: var(--mc-accent-pink);
-  font-weight: 600;
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal);
+  border-color: var(--mc-teal);
+  font-weight: 700;
 }
 
 /* Panel ----------------------------------------------------------------- */
@@ -101,6 +161,85 @@
   color: var(--mc-text-primary);
 }
 
+/* Loading skeleton --------------------------------------------------------- */
+/* Show-card-shaped placeholders while the browser events fallback runs
+   (2026-07-03 ADR: WP blocks datacenter IPs). Same card geometry, radius,
+   shadow, and cascade tokens as ShowCard so the loading state participates in
+   the entrance choreography and the swap to real cards isn't a visual state
+   change. Placeholder blocks pulse gently; reduced motion holds them static. */
+
+.skeletonCard {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-5);
+  /* Mirrors ShowCard: 19px top/bottom, 16px left, 32px right (Figma 39:22). */
+  padding: var(--mc-card-pad-y) var(--mc-space-5) var(--mc-card-pad-y) var(--mc-space-3);
+  list-style: none;
+  background: var(--mc-bg-card);
+  border-radius: var(--mc-radius-card);
+  box-shadow: var(--mc-shadow-card);
+  animation: skeleton-in var(--mc-entrance-duration) var(--mc-ease-out) backwards;
+  animation-delay: calc(var(--row-index, 0) * var(--mc-cascade-stagger));
+}
+
+@keyframes skeleton-in {
+  from {
+    opacity: 0;
+    transform: translateY(calc(-1 * var(--mc-entrance-offset)));
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Footprint of the real date badge's pick (same literals as ShowCard's
+   .badge/.pickWrap, scaled .7x 2026-07-10 — studio learning #575). */
+.skeletonBadge {
+  flex-shrink: 0;
+  width: 54.097px;
+  height: 48.994px;
+  border-radius: 50%;
+  background: var(--mc-divider-card);
+}
+
+.skeletonBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+  flex: 1 1 auto;
+  min-width: 0;
+  /* Mirrors ShowCard .body: pull the copy closer to the pick. */
+  margin-left: -16px;
+}
+
+/* Bars sized to the real title (20px × 1.2) and meta (16px × 1.3) lines. */
+.skeletonTitle {
+  height: calc(var(--mc-text-md) * 1.2);
+  width: 60%;
+  border-radius: var(--mc-radius-card);
+  background: var(--mc-divider-card);
+}
+
+.skeletonMeta {
+  height: calc(var(--mc-text-base) * 1.3);
+  width: 40%;
+  border-radius: var(--mc-radius-card);
+  background: var(--mc-divider-card);
+}
+
+.skeletonBadge,
+.skeletonTitle,
+.skeletonMeta {
+  animation: skeleton-pulse var(--mc-skeleton-pulse) var(--mc-ease-out) infinite;
+}
+
+@keyframes skeleton-pulse {
+  50% {
+    opacity: 0.55;
+  }
+}
+
 .actions {
   display: flex;
   justify-content: center;
@@ -120,21 +259,139 @@
   color: var(--mc-text-card);
   background: var(--mc-accent-pink);
   transition:
-    background var(--mc-motion-micro) var(--mc-ease-out),
-    transform var(--mc-motion-micro) var(--mc-ease-out);
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
 }
 
-.seeAll:hover {
-  background: var(--mc-accent-rose);
+@media (hover: hover) {
+  /* Brighten the pink on hover, never dim it to the muted rose. */
+  .seeAll:hover {
+    background: var(--mc-accent-pink);
+    filter: brightness(1.08);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
 }
 
+/* Press: scale down; release snaps back (Emil). */
 .seeAll:active {
-  transform: scale(0.97);
+  transform: translateY(0) scale(0.96);
+  transition-duration: var(--mc-motion-micro);
 }
 
 .seeAll:focus-visible {
   outline: 2px solid var(--mc-focus-ring);
   outline-offset: 3px;
+}
+
+/* Visually-hidden label, same recipe as the section heading. */
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Archive controls (page variant) --------------------------------------- */
+
+/* Tabs row with the search toggle at the end (Figma 110:2). */
+.tabRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mc-space-2);
+  margin-bottom: var(--mc-space-4);
+}
+
+.tabRow .tabs {
+  flex: 1 1 auto;
+  flex-wrap: wrap;
+  gap: var(--mc-space-2);
+  margin-bottom: 0;
+}
+
+/* Right-side controls (Add To Calendar + search) — pushed to the pill's end by
+   the tabs' flex-grow (Figma 39:12). */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  flex-shrink: 0;
+}
+
+/* Pills never wrap their own label; the row wraps between pills instead. */
+.tabRow .tab {
+  white-space: nowrap;
+}
+
+.searchToggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  box-sizing: border-box;
+  width: var(--mc-touch-target);
+  height: var(--mc-touch-target);
+  border: 1px solid var(--mc-teal);
+  border-radius: var(--mc-radius-pill);
+  color: var(--mc-teal-light);
+  background: var(--mc-glass);
+  -webkit-backdrop-filter: blur(var(--mc-glass-blur));
+  backdrop-filter: blur(var(--mc-glass-blur));
+  cursor: pointer;
+  transition:
+    background var(--mc-motion-micro) var(--mc-ease-out),
+    transform var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.searchToggle:hover {
+  background: rgb(var(--mc-glass-rgb) / 0.6);
+}
+
+.searchToggle:active {
+  transform: scale(0.94);
+}
+
+.searchToggle:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+.searchReveal {
+  margin-bottom: var(--mc-space-4);
+}
+
+.searchInput {
+  width: 100%;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-2) var(--mc-space-3);
+  border: 0;
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-card);
+  background: var(--mc-bg-card);
+}
+
+.searchInput::placeholder {
+  color: var(--mc-text-card);
+  opacity: 0.6;
+}
+
+.searchInput:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+/* Lazy-load trip wire — an invisible marker the observer watches for. */
+.sentinel {
+  height: 1px;
 }
 
 /* Touch targets reach 44px on coarse pointers without bulking up the
@@ -145,19 +402,58 @@
   }
 }
 
+/* Show filters scroll horizontally on mobile instead of wrapping to a second
+   line — the scrollbar is suppressed cross-browser (the row itself is the
+   affordance; a visible track reads as a broken desktop control here). */
+@media (max-width: 767.98px) {
+  .tabRow .tabs {
+    flex-wrap: nowrap;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  .tabRow .tabs::-webkit-scrollbar {
+    display: none;
+  }
+}
+
 @media (min-width: 768px) {
   .section {
     padding: var(--mc-space-9) var(--mc-space-6);
+  }
+  /* Keep the /shows header in charge of the top gap at every breakpoint. */
+  .sectionPage {
+    padding-top: 0;
+  }
+  /* Home hero owns the vertical rhythm at every breakpoint. */
+  .sectionHome {
+    padding-top: 0;
+    padding-bottom: 0;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .tab,
-  .seeAll {
+  .seeAll,
+  .searchToggle {
     transition: none;
+    animation: none;
   }
   .tab:active,
-  .seeAll:active {
+  .seeAll:active,
+  .searchToggle:active {
     transform: none;
+  }
+  /* Skeleton: no cascade, no pulse — static placeholder shapes; the
+     role="status" text still announces loading. */
+  .skeletonCard,
+  .skeletonBadge,
+  .skeletonTitle,
+  .skeletonMeta {
+    animation: none;
   }
 }

@@ -2,6 +2,7 @@ import { Fragment, type CSSProperties, type ReactNode } from "react";
 import type { TribeEvent } from "@/lib/api/events";
 import { parseShowDate, formatTimeRange } from "@/lib/datetime";
 import { decodeEntities } from "@/lib/text";
+import { AddToCalendar } from "../AddToCalendar/AddToCalendar";
 import styles from "./ShowCard.module.css";
 
 /** Guitar-pick silhouette behind the date badge — the exact Figma vector
@@ -36,7 +37,19 @@ function directionsHref(venue: TribeEvent["venue"]): string | null {
   return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`;
 }
 
-export function ShowCard({ event, index }: { event: TribeEvent; index: number }) {
+export function ShowCard({
+  event,
+  index,
+  withCalendar = false,
+  entranceHeld = false,
+}: {
+  event: TribeEvent;
+  index: number;
+  withCalendar?: boolean;
+  /** Home boot veil: hold the cascade at its first frame until the veil's
+   *  exit flips body[data-home] to "entered". */
+  entranceHeld?: boolean;
+}) {
   const date = parseShowDate(event.start_date);
   const time = formatTimeRange(event.start_date, event.end_date);
   const maps = directionsHref(event.venue);
@@ -70,7 +83,10 @@ export function ShowCard({ event, index }: { event: TribeEvent; index: number })
   if (city) segments.push(<span className={styles.city}>{city}</span>);
 
   return (
-    <li className={styles.card} style={{ "--row-index": index } as CSSProperties}>
+    <li
+      className={entranceHeld ? `${styles.card} ${styles.held}` : styles.card}
+      style={{ "--row-index": index } as CSSProperties}
+    >
       <div className={styles.badge}>
         <GuitarPick />
         {date && (
@@ -103,6 +119,8 @@ export function ShowCard({ event, index }: { event: TribeEvent; index: number })
             ))}
           </div>
         )}
+
+        {withCalendar && <AddToCalendar event={event} />}
       </div>
     </li>
   );

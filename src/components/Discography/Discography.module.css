@@ -1,0 +1,304 @@
+/* Discography (Figma 128:673) — divided release rows with streaming + buy. */
+.section {
+  position: relative;
+  z-index: var(--mc-z-content);
+  /* Bottom trimmed on mobile (2026-07-10 long-scroll pass); desktop's 768px
+     override is untouched. */
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-4);
+  background: var(--mc-bg);
+}
+
+.inner {
+  max-width: 1273px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+}
+
+.list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* Grid, not flex: on mobile the art spans both rows so the links sit tight
+   under the title (own row, own column) instead of trailing below the whole
+   art+title block (2026-07-11 — they used to land under the image). Desktop
+   reverts to a single row (art / text / links) below. */
+.row {
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  grid-template-areas:
+    "art text"
+    "art links";
+  align-items: center;
+  column-gap: var(--mc-space-4);
+  row-gap: var(--mc-space-2);
+  padding: var(--mc-space-6) 0;
+  border-top: 1px solid var(--mc-divider);
+}
+
+.row:last-child {
+  border-bottom: 1px solid var(--mc-divider);
+}
+
+.art,
+.artPlaceholder {
+  grid-area: art;
+}
+
+.art {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  object-fit: cover;
+  box-shadow: 0 4px 28px rgb(0 0 0 / 0.55);
+}
+
+/* Titled placeholder until a real cover is added — no release has one wired
+   up yet (config/discography.ts: every `art` is null; there's no WooCommerce/
+   WP source this pulls from, it's a Levi-editable field awaiting the actual
+   files). A 1px gold hairline keeps the box legible as a deliberate
+   placeholder against the near-black page ground, not a blank space
+   (2026-07-10 — the low-contrast --mc-bg-quote fill on its own read as
+   "missing image" at a glance). */
+.artPlaceholder {
+  flex-shrink: 0;
+  width: 120px;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--mc-space-2);
+  padding: var(--mc-space-2);
+  text-align: center;
+  background: var(--mc-bg-quote);
+  border: 1px solid rgb(var(--mc-accent-gold-rgb) / 0.3);
+  box-shadow: 0 4px 28px rgb(0 0 0 / 0.55);
+}
+
+.artStar {
+  color: var(--mc-accent-gold);
+  font-size: var(--mc-text-lead);
+}
+
+.artTitle {
+  font-family: var(--mc-font-display);
+  font-size: var(--mc-text-detail);
+  line-height: 1.25;
+  color: var(--mc-text-liner);
+}
+
+.text {
+  grid-area: text;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+  min-width: 0;
+}
+
+.release {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+}
+
+.year,
+.type {
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-detail); /* eyebrow, shrunk from 21px (2026-07-10) */
+  color: var(--mc-accent-pink);
+}
+
+.star {
+  color: var(--mc-accent-rose);
+  font-size: var(--mc-text-base);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-lead); /* album title, shrunk from 28px (2026-07-10) */
+  line-height: 1.2;
+  color: var(--mc-text-primary);
+}
+
+/* Cover + title link to the release detail page when one exists. */
+.artLink {
+  grid-area: art;
+  display: block;
+  border-radius: var(--mc-radius-card);
+}
+
+.artLink:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+}
+
+.titleLink {
+  color: inherit;
+  text-decoration: none;
+  transition: color var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.titleLink:hover {
+  color: var(--mc-teal-light);
+}
+
+.titleLink:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.links {
+  grid-area: links;
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-4);
+}
+
+/* Mobile: links sit directly under the title now (own grid row, 2026-07-11 —
+   they used to trail below the whole art+title block). The column is narrow
+   (viewport minus the 120px art + gutter), so the three links run tight —
+   no dividers (they'd read as clutter at this width) and a small gap so
+   Spotify/Apple/Buy all fit on one line at 390px. Single row + dividers
+   return at 768 below. */
+@media (max-width: 767px) {
+  .links {
+    gap: var(--mc-space-2);
+  }
+  .divider {
+    display: none;
+  }
+}
+
+.linkWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mc-space-4);
+}
+
+.divider {
+  width: 1px;
+  height: 1.25em;
+  background: var(--mc-teal);
+}
+
+/* Plain links, not buttons/pills (2026-07-11 — the old bordered pill was the
+   studio's own "outline/stroke border" anti-default). No box, no fill: just
+   the label, coloured, with a hover affordance that ISN'T a static underline
+   — text-decoration is always present but transparent at rest, so it takes
+   no space and draws no line until hover swaps its colour in (same recipe as
+   ShowCard's .venue link). Touch hit-slop is padding + matching negative
+   margin (coarse pointers only) so the tap target grows without the label
+   itself gaining a visible box. */
+.link {
+  position: relative;
+  display: inline-block;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base); /* the 3 buy/stream links, shrunk from 21px (2026-07-10) */
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  color: var(--mc-text-primary);
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-underline-offset: 4px;
+  transition:
+    color var(--mc-motion-micro) var(--mc-ease-out),
+    text-decoration-color var(--mc-motion-micro) var(--mc-ease-out),
+    font-weight var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+@media (pointer: coarse) {
+  .link {
+    padding: var(--mc-space-2);
+    margin: calc(-1 * var(--mc-space-2));
+  }
+}
+
+/* Streaming (Spotify / Apple): brighten + reveal the underline. */
+@media (hover: hover) {
+  .linkStream:hover {
+    color: var(--mc-teal-bright);
+    text-decoration-color: var(--mc-teal-bright);
+  }
+}
+
+/* Buy: same rest state as streaming. Hover goes to the brand accent and
+   heavier weight — the only cue that it's the primary action, not a filled
+   button. */
+.linkBuy {
+  color: var(--mc-accent-pink);
+}
+
+/* Reserve the bold-weight width up front (an invisible bold ghost of the
+   label) so the hover weight change never reflows the row — the other links
+   stay put. */
+.linkBuy::after {
+  content: attr(data-label);
+  display: block;
+  height: 0;
+  overflow: hidden;
+  visibility: hidden;
+  font-weight: 800;
+  text-transform: uppercase;
+  pointer-events: none;
+}
+
+@media (hover: hover) {
+  .linkBuy:hover {
+    font-weight: 800;
+    color: var(--mc-accent-pink);
+    text-decoration-color: var(--mc-accent-pink);
+  }
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition:
+      color var(--mc-motion-micro) var(--mc-ease-out),
+      text-decoration-color var(--mc-motion-micro) var(--mc-ease-out);
+  }
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: var(--mc-space-9) var(--mc-space-6);
+  }
+  /* Desktop reverts to one row (Figma 128:673): art, title block, links —
+     links pushed to the far end via the trailing 1fr on the middle column. */
+  .row {
+    grid-template-columns: 150px 1fr auto;
+    grid-template-areas: "art text links";
+    column-gap: var(--mc-space-6);
+  }
+  .art,
+  .artPlaceholder {
+    width: 150px;
+    height: 150px;
+  }
+}

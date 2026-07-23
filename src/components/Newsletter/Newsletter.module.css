@@ -1,0 +1,202 @@
+/* Newsletter (Sprint 6 §4.7) — a warm invitation beside the form, on a deeper
+   plum band so it reads as its own moment. Not a centered capture box. */
+.section {
+  position: relative;
+  z-index: var(--mc-z-content);
+  /* Bottom trimmed on mobile (2026-07-10 long-scroll pass); desktop's 768px
+     override is untouched. */
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-4);
+  background: var(--mc-bg-section);
+}
+
+.inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+}
+
+.pitch {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+  align-items: flex-start;
+}
+
+.headline {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-style: italic;
+  font-size: var(--mc-text-quote);
+  line-height: 1.15;
+  color: var(--mc-text-primary);
+}
+
+.blurb {
+  margin: 0;
+  max-width: 42ch;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-lead);
+  line-height: 1.5;
+  color: var(--mc-text-liner);
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+}
+
+.label {
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-detail);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mc-text-muted);
+}
+
+.input {
+  width: 100%;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-3) var(--mc-space-4);
+  border: 1px solid var(--mc-teal);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-text-card);
+  background: var(--mc-bg-card);
+  transition: border-color var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.input::placeholder {
+  color: var(--mc-text-card);
+  opacity: 0.55;
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 2px;
+  border-color: var(--mc-teal-light);
+}
+
+.input[aria-invalid="true"] {
+  border-color: var(--mc-accent-red);
+}
+
+.fieldError {
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-detail);
+  color: var(--mc-accent-pink);
+}
+
+.optional {
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+  color: var(--mc-text-liner);
+  opacity: 0.7;
+}
+
+.hint {
+  font-family: var(--mc-font-display);
+  font-style: italic;
+  font-size: var(--mc-text-detail);
+  color: var(--mc-text-liner);
+}
+
+/* Honeypot — off-screen, not display:none (bots skip hidden fields). */
+.honeypot {
+  position: absolute;
+  left: -5000px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.submit {
+  align-self: flex-start;
+  min-height: var(--mc-touch-target);
+  padding: var(--mc-space-3) var(--mc-space-6);
+  border: 0;
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-weight: 700;
+  font-size: var(--mc-text-base);
+  color: var(--mc-teal-ink);
+  background: var(--mc-teal-light);
+  cursor: pointer;
+  transition:
+    background var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .submit:hover:not(:disabled) {
+    background: var(--mc-teal-bright);
+    transform: translateY(-3px) scale(1.02);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
+}
+
+.submit:active:not(:disabled) {
+  transform: translateY(0) scale(0.96);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.submit:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 3px;
+}
+
+.submit:disabled {
+  opacity: 0.7;
+  cursor: default;
+}
+
+.formError {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  color: var(--mc-accent-pink);
+}
+
+.success {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-style: italic;
+  font-size: var(--mc-text-lead);
+  color: var(--mc-teal-light);
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: var(--mc-space-9) var(--mc-space-6);
+  }
+  .inner {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--mc-space-8);
+  }
+  .pitch,
+  .form {
+    flex: 1 1 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .input,
+  .submit {
+    transition: none;
+  }
+  .submit:active:not(:disabled) {
+    transform: none;
+  }
+}

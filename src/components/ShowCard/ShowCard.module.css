@@ -14,33 +14,53 @@
   background: var(--mc-bg-card);
   border-radius: var(--mc-radius-card);
   box-shadow: var(--mc-shadow-card);
-  /* Entrance: rise + grow from 0.8. Staggered per row via --row-index.
-     `backwards` holds the start frame through the delay. */
-  animation: card-in 450ms var(--mc-ease-out) backwards;
-  animation-delay: calc(var(--row-index, 0) * 70ms);
+  /* Entrance: each card drops in from above and settles, cascading top-first
+     (delay grows with --row-index). `backwards` holds the start frame through
+     the delay so lower cards wait, hidden, until their turn. */
+  animation: card-in var(--mc-entrance-duration) var(--mc-ease-out) backwards;
+  animation-delay: calc(var(--row-index, 0) * var(--mc-cascade-stagger));
+}
+
+/* Home boot veil (2026-07-08 ADR): on a veiled load the cascade is held at its
+   first frame — from the SSR paint onward — and released when the veil's exit
+   flips body[data-home] to "entered", so the cards arrive AS the veil lifts
+   instead of playing out invisibly beneath it. */
+.held {
+  animation-play-state: paused;
+}
+:global(body[data-home="entered"]) .held {
+  animation-play-state: running;
 }
 
 @keyframes card-in {
   from {
     opacity: 0;
-    transform: translateY(28px) scale(0.8);
+    transform: translateY(calc(-1 * var(--mc-entrance-offset)));
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
 /* Date badge — cream month/day centred over the plum pick. Geometry mirrors
    Figma 39:23: the pick is an absolutely-positioned vector that frames the
-   date; the text flows above it. Decoration dimensions are Figma-exact. */
+   date; the text flows above it. Decoration dimensions are Figma-exact,
+   scaled .7x (2026-07-10, mobile card-height pass — mirror any further
+   change into ShowsSection.module.css's .skeletonBadge/.skeletonTitle,
+   studio learning #575). */
 .badge {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
   flex-shrink: 0;
-  padding: 3px 13px 0;
+  /* Fixed to the pick's footprint (not shrink-to-text) so the centred pick's
+     left edge always lands at the card's 16px padding — otherwise 1- vs 2-digit
+     days shift the whole group and the left margin reads inconsistent. */
+  box-sizing: border-box;
+  width: 54.097px;
+  padding-top: 2px;
   color: var(--mc-text-primary);
 }
 
@@ -52,15 +72,15 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 77.281px;
-  height: 69.991px;
+  width: 54.097px;
+  height: 48.994px;
   z-index: 0;
   pointer-events: none;
 }
 
 .pick {
-  width: 62.861px;
-  height: 71.059px;
+  width: 44.003px;
+  height: 49.741px;
   transform: rotate(-96.04deg);
 }
 
@@ -68,20 +88,26 @@
 .day {
   position: relative;
   z-index: 1;
+  /* Nudge the month/day left over the pick to match the comp (8px at full
+     size, scaled .7x). */
+  left: -6px;
   font-family: var(--mc-font-display);
-  line-height: 1;
+  /* Figma uses normal leading; the month's tuck relies on that leading to
+     leave a couple px of breathing room under the month (line-height:1 kills it
+     and reads flush). */
+  line-height: normal;
 }
 
 .month {
-  margin-bottom: 0; /* +6px over Figma's mb-[-6px] tuck — breathing room under the month */
+  margin-bottom: -4px; /* Figma 110:135 autolayout gap, scaled .7x */
   font-weight: 700;
-  font-size: var(--mc-text-2xs);
+  font-size: var(--mc-text-3xs);
   letter-spacing: 0.04em;
 }
 
 .day {
   font-weight: 400;
-  font-size: var(--mc-text-2xl);
+  font-size: var(--mc-text-lg);
 }
 
 .body {
@@ -89,13 +115,15 @@
   flex-direction: column;
   gap: var(--mc-space-1);
   min-width: 0;
+  /* Pull the copy closer to the pick. */
+  margin-left: -16px;
 }
 
 .title {
   margin: 0;
   font-family: var(--mc-font-display);
   font-weight: 600;
-  font-size: var(--mc-text-lg);
+  font-size: var(--mc-text-md); /* 20px, -2px from 22px (2026-07-10) */
   line-height: 1.2;
   color: var(--mc-text-card);
 }

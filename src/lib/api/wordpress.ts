@@ -4,8 +4,10 @@
  * (revalidate: 0) per the project brief.
  */
 
+import { WP_ORIGIN } from "@/lib/wp-origin";
+
 const WP_API_URL =
-  process.env.WP_API_URL ?? "https://megcmusic.com/wp-json/wp/v2";
+  process.env.WP_API_URL ?? `${WP_ORIGIN}/wp-json/wp/v2`;
 
 export interface WpRendered {
   rendered: string;
@@ -21,9 +23,15 @@ export interface WpPage {
   content: WpRendered;
 }
 
+// Bound every call so a slow/blocked upstream (the WP host blocks datacenter
+// IPs — see events.ts) can't hang the ISR build; the caller falls back to the
+// empty state and the browser refetches from the visitor's residential IP.
+const TIMEOUT_MS = 12_000;
+
 async function wpFetch<T>(path: string, revalidate: number): Promise<T> {
   const res = await fetch(`${WP_API_URL}${path}`, {
     next: { revalidate },
+    signal: AbortSignal.timeout(TIMEOUT_MS),
   });
   if (!res.ok) {
     throw new Error(`WordPress ${path} → ${res.status} ${res.statusText}`);
