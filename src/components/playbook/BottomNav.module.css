@@ -26,19 +26,33 @@
     inset 0 0 0 0.5px rgb(var(--pb-nav-pill-border-rgb) / 0.5);
 }
 
-/* The circle is a gradient disc inside a gradient rim (comp 155:179) —
-   painted as two backgrounds clipped to the padding box and the border box
-   respectively, so the 1px rim can carry its own gradient. */
 .iconButton {
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-sizing: border-box;
   width: var(--pb-icon-circle);
   height: var(--pb-icon-circle);
+  border: none;
+  border-radius: 50%;
+  color: var(--pb-nav-icon-inactive);
+}
+
+/* The comp draws the circle as its own ellipse behind the glyph (155:179),
+   and so do we — as a layer, not as the button's `background`. TapScale's
+   shared `.pressable:hover/:active` tints outrank a plain `.iconButton`
+   background rule and would replace the whole disc with a flat wash on
+   hover and on every tap. Drawn here, nothing can wipe it. */
+.iconButton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  box-sizing: border-box;
   border: 1px solid transparent;
   border-radius: 50%;
+  /* A gradient disc inside a gradient rim: two backgrounds clipped to the
+     padding box and the border box, so the 1px rim carries its own. */
   background:
     linear-gradient(
         var(--pb-nav-icon-circle-angle),
@@ -54,11 +68,25 @@
         var(--pb-nav-icon-rim-edge) 100%
       )
       border-box;
-  color: var(--pb-nav-icon-inactive);
 }
 
+/* Active = the same purple disc, teal filled glyph (comp Stats/Booking/
+   Checklist frames). */
 .iconButton[aria-current="page"] {
   color: var(--pb-nav-icon-active);
+}
+
+.iconButton > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Hover lifts the disc itself rather than painting over it, so the circle
+   survives the cursor. */
+@media (hover: hover) {
+  .pill .iconButton:hover::after {
+    filter: brightness(1.35);
+  }
 }
 
 /* 44x44 minimum touch target as hit-slop beyond the 40px visual circle. */
@@ -90,6 +118,15 @@
    left:22 / bottom:16. Only a wedge of the pick is on-screen, so the tap
    target is the corner region it covers — not the whole 215px box, which
    would sit invisibly over the content column and swallow its taps. */
+/* Same story as .iconButton: TapScale's shared hover/active tints would
+   paint a flat rectangle across the mark's tap region, which has no box in
+   the comp. The element selector clears their specificity; the mark's
+   affordance is the tap-scale spring and the filled bulb. */
+div.homeMarkButton:hover,
+div.homeMarkButton:active {
+  background: none;
+}
+
 .homeMarkButton {
   position: fixed;
   left: 0;
