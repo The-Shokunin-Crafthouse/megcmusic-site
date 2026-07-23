@@ -10,7 +10,21 @@ export interface Release {
   year: string;
   type: "SINGLE" | "EP" | "LP";
   title: string;
+  /**
+   * Cover art. `null` means "resolve it live from WordPress" — the row shows a
+   * titled placeholder, then swaps in the real cover the browser fetches from
+   * Meg's residential-reachable WP (the datacenter build can't read WP). Source
+   * order: the release page's Featured Image, then the Shop product image.
+   * Set a string here only to hard-pin a local/CDN cover and skip the WP fetch.
+   */
   art: string | null;
+  /** WP page whose Featured Image is the preferred cover (admin → Pages). */
+  pageSlug?: string;
+  /** Shop product whose image is the cover fallback (admin → Products). */
+  productSlug?: string;
+  /** Route slug of this release's detail page (/music/<detailSlug>), if it has
+   *  one — the row links there. See config/releases.ts. */
+  detailSlug?: string;
   /** Per-release overrides; fall back to the artist profiles below. */
   spotify?: string;
   apple?: string;
@@ -25,8 +39,34 @@ export const ARTIST_LINKS = {
 };
 
 export const RELEASES: Release[] = [
+  // No WP page or Shop product yet — keeps the titled placeholder until Meg adds
+  // a cover (set the release page's Featured Image, or add a Shop product).
   { year: "2026", type: "SINGLE", title: "Everything You Are To Me", art: null },
-  { year: "2025", type: "LP", title: "Shadows of a Ghost Town", art: null },
-  { year: "2024", type: "EP", title: "Kindred Spirits", art: null },
-  { year: "2023", type: "EP", title: "Songs from the Sofa", art: null },
+  {
+    year: "2025",
+    type: "LP",
+    title: "Shadows of a Ghost Town",
+    art: null,
+    pageSlug: "shadows-of-a-ghost-town",
+    productSlug: "shadows-of-a-ghost-town-cd",
+    detailSlug: "shadows-of-a-ghost-town",
+  },
+  {
+    year: "2024",
+    type: "EP",
+    title: "Kindred Spirits",
+    art: null,
+    pageSlug: "kindred-spirits",
+    productSlug: "kindred-spirits-ep",
+    detailSlug: "kindred-spirits",
+  },
+  {
+    year: "2023",
+    type: "EP",
+    title: "Songs from the Sofa",
+    art: null,
+    pageSlug: "songs-from-the-sofa",
+    productSlug: "songs-from-the-sofa-cd",
+    detailSlug: "songs-from-the-sofa",
+  },
 ];

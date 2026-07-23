@@ -45,6 +45,61 @@
   text-align: center;
 }
 
+/* Connect icons + gig button on one row: 16px between icons, 32px from the
+   icon group to the button. Stays on a single line down to the smallest
+   mobile width. */
+.actions {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: var(--mc-space-5);
+  max-width: 100%;
+}
+
+.socials {
+  display: flex;
+  align-items: center;
+  gap: var(--mc-space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.socialItem {
+  display: flex;
+}
+
+.social {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--mc-touch-target);
+  height: var(--mc-touch-target);
+  color: var(--mc-text-primary);
+  transition:
+    color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .social:hover {
+    color: var(--mc-teal-light);
+    transform: translateY(-2px);
+  }
+}
+
+.social:active {
+  transform: scale(0.9);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.social:focus-visible {
+  outline: 2px solid var(--mc-nav-underline);
+  outline-offset: 2px;
+  border-radius: 50%;
+}
+
 .cta {
   display: inline-flex;
   align-items: center;
