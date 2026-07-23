@@ -1,0 +1,11 @@
+/* Grid-stack crossfade: both the outgoing and incoming panel occupy the
+   same grid cell during the 220ms overlap, so the stage sizes to the
+   tallest panel and neither panel causes a layout jump mid-transition. */
+.stage {
+  display: grid;
+}
+
+.panel {
+  grid-area: 1 / 1;
+  min-width: 0;
+}

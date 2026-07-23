@@ -1,0 +1,41 @@
+.pressable {
+  appearance: none;
+  cursor: pointer;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.pressable:disabled,
+.pressable[aria-disabled="true"] {
+  cursor: default;
+  opacity: 0.5;
+}
+
+/* Default (transparent) / hover / active tints — a consuming component with
+   its own fill (e.g. a card already on --pb-card-bg) overrides via
+   className; this is the baseline for bare pressables (icon buttons, links)
+   that don't carry one. */
+.pressable:hover:not(:disabled):not([aria-disabled="true"]) {
+  background: rgb(var(--pb-card-rgb) / 0.14);
+}
+
+.pressable:active:not(:disabled):not([aria-disabled="true"]) {
+  background: rgb(var(--pb-card-rgb) / 0.2);
+}
+
+.pressable:focus-visible {
+  outline: 2px solid var(--pb-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Optional 120ms accent flash (background tint) for keyboard/enter presses
+   and as the reduced-motion fallback affordance — instant, no transform. */
+.flash {
+  background: rgb(var(--pb-card-rgb) / 0.24);
+  transition: background-color 120ms linear;
+}

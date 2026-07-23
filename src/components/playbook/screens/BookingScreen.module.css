@@ -1,0 +1,242 @@
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-section);
+}
+
+/* ---- Daily Insight card (Home's pattern, built locally per P4 ownership) ---- */
+.tipCard {
+  background: var(--pb-card-bg);
+  border-radius: var(--pb-radius-card);
+  padding: var(--pb-space-card);
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-micro);
+}
+
+.tipLabel {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-micro);
+  font-size: var(--pb-text-2xs);
+  font-weight: 600;
+  color: var(--pb-teal);
+}
+
+.tipIcon {
+  width: 16px;
+  height: 16px;
+  transform: rotate(180deg);
+}
+
+.tipBody {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-cta-bg);
+}
+
+.tipSkeleton {
+  display: block;
+  height: 1em;
+  width: 80%;
+  border-radius: var(--pb-radius-card);
+  background: var(--pb-card-bg);
+  animation: pulse 450ms ease-in-out infinite alternate;
+}
+
+/* ---- Pipeline ---- */
+.eyebrow {
+  margin: 0 0 var(--pb-space-tight);
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-white);
+}
+
+.rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+}
+
+.rowItem {
+  min-width: 0;
+}
+
+.row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--pb-space-card);
+  background: var(--pb-card-bg);
+  border-radius: var(--pb-radius-card);
+  text-align: left;
+}
+
+.venueName {
+  margin: 0;
+  font-size: var(--pb-text-base);
+  font-weight: 600;
+  color: var(--pb-white);
+}
+
+.contacts {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-stat-number);
+}
+
+.meta {
+  margin: 0;
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-text-muted);
+}
+
+.metaType {
+  color: var(--pb-teal);
+}
+
+.metaValue {
+  color: var(--pb-text-muted);
+}
+
+.slash {
+  color: var(--pb-slash);
+}
+
+/* ---- Async states ---- */
+.stateBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--pb-space-card);
+  padding: var(--pb-space-section) var(--pb-space-card);
+  text-align: center;
+}
+
+.errorText,
+.emptyText {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-text-muted);
+}
+
+.errorText {
+  color: var(--pb-accent-red);
+}
+
+.retryButton {
+  border-radius: var(--pb-radius-pill);
+  padding: var(--pb-space-tight) var(--pb-space-card);
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  background: var(--pb-cta-bg);
+  color: var(--pb-cta-ink);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.skeletonRow {
+  height: 102px;
+  border-radius: var(--pb-radius-card);
+  background: var(--pb-card-bg);
+  animation: pulse 450ms ease-in-out infinite alternate;
+}
+
+.skeletonRow + .skeletonRow {
+  margin-top: var(--pb-space-tight);
+}
+
+@keyframes pulse {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tipSkeleton,
+  .skeletonRow {
+    animation: none;
+    opacity: 0.8;
+  }
+}
+
+/* ---- Category picker sheet ---- */
+.sheetEyebrow {
+  margin: 0 0 var(--pb-space-tight);
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-teal);
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+/* These are bare `<button>`s, not `TapScale` pressables, so nothing has
+   cleared the UA button chrome for them: iOS paints `ButtonFace` (near
+   white) with its own rounded corners, and the cream `--pb-cta-bg` label
+   then sits white-on-white. Reset the chrome explicitly — same class of
+   bug as the Checklist rows' leftover UA border. */
+.radioRow {
+  appearance: none;
+  -webkit-appearance: none;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pb-space-card);
+  width: 100%;
+  min-height: 44px;
+  padding: var(--pb-space-tight) 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  font: inherit;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-cta-bg);
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* A hairline between rows so the options read as a list rather than as
+   floating text — the sheet has no scrim to separate them (learning #16). */
+.radioRow + .radioRow {
+  border-top: 1px solid rgb(var(--pb-card-rgb) / 0.24);
+}
+
+.radioRow:active {
+  background: rgb(var(--pb-card-rgb) / 0.2);
+}
+
+.radioRow:focus-visible {
+  outline: 2px solid var(--pb-focus-ring);
+  outline-offset: 2px;
+}
+
+.radioIcon,
+.radioIconSelected {
+  width: 20px;
+  height: 20px;
+}
+
+.radioIcon {
+  color: var(--pb-cta-bg);
+}
+
+.radioIconSelected {
+  color: var(--pb-teal);
+}

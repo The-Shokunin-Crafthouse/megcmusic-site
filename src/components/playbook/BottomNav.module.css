@@ -1,0 +1,197 @@
+/* Bottom-right glassmorphic icon cluster ("Frame 57"). Four 40px circles,
+   16px padding, 16px gap -> 240x56 at rest; comp 310:85 is that pill at a
+   flat 0.7 (168x39.2, 28px circles, 16.8px glyphs), scaled about its own
+   centre, which is what the scrolled state animates to. Frame-pinned,
+   safe-area aware. */
+.pill {
+  position: fixed;
+  right: 18px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
+  z-index: 60;
+  transform-origin: center;
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-card);
+  padding: var(--pb-space-tight) var(--pb-space-card);
+  border-radius: var(--pb-radius-nav);
+  background: linear-gradient(
+    to right,
+    rgb(var(--pb-nav-pill-grad-from-rgb) / 0.4),
+    rgb(var(--pb-nav-pill-grad-to-rgb) / 0.4)
+  );
+  backdrop-filter: blur(var(--pb-nav-pill-blur));
+  -webkit-backdrop-filter: blur(var(--pb-nav-pill-blur));
+  /* The comp's 0.5px stroke is inside the frame. As a `border` it rounds up
+     to a full device pixel each side and grows the pill; as an inset ring
+     it stays inside the box. */
+  box-shadow:
+    var(--pb-nav-pill-shadow),
+    inset 0 0 0 0.5px rgb(var(--pb-nav-pill-border-rgb) / 0.5);
+}
+
+.iconButton {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--pb-icon-circle);
+  height: var(--pb-icon-circle);
+  border: none;
+  border-radius: 50%;
+  color: var(--pb-nav-icon-inactive);
+}
+
+/* The comp draws the circle as its own ellipse behind the glyph (155:179),
+   and so do we — as a layer, not as the button's `background`. TapScale's
+   shared `.pressable:hover/:active` tints outrank a plain `.iconButton`
+   background rule and would replace the whole disc with a flat wash on
+   hover and on every tap. Drawn here, nothing can wipe it. */
+.iconButton::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  box-sizing: border-box;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  /* A gradient disc inside a gradient rim: two backgrounds clipped to the
+     padding box and the border box, so the 1px rim carries its own. */
+  background:
+    linear-gradient(
+        var(--pb-nav-icon-circle-angle),
+        var(--pb-nav-icon-circle-from),
+        var(--pb-nav-icon-circle-to)
+      )
+      padding-box,
+    linear-gradient(
+        222.6deg,
+        var(--pb-nav-icon-rim-edge) 0%,
+        var(--pb-nav-icon-rim-mid) 34.6%,
+        var(--pb-nav-icon-rim-mid) 65%,
+        var(--pb-nav-icon-rim-edge) 100%
+      )
+      border-box;
+}
+
+/* Active = the same purple disc, teal filled glyph. */
+.iconButton[aria-current="page"] {
+  color: var(--pb-nav-icon-active);
+}
+
+.iconButton > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* 44x44 minimum touch target as hit-slop beyond the 40px visual circle —
+   and beyond the 28px it shrinks to when scrolled, hence the larger
+   inset there. */
+.iconButton::before {
+  content: "";
+  position: absolute;
+  inset: -2px;
+}
+
+.iconButton svg {
+  width: var(--pb-icon-size);
+  height: var(--pb-icon-size);
+}
+
+/* Hover lifts the disc itself rather than painting over it, so the circle
+   survives the cursor. */
+@media (hover: hover) {
+  .pill .iconButton:hover::after {
+    filter: brightness(1.35);
+  }
+}
+
+/* Glyphs Phosphor has no equivalent of, driven through a mask so they take
+   the same currentColor as their siblings. The Home pick is 19px in the
+   comp (310:90), not the cluster's usual 24. */
+.maskFediverse,
+.maskHome {
+  background: currentColor;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  -webkit-mask-size: contain;
+}
+
+.maskFediverse {
+  width: var(--pb-icon-size);
+  height: var(--pb-icon-size);
+  mask-image: url("/images/playbook/fediverse-logo.svg");
+  -webkit-mask-image: url("/images/playbook/fediverse-logo.svg");
+}
+
+.maskHome {
+  width: var(--pb-icon-size-pick);
+  height: var(--pb-icon-size-pick);
+  mask-image: url("/images/playbook/nav-pick.svg");
+  -webkit-mask-image: url("/images/playbook/nav-pick.svg");
+}
+
+/* ---- Bottom-left idea mark ----
+   The pick+lightbulb visual is `PickLockup` (a viewport-sized, clipped,
+   non-interactive layer, so the same element can grow into the creation
+   take-over). This is just its tap target: the corner region the wedge
+   actually covers, rather than the lockup's full 215px box, which would
+   sit invisibly over the content column and swallow its taps. */
+.ideaButton {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  z-index: 61;
+  width: 96px;
+  height: calc(88px + env(safe-area-inset-bottom));
+  display: block;
+}
+
+/* The bulb sits at its comped corner position and never scales — it is the
+   press affordance, not part of the artwork that grows. Under the tap
+   region, so the finger never lands on it directly. */
+.cornerBulb {
+  position: fixed;
+  left: var(--pb-bulb-corner-left);
+  bottom: calc(var(--pb-bulb-corner-bottom) + env(safe-area-inset-bottom));
+  z-index: 56;
+  width: var(--pb-bulb-size);
+  height: var(--pb-bulb-size);
+  display: block;
+  color: var(--pb-cta-bg);
+  pointer-events: none;
+}
+
+.cornerBulb svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* TapScale's shared hover/active tints would paint a flat rectangle across
+   the mark's tap region, which has no box in the comp. The element
+   selector clears their specificity; the affordance is the tap-scale
+   spring and the curtain that follows. */
+div.ideaButton:hover,
+div.ideaButton:active {
+  background: none;
+}
+
+.ideaButton:focus-visible {
+  outline: 2px solid var(--pb-focus-ring);
+  outline-offset: -2px;
+  border-radius: var(--pb-radius-card);
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}

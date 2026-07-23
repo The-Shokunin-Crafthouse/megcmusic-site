@@ -254,4 +254,207 @@
   --mc-text-title: 1.75rem;    /* 28px — EPK/discography item titles */
   --mc-text-quote: 2.3125rem;  /* 37px — pull-quote */
   --mc-text-dropcap: 6.125rem; /* 98px — Praise drop-cap, -8px from 106px (2026-07-10, more room for the copy) */
+
+  /* ── Megs Playbook PWA (isolated dark surface) ──────────────────────
+     Extracted from Figma 908TLdOM0e6xRtnzOj2nNv, node 155:2 and siblings
+     (Sprint 10 redesign, 2026-07-12; full extraction notes in
+     stages/02-design/output/playbook-redesign-spec.md). This surface does
+     NOT consume the public-site --mc-* tokens even where a value is an
+     exact duplicate (--pb-bg/--pb-teal/--pb-cta-bg/--pb-accent-red/
+     --pb-bg-takeover all happen to match an existing --mc-* value) — the
+     isolation is a logged decision (2026-06-16), not an oversight. Two
+     values below (--pb-nav-icon-circle, --pb-mic-circle-bg) are pixel-
+     sampled from the rendered PNG rather than extracted as vector fills
+     (Figma returned them as flattened image assets) — flagged low-
+     confidence in the spec; verify in Figma desktop if pixel precision
+     matters before shipping. */
+
+  /* Base surface — Home / Stats / Booking / Checklist (blurred-photo +
+     plum scrim background) */
+  --pb-bg: #241420;                 /* duplicates --mc-bg — kept isolated by decision */
+  --pb-bg-overlay-rgb: 36 20 32;    /* duplicates --mc-bg-rgb */
+  --pb-bg-overlay-alpha: 0.94;
+  --pb-bg-blur: 28px;
+  --pb-card-rgb: 163 88 135;        /* #A35887 — universal translucent card fill */
+  --pb-card-bg: rgb(var(--pb-card-rgb) / 0.10);
+  /* Home's Last Post card is the one card in the comp that does NOT use
+     --pb-card-bg: node 155:81 fills rgba(255,0,162,0.05). Kept as its own
+     token rather than folded into the universal fill. */
+  --pb-lastpost-card-rgb: 255 0 162;
+  --pb-lastpost-card-bg: rgb(var(--pb-lastpost-card-rgb) / 0.05);
+  --pb-card-text: #b4769d;          /* weekly-post description text. Comp value #a35887 measures 3.60:1
+                                        on the card ground — sub-AA for 14px text (WORKSPACE §3 non-negotiable).
+                                        Lifted along its own hue to 4.56:1 (learning #56: text gets an
+                                        AA-tuned ink; the card FILL keeps the comp hue via --pb-card-rgb). */
+  --pb-white: #ffffff;              /* pure white text (P1 spec §Screen 3/4 type tables list raw #FFFFFF
+                                        for "Pipeline"/venue-name/"Checklist" nodes but the Token Table
+                                        never minted a token for it — added at P4-B build time to keep
+                                        "zero raw hex in component CSS" true; duplicates --mc-white but
+                                        stays isolated per the 2026-06-16 decision like every other --pb-* color) */
+  --pb-teal: #60b1ad;               /* duplicates --mc-teal-light */
+  --pb-teal-ink: #271621;           /* text on the active --pb-teal filter/tab pill */
+  --pb-cta-bg: #f7eadd;             /* duplicates --mc-bg-card */
+  --pb-cta-ink: #2b1821;            /* text on --pb-cta-bg (close to but distinct from --pb-bg) */
+  --pb-accent-red: #da637a;         /* red TEXT on the dark grounds ("Show Insight", "Why this works?",
+                                        "What worked:", error lines). Comp value #d13e5b measures 3.81:1 —
+                                        sub-AA; lifted along-hue to 4.58:1 on the card ground. Decorative
+                                        alpha fills (Stats rank watermark) keep the comp channels below. */
+  --pb-accent-red-rgb: 209 62 91;   /* comp #d13e5b channels — decorative watermark/tint fills only */
+  --pb-stat-number: #b09c89;        /* stat big numbers, last-post/stat-card title text */
+  --pb-text-muted: #948781;         /* sublabels, inactive chip/tab text, meta text, Reel/Post badge.
+                                        Comp value #705f57 measures 2.90:1 — fails AA (4.5:1 for 12px
+                                        text) and even the 3:1 non-text floor for the badge border;
+                                        lifted along-hue to 4.57:1 on the card ground. */
+  --pb-divider: #3c2736;            /* ★ row glyph color */
+  --pb-slash: #463c31;              /* "/" separators in the Booking pipeline meta row */
+  --pb-wtw-body: #9c8290;           /* "Why this works" expanded numbered-list body text. Comp value
+                                        #7e5d6f measures 3.08:1 — sub-AA for 14px text; lifted along-hue
+                                        to 4.55:1 on the card ground. */
+  /* Daily Insight card edge: two highlight arcs travelling counter-
+     clockwise around the card's 1px border. Shares the literal with
+     --pb-stat-number but is its own token — it is an edge treatment, not
+     a text ink, and the two should be able to move apart. */
+  --pb-tip-edge: #b09c89;
+  --pb-tip-edge-cycle: 14s;
+  --pb-success: #2bc28c;            /* checked checkbox (pixel-sampled, high confidence) */
+  /* Trend arrows carry their own primitives rather than aliasing the
+     success/brand-red bands (studio learning #39). Both values are the
+     literal fills on the comp's exported arrow glyphs (155:159/155:161),
+     not pixel samples: #2ADA99 measures ~8:1 and #DA2A2D ~3.3:1 against
+     the card ground, both clearing the 3:1 non-text floor. */
+  --pb-trend-up: #2ada99;
+  --pb-trend-down: #da2a2d;
+  --pb-post-card-border: #9a597f;   /* Stats #1-ranked post card only */
+  --pb-post-card-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); /* Stats #1-ranked post card only */
+
+  /* Bottom icon-cluster nav (glassmorphic pill, frame-pinned) */
+  --pb-nav-pill-shadow: -8px 7px 28px rgba(0, 0, 0, 0.25);
+  --pb-nav-pill-blur: 2px;
+  --pb-nav-pill-border-rgb: 255 255 255;     /* alpha 0.5 */
+  --pb-nav-pill-grad-from-rgb: 255 255 255;  /* alpha 0.4 */
+  --pb-nav-pill-grad-to-rgb: 153 153 153;    /* alpha 0.4 */
+  /* Icon circle: a gradient disc with a gradient rim, both read out of the
+     comp's exported SVG (155:179 Ellipse 4) rather than pixel-sampled —
+     supersedes the earlier flat rgba(255,255,255,0.08) approximation. */
+  --pb-nav-icon-circle-from: #402c3b;
+  --pb-nav-icon-circle-to: #31222d;
+  --pb-nav-icon-circle-angle: 246.4deg; /* SVG gradient (55,18.5)->(15,36) in the 40px box */
+  --pb-nav-icon-rim-edge: #63455b;      /* rim gradient's two bright ends */
+  --pb-nav-icon-rim-mid: #31222d;       /* rim gradient's 34.6%-65% dark span */
+  /* Inactive cluster glyph. The comp fills it cream at 0.24 alpha, which
+     composites to ~1.9:1 against the icon circle — under the 3:1 WCAG
+     1.4.11 floor for meaningful non-text UI, a WORKSPACE §3 non-negotiable
+     that outranks comp fidelity (same precedent as the four text tokens
+     lifted 2026-07-12). Lifted to the first alpha clearing 3:1. */
+  --pb-nav-icon-inactive: rgb(247 234 221 / 0.42); /* comp value: 0.24 */
+  --pb-nav-icon-active: var(--pb-teal);
+
+  /* Creation-flow take-over — idea entry / question page (solid dark-teal
+     background, confirmed distinct from the base surface's plum scrim by
+     pixel-sampling the rendered PNG against the explicit #0D3333 Exit-bar
+     fill in the extracted code — see spec §"Screen 5" for the full trace). */
+  --pb-bg-takeover: #0d3333;        /* duplicates --mc-teal-ink */
+  --pb-bg-sheet-takeover: #092626;  /* a sheet lifting off --pb-bg-takeover: same hue, one step down, so the
+                                       sheet reads as its own surface without a scrim (learning #16 — no
+                                       overlay). Held at this value by contrast, not taste: --pb-text-muted
+                                       measures 4.59:1 here and 3.93:1 on --pb-bg-takeover itself, so the
+                                       body copy only clears AA on the darker step. --pb-accent-red is 4.59:1. */
+  --pb-input-bg: #f7f7f7;           /* idea-entry textarea card */
+  --pb-input-text: #000000;         /* only pure-black text on this surface */
+  --pb-mic-circle-bg: #155454;      /* pixel-sampled, LOW confidence — flattened asset, re-verify in Figma desktop */
+
+  /* Type sizes (Open Sans unless noted) */
+  --pb-text-divider: 0.375rem;   /* 6px — Lora Bold ★ row glyph, letter-spacing 4.08px */
+  --pb-text-2xs: 0.75rem;        /* 12px — labels, sublabels, chips, buttons, meta text */
+  --pb-text-sm: 0.875rem;        /* 14px — body copy, card descriptions, checklist rows */
+  --pb-text-base: 1rem;          /* 16px — Booking venue name, Exit bar label */
+  --pb-text-md: 1.25rem;         /* 20px — creation-flow headlines + idea-entry input text */
+  --pb-text-lg: 1.5rem;          /* 24px — stat numbers */
+  --pb-text-xl: 1.875rem;        /* 30px — Home recommendation headline (gradient text, Light weight) */
+  --pb-text-watermark: 10.6875rem; /* 171px — Stats rank-number background numeral */
+
+  /* Focus — dedicated ring for this dark surface (studio learning #32;
+     --mc-focus-ring #241420 equals --pb-bg and would vanish here). Cream
+     measures ~13:1 on --pb-bg and ~11:1 on --pb-bg-takeover — clears the
+     3:1 non-text minimum on both grounds with wide margin. */
+  --pb-focus-ring: #f7eadd;
+
+  /* Spacing / radii */
+  --pb-space-content: 24px;  /* base-surface outer content padding, all sides */
+  --pb-space-section: 24px;  /* gap between major stacked blocks */
+  --pb-space-card: 16px;     /* card internal padding; most inter-element gaps */
+  --pb-space-tight: 8px;     /* Booking/Checklist row-to-row gap; tight internal stacks */
+  --pb-space-micro: 4px;     /* icon-to-label gaps */
+  --pb-radius-card: 16px;    /* universal card/row radius */
+  --pb-radius-pill: 999px;   /* CTA buttons */
+  --pb-radius-badge: 88px;   /* "Reel"/"Post" meta badges, active filter/tab pill */
+  --pb-radius-nav: 80px;     /* bottom icon-cluster nav pill */
+  --pb-radius-chip-row: 256px; /* filter-chip / tab row container */
+  --pb-icon-size: 24px;      /* nav glyph size */
+  --pb-icon-size-pick: 19px; /* the Home pick glyph is smaller (310:90, 13.3 / 0.7) */
+  --pb-icon-circle: 40px;    /* nav icon circle diameter */
+  /* Scrolled nav: comp 310:85 is 168x39.2 with 28px circles and 16.8px
+     glyphs — a flat 0.7 of the resting pill, about its own centre. */
+  --pb-nav-scale-scrolled: 0.7;
+
+  /* ── Pick lockup (corner mark <-> creation-flow ground) ──────────────
+     The creation take-over's background (155:1146) is the SAME pick +
+     lightbulb lockup as the bottom-left corner mark (155:38), scaled
+     1/0.0942873 about a point just off the bottom-left corner. Solving
+     both frames' placements for a common origin lands on x 49.7 /
+     66.7px below the frame bottom, and reproduces every one of the
+     comp's four numbers exactly. So the two are one object at two
+     scales, and the take-over entrance is that object growing. All
+     geometry below is the take-over (scale 1) state; the corner mark is
+     the same layer at --pb-pick-corner-scale. */
+  --pb-pick-corner-scale: 0.0942873;
+  --pb-pick-anchor-x: 49.7px;
+  --pb-pick-anchor-below: 66.7px; /* below the viewport bottom edge */
+  --pb-pick-rotate: -72.72deg;
+  --pb-pick-box: 2288.837px;   /* 215.809855 / 0.0942873 */
+  --pb-pick-glyph: 1828.364px; /* 172.393 / 0.0942873 */
+  --pb-pick-left: -943.95px;
+  --pb-pick-bottom: -693.69px;
+  /* The lightbulb stays at its comped corner size — it is a press
+     affordance, not part of the growing artwork, so it never scales. */
+  --pb-bulb-size: 32px;
+  --pb-bulb-corner-left: 22px;
+  --pb-bulb-corner-bottom: 16px;
+
+  /* ── Creation take-over choreography (Cinematic Direction) ───────────
+     This one transition runs on Cinematic Direction rather than the
+     project's Systemic Restraint, at the client's direction: the pick
+     sweeping in is a narrative beat, and the screen it lands on is
+     revealed in ordered acts rather than appearing at once. Curves are
+     authored for this surface — the fill accelerates out of the corner
+     and settles; the reveal arrives without overshoot. */
+  --pb-ease-fill: cubic-bezier(0.65, 0, 0.2, 1);
+  --pb-ease-reveal: cubic-bezier(0.19, 1, 0.28, 1);
+  --pb-motion-fill: 520ms;
+  --pb-motion-reveal: 300ms;
+  /* Stagger carries hierarchy, so the beats are uneven by intent: the
+     heading is the subject, the mic is secondary to it, the input is what
+     she acts on, the buttons follow it, and the exit bar closes the
+     sequence by sliding up. */
+  --pb-beat-heading: 320ms;
+  --pb-beat-mic: 390ms;
+  --pb-beat-input: 450ms;
+  --pb-beat-actions: 510ms;
+  --pb-beat-exit: 560ms;
+  --pb-icon-trend: 16px;     /* StatTriple trend arrow (comp 155:159 etc.) */
+  --pb-space-chip-y: 4px;    /* active filter/tab chip vertical padding (24px pill) */
+  --pb-space-chip-x: 12px;   /* active filter/tab chip horizontal padding */
+  --pb-chip-row-height: 56px; /* every filter/tab row in the comp is 342x56 */
+  --pb-row-height: 70px;     /* Checklist / question-engine select rows */
+  --pb-cta-inset: 8px;       /* comp wraps the Home CTA pill in an 8px frame (155:56) */
+  /* Creation take-over: the comp hand-places its header rather than using
+     auto-layout — title at top 34 / left 24, mic circle at top 28 /
+     right 36, content block at top 97. */
+  --pb-takeover-pad-top: 34px;
+  --pb-takeover-header-gap: 12px; /* on top of --pb-space-section = 36px */
+  --pb-takeover-mic-inset: 36px;
+  /* Hit-slop the studio's 44x44 touch minimum onto controls whose comped
+     box is smaller, instead of inflating the visual box (learning #112). */
+  --pb-hit-slop: 8px;
+  --pb-checkbox-size: 32px;  /* Checklist row icon size */
 }

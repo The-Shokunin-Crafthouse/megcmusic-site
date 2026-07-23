@@ -1,0 +1,29 @@
+/* No scrim/overlay by design (studio learning #16) — the sheet itself is
+   the only visible chrome; dismissal is a capture-phase outside tap, not a
+   backdrop click. Portalled to document.body for the same reason as
+   TakeoverModal (learning #98). */
+.sheet {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 210;
+  max-height: 85dvh;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: var(--pb-bg);
+  border-radius: var(--pb-radius-card) var(--pb-radius-card) 0 0;
+  box-shadow: var(--pb-nav-pill-shadow);
+  padding: var(--pb-space-card) var(--pb-space-content)
+    calc(var(--pb-space-content) + env(safe-area-inset-bottom));
+  touch-action: none;
+}
+
+.grabber {
+  width: 36px;
+  height: 4px;
+  border-radius: var(--pb-radius-pill);
+  background: var(--pb-text-muted);
+  opacity: 0.5;
+  margin: 0 auto var(--pb-space-card);
+}

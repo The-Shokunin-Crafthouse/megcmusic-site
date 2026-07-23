@@ -1,0 +1,47 @@
+/* Question page (spec §Screen 6). Button row is the one full-width
+   justify-between pairing in the flow — deliberate contrast with
+   IdeaEntry's left-aligned gap-24 row. */
+
+.progress {
+  flex-shrink: 0;
+  padding-top: 4px;
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-text-muted);
+  white-space: nowrap;
+}
+
+.requiredError {
+  margin: 0;
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-accent-red);
+}
+
+.buttonRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+}
+
+/* Comp 155:1203: unlike IdeaEntry's bare "Make it better", the question
+   page's Back carries the same 24px horizontal padding as the primary
+   button beside it — just without the border. */
+.backButton {
+  composes: textButton from "./creation.module.css";
+  padding-inline: var(--pb-space-content);
+}
+
+/* The primary Next/Generate-Storyboard button is a plain motion.button
+   (not `TapScale`) so it can carry a real `aria-disabled` that still
+   receives clicks — required to show "This one needs an answer" on tap
+   rather than silently no-opping. `TapScale`'s `disabled` prop removes
+   the click handler entirely (correct for its other, harder-disabled
+   uses elsewhere in this flow), so it can't express this soft-disabled
+   pattern without being edited — out of this file's ownership. */
+.nextButton {
+  composes: pillButton from "./creation.module.css";
+}
+
+.nextButton[aria-disabled="true"] {
+  opacity: 0.5;
+}

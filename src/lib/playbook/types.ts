@@ -6,7 +6,23 @@
  * stores the string-union columns as plain `text`, so the unions here are the
  * single place the allowed values are enforced in the type system — every
  * route and component imports from here rather than re-declaring literals.
+ *
+ * The generation-queue row types below (GenerationJob, StoryboardRow, Tip,
+ * ChecklistStateRow) mirror
+ * supabase/migrations/20260713000000_playbook_generation_init.sql the same
+ * way; their kind/status/surface/source unions are owned by
+ * src/lib/playbook/generation.ts (the zod contract module) and re-exported
+ * here rather than redeclared.
  */
+
+import type {
+  Frame,
+  JobKind,
+  JobStatus,
+  TipSource,
+  TipSurface,
+  TitleOption,
+} from "@/lib/playbook/generation";
 
 export type Platform = "instagram" | "facebook";
 
@@ -94,3 +110,53 @@ export const MIN_REACH_FOR_RATE = 100;
 
 /** `stale` health kicks in once the last ok sync is older than this. */
 export const STALE_AFTER_HOURS = 48;
+
+/** A row of the `generation_jobs` table. `input`/`output` are the raw jsonb —
+ *  validate with `parseJobInput`/`parseJobOutput` (generation.ts) before
+ *  trusting their shape. */
+export interface GenerationJob {
+  id: string;
+  kind: JobKind;
+  status: JobStatus;
+  input: Record<string, unknown>;
+  output: Record<string, unknown> | null;
+  error: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+/** A row of the `storyboards` table — a saved, generated storyboard. */
+export interface StoryboardRow {
+  id: string;
+  idea: string;
+  answers: Record<string, unknown> | null;
+  frames: Frame[];
+  title_options: TitleOption[] | null;
+  chosen_title: string | null;
+  caption: string | null;
+  posting_window: string | null;
+  created_at: string;
+}
+
+/** A row of the `tips` table. */
+export interface Tip {
+  id: string;
+  surface: TipSurface;
+  body: string;
+  context_tags: string[];
+  source: TipSource;
+  derived_from_media_id: string | null;
+  active: boolean;
+  times_shown: number;
+  last_shown_at: string | null;
+  created_at: string;
+}
+
+/** A row of the `checklist_state` table — `day` is a `YYYY-MM-DD` date
+ *  string (Postgres `date`, returned by supabase-js as text). */
+export interface ChecklistStateRow {
+  day: string;
+  item_id: string;
+  checked: boolean;
+  checked_at: string | null;
+}

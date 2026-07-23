@@ -1,0 +1,106 @@
+/* First-run screen (specs.md §"Screen 10"). Plum surface — the base
+   `--pb-bg` tone, matching the rest of the browse surface family, painted
+   solid (no photo/scrim layer of its own). Sits above every other layer
+   (TakeoverModal is z-index 200, BottomSheet 210). */
+
+.wrap {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  gap: var(--pb-space-section);
+  padding: var(--pb-space-content);
+  padding-top: calc(var(--pb-space-section) * 2 + env(safe-area-inset-top));
+  padding-bottom: calc(var(--pb-space-content) + env(safe-area-inset-bottom));
+  background: var(--pb-bg);
+  text-align: center;
+  overflow-y: auto;
+}
+
+.markWrap {
+  position: relative;
+  width: 96px;
+  height: 96px;
+  flex-shrink: 0;
+}
+
+.mark {
+  width: 100%;
+  height: 100%;
+}
+
+.lightbulb {
+  position: absolute;
+  right: -4px;
+  bottom: -4px;
+  width: 24px;
+  height: 24px;
+  color: var(--pb-teal);
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.4));
+}
+
+.headline {
+  margin: 0;
+  font-size: var(--pb-text-md);
+  font-weight: 700;
+  color: var(--pb-white);
+}
+
+.body {
+  margin: 0;
+  max-width: 32rem;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-cta-bg);
+  line-height: 1.5;
+}
+
+.installCard {
+  width: 100%;
+  max-width: 24rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-micro);
+  background: var(--pb-card-bg);
+  border-radius: var(--pb-radius-card);
+  padding: var(--pb-space-card);
+  text-align: left;
+}
+
+.installTitle {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  font-weight: 600;
+  color: var(--pb-cta-bg);
+}
+
+.installSteps {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--pb-space-micro);
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-text-muted);
+}
+
+.installIcon {
+  flex-shrink: 0;
+}
+
+.cta {
+  composes: focusable from "./creation/creation.module.css";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--mc-touch-target);
+  padding: var(--pb-space-card) var(--pb-space-content);
+  border-radius: var(--pb-radius-pill);
+  background: var(--pb-cta-bg);
+  color: var(--pb-cta-ink);
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  margin-top: var(--pb-space-tight);
+}

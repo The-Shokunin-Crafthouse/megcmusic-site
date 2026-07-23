@@ -1,0 +1,213 @@
+/* Stats screen (spec §Screen 2). PlaybookShell's .wrap already applies the
+   24px --pb-space-content padding. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-section);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-card);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.staggerItem {
+  display: block;
+}
+
+/* ---- Post card ----------------------------------------------------- */
+
+.postCard {
+  position: relative;
+  overflow: hidden;
+}
+
+/* Comp 155:548: the glyph box sits 23px in from the card's right edge and
+   3px above its top, clipped by the card. `line-height: 1` puts the em box
+   flush to `top`, so the -0.22em nudge lands the cap-height where the comp
+   puts it rather than 40px lower. */
+.rankWatermark {
+  position: absolute;
+  top: -0.22em;
+  right: 23px;
+  z-index: 0;
+  font-size: var(--pb-text-watermark);
+  font-weight: 800;
+  line-height: 1;
+  color: rgb(var(--pb-accent-red-rgb) / 0.1);
+  pointer-events: none;
+  user-select: none;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-card);
+}
+
+/* Comp 155:526 butts the avatar against the stat columns (no gap) — Home's
+   equivalent row is the one that sets 8px. */
+.postHeader {
+  display: flex;
+  align-items: flex-start;
+}
+
+.postBody {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+}
+
+.avatar {
+  flex: none;
+  width: 3.125rem; /* 50px — spec avatar size */
+  height: 3.125rem;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--pb-card-bg);
+}
+
+.postTitle {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  font-weight: 400;
+  color: var(--pb-stat-number);
+  line-height: normal;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* Comp 157:81: an 18px-tall row, items 16px apart. */
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-card);
+  min-height: 18px;
+}
+
+.showInsightTrigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  line-height: var(--pb-space-card);
+  color: var(--pb-accent-red);
+}
+
+/* 44x44 as hit-slop over the 16px text line (learning #112). */
+.showInsightTrigger::after {
+  content: "";
+  position: absolute;
+  inset: -14px calc(var(--pb-hit-slop) * -1);
+}
+
+.showInsightTrigger:focus-visible {
+  outline: 2px solid var(--pb-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--pb-space-micro);
+}
+
+/* Comp 157:83: 18px tall, 8px horizontal padding, the 12px Bold label
+   trimmed to its ~9px cap height inside it. */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  box-sizing: border-box;
+  height: 18px;
+  padding: 0 var(--pb-space-tight);
+  border: 1px solid var(--pb-text-muted);
+  border-radius: var(--pb-radius-badge);
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  line-height: 1;
+  color: var(--pb-text-muted);
+}
+
+.date {
+  font-size: var(--pb-text-2xs);
+  font-weight: 400;
+  line-height: var(--pb-space-card);
+  color: var(--pb-text-muted);
+  white-space: nowrap;
+}
+
+/* Closed, this contributes 0px of height but still eats a 16px flex gap
+   the comp's 162px card doesn't budget for — cancelled while closed. */
+.insightRegion {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  margin-top: calc(var(--pb-space-card) * -1);
+  transition:
+    grid-template-rows 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.insightRegion[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  margin-top: 0;
+}
+
+.insightLine {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-cta-bg);
+  line-height: normal;
+}
+
+.insightTip {
+  margin: var(--pb-space-tight) 0 0;
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-wtw-body);
+  line-height: normal;
+}
+
+/* ---- Async-state chrome ---------------------------------------------- */
+
+.errorBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--pb-space-tight);
+}
+
+.errorText,
+.emptyText {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-text-muted);
+}
+
+.retryLink {
+  padding: 0;
+  min-height: var(--mc-touch-target);
+  border: none;
+  background: transparent;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-accent-red);
+}
+
+.retryLink:focus-visible {
+  outline: 2px solid var(--pb-focus-ring);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .insightRegion {
+    transition: none;
+  }
+}

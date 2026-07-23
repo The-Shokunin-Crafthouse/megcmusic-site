@@ -1,0 +1,82 @@
+/* Every comped chip/tab row is 342x56 with 16px padding and a 16px gap
+   (Stats 155:217, Booking 155:922, Checklist 155:1004) — the height is
+   fixed on all three, not just Checklist. */
+.row {
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-card);
+  height: var(--pb-chip-row-height);
+  box-sizing: border-box;
+  padding: 0 var(--pb-space-card);
+  background: var(--pb-card-bg);
+  border-radius: var(--pb-radius-chip-row);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.row::-webkit-scrollbar {
+  display: none;
+}
+
+/* Inactive chips are bare text in the comp — no pill, no padding — so the
+   16px row gap alone sets their rhythm. The 44x44 minimum is met with
+   hit-slop rather than by growing the box (learning #112). */
+.chip {
+  position: relative;
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--pb-space-micro);
+  padding: 0;
+  border: none;
+  border-radius: var(--pb-radius-badge);
+  background: transparent;
+  font-size: var(--pb-text-2xs);
+  font-weight: 600;
+  line-height: var(--pb-space-card);
+  color: var(--pb-text-muted);
+  white-space: nowrap;
+}
+
+.chip::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--pb-hit-slop) * -1.75) calc(var(--pb-hit-slop) * -1);
+}
+
+/* Active chip (155:218): a 24px-tall teal pill, 4px/12px padding. */
+.chip.active {
+  padding: var(--pb-space-chip-y) var(--pb-space-chip-x);
+  background: var(--pb-teal);
+  color: var(--pb-teal-ink);
+  font-weight: 700;
+}
+
+.chip.active::after {
+  inset: calc(var(--pb-hit-slop) * -1.25) calc(var(--pb-hit-slop) * -1);
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--pb-focus-ring);
+  outline-offset: 2px;
+}
+
+/* Hover/active tints for the desktop (cursor) shell — same baseline pair
+   as TapScale's shared pressable states. The active (teal) chip already
+   carries its own fill and stays put. */
+@media (hover: hover) {
+  .chip:not(.active):hover {
+    background: rgb(var(--pb-card-rgb) / 0.14);
+  }
+}
+
+.chip:not(.active):active {
+  background: rgb(var(--pb-card-rgb) / 0.2);
+}
+
+/* Spec: 12x12 caret — 1em at the chip's own --pb-text-2xs (12px) font-size,
+   rather than a mismatched spacing token or a raw px value. */
+.caret {
+  width: 1em;
+  height: 1em;
+}

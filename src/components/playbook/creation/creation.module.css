@@ -1,0 +1,208 @@
+/* Shared chrome for the creation-flow take-over screens (idea entry +
+   question page) — spec §Screen 5 / §Screen 6 / specs.md §9.9-9.11. One
+   dark-teal surface family (`--pb-bg-takeover`), isolated from the plum
+   browse surfaces per the 2026-06-16 token decision. `TakeoverModal`
+   already fills the viewport and pads for safe-area on every side, so a
+   screen here grows to fill it via flex and lets its Exit bar fall to the
+   bottom — no `position: fixed` needed, which keeps this correct wherever
+   `TakeoverModal` mounts.
+
+   Deliberately NO viewport unit on `.screen`: the take-over is already
+   `position: fixed; inset: 0`, so it IS the visual viewport, and any
+   vh/dvh/svh here is a second, competing measure of the same thing. `dvh`
+   re-resolved mid-scroll while iOS collapses its toolbar; `svh` pinned the
+   screen to the toolbar-visible height, leaving the Exit bar floating
+   above the real bottom edge whenever the toolbar was retracted. Filling
+   the parent has neither failure mode.
+
+   Every color/type/space value below is a `--pb-*` token
+   (`_config/design-system/token-map.css`) — no raw hex, no arbitrary px. */
+
+.screen {
+  display: flex;
+  flex-direction: column;
+  flex: 1 0 auto;
+}
+
+.content {
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-section);
+  padding: var(--pb-takeover-pad-top) var(--pb-space-content)
+    var(--pb-space-content);
+}
+
+/* Comp: title baseline block 34..61, content block at 97 — 36px clear,
+   i.e. the section gap plus this. */
+.headlineRow {
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--pb-space-card);
+  margin-bottom: var(--pb-takeover-header-gap);
+}
+
+.headline {
+  margin: 0;
+  font-size: var(--pb-text-md);
+  font-weight: 700;
+  color: var(--pb-white);
+}
+
+/* ---- Focus ring (studio learning #32 / spec Screen 10) ---- */
+.focusable:focus-visible {
+  outline: 2px solid var(--pb-focus-ring);
+  outline-offset: 2px;
+}
+
+/* ---- "Paper" input card — idea entry + text_long/text_short question
+   types (spec §Screen 5 Components). Only pure-black text on the whole
+   creation surface lives here. ---- */
+.paperCard {
+  composes: focusable;
+  display: block;
+  width: 100%;
+  min-height: 200px;
+  resize: none;
+  border: none;
+  border-radius: var(--pb-radius-card);
+  background: var(--pb-input-bg);
+  color: var(--pb-input-text);
+  font-family: inherit;
+  font-size: var(--pb-text-md);
+  font-weight: 600;
+  padding: var(--pb-space-content);
+  line-height: 1.4;
+}
+
+.paperCard::placeholder {
+  color: var(--pb-input-text);
+  opacity: 0.45;
+}
+
+/* ---- Pill / text buttons (spec §Screen 5 Components) ---- */
+.pillButton {
+  composes: focusable;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  /* Comp 155:1207 is 48px tall (16 + 16px text + 16). An inset ring keeps
+     the 1px stroke inside that box; a `border` would add 2px to it. */
+  border: none;
+  box-shadow: inset 0 0 0 1px var(--pb-cta-bg);
+  background: transparent;
+  border-radius: var(--pb-radius-pill);
+  padding: var(--pb-space-card) var(--pb-space-content);
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  line-height: var(--pb-space-card);
+  color: var(--pb-cta-bg);
+  white-space: nowrap;
+}
+
+.pillButton[aria-disabled="true"],
+.pillButton:disabled {
+  opacity: 0.5;
+}
+
+/* Comp 157:78 ("Make it better"): a 48px-tall borderless target with no
+   horizontal padding — same 16px vertical rhythm as .pillButton so the two
+   sit on one baseline in the button row. */
+.textButton {
+  composes: focusable;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  border-radius: var(--pb-radius-pill);
+  background: transparent;
+  padding: var(--pb-space-card) 0;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  line-height: var(--pb-space-card);
+  color: var(--pb-cta-bg);
+}
+
+.textButton:disabled {
+  opacity: 0.5;
+}
+
+/* ---- Exit bar (spec §Screen 5 / §Screen 6 — identical component on both)
+   Sits as the last flex child of `.screen`, so it reads at the visual
+   bottom of a short screen (the comp's "fixed" look) and scrolls into
+   view naturally if content ever runs long — no position:fixed z-index
+   bookkeeping needed on top of TakeoverModal's own safe-area handling. ---- */
+.exitBar {
+  composes: focusable;
+  flex-shrink: 0;
+  width: 100%;
+  min-height: var(--pb-row-height);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: var(--pb-bg-takeover);
+  color: var(--pb-cta-bg);
+  font-size: var(--pb-text-base);
+  font-weight: 700;
+}
+
+/* ---- Pick-curtain entrance choreography (Cinematic Direction) ----
+   Set by TakeoverModal's `pick` entrance. Nothing on the screen is visible
+   while the pick sweeps in — `both` fill-mode holds each block at its
+   from-state through its delay — and then the screen is revealed in
+   ordered acts rather than all at once. The beats are deliberately uneven:
+   stagger carries hierarchy, and an equal interval would read as noise.
+   The exit bar closes the sequence by sliding up from the bottom edge. */
+[data-pick-reveal="true"] .content > * {
+  animation: pickRevealRise var(--pb-motion-reveal) var(--pb-ease-reveal) both;
+  animation-delay: var(--pb-beat-actions);
+}
+
+/* Heading first — it is the subject of the screen. */
+[data-pick-reveal="true"] .content > *:nth-child(1) {
+  animation-delay: var(--pb-beat-heading);
+}
+
+/* Then whatever she acts on: the input card, or the question's options. */
+[data-pick-reveal="true"] .content > *:nth-child(2) {
+  animation-delay: var(--pb-beat-input);
+}
+
+[data-pick-reveal="true"] .exitBar {
+  animation: pickRevealSlideUp var(--pb-motion-reveal) var(--pb-ease-reveal) both;
+  animation-delay: var(--pb-beat-exit);
+}
+
+@keyframes pickRevealRise {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes pickRevealSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(100%);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Reduced motion resolves the whole sequence to its final state — the
+   screen is simply there, complete and readable, with no beats. */
+@media (prefers-reduced-motion: reduce) {
+  [data-pick-reveal="true"] .content > *,
+  [data-pick-reveal="true"] .exitBar {
+    animation: none;
+  }
+}

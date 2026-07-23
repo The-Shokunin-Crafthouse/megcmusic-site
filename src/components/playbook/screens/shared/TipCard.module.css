@@ -1,0 +1,118 @@
+/* Registered so the sweep angle interpolates; an unregistered custom
+   property would step rather than travel. */
+@property --pb-tip-edge-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-micro);
+}
+
+/* Two highlight arcs on opposite corners, travelling counter-clockwise
+   around the card's edge. Painted as a conic gradient clipped to a 1px
+   ring by an xor mask, so it is a border highlight rather than a glow —
+   the card's fill underneath is untouched. */
+.card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: conic-gradient(
+    from var(--pb-tip-edge-angle),
+    transparent 0deg,
+    var(--pb-tip-edge) 24deg,
+    transparent 58deg,
+    transparent 180deg,
+    var(--pb-tip-edge) 204deg,
+    transparent 238deg,
+    transparent 360deg
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  /* Negative end angle = counter-clockwise. */
+  animation: tipEdgeTravel var(--pb-tip-edge-cycle) linear infinite;
+  pointer-events: none;
+}
+
+@keyframes tipEdgeTravel {
+  to {
+    --pb-tip-edge-angle: -360deg;
+  }
+}
+
+.card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.labelRow {
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-micro);
+}
+
+.icon {
+  width: var(--pb-space-card);
+  height: var(--pb-space-card);
+  color: var(--pb-teal);
+  transform: rotate(180deg);
+}
+
+.label {
+  font-size: var(--pb-text-2xs);
+  font-weight: 600;
+  color: var(--pb-teal);
+}
+
+.body {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  font-weight: 400;
+  color: var(--pb-cta-bg);
+  line-height: normal;
+}
+
+/* specs.md §10: shaped skeleton blocks in --pb-card-bg pulsing 60%->100%
+   alpha, 450ms ease cycle. Reduced motion: static 80%. */
+.skeletonLine {
+  height: 1.5em;
+  width: 80%;
+  border-radius: var(--pb-space-micro);
+  background: var(--pb-card-bg);
+  animation: tipCardPulse 450ms ease-in-out infinite alternate;
+}
+
+@keyframes tipCardPulse {
+  from {
+    opacity: 0.6;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeletonLine {
+    animation: none;
+    opacity: 0.8;
+  }
+
+  /* The edge keeps its two highlights, parked — the card still reads as
+     the live one, nothing travels. */
+  .card::before {
+    animation: none;
+  }
+}

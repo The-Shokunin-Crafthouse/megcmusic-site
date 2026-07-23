@@ -1,0 +1,25 @@
+/* Single-cell grid: incoming and outgoing screens occupy the same cell so
+   they overlap during a push/pop instead of stacking.
+
+   `flex: 1 0 auto` is inert unless the stage is itself a flex item — it is
+   inside `TakeoverModal`'s take-over column, where it has to grow to the
+   full take-over height. Without it the stage shrink-wraps its content and
+   a screen's bottom-anchored chrome (the creation flow's Exit bar) floats
+   wherever the content happens to end. */
+.stage {
+  position: relative;
+  display: grid;
+  flex: 1 0 auto;
+  overflow: clip;
+}
+
+/* A flex column so a screen can hand its own children the remaining
+   height — `min-height: 100%` alone only sizes this box, it does not let
+   anything inside it fill. */
+.screen {
+  grid-area: 1 / 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 100%;
+}

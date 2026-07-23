@@ -1,0 +1,51 @@
+/* Portalled to document.body (repo learning #98) — a transformed ancestor
+   participating in StackNavigator/scroll-timeline motion would otherwise
+   trap a `position: fixed` child's z-index in a local stacking context. */
+.takeover {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  flex-direction: column;
+  background: var(--pb-bg-takeover);
+  overscroll-behavior: contain;
+  overflow-y: auto;
+  padding-top: env(safe-area-inset-top);
+  padding-bottom: env(safe-area-inset-bottom);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* ---- `pick` entrance ----
+   The ground is the pick lockup itself rather than a flat fill, so the
+   take-over's own background must be transparent until the curtain has
+   covered the screen — otherwise the teal would be there before the pick
+   arrives and there'd be nothing to watch. */
+.pickGround {
+  background: none;
+}
+
+.pickCurtain {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  /* Base value so the curtain starts at the corner even for the frame
+     before framer-motion writes its own. */
+  --pb-pick-scale: var(--pb-pick-corner-scale);
+}
+
+/* The lockup inside the curtain is already at scale 1 — the curtain owns
+   the animation, so this instance must not re-apply the corner scale. */
+.pickLayer {
+  position: absolute;
+}
+
+.pickContent {
+  position: relative;
+  z-index: 1;
+  flex: 1 0 auto;
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+}

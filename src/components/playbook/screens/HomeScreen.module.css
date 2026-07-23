@@ -1,0 +1,343 @@
+/* Home screen (spec §Screen 1). PlaybookShell's .wrap already applies the
+   24px --pb-space-content padding — .stack only owns the 24px
+   --pb-space-section gap between Daily Insight / Next Post / Last Post /
+   Weekly / library-row. */
+.stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-section);
+}
+
+/* ---- Your Next Post ------------------------------------------------- */
+
+.nextPost {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-card);
+}
+
+.eyebrow {
+  margin: 0;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: white; /* spec #FFFFFF — no dedicated --pb-* token; see the
+                   sprint-contract-sanctioned "white" fallback (module
+                   header comment in HomeScreen.tsx). */
+}
+
+.headline {
+  margin: 0;
+  font-size: var(--pb-text-xl);
+  font-weight: 300;
+  line-height: normal;
+  /* Spec: bg-clip-text gradient #FFFFFF -> #999999 (top->bottom). No
+     --pb-* token covers the #999999 stop, so per the sprint contract's own
+     fallback this composes from white (the comp's bright stop) and the
+     nearest existing muted token — resolved ambiguity, see
+     HomeScreen.tsx's module header comment. */
+  background: linear-gradient(to bottom, white, var(--pb-text-muted));
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+/* Comp 155:71: the CTA row is 48px tall because the pill (32px) sits in an
+   8px frame (155:56); the "Why this works?" link is centred against it,
+   16px clear of the pill's right edge (8px frame + 8px row gap). */
+.ctaRow {
+  display: flex;
+  align-items: center;
+  gap: var(--pb-space-tight);
+  padding: var(--pb-cta-inset);
+}
+
+.ctaPill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--pb-space-tight) var(--pb-space-section);
+  border-radius: var(--pb-radius-pill);
+  background: var(--pb-cta-bg);
+  color: var(--pb-cta-ink);
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  line-height: var(--pb-space-card);
+}
+
+/* 32px comped pill + 6px of slop each side = the 44px touch minimum,
+   without inflating the visual box (learning #112). */
+.ctaPill::after,
+.wtwTrigger::after {
+  content: "";
+  position: absolute;
+  inset: -6px calc(var(--pb-hit-slop) * -1);
+}
+
+.wtwTrigger {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--pb-space-tight);
+  border: none;
+  background: transparent;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  line-height: var(--pb-space-card);
+  color: var(--pb-accent-red);
+}
+
+.wtwTrigger::after {
+  inset: -14px calc(var(--pb-hit-slop) * -1);
+}
+
+.wtwTrigger:focus-visible {
+  outline: 2px solid var(--pb-focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--pb-space-micro);
+}
+
+/* A collapsed grid region is 0px tall but still a flex item, so the
+   parent's 16px gap would show as dead space the comp doesn't have. The
+   negative margin cancels that gap while closed and unwinds when open. */
+.wtwRegion {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  margin-top: calc(var(--pb-space-card) * -1);
+  transition:
+    grid-template-rows 220ms cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 220ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.wtwRegion[data-open="true"] {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  margin-top: 0;
+}
+
+.wtwLabel {
+  margin: 0 0 var(--pb-space-tight);
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-accent-red);
+}
+
+.wtwList {
+  margin: 0;
+  /* Comp 155:66-70: each list item is inset 21px, not a spacing-token 24. */
+  padding-left: 21px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+  list-style: decimal;
+}
+
+.wtwItem {
+  font-size: var(--pb-text-sm);
+  color: var(--pb-wtw-body);
+  line-height: normal;
+}
+
+.wtwEmpty {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-text-muted);
+}
+
+/* ---- Last Post -------------------------------------------------------- */
+
+.lastPostSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-card);
+}
+
+.hiddenDivider {
+  /* Comp's bottom ★ row is authored `hidden:true` — an available variant,
+     not a mistake to fix (spec §Screen 1 Layout). Kept in the DOM,
+     suppressed visually. */
+  display: none;
+}
+
+/* Comp 155:81 — the one card on this surface that isn't --pb-card-bg. */
+.lastPostCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-card);
+  padding: var(--pb-space-card);
+  background: var(--pb-lastpost-card-bg);
+  border-radius: var(--pb-radius-card);
+}
+
+.lastPost {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-card);
+}
+
+/* Comp 155:91 spaces avatar and stat columns 8px apart (Stats' card is 0). */
+.lastPostHeader {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--pb-space-tight);
+}
+
+.whatWorked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+}
+
+.avatar {
+  flex: none;
+  width: 3.125rem; /* 50px — spec avatar size */
+  height: 3.125rem;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--pb-card-bg);
+}
+
+.lastPostLabel {
+  margin: 0;
+  font-size: var(--pb-text-2xs);
+  font-weight: 600;
+  color: var(--pb-teal);
+}
+
+.lastPostTitle {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  font-weight: 400;
+  color: var(--pb-stat-number);
+  line-height: normal;
+}
+
+.whatWorkedLabel {
+  margin: 0;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-accent-red);
+}
+
+.whatWorkedBody {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  font-weight: 400;
+  color: var(--pb-text-muted);
+  line-height: normal;
+}
+
+/* ---- Weekly posts ------------------------------------------------------ */
+
+.weeklySection {
+  display: flex;
+  flex-direction: column;
+}
+
+.weeklyStack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-card);
+}
+
+.weeklyItem {
+  display: block;
+}
+
+.weekdayLabel {
+  margin: 0;
+  font-size: var(--pb-text-2xs);
+  font-weight: 600;
+  color: var(--pb-teal);
+}
+
+.weekdayDesc {
+  margin: var(--pb-space-micro) 0 0;
+  font-size: var(--pb-text-sm);
+  font-weight: 400;
+  color: var(--pb-card-text);
+  line-height: normal;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- Library entry row -------------------------------------------------- */
+
+.libraryRow {
+  display: flex;
+  align-items: center;
+  min-height: var(--mc-touch-target);
+  padding: 0;
+  border: none;
+  background: transparent;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-teal);
+}
+
+/* The comp's stat-row avatar has no ring or fill of its own — it is the
+   post thumbnail. The placeholder keeps the same 50px footprint. */
+
+/* ---- Shared async-state chrome ------------------------------------------ */
+
+.errorBlock,
+.emptyBlock {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--pb-space-tight);
+}
+
+.errorText,
+.emptyText {
+  margin: 0;
+  font-size: var(--pb-text-sm);
+  color: var(--pb-text-muted);
+}
+
+.retryLink {
+  padding: 0;
+  min-height: var(--mc-touch-target);
+  border: none;
+  background: transparent;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-accent-red);
+}
+
+.retryLink:focus-visible,
+.libraryRow:focus-visible {
+  outline: 2px solid var(--pb-focus-ring);
+  outline-offset: 2px;
+}
+
+.outlinePill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--mc-touch-target);
+  padding: var(--pb-space-tight) var(--pb-space-section);
+  border: 1px solid var(--pb-cta-bg);
+  border-radius: var(--pb-radius-pill);
+  background: transparent;
+  color: var(--pb-cta-bg);
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wtwRegion {
+    transition: none;
+  }
+}

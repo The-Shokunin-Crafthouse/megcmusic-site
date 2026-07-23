@@ -1,0 +1,57 @@
+{
+  "questions": [
+    {
+      "id": "q1",
+      "type": "multiselect",
+      "question": "Which vibes fit this idea best?",
+      "options": [
+        "Behind-the-scenes",
+        "Live performance clip",
+        "Story time / talking to camera",
+        "Studio or writing process",
+        "Venue or crowd shot"
+      ],
+      "min": 1,
+      "max": 3,
+      "required": true
+    },
+    {
+      "id": "q2",
+      "type": "single",
+      "question": "What's the main goal for this post?",
+      "options": [
+        "Promote an upcoming show",
+        "Build connection with fans",
+        "Tease a new song",
+        "Just share a moment"
+      ],
+      "required": true
+    },
+    {
+      "id": "q3",
+      "type": "text_short",
+      "question": "Where was this filmed, or where will it be?",
+      "required": false
+    },
+    {
+      "id": "q4",
+      "type": "text_long",
+      "question": "Tell me the real story here — what happened, and why does it matter to you?",
+      "required": true
+    },
+    {
+      "id": "q5",
+      "type": "yes_no",
+      "question": "Do you already have footage or photos for this, or do we need to plan a shoot?",
+      "required": true
+    },
+    {
+      "id": "q6",
+      "type": "scale",
+      "question": "How raw vs. polished do you want this one to feel?",
+      "min": 1,
+      "max": 5,
+      "required": true
+    }
+  ]
+}

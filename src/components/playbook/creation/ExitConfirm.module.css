@@ -1,0 +1,85 @@
+/* Exit confirm sheet (specs.md §9.5). Rendered inside the shared
+   `BottomSheet` primitive (motion/) — this file styles the content, plus
+   the one surface override the primitive takes by className.
+
+   This sheet is the only one that opens over the creation take-over
+   rather than the plum browse surfaces, so it carries that surface's
+   family instead of the shared `--pb-bg`. */
+
+.sheet {
+  background: var(--pb-bg-sheet-takeover);
+}
+
+.title {
+  margin: 0 0 var(--pb-space-tight) 0;
+  font-size: var(--pb-text-base);
+  font-weight: 600;
+  color: var(--pb-white);
+}
+
+.body {
+  margin: 0 0 var(--pb-space-section) 0;
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-text-muted);
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+}
+
+/* The two ways forward sit side by side and split the width evenly —
+   they are a pair of equal-weight choices, not a stack with a default.
+   `flex-basis: 0` so the wider label ("Save draft & exit") can't claim
+   more room than "Keep working". */
+.choiceRow {
+  display: flex;
+  gap: var(--pb-space-tight);
+}
+
+/* `TapScale`'s `.pressable` sets `text-align: inherit`, which picks up the
+   sheet's left alignment — these centre their own label instead. */
+.saveButton,
+.keepButton,
+.discardButton {
+  composes: focusable from "./creation.module.css";
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  min-height: 44px;
+  padding: var(--pb-space-tight) var(--pb-space-card);
+  font-size: var(--pb-text-sm);
+  font-weight: 700;
+}
+
+/* `border-box` so the outlined button's 1px border comes out of its own
+   width — otherwise the pair splits the row unevenly by exactly that
+   border. */
+.saveButton,
+.keepButton {
+  flex: 1 1 0;
+  box-sizing: border-box;
+  border-radius: var(--pb-radius-pill);
+}
+
+/* A transparent border rather than `none`, so the filled and outlined
+   buttons carry identical box geometry and the row splits evenly. */
+.saveButton {
+  border: 1px solid transparent;
+  background: var(--pb-cta-bg);
+  color: var(--pb-cta-ink);
+}
+
+.keepButton {
+  border: 1px solid var(--pb-cta-bg);
+  background: transparent;
+  color: var(--pb-cta-bg);
+}
+
+.discardButton {
+  border: none;
+  background: transparent;
+  color: var(--pb-accent-red);
+}
