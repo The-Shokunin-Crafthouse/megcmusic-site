@@ -27,6 +27,7 @@ import { useState } from "react";
 import { Staggered } from "../motion/Staggered";
 import { Card } from "./shared/Card";
 import { ChipRow, type Chip } from "./shared/ChipRow";
+import { PostThumbnail } from "./shared/PostThumbnail";
 import { StatTriple, type StatTripleItem } from "./shared/StatTriple";
 import { ExpandableTrigger, ExpandableRegion, useExpandableState } from "./shared/Expandable";
 import { Skeleton } from "./shared/Skeleton";
@@ -120,11 +121,7 @@ function PostCard({ post, rank, reachMedian, rateMedian }: PostCardProps) {
       </span>
       <div className={styles.content}>
         <div className={styles.postHeader}>
-          {post.thumbnailUrl ? (
-            <img className={styles.avatar} src={post.thumbnailUrl} alt="" />
-          ) : (
-            <div className={styles.avatar} aria-hidden="true" />
-          )}
+          <PostThumbnail src={post.thumbnailUrl} className={styles.avatar} />
           <StatTriple items={stats} />
         </div>
         {/* Comp 155:853 keeps title + meta as one 8px-gap group, 16px

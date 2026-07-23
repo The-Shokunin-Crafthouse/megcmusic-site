@@ -354,6 +354,11 @@
      pixel-sampling the rendered PNG against the explicit #0D3333 Exit-bar
      fill in the extracted code — see spec §"Screen 5" for the full trace). */
   --pb-bg-takeover: #0d3333;        /* duplicates --mc-teal-ink */
+  --pb-bg-sheet-takeover: #092626;  /* a sheet lifting off --pb-bg-takeover: same hue, one step down, so the
+                                       sheet reads as its own surface without a scrim (learning #16 — no
+                                       overlay). Held at this value by contrast, not taste: --pb-text-muted
+                                       measures 4.59:1 here and 3.93:1 on --pb-bg-takeover itself, so the
+                                       body copy only clears AA on the darker step. --pb-accent-red is 4.59:1. */
   --pb-input-bg: #f7f7f7;           /* idea-entry textarea card */
   --pb-input-text: #000000;         /* only pure-black text on this surface */
   --pb-mic-circle-bg: #155454;      /* pixel-sampled, LOW confidence — flattened asset, re-verify in Figma desktop */

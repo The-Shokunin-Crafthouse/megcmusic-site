@@ -186,15 +186,40 @@
   flex-direction: column;
 }
 
+/* These are bare `<button>`s, not `TapScale` pressables, so nothing has
+   cleared the UA button chrome for them: iOS paints `ButtonFace` (near
+   white) with its own rounded corners, and the cream `--pb-cta-bg` label
+   then sits white-on-white. Reset the chrome explicitly — same class of
+   bug as the Checklist rows' leftover UA border. */
 .radioRow {
+  appearance: none;
+  -webkit-appearance: none;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: var(--pb-space-card);
+  width: 100%;
   min-height: 44px;
   padding: var(--pb-space-tight) 0;
+  border: none;
+  border-radius: 0;
+  background: none;
+  font: inherit;
   font-size: var(--pb-text-sm);
   color: var(--pb-cta-bg);
   text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* A hairline between rows so the options read as a list rather than as
+   floating text — the sheet has no scrim to separate them (learning #16). */
+.radioRow + .radioRow {
+  border-top: 1px solid rgb(var(--pb-card-rgb) / 0.24);
+}
+
+.radioRow:active {
+  background: rgb(var(--pb-card-rgb) / 0.2);
 }
 
 .radioRow:focus-visible {

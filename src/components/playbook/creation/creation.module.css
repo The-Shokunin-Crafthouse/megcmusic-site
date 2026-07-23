@@ -3,12 +3,17 @@
    dark-teal surface family (`--pb-bg-takeover`), isolated from the plum
    browse surfaces per the 2026-06-16 token decision. `TakeoverModal`
    already fills the viewport and pads for safe-area on every side, so a
-   screen here only needs to be at least one viewport tall (`min-height:
-   100svh` — svh, not dvh, so the floor doesn't re-resolve while iOS
-   Safari/Chrome collapses its toolbar mid-scroll) and let its Exit bar
-   fall to the bottom via flex — no
-   `position: fixed` needed, which keeps this correct wherever
+   screen here grows to fill it via flex and lets its Exit bar fall to the
+   bottom — no `position: fixed` needed, which keeps this correct wherever
    `TakeoverModal` mounts.
+
+   Deliberately NO viewport unit on `.screen`: the take-over is already
+   `position: fixed; inset: 0`, so it IS the visual viewport, and any
+   vh/dvh/svh here is a second, competing measure of the same thing. `dvh`
+   re-resolved mid-scroll while iOS collapses its toolbar; `svh` pinned the
+   screen to the toolbar-visible height, leaving the Exit bar floating
+   above the real bottom edge whenever the toolbar was retracted. Filling
+   the parent has neither failure mode.
 
    Every color/type/space value below is a `--pb-*` token
    (`_config/design-system/token-map.css`) — no raw hex, no arbitrary px. */
@@ -16,7 +21,7 @@
 .screen {
   display: flex;
   flex-direction: column;
-  min-height: 100svh;
+  flex: 1 0 auto;
 }
 
 .content {

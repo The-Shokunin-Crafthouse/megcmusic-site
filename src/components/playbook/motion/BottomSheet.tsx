@@ -45,6 +45,10 @@ interface BottomSheetProps {
    *  further collapsed toward the bottom edge). Default: single fully-open
    *  snap. */
   snapPoints?: number[];
+  /** Surface override for a sheet that opens over the creation take-over
+   *  rather than the plum browse surfaces — the default `--pb-bg` reads as
+   *  a foreign surface there. */
+  className?: string;
 }
 
 export function BottomSheet({
@@ -53,6 +57,7 @@ export function BottomSheet({
   ariaLabel,
   children,
   snapPoints = [0],
+  className,
 }: BottomSheetProps) {
   const reducedMotion = useReducedMotion();
   const [container, setContainer] = useState<HTMLElement | null>(null);
@@ -120,7 +125,7 @@ export function BottomSheet({
           role="dialog"
           aria-modal="true"
           aria-label={ariaLabel}
-          className={styles.sheet}
+          className={className ? `${styles.sheet} ${className}` : styles.sheet}
           drag="y"
           dragElastic={0.1}
           dragConstraints={{ top: 0, bottom: dismissThreshold }}

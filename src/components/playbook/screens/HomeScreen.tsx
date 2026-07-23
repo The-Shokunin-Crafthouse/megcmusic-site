@@ -39,6 +39,7 @@ import { Staggered } from "../motion/Staggered";
 import { usePlaybookStore } from "../store";
 import { Card } from "./shared/Card";
 import { StarDivider } from "./shared/StarDivider";
+import { PostThumbnail } from "./shared/PostThumbnail";
 import { StatTriple, type StatTripleItem } from "./shared/StatTriple";
 import { TipCard } from "./shared/TipCard";
 import { ExpandableTrigger, ExpandableRegion, useExpandableState } from "./shared/Expandable";
@@ -256,11 +257,7 @@ export function HomeScreen({ onOpenLibrary }: HomeScreenProps) {
                   then the avatar + stat row, then the title. */}
               <p className={styles.lastPostLabel}>Last Post</p>
               <div className={styles.lastPostHeader}>
-                {lastPost.thumbnailUrl ? (
-                  <img className={styles.avatar} src={lastPost.thumbnailUrl} alt="" />
-                ) : (
-                  <div className={styles.avatar} aria-hidden="true" />
-                )}
+                <PostThumbnail src={lastPost.thumbnailUrl} className={styles.avatar} />
                 <StatTriple items={lastPostStats} gap="tight" />
               </div>
               <p className={styles.lastPostTitle}>

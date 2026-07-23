@@ -76,17 +76,24 @@ export function ExitConfirm({ isOpen, onClose, onSaveAndExit, onDiscard }: ExitC
   }, [isOpen]);
 
   return (
-    <BottomSheet isOpen={isOpen} onClose={onClose} ariaLabel="Leave this idea?">
+    <BottomSheet
+      isOpen={isOpen}
+      onClose={onClose}
+      ariaLabel="Leave this idea?"
+      className={styles.sheet}
+    >
       <div ref={wrapRef}>
         <h2 className={styles.title}>Leave this idea?</h2>
         <p className={styles.body}>Your draft stays saved on this phone.</p>
         <div className={styles.actions}>
-          <TapScale as="button" className={styles.saveButton} onClick={onSaveAndExit}>
-            Save draft &amp; exit
-          </TapScale>
-          <TapScale as="button" className={styles.keepButton} onClick={onClose}>
-            Keep working
-          </TapScale>
+          <div className={styles.choiceRow}>
+            <TapScale as="button" className={styles.saveButton} onClick={onSaveAndExit}>
+              Save draft &amp; exit
+            </TapScale>
+            <TapScale as="button" className={styles.keepButton} onClick={onClose}>
+              Keep working
+            </TapScale>
+          </div>
           <TapScale as="button" className={styles.discardButton} onClick={onDiscard}>
             Discard draft
           </TapScale>
