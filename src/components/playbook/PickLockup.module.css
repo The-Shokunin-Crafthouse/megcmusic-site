@@ -52,18 +52,25 @@
    feTurbulence because the noise has to hold a constant on-screen size
    while the shape grows ~10.6x — an SVG filter's baseFrequency is in user
    space, so it magnifies with the element and the fine grain would coarsen
-   into blotches. Here the tile is divided by the same scale the parent
-   multiplies by, so the two cancel and the grain never changes size. The
-   pick's own silhouette masks it, so it stays inside the shape. */
+   into blotches.
+
+   Two elements, not one: the tile cannot be held constant by dividing
+   `background-size` by the scale, because a background-size change
+   invalidates paint — during the curtain that is a full repaint of this
+   1828px masked layer every frame (measured ~790ms of raster inside the
+   520ms fill; the dominant cost of the entrance). Instead the mask lives
+   on this wrapper, which scales with the pick like any other artwork,
+   and the tile lives on `.grainTile` below at a FIXED background-size,
+   counter-scaled by transform — a compositor-side change that never
+   repaints. Net grain scale is parent x 1/parent = 1: same constant
+   on-screen size, no per-frame paint. */
 .grain {
   position: absolute;
   width: var(--pb-pick-glyph);
   height: var(--pb-pick-glyph);
   transform: rotate(var(--pb-pick-rotate));
-  background-image: url("/images/playbook/grain.png");
-  background-repeat: repeat;
-  background-size: calc(128px / var(--pb-pick-scale));
   opacity: 0.5;
+  overflow: hidden;
   mask-image: url("/images/playbook/pick-mark.svg");
   mask-repeat: no-repeat;
   mask-size: contain;
@@ -72,6 +79,24 @@
   -webkit-mask-repeat: no-repeat;
   -webkit-mask-size: contain;
   -webkit-mask-position: center;
+}
+
+/* Counter-scaled about center: --pb-pick-scale is always <= 1, so the
+   inverse only ever grows the tile's coverage — it can never pull an
+   edge inside the mask and leave a gap. */
+.grainTile {
+  position: absolute;
+  inset: 0;
+  background-image: url("/images/playbook/grain.png");
+  background-repeat: repeat;
+  background-size: 128px;
+  transform: scale(calc(1 / var(--pb-pick-scale)));
+  /* Own compositor layer, or the per-frame counter-scale re-paints the
+     parent layer and the split buys nothing (measured). Net screen-space
+     scale is constant (parent x 1/parent = 1), so once promoted the
+     raster never re-runs during the curtain; the tile texture is clipped
+     to the wrapper's box, so the layer stays viewport-bounded. */
+  will-change: transform;
 }
 
 /* The corner instance sits above page content but under the nav pill, and

@@ -8,7 +8,7 @@
  * take-over (the creation flow) but wrong here: this screen is
  * browse-surface (plum). Rather than branch the shared motion primitive on
  * a surface-family flag, this component paints its own plum background
- * over the full take-over from the inside (`.screen`, `min-height:100dvh`)
+ * over the full take-over from the inside (`.screen`, `min-height:100svh`)
  * — the same "cover, don't fork the primitive" approach the codebase
  * already uses for chrome that only one caller needs.
  *

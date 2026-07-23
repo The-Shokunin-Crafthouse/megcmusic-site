@@ -5,7 +5,7 @@
    the four real tabs only). */
 
 .stack {
-  min-height: 100dvh;
+  min-height: 100svh;
   display: flex;
   flex-direction: column;
   gap: var(--pb-space-section);

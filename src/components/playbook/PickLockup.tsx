@@ -41,7 +41,9 @@ export function PickLockup({ corner = false, className }: PickLockupProps) {
       <div className={styles.inner}>
         <span className={styles.pick}>
           <img className={styles.pickGlyph} src="/images/playbook/pick-mark.svg" alt="" />
-          <span className={styles.grain} />
+          <span className={styles.grain}>
+            <span className={styles.grainTile} />
+          </span>
         </span>
       </div>
     </div>

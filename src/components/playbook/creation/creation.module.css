@@ -4,7 +4,9 @@
    browse surfaces per the 2026-06-16 token decision. `TakeoverModal`
    already fills the viewport and pads for safe-area on every side, so a
    screen here only needs to be at least one viewport tall (`min-height:
-   100dvh`) and let its Exit bar fall to the bottom via flex — no
+   100svh` — svh, not dvh, so the floor doesn't re-resolve while iOS
+   Safari/Chrome collapses its toolbar mid-scroll) and let its Exit bar
+   fall to the bottom via flex — no
    `position: fixed` needed, which keeps this correct wherever
    `TakeoverModal` mounts.
 
@@ -14,7 +16,7 @@
 .screen {
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  min-height: 100svh;
 }
 
 .content {

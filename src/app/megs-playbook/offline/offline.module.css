@@ -1,6 +1,6 @@
 .wrap {
   display: flex;
-  min-height: 100dvh;
+  min-height: 100svh;
   align-items: center;
   justify-content: center;
   padding: var(--pb-space-content);
