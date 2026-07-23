@@ -68,6 +68,21 @@ function median(values: number[]): number {
     : sorted[mid];
 }
 
+/** Comp 155:25 is a single 30px run, so the recommendation's headline and
+ *  detail render as one sentence rather than two differently-sized blocks.
+ *  The headline is a fragment, so it gets terminal punctuation first. */
+function nextPostLine({
+  headline,
+  detail,
+}: {
+  headline: string;
+  detail?: string | null;
+}): string {
+  if (!detail) return headline;
+  const lead = /[.!?…]$/.test(headline.trim()) ? headline.trim() : `${headline.trim()}.`;
+  return `${lead} ${detail.trim()}`;
+}
+
 function firstLine(text: string | null): string | null {
   if (!text) return null;
   const line = text.split("\n")[0]?.trim();
@@ -100,7 +115,9 @@ export function HomeScreen({ onOpenLibrary }: HomeScreenProps) {
           trend: lastPost.rate >= rateMedian ? "up" : "down",
         },
         { value: String(lastPost.reach), label: "Reach", trend: "up" },
-        { value: String(lastPost.engagement), label: "Engagement", trend: "up" },
+        // Comp 155:105 labels Home's third column "Engaged"; only the
+        // Stats post card (155:543) spells out "Engagement".
+        { value: String(lastPost.engagement), label: "Engaged", trend: "up" },
       ]
     : [];
 
@@ -164,8 +181,10 @@ export function HomeScreen({ onOpenLibrary }: HomeScreenProps) {
         ) : (
           <>
             <p className={styles.eyebrow}>Your Next Post</p>
-            <h2 className={styles.headline}>{recommendation.headline}</h2>
-            <p className={styles.detail}>{recommendation.detail}</p>
+            {/* Comp 155:25 is ONE 30px Light gradient run, not a headline
+                plus a smaller body line — the recommendation's two fields
+                render as one continuous sentence at that size. */}
+            <h2 className={styles.headline}>{nextPostLine(recommendation)}</h2>
             <div className={styles.ctaRow}>
               <TapScale
                 as="button"
@@ -227,26 +246,32 @@ export function HomeScreen({ onOpenLibrary }: HomeScreenProps) {
         ) : !lastPost ? (
           <p className={styles.emptyText}>Stats land after your next post syncs.</p>
         ) : (
-          <div className={styles.lastPost}>
-            {/* Comp order (spec §Screen 1): "Last Post" eyebrow first, then
-                the avatar + stat row, then the title. */}
-            <p className={styles.lastPostLabel}>Last Post</p>
-            <div className={styles.lastPostHeader}>
-              {lastPost.thumbnailUrl ? (
-                <img className={styles.avatar} src={lastPost.thumbnailUrl} alt="" />
-              ) : (
-                <div className={styles.avatar} aria-hidden="true" />
-              )}
-              <StatTriple items={lastPostStats} />
+          /* Comp 155:81 wraps the whole block in its own card — the one
+             card on this surface that does NOT use --pb-card-bg. Inside
+             it, "Last Post" + stats + title are one 16px-gap group and
+             "What worked" is a second, internally 8px-gap group. */
+          <div className={styles.lastPostCard}>
+            <div className={styles.lastPost}>
+              {/* Comp order (spec §Screen 1): "Last Post" eyebrow first,
+                  then the avatar + stat row, then the title. */}
+              <p className={styles.lastPostLabel}>Last Post</p>
+              <div className={styles.lastPostHeader}>
+                {lastPost.thumbnailUrl ? (
+                  <img className={styles.avatar} src={lastPost.thumbnailUrl} alt="" />
+                ) : (
+                  <div className={styles.avatar} aria-hidden="true" />
+                )}
+                <StatTriple items={lastPostStats} gap="tight" />
+              </div>
+              <p className={styles.lastPostTitle}>
+                {firstLine(lastPost.caption) ?? "Untitled post"}
+              </p>
             </div>
-            <p className={styles.lastPostTitle}>
-              {firstLine(lastPost.caption) ?? "Untitled post"}
-            </p>
             {whatWorkedQuery.data ? (
-              <>
+              <div className={styles.whatWorked}>
                 <p className={styles.whatWorkedLabel}>What worked:</p>
                 <p className={styles.whatWorkedBody}>{whatWorkedQuery.data.body}</p>
-              </>
+              </div>
             ) : null}
           </div>
         )}

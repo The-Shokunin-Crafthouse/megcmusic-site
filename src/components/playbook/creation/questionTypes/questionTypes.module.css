@@ -21,7 +21,7 @@
   display: flex;
   align-items: center;
   gap: var(--pb-space-card);
-  min-height: 70px;
+  min-height: var(--pb-row-height);
   width: 100%;
   border: none;
   border-radius: var(--pb-radius-card);
@@ -48,6 +48,7 @@
 .rowLabel {
   font-size: var(--pb-text-sm);
   font-weight: 400;
+  line-height: normal;
   color: var(--pb-cta-bg);
 }
 
@@ -68,7 +69,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 70px;
+  min-height: var(--pb-row-height);
   width: 100%;
   border: none;
   border-radius: var(--pb-radius-card);

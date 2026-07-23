@@ -4,10 +4,17 @@
   gap: var(--pb-space-section);
 }
 
+/* Visually suppressed, still announced — see ChecklistScreen.tsx. */
 .progress {
-  margin: calc(var(--pb-space-tight) * -1) 0 0;
-  font-size: var(--pb-text-2xs);
-  color: var(--pb-text-muted);
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 .errorText {
@@ -32,8 +39,12 @@
   align-items: center;
   gap: var(--pb-space-card);
   width: 100%;
-  min-height: 70px;
+  min-height: var(--pb-row-height);
   padding: var(--pb-space-card);
+  /* Without this the UA's default button border draws a 1px outline the
+     comp's flat rows don't have. */
+  border: none;
+  appearance: none;
   background: var(--pb-card-bg);
   border-radius: var(--pb-radius-card);
   text-align: left;
@@ -84,6 +95,7 @@
 
 .label {
   font-size: var(--pb-text-sm);
+  line-height: normal;
   color: var(--pb-cta-bg);
 }
 

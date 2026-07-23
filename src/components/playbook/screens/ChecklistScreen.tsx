@@ -135,12 +135,15 @@ export function ChecklistScreen() {
         activeId={activeTab}
         onChange={(id) => setActiveTab(id as TabId)}
         ariaLabel="Checklist sections"
-        fixedHeight
       />
 
       {activeTab === "checklist" ? (
         <>
-          <p className={styles.progress}>
+          {/* The comp has no visible progress readout between the tab row
+              and the first row (155:1012 sits 24px under the tabs). The
+              count still matters to a screen-reader user working down the
+              list, so it stays in the a11y tree and out of the layout. */}
+          <p className={styles.progress} role="status" aria-live="polite">
             {checkedCount} of {CHECKLIST_ITEMS.length} done
           </p>
           {status === "error" ? (

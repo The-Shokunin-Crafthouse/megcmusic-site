@@ -193,7 +193,7 @@ export function IdeaEntry({ onExit, onWillAdvance }: IdeaEntryProps) {
             ) : null}
 
             <textarea
-              className={shared.paperCard}
+              className={`${shared.paperCard} ${styles.ideaCard}`}
               placeholder="I want to create a post where I’m…"
               value={ideaDraft}
               onChange={(event) => setIdeaDraft(event.target.value)}

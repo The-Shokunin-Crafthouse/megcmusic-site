@@ -1,8 +1,13 @@
+/* Every comped chip/tab row is 342x56 with 16px padding and a 16px gap
+   (Stats 155:217, Booking 155:922, Checklist 155:1004) — the height is
+   fixed on all three, not just Checklist. */
 .row {
   display: flex;
   align-items: center;
   gap: var(--pb-space-card);
-  padding: var(--pb-space-card);
+  height: var(--pb-chip-row-height);
+  box-sizing: border-box;
+  padding: 0 var(--pb-space-card);
   background: var(--pb-card-bg);
   border-radius: var(--pb-radius-chip-row);
   overflow-x: auto;
@@ -13,32 +18,42 @@
   display: none;
 }
 
-/* Comp gives the Checklist tab row an explicit 56px (spec §Screen 4). */
-.fixedHeight {
-  height: 56px;
-  box-sizing: border-box;
-}
-
+/* Inactive chips are bare text in the comp — no pill, no padding — so the
+   16px row gap alone sets their rhythm. The 44x44 minimum is met with
+   hit-slop rather than by growing the box (learning #112). */
 .chip {
+  position: relative;
   flex: none;
   display: inline-flex;
   align-items: center;
   gap: var(--pb-space-micro);
-  min-height: var(--mc-touch-target);
-  padding: 0 var(--pb-space-tight);
+  padding: 0;
   border: none;
   border-radius: var(--pb-radius-badge);
   background: transparent;
   font-size: var(--pb-text-2xs);
   font-weight: 600;
+  line-height: var(--pb-space-card);
   color: var(--pb-text-muted);
   white-space: nowrap;
 }
 
+.chip::after {
+  content: "";
+  position: absolute;
+  inset: calc(var(--pb-hit-slop) * -1.75) calc(var(--pb-hit-slop) * -1);
+}
+
+/* Active chip (155:218): a 24px-tall teal pill, 4px/12px padding. */
 .chip.active {
+  padding: var(--pb-space-chip-y) var(--pb-space-chip-x);
   background: var(--pb-teal);
   color: var(--pb-teal-ink);
   font-weight: 700;
+}
+
+.chip.active::after {
+  inset: calc(var(--pb-hit-slop) * -1.25) calc(var(--pb-hit-slop) * -1);
 }
 
 .chip:focus-visible {

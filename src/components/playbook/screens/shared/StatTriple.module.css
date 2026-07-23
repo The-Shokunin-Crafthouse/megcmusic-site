@@ -1,15 +1,26 @@
+/* The row is a flex ITEM beside the 50px avatar — it has to grow, or the
+   three flex-basis-0 columns share a shrink-to-fit width and the numbers
+   collide. Comp column gap differs per screen: Home's stat row (155:91)
+   sets 8px between all four children, Stats' post card (155:526) sets 0. */
 .row {
+  flex: 1 1 0;
+  min-width: 0;
   display: flex;
   align-items: flex-start;
+  gap: var(--gap, 0);
+}
+
+.gapTight {
+  --gap: var(--pb-space-tight);
 }
 
 .col {
   flex: 1 1 0;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  gap: var(--pb-space-micro);
 }
 
 .value {
@@ -17,7 +28,7 @@
   font-size: var(--pb-text-lg);
   font-weight: 800;
   color: var(--pb-stat-number);
-  line-height: 1.1;
+  line-height: normal;
 }
 
 .label {
@@ -31,15 +42,16 @@
 
 .trendUp,
 .trendDown {
-  width: 1em;
-  height: 1em;
+  flex: none;
+  width: var(--pb-icon-trend);
+  height: var(--pb-icon-trend);
 }
 
 .trendUp {
-  color: var(--pb-success);
+  color: var(--pb-trend-up);
 }
 
 .trendDown {
-  color: var(--pb-accent-red);
+  color: var(--pb-trend-down);
   transform: rotate(180deg);
 }

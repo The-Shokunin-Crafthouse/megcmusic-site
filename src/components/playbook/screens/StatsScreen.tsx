@@ -127,18 +127,24 @@ function PostCard({ post, rank, reachMedian, rateMedian }: PostCardProps) {
           )}
           <StatTriple items={stats} />
         </div>
-        <p className={styles.postTitle}>{firstLine(post.caption) ?? "Untitled post"}</p>
-        <div className={styles.metaRow}>
-          <ExpandableTrigger
-            open={insight.open}
-            onToggle={handleToggle}
-            regionId={insight.regionId}
-            closedLabel="Show Insight"
-            openLabel="Show Insight"
-            className={styles.showInsightTrigger}
-          />
-          <span className={styles.badge}>{post.productType === "REELS" ? "Reel" : "Post"}</span>
-          <span className={styles.date}>{formatDate(post.postedAt)}</span>
+        {/* Comp 155:853 keeps title + meta as one 8px-gap group, 16px
+            under the stat row. */}
+        <div className={styles.postBody}>
+          <p className={styles.postTitle}>{firstLine(post.caption) ?? "Untitled post"}</p>
+          <div className={styles.metaRow}>
+            <ExpandableTrigger
+              open={insight.open}
+              onToggle={handleToggle}
+              regionId={insight.regionId}
+              closedLabel="Show Insight"
+              openLabel="Show Insight"
+              className={styles.showInsightTrigger}
+            />
+            <span className={styles.badge}>
+              {post.productType === "REELS" ? "Reel" : "Post"}
+            </span>
+            <span className={styles.date}>{formatDate(post.postedAt)}</span>
+          </div>
         </div>
         <ExpandableRegion
           id={insight.regionId}

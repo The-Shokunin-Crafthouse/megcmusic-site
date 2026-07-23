@@ -28,7 +28,7 @@
   font-size: var(--pb-text-sm);
   font-weight: 400;
   color: var(--pb-cta-bg);
-  line-height: 1.5;
+  line-height: normal;
 }
 
 /* specs.md §10: shaped skeleton blocks in --pb-card-bg pulsing 60%->100%

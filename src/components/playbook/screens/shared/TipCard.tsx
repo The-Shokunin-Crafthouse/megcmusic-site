@@ -38,7 +38,7 @@ export function TipCard({
   return (
     <Card className={[styles.card, className].filter(Boolean).join(" ")}>
       <div className={styles.labelRow}>
-        <ArrowCircleUp className={styles.icon} weight="fill" aria-hidden="true" />
+        <ArrowCircleUp className={styles.icon} weight="regular" aria-hidden="true" />
         <span className={styles.label}>{label}</span>
       </div>
       {isLoading ? (

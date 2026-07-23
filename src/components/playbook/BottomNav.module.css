@@ -1,5 +1,6 @@
-/* Bottom-right glassmorphic icon cluster ("Frame 57" in the comp) — spec
-   §"Global structural notes". Frame-pinned, safe-area aware. */
+/* Bottom-right glassmorphic icon cluster ("Frame 57", 155:191) — 184x56,
+   right:18 / bottom:16, 16px padding, 16px gap, three 40px circles.
+   Frame-pinned, safe-area aware. */
 .pill {
   position: fixed;
   right: 18px;
@@ -8,32 +9,59 @@
   display: flex;
   align-items: center;
   gap: var(--pb-space-card);
-  padding: var(--pb-space-micro);
+  padding: var(--pb-space-tight) var(--pb-space-card);
   border-radius: var(--pb-radius-nav);
   background: linear-gradient(
     to right,
     rgb(var(--pb-nav-pill-grad-from-rgb) / 0.4),
     rgb(var(--pb-nav-pill-grad-to-rgb) / 0.4)
   );
-  border: 0.5px solid rgb(var(--pb-nav-pill-border-rgb) / 0.5);
   backdrop-filter: blur(var(--pb-nav-pill-blur));
   -webkit-backdrop-filter: blur(var(--pb-nav-pill-blur));
-  box-shadow: var(--pb-nav-pill-shadow);
+  /* The comp's 0.5px stroke is inside the 184x56 frame. As a `border` it
+     rounds up to a full device pixel each side and grows the pill to 186;
+     as an inset ring it stays inside the box. */
+  box-shadow:
+    var(--pb-nav-pill-shadow),
+    inset 0 0 0 0.5px rgb(var(--pb-nav-pill-border-rgb) / 0.5);
 }
 
+/* The circle is a gradient disc inside a gradient rim (comp 155:179) —
+   painted as two backgrounds clipped to the padding box and the border box
+   respectively, so the 1px rim can carry its own gradient. */
 .iconButton {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-sizing: border-box;
   width: var(--pb-icon-circle);
   height: var(--pb-icon-circle);
+  border: 1px solid transparent;
   border-radius: 50%;
-  background: var(--pb-nav-icon-circle);
-  color: var(--pb-cta-bg);
-  /* 44x44 minimum touch target via hit-slop beyond the 40px visual circle. */
-  position: relative;
+  background:
+    linear-gradient(
+        var(--pb-nav-icon-circle-angle),
+        var(--pb-nav-icon-circle-from),
+        var(--pb-nav-icon-circle-to)
+      )
+      padding-box,
+    linear-gradient(
+        222.6deg,
+        var(--pb-nav-icon-rim-edge) 0%,
+        var(--pb-nav-icon-rim-mid) 34.6%,
+        var(--pb-nav-icon-rim-mid) 65%,
+        var(--pb-nav-icon-rim-edge) 100%
+      )
+      border-box;
+  color: var(--pb-nav-icon-inactive);
 }
 
+.iconButton[aria-current="page"] {
+  color: var(--pb-nav-icon-active);
+}
+
+/* 44x44 minimum touch target as hit-slop beyond the 40px visual circle. */
 .iconButton::before {
   content: "";
   position: absolute;
@@ -45,52 +73,63 @@
   height: var(--pb-icon-size);
 }
 
-/* ---- Bottom-left brand mark (Home tap target) ---- */
-/* Sized/positioned to bleed a wedge into the bottom-left corner, per spec
-   §"Global structural notes" — geometry is an approximation from the
-   extraction notes (no exact frame-relative pixel anchor was recoverable
-   from the flattened comp); flag for visual QA against the live render
-   once P4 places it against real screen content. */
-.homeMarkWrap {
+/* The fediverse glyph has no Phosphor equivalent, so it ships as the
+   exported Figma asset (public/images/playbook/fediverse-logo.svg) driven
+   through a mask so it can take the same currentColor as its siblings. */
+.maskIcon {
+  width: var(--pb-icon-size);
+  height: var(--pb-icon-size);
+  background: currentColor;
+  mask: url("/images/playbook/fediverse-logo.svg") no-repeat center / contain;
+  -webkit-mask: url("/images/playbook/fediverse-logo.svg") no-repeat center / contain;
+}
+
+/* ---- Bottom-left brand mark (Home tap target) ----
+   Comp 155:38: the pick sits in a 215.81px box at left:-44 / bottom:-125.81
+   holding a 172.393px glyph rotated -72.72deg, and the lightbulb sits at
+   left:22 / bottom:16. Only a wedge of the pick is on-screen, so the tap
+   target is the corner region it covers — not the whole 215px box, which
+   would sit invisibly over the content column and swallow its taps. */
+.homeMarkButton {
   position: fixed;
   left: 0;
   bottom: 0;
   z-index: 60;
-  width: 88px;
-  height: 88px;
-  overflow: visible;
-  padding-bottom: env(safe-area-inset-bottom);
-}
-
-.homeMarkButton {
-  position: absolute;
-  left: -32px;
-  bottom: -32px;
-  width: 216px;
-  height: 216px;
+  width: 96px;
+  height: calc(88px + env(safe-area-inset-bottom));
   display: block;
 }
 
-.pickSvg {
+.pickBleed {
   position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
+  left: -44px;
+  bottom: calc(-125.81px + env(safe-area-inset-bottom));
+  width: 215.81px;
+  height: 215.81px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+}
+
+.pickSvg {
+  width: 172.393px;
+  height: 172.393px;
   transform: rotate(-72.72deg);
-  transform-origin: center;
 }
 
 .lightbulb {
   position: absolute;
-  right: 30px;
-  top: 30px;
+  left: 22px;
+  bottom: calc(16px + env(safe-area-inset-bottom));
   width: 32px;
   height: 32px;
   color: var(--pb-cta-bg);
-  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.4));
+  pointer-events: none;
 }
 
 .homeMarkButton:focus-visible {
   outline: 2px solid var(--pb-focus-ring);
-  outline-offset: 4px;
+  outline-offset: -2px;
+  border-radius: var(--pb-radius-card);
 }

@@ -277,6 +277,11 @@
   --pb-bg-blur: 28px;
   --pb-card-rgb: 163 88 135;        /* #A35887 — universal translucent card fill */
   --pb-card-bg: rgb(var(--pb-card-rgb) / 0.10);
+  /* Home's Last Post card is the one card in the comp that does NOT use
+     --pb-card-bg: node 155:81 fills rgba(255,0,162,0.05). Kept as its own
+     token rather than folded into the universal fill. */
+  --pb-lastpost-card-rgb: 255 0 162;
+  --pb-lastpost-card-bg: rgb(var(--pb-lastpost-card-rgb) / 0.05);
   --pb-card-text: #b4769d;          /* weekly-post description text. Comp value #a35887 measures 3.60:1
                                         on the card ground — sub-AA for 14px text (WORKSPACE §3 non-negotiable).
                                         Lifted along its own hue to 4.56:1 (learning #56: text gets an
@@ -305,7 +310,14 @@
   --pb-wtw-body: #9c8290;           /* "Why this works" expanded numbered-list body text. Comp value
                                         #7e5d6f measures 3.08:1 — sub-AA for 14px text; lifted along-hue
                                         to 4.55:1 on the card ground. */
-  --pb-success: #2bc28c;            /* checked checkbox + up-trend arrow (pixel-sampled, high confidence) */
+  --pb-success: #2bc28c;            /* checked checkbox (pixel-sampled, high confidence) */
+  /* Trend arrows carry their own primitives rather than aliasing the
+     success/brand-red bands (studio learning #39). Both values are the
+     literal fills on the comp's exported arrow glyphs (155:159/155:161),
+     not pixel samples: #2ADA99 measures ~8:1 and #DA2A2D ~3.3:1 against
+     the card ground, both clearing the 3:1 non-text floor. */
+  --pb-trend-up: #2ada99;
+  --pb-trend-down: #da2a2d;
   --pb-post-card-border: #9a597f;   /* Stats #1-ranked post card only */
   --pb-post-card-shadow: 0 8px 20px rgba(0, 0, 0, 0.35); /* Stats #1-ranked post card only */
 
@@ -315,7 +327,21 @@
   --pb-nav-pill-border-rgb: 255 255 255;     /* alpha 0.5 */
   --pb-nav-pill-grad-from-rgb: 255 255 255;  /* alpha 0.4 */
   --pb-nav-pill-grad-to-rgb: 153 153 153;    /* alpha 0.4 */
-  --pb-nav-icon-circle: rgba(255, 255, 255, 0.08); /* pixel-sampled, LOW confidence — flattened asset, re-verify in Figma desktop */
+  /* Icon circle: a gradient disc with a gradient rim, both read out of the
+     comp's exported SVG (155:179 Ellipse 4) rather than pixel-sampled —
+     supersedes the earlier flat rgba(255,255,255,0.08) approximation. */
+  --pb-nav-icon-circle-from: #402c3b;
+  --pb-nav-icon-circle-to: #31222d;
+  --pb-nav-icon-circle-angle: 246.4deg; /* SVG gradient (55,18.5)->(15,36) in the 40px box */
+  --pb-nav-icon-rim-edge: #63455b;      /* rim gradient's two bright ends */
+  --pb-nav-icon-rim-mid: #31222d;       /* rim gradient's 34.6%-65% dark span */
+  /* Inactive cluster glyph. The comp fills it cream at 0.24 alpha, which
+     composites to ~1.9:1 against the icon circle — under the 3:1 WCAG
+     1.4.11 floor for meaningful non-text UI, a WORKSPACE §3 non-negotiable
+     that outranks comp fidelity (same precedent as the four text tokens
+     lifted 2026-07-12). Lifted to the first alpha clearing 3:1. */
+  --pb-nav-icon-inactive: rgb(247 234 221 / 0.42); /* comp value: 0.24 */
+  --pb-nav-icon-active: var(--pb-teal);
 
   /* Creation-flow take-over — idea entry / question page (solid dark-teal
      background, confirmed distinct from the base surface's plum scrim by
@@ -355,5 +381,20 @@
   --pb-radius-chip-row: 256px; /* filter-chip / tab row container */
   --pb-icon-size: 24px;      /* nav glyph size */
   --pb-icon-circle: 40px;    /* nav icon circle diameter */
+  --pb-icon-trend: 16px;     /* StatTriple trend arrow (comp 155:159 etc.) */
+  --pb-space-chip-y: 4px;    /* active filter/tab chip vertical padding (24px pill) */
+  --pb-space-chip-x: 12px;   /* active filter/tab chip horizontal padding */
+  --pb-chip-row-height: 56px; /* every filter/tab row in the comp is 342x56 */
+  --pb-row-height: 70px;     /* Checklist / question-engine select rows */
+  --pb-cta-inset: 8px;       /* comp wraps the Home CTA pill in an 8px frame (155:56) */
+  /* Creation take-over: the comp hand-places its header rather than using
+     auto-layout — title at top 34 / left 24, mic circle at top 28 /
+     right 36, content block at top 97. */
+  --pb-takeover-pad-top: 34px;
+  --pb-takeover-header-gap: 12px; /* on top of --pb-space-section = 36px */
+  --pb-takeover-mic-inset: 36px;
+  /* Hit-slop the studio's 44x44 touch minimum onto controls whose comped
+     box is smaller, instead of inflating the visual box (learning #112). */
+  --pb-hit-slop: 8px;
   --pb-checkbox-size: 32px;  /* Checklist row icon size */
 }

@@ -29,7 +29,7 @@
   margin: 0;
   font-size: var(--pb-text-xl);
   font-weight: 300;
-  line-height: 1.15;
+  line-height: normal;
   /* Spec: bg-clip-text gradient #FFFFFF -> #999999 (top->bottom). No
      --pb-* token covers the #999999 stop, so per the sprint contract's own
      fallback this composes from white (the comp's bright stop) and the
@@ -41,43 +41,54 @@
   color: transparent;
 }
 
-.detail {
-  margin: 0;
-  font-size: var(--pb-text-sm);
-  font-weight: 400;
-  color: var(--pb-cta-bg);
-  line-height: 1.5;
-}
-
+/* Comp 155:71: the CTA row is 48px tall because the pill (32px) sits in an
+   8px frame (155:56); the "Why this works?" link is centred against it,
+   16px clear of the pill's right edge (8px frame + 8px row gap). */
 .ctaRow {
   display: flex;
   align-items: center;
   gap: var(--pb-space-tight);
+  padding: var(--pb-cta-inset);
 }
 
 .ctaPill {
+  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: var(--mc-touch-target);
   padding: var(--pb-space-tight) var(--pb-space-section);
   border-radius: var(--pb-radius-pill);
   background: var(--pb-cta-bg);
   color: var(--pb-cta-ink);
   font-size: var(--pb-text-2xs);
   font-weight: 700;
+  line-height: var(--pb-space-card);
+}
+
+/* 32px comped pill + 6px of slop each side = the 44px touch minimum,
+   without inflating the visual box (learning #112). */
+.ctaPill::after,
+.wtwTrigger::after {
+  content: "";
+  position: absolute;
+  inset: -6px calc(var(--pb-hit-slop) * -1);
 }
 
 .wtwTrigger {
+  position: relative;
   display: inline-flex;
   align-items: center;
-  min-height: var(--mc-touch-target);
-  padding: 0 var(--pb-space-micro);
+  padding: 0 var(--pb-space-tight);
   border: none;
   background: transparent;
   font-size: var(--pb-text-2xs);
   font-weight: 700;
+  line-height: var(--pb-space-card);
   color: var(--pb-accent-red);
+}
+
+.wtwTrigger::after {
+  inset: -14px calc(var(--pb-hit-slop) * -1);
 }
 
 .wtwTrigger:focus-visible {
@@ -86,10 +97,14 @@
   border-radius: var(--pb-space-micro);
 }
 
+/* A collapsed grid region is 0px tall but still a flex item, so the
+   parent's 16px gap would show as dead space the comp doesn't have. The
+   negative margin cancels that gap while closed and unwinds when open. */
 .wtwRegion {
   display: grid;
   grid-template-rows: 0fr;
   opacity: 0;
+  margin-top: calc(var(--pb-space-card) * -1);
   transition:
     grid-template-rows 220ms cubic-bezier(0.16, 1, 0.3, 1),
     opacity 220ms cubic-bezier(0.16, 1, 0.3, 1);
@@ -98,6 +113,7 @@
 .wtwRegion[data-open="true"] {
   grid-template-rows: 1fr;
   opacity: 1;
+  margin-top: 0;
 }
 
 .wtwLabel {
@@ -109,7 +125,8 @@
 
 .wtwList {
   margin: 0;
-  padding-left: var(--pb-space-section);
+  /* Comp 155:66-70: each list item is inset 21px, not a spacing-token 24. */
+  padding-left: 21px;
   display: flex;
   flex-direction: column;
   gap: var(--pb-space-tight);
@@ -119,7 +136,7 @@
 .wtwItem {
   font-size: var(--pb-text-sm);
   color: var(--pb-wtw-body);
-  line-height: 1.5;
+  line-height: normal;
 }
 
 .wtwEmpty {
@@ -143,16 +160,33 @@
   display: none;
 }
 
+/* Comp 155:81 — the one card on this surface that isn't --pb-card-bg. */
+.lastPostCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-card);
+  padding: var(--pb-space-card);
+  background: var(--pb-lastpost-card-bg);
+  border-radius: var(--pb-radius-card);
+}
+
 .lastPost {
   display: flex;
   flex-direction: column;
   gap: var(--pb-space-card);
 }
 
+/* Comp 155:91 spaces avatar and stat columns 8px apart (Stats' card is 0). */
 .lastPostHeader {
   display: flex;
-  align-items: center;
-  gap: var(--pb-space-card);
+  align-items: flex-start;
+  gap: var(--pb-space-tight);
+}
+
+.whatWorked {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
 }
 
 .avatar {
@@ -176,7 +210,7 @@
   font-size: var(--pb-text-sm);
   font-weight: 400;
   color: var(--pb-stat-number);
-  line-height: 1.5;
+  line-height: normal;
 }
 
 .whatWorkedLabel {
@@ -191,7 +225,7 @@
   font-size: var(--pb-text-sm);
   font-weight: 400;
   color: var(--pb-text-muted);
-  line-height: 1.5;
+  line-height: normal;
 }
 
 /* ---- Weekly posts ------------------------------------------------------ */
@@ -223,7 +257,7 @@
   font-size: var(--pb-text-sm);
   font-weight: 400;
   color: var(--pb-card-text);
-  line-height: 1.5;
+  line-height: normal;
 }
 
 .srOnly {
@@ -251,6 +285,9 @@
   font-weight: 700;
   color: var(--pb-teal);
 }
+
+/* The comp's stat-row avatar has no ring or fill of its own — it is the
+   post thumbnail. The placeholder keeps the same 50px footprint. */
 
 /* ---- Shared async-state chrome ------------------------------------------ */
 

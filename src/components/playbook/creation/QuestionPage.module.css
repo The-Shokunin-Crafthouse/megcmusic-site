@@ -23,8 +23,12 @@
   margin-top: auto;
 }
 
+/* Comp 155:1203: unlike IdeaEntry's bare "Make it better", the question
+   page's Back carries the same 24px horizontal padding as the primary
+   button beside it — just without the border. */
 .backButton {
   composes: textButton from "./creation.module.css";
+  padding-inline: var(--pb-space-content);
 }
 
 /* The primary Next/Generate-Storyboard button is a plain motion.button

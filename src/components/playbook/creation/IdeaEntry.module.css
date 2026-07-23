@@ -3,7 +3,11 @@
 
 .micButton {
   composes: focusable from "./creation.module.css";
-  position: relative;
+  /* Comp 155:1117 places the mic at top 28 / right 36 of the frame — not
+     on the 24px content gutter the title sits on. */
+  position: absolute;
+  top: calc(var(--pb-takeover-pad-top) * -1 + 28px);
+  right: calc(var(--pb-takeover-mic-inset) - var(--pb-space-content));
   flex-shrink: 0;
   width: var(--pb-icon-circle);
   height: var(--pb-icon-circle);
@@ -140,4 +144,10 @@
   font-size: var(--pb-text-2xs);
   font-weight: 700;
   color: var(--pb-cta-bg);
+}
+
+/* Comp 155:1126 (the block under the title) starts at y=97; the card
+   itself sits 8px inside it at y=105. */
+.ideaCard {
+  margin-top: var(--pb-space-tight);
 }

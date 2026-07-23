@@ -29,26 +29,13 @@ interface ChipRowProps {
   activeId: string;
   onChange: (id: string) => void;
   ariaLabel: string;
-  /** Checklist's tab row is an explicit 56px in the comp (spec §Screen 4),
-   *  unlike the auto-height chip rows on Stats/Booking. */
-  fixedHeight?: boolean;
 }
 
-export function ChipRow({
-  chips,
-  activeId,
-  onChange,
-  ariaLabel,
-  fixedHeight = false,
-}: ChipRowProps) {
+export function ChipRow({ chips, activeId, onChange, ariaLabel }: ChipRowProps) {
   const reducedMotion = useReducedMotion();
 
   return (
-    <div
-      className={fixedHeight ? `${styles.row} ${styles.fixedHeight}` : styles.row}
-      role="group"
-      aria-label={ariaLabel}
-    >
+    <div className={styles.row} role="group" aria-label={ariaLabel}>
       {chips.map((chip) => {
         const active = chip.id === activeId;
         return (
