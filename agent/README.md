@@ -231,6 +231,30 @@ All three — `launchctl list` shows the label, the log file has content, and
 a real queued job gets claimed and completed — are the actual proof. Any
 one alone (e.g. "the plist is in LaunchAgents") is not.
 
+**A fourth check, after any change to `agent/*.mjs`: is the running daemon
+actually running your code?** Node resolves its module graph once, at
+process start, so a merged fix is not live until the agent is restarted —
+and a stale daemon passes all three checks above as long as the jobs that
+happen to run don't exercise the changed path. This bit for real on
+2026-07-24: the agent started at 21:59:07 and PR #59's `onScreenText` fix
+landed at 22:06, so the live process went on enforcing the old contract
+while looking entirely healthy (2026-07-24 ADR).
+
+```bash
+# Compare the daemon's start time against the mtime of what it imports.
+# Any source file newer than the process => the running code is stale.
+ps -o lstart -p $(launchctl list | awk '/playbook-agent/{print $1}')
+ls -l agent/*.mjs
+
+# Restart onto current HEAD:
+launchctl kickstart -k gui/$(id -u)/com.megcmusic.playbook-agent
+```
+
+Note the stale-contract failure mode impersonates prompt drift: it shows up
+as `validation failed (attempt 1)` and a burned repair retry, which sends
+you to edit `agent/prompts/*.md` or `contracts.mjs` — files that are
+already correct. Check the process age first.
+
 The first two used to be satisfiable by a daemon that could never claim
 anything: with a bad `SUPABASE_SERVICE_ROLE_KEY` the claim path caught the
 Supabase error and reported `no queued jobs`, exiting 0. That is fixed — a
@@ -374,39 +398,100 @@ Installed as a **LaunchAgent** (`install-launchd.sh`), running as
   `input.frames` array — the open question below is narrowed, not closed.
 - All three verification criteria: `launchctl list` shows the label, the log
   has content, and a real queued job goes `queued` → `done` unattended.
-- The ~2s partial-output sync fired against genuine 18–33s generations (a
+- ~~The ~2s partial-output sync fired against genuine 18–33s generations (a
   `streaming` transition is in the log for several jobs), not just a
-  `"pong"`-scale reply. Its timing against a slower 2min generation is still
-  unobserved, since nothing here ran that long.
+  `"pong"`-scale reply.~~ **Withdrawn 2026-07-24 — this was never true.** See
+  "Partial-output streaming" below: those `streaming` lines land a few hundred
+  ms before `done`, at the *end* of the generation. Nothing progressive was
+  ever delivered.
+
+## Second pass, 2026-07-24 (LaunchAgent, `claude` v2.1.219)
+
+- **All six job kinds have now run green through the installed agent.** Added
+  this pass: `tip_derivation` (20.1s) and `tip_review` (10.2s) — the two whose
+  post-processing writes real rows, held back until now.
+- **Tip post-processing verified at the destination, not just at `done`.**
+  `tips` went 0 → 3 rows from one `tip_derivation` job, each with
+  `source='post_derived'` and `derived_from_media_id` correctly stamped to the
+  input post. A subsequent `tip_review` against a rule change that contradicted
+  one of them flipped exactly that row to `active=false` and left the two
+  merely-adjacent tips alone. No `WARN` lines on stderr for either — which is
+  the part that matters, since tip writes are best-effort and a `done` job does
+  not prove the tip landed.
+- **The PWA renders a completed job.** Drove the real creation flow at 375×812:
+  idea → `questions` job → six answers → `storyboard` job → result. The app
+  polled and advanced on its own at each step.
+- **A frame with no overlay text renders correctly** (the PR #59 case). A
+  storyboard came back with `onScreenText: ""` on all five frames; each card
+  renders description → "Asset prompt" with the "On screen" block absent —
+  no empty quote marks, no orphan label, no layout gap.
+- **`titles`' `input.context` fallbacks both work** — a JSON-parseable context
+  string and a raw prose context string. Proven at the model, not just at
+  `done`: the returned rationales cite "frame 3's on-screen text" and "the latch
+  sound from frame 1" respectively. **But see the open item below — the app
+  sends neither.**
+
+## Partial-output streaming does not work (2026-07-24)
+
+`runClaudeProcess` spawns without `--include-partial-messages`, so
+`--output-format stream-json` frames *complete* messages: `system/init` at
+0.54s, silence, then the entire assistant message as one event at 9.52s, then
+`result`. `accumulatedText` is `""` for ~88% of the run, so every ~2s tick
+returns early on its own empty-string guard. Sampling a real 42s storyboard job
+once a second: `output.partial` was **never** non-null and `status` went
+`running → done` with no `streaming` transition at all.
+
+The fix is two edits (add the flag; handle `event.type === "stream_event"` /
+`content_block_delta` next to the existing `assistant` branch), but it changes
+what the PWA shows mid-generation — a product call, deferred. See the
+2026-07-24 ADR.
 
 ## What has NOT been verified on Meghan's actual Mac
 
 Everything in the section above is now confirmed on her machine. These are
 what remain, after the 2026-07-24 install pass:
 
-- **`tip_derivation` and `tip_review` have never run.** They were held back
-  deliberately: `tip_derivation`'s post-processing writes real rows into the
-  `tips` table, so a test run leaves lasting data. This also means the
-  tip insert/deactivate post-processing path is entirely unexercised.
-- **The PWA rendering a completed job.** `output` is confirmed written to the
-  row and contract-valid, but no one has watched the app poll and display
-  it. A bug on the read side would look like a permanent spinner while
-  `agent/logs/agent.log` reports everything as `done` — check the row's
-  `status` before assuming the daemon is at fault.
-- **Nothing writes to the `storyboards` table.** It is still empty, and the
-  daemon does not populate it on completion — whatever persists a finished
-  storyboard lives on the app side and is unverified.
 - **Restart survival.** `RunAtLoad` is set, so the agent should start at her
   next login, but a real reboot has not been exercised. If the login
   keychain is somehow unavailable after a FileVault boot, the signature is
   jobs failing fast with `Not logged in` — running `claude -p "say hi"` once
-  in a terminal prompts the unlock and clears it.
-- **Rate limits under real day-to-day use.** The daemon draws on the same
-  Pro allowance as Meghan's own Claude usage; an exhausted allowance
-  produces unparseable output, which becomes an `error` job rather than a
-  graceful retry. Pinning Sonnet (above) reduces but does not remove this.
-- The `titles` job's `{{FRAMES}}` placeholder: verified working when the job
-  carries an explicit `input.frames` array. The `input.context` fallback
-  paths (JSON-parsed, then raw string) are still untested, and the
-  page-facing input schema in `generation.ts` was still being extended by a
-  concurrent sprint step when this was written — re-check once that lands.
+  in a terminal prompts the unlock and clears it. Still the only item that
+  needs Meghan's own machine to be rebooted; everything else below is code.
+- **Rate limits are worse than "not graceful" — they produce dead jobs, and
+  the error message points at the wrong thing.** Reproduced 2026-07-24: after
+  nine spawns in ~8.5 minutes the CLI returned prose beginning `You've hit…`,
+  which `validateOutput` reported as `JSON.parse failed`; the repair retry
+  fired 2.8s later into the same limit and the job died as
+  `Validation failed after repair retry: JSON.parse failed: Unexpected token
+  'Y', "You've hit"…`. The queued job behind it died the same way in 6.1s,
+  spending two more spawns against an already-refusing endpoint. **The limit
+  is transient** — a probe and a full storyboard both succeeded later in the
+  same session, unchanged. So the daemon converts a self-healing upstream
+  condition into a permanent failure, labelled as a contract error. Three
+  candidate mitigations and why nothing was changed yet: 2026-07-24 ADR.
+  Rough per-kind cost for sizing a session: `tip_review` ~10s, `titles`
+  ~16–18s, `questions` ~7–20s, `tip_derivation` ~20s, `storyboard` ~42–55s at
+  `high` (~99s if a repair round trip is involved); one spawn per job, two
+  when validation fails.
+- **`titles` never actually receives the frames.** All three of the daemon's
+  `{{FRAMES}}` input shapes work when fed directly, but nothing feeds them:
+  `jobInputSchemas.titles` has no `frames` field and the route inserts
+  `parsedInput.data`, so zod strips it — and the only call site,
+  `handleFreshTitles` in `src/components/playbook/library/StoryboardResult.tsx`,
+  sends `{ idea, previousTitles }` with no `context` either. Every real "Fresh
+  titles" request therefore falls through to the `[]` default and the prompt
+  reads `THE STORYBOARD FRAMES: []`. It still returns plausible titles, which
+  is why this was invisible. `frames` is in scope at that call site.
+- ~~**Nothing writes to the `storyboards` table.**~~ **Corrected 2026-07-24 —
+  the write path is complete and now verified.** The table was empty because
+  the button had never been pressed, not because persistence was unbuilt:
+  `StoryboardResult`'s "Save to library" (gated on picking a title) calls
+  `useSaveStoryboard` → `POST /api/playbook/storyboards`, which inserts
+  `frames`, `title_options`, `answers`, `caption` (+hashtags appended),
+  `posting_window` **and `chosen_title`**. Exercised end to end this pass: one
+  real storyboard saved with `chosen_title = "the porch take"`, 5 frames, 4
+  title options. So the learning-loop signal everyone assumed was being thrown
+  away is in fact captured the moment she saves — what is missing is anything
+  that *reads* `chosen_title` back into a prompt.
+- **Partial-output streaming** — see its own section above. Fix identified, not
+  applied.
