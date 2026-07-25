@@ -67,10 +67,22 @@ Two files make up the daemon:
    ```
 
    This processes at most one `queued` job and exits. Watch the console
-   output: you should see `claimed` → (`streaming` if the reply takes more
-   than ~2s) → `done` (or `error`, with the reason). Check the job row in
-   Supabase afterward — `status` should be `done` and `output` should be
-   the validated JSON.
+   output: you should see `preflight ok` → `claimed` → (`streaming` if the
+   reply takes more than ~2s) → `done` (or `error`, with the reason). Check
+   the job row in Supabase afterward — `status` should be `done` and
+   `output` should be the validated JSON.
+
+   **Check the exit code, not just the output** (`echo $?`):
+
+   | Exit | Meaning |
+   |---|---|
+   | `0` | The queue was read successfully and, if a job ran, its outcome (`done` or `error`) reached the row. Also covers a genuinely empty queue and the disabled-by-flag no-op. |
+   | `1` | Something the daemon needed didn't work: Supabase config missing, the service role key rejected, the queue read failed, or a job ran but its result could not be written back. The reason is on **stderr**, prefixed `ERROR`. |
+
+   A queue read that fails is never reported as an empty queue — `no queued
+   jobs` in the log means the query succeeded and returned zero rows, and
+   nothing else. Likewise `done` is only logged once the database has
+   acknowledged the write.
 
 4. **Install as a background service (launchd):**
 
@@ -159,6 +171,16 @@ launchctl list | grep com.megcmusic.playbook-agent
 tail -n 20 agent/logs/agent.log
 tail -n 20 agent/logs/agent-error.log
 
+# Is anything actually broken? agent-error.log (stderr) holds failures only —
+# agent.log is the routine narrative. Two severities, both greppable:
+#   ERROR — needs a human: the daemon can't work (rejected credential,
+#           unreadable queue), or a job's outcome was lost and its row is
+#           stranded in 'running'.
+#   WARN  — a real failure with bounded blast radius: a dropped streaming
+#           partial (next sync rewrites it), or a post-processing tip write
+#           (the job itself is done and valid).
+grep ERROR agent/logs/agent-error.log
+
 # Is it actually claiming jobs? Enqueue a real job via the PWA or
 # POST /api/playbook/jobs, then check the row: status should move
 # queued → running → (streaming) → done within a couple minutes.
@@ -167,6 +189,13 @@ tail -n 20 agent/logs/agent-error.log
 All three — `launchctl list` shows the label, the log file has content, and
 a real queued job gets claimed and completed — are the actual proof. Any
 one alone (e.g. "the plist is in LaunchAgents") is not.
+
+The first two used to be satisfiable by a daemon that could never claim
+anything: with a bad `SUPABASE_SERVICE_ROLE_KEY` the claim path caught the
+Supabase error and reported `no queued jobs`, exiting 0. That is fixed — a
+failed queue read now logs `ERROR` to stderr and exits non-zero under
+`--once` — but the shape of the lesson stands: **the last check is the only
+one that proves the thing works.** Run it.
 
 ## Troubleshooting
 
@@ -183,10 +212,38 @@ one alone (e.g. "the plist is in LaunchAgents") is not.
 - **Daemon exits with code 1, "SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are
   not set"** — the flag is on but the Supabase values are missing/blank in
   `agent/.env`. Double-check there's no stray quoting or trailing space.
+- **Daemon exits with code 1, "preflight: Supabase rejected the service role
+  key"** — the URL and key are set, but Supabase refuses them (`Invalid API
+  key`, or a `permission denied` on `generation_jobs`). The daemon checks
+  this once at startup rather than discovering it on the first poll, and
+  exits 1 because no amount of retrying fixes a wrong key. Re-copy the
+  service role key from the Supabase dashboard (Project Settings → API) into
+  `agent/.env`, and confirm the
+  `supabase/migrations/20260713000000_playbook_generation_init.sql` migration
+  has been applied to that project. Under launchd this crash-loops on the
+  10s `ThrottleInterval` — that's the intended noise; it's visible in
+  `agent/logs/agent-error.log` instead of looking idle.
+- **`ERROR could not claim a job (N consecutive failures)` in
+  `agent-error.log`** — the daemon is up but the queue read is failing
+  (network, Supabase outage, a revoked key, a dropped table). It keeps
+  retrying rather than dying, backing off from `POLL_INTERVAL_MS` by
+  doubling up to a 60s ceiling, and resets to normal polling the moment a
+  read succeeds. If `N` keeps climbing, the cause is on the Supabase side —
+  the message carries the underlying error.
 - **Job sits in `queued` forever** — the daemon isn't running at all (check
   `launchctl list`), or it crashed (check `agent/logs/agent-error.log`), or
-  it's mid-backoff after a spawn failure (see below — up to ~20s before it
-  gives up and marks the job `error`).
+  it can't read the queue (grep that same file for `ERROR`), or it's
+  mid-backoff after a spawn failure (see below — up to ~20s before it gives
+  up and marks the job `error`).
+- **Job sits in `running` forever** — different failure, different cause:
+  the generation finished but the write back to the row didn't. Grep
+  `agent-error.log` for `failed to persist` — the `ERROR` line says whether
+  the lost outcome was a `done` (the validated output is gone; re-queue the
+  job) or an `error` (the reason is in that log line and nowhere else). The
+  daemon does not retry the write: it has already moved on to the next job,
+  and there's no way to tell a lost write from one another process made.
+  Post-processing is skipped when a `done` write fails, so re-queuing won't
+  double-insert tips.
 - **Job goes to `error` with "claude spawn failed after retries"** — the
   daemon retries a failed `claude` spawn twice with backoff (5s, then 15s)
   before giving up and erroring the job. This covers a transient failure to
@@ -213,13 +270,19 @@ one alone (e.g. "the plist is in LaunchAgents") is not.
 
 | Failure | Retries | Backoff | Outcome after retries exhausted |
 |---|---|---|---|
+| Supabase rejects the credential at startup | 0 | — | `ERROR` on stderr, **exit 1** (launchd respawns on its 10s throttle) |
+| Queue read / claim fails (network, outage, revoked key) | unlimited (loop mode) | `POLL_INTERVAL_MS`, doubling to a 60s cap; resets on success | loop mode never gives up; `--once` logs `ERROR` and **exits 1** |
 | `claude` spawn fails (ENOENT, or exits with no output at all) | 2 | 5s, then 15s | `status='error'`, `error` set |
 | Model reply fails JSON.parse or schema validation | 1 (re-spawn with a repair-instruction prompt) | none (immediate) | `status='error'`, `error` set |
-| Post-processing (tip insert/deactivate) fails | 0 (best-effort) | — | logged only; the job stays `done` — its `output` already validated |
+| Writing the job's `done` / `error` outcome back fails | 0 | — | `ERROR` on stderr, row stranded in `running`; `--once` **exits 1** |
+| Streaming-partial write fails | next ~2s sync retries | 2s | `WARN` on stderr; cosmetic only — the final write is what matters |
+| Post-processing (tip insert/deactivate) fails | 0 (best-effort) | — | `WARN` on stderr; the job stays `done` — its `output` already validated |
 
 A single daemon processes one job at a time, claimed via a double-`.eq`
 guard (`update ... where id = <id> and status = 'queued'`) so a claim never
-races another process.
+races another process. When that guard matches zero rows (PostgREST
+`PGRST116`) another worker won the race — that is idle, and the only claim
+error treated as such; every other error is reported as a failure.
 
 ## What has NOT been verified on Meghan's actual Mac
 
@@ -231,11 +294,14 @@ the following are **untested against a real queued row in the live
 Supabase schema and untested on Meghan's own machine**, and should be
 confirmed during her onboarding:
 
-- The `generation_jobs` / `tips` tables from
+- ~~The `generation_jobs` / `tips` tables from
   `supabase/migrations/20260713000000_playbook_generation_init.sql` had not
-  been applied to the project's live Supabase database as of this build —
-  `--once` could not be run against a real row here. Confirm the migration
-  has landed before Meghan's first run.
+  been applied to the project's live Supabase database as of this build.~~
+  **Resolved 2026-07-24:** a live `--once` run reaches `preflight ok` and
+  `queue read ok`, so the credential works and `generation_jobs` exists and
+  is readable. Still not exercised: a real **queued row** driving a full
+  generation end to end — that spends subscription tokens and writes to the
+  live database, so it belongs to Meghan's onboarding run, not a dev check.
 - `launchd` install/verify (`install-launchd.sh` / `uninstall-launchd.sh`)
   — the plist substitution and `plutil -lint` validity were dry-run tested
   here, but the script was not actually bootstrapped into a live
