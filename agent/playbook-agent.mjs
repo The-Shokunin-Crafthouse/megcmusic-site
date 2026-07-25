@@ -76,12 +76,26 @@ function log(message) {
   console.log(`[${nowIso()}] ${message}`);
 }
 
-/** Loud severity for failures that mean the daemon cannot do its job at all
- *  (as opposed to a single job failing). Goes to **stderr**, which launchd
- *  routes to `agent/logs/agent-error.log`, with a fixed `ERROR` token so it
- *  is greppable: `grep ERROR agent/logs/agent-error.log`. */
+/** Both severities below go to **stderr**, which launchd routes to
+ *  `agent/logs/agent-error.log` — so that file holds failures only, and
+ *  anything in it deserves a look. `agent.log` (stdout) stays the routine
+ *  narrative: polling, claims, streaming, done.
+ *
+ *  ERROR — needs a human. Either the daemon cannot work at all (rejected
+ *  credential, unreadable queue) or a job's outcome was lost: if the `done`
+ *  or `error` write fails, the row is stuck in `running` forever and the
+ *  PWA polling it spins with no result. Greppable: `grep ERROR`. */
 function logError(message) {
   console.error(`[${nowIso()}] ERROR ${message}`);
+}
+
+/** WARN — a real failure with bounded blast radius, where the system either
+ *  self-corrects or the job's own result survives intact: a dropped
+ *  streaming partial (the next ~2s sync rewrites it — cosmetic progress
+ *  only), or a post-processing tip write (the job already validated and is
+ *  `done`; the tip is missing, nothing is stuck). Greppable: `grep WARN`. */
+function logWarn(message) {
+  console.error(`[${nowIso()}] WARN ${message}`);
 }
 
 /** Flattens a Supabase/PostgREST error to a single line — `message` alone
@@ -450,11 +464,13 @@ function runClaudeProcess(db, job, prompt) {
           updated_at: new Date().toISOString(),
         })
         .eq("id", job.id);
-      if (error) log(`job ${job.id} failed to persist streaming partial: ${error.message}`);
+      if (error) {
+        logWarn(`job ${job.id} failed to persist streaming partial: ${describeDbError(error)}`);
+      }
     };
 
     const interval = setInterval(() => {
-      syncPartial().catch((err) => log(`job ${job.id} streaming sync error: ${err.message}`));
+      syncPartial().catch((err) => logWarn(`job ${job.id} streaming sync error: ${err.message}`));
     }, STREAM_SYNC_INTERVAL_MS);
 
     child.stdout.on("data", (chunk) => {
@@ -518,8 +534,10 @@ function runClaudeProcess(db, job, prompt) {
 }
 
 /** Wraps runClaudeProcess with the spawn-failure retry policy: 2 retries
- *  with backoff (5s, 15s), then errors the job. Returns `{ ok: false }`
- *  when the job has already been errored, or `{ ok: true, ...result }`. */
+ *  with backoff (5s, 15s), then errors the job. Returns
+ *  `{ ok: false, persisted }` when the job has already been errored —
+ *  `persisted` says whether that error actually reached the row — or
+ *  `{ ok: true, ...result }`. */
 async function spawnClaudeWithRetries(db, job, prompt) {
   let lastError = "unknown spawn error";
   for (let attempt = 0; attempt <= SPAWN_RETRY_BACKOFFS_MS.length; attempt++) {
@@ -533,8 +551,8 @@ async function spawnClaudeWithRetries(db, job, prompt) {
       await sleep(SPAWN_RETRY_BACKOFFS_MS[attempt]);
     }
   }
-  await setError(db, job.id, `claude spawn failed after retries: ${lastError}`);
-  return { ok: false };
+  const persisted = await setError(db, job.id, `claude spawn failed after retries: ${lastError}`);
+  return { ok: false, persisted };
 }
 
 function extractFinalText(result) {
@@ -556,22 +574,48 @@ function validateOutput(kind, text) {
 // job row updates
 // ---------------------------------------------------------------------------
 
+/** Returns whether the row actually reached its terminal state. Callers use
+ *  it to avoid claiming an outcome the database never received. */
 async function setError(db, jobId, message) {
   log(`job ${jobId} error: ${message}`);
   const { error } = await db
     .from("generation_jobs")
     .update({ status: "error", error: message, updated_at: new Date().toISOString() })
     .eq("id", jobId);
-  if (error) log(`job ${jobId} failed to persist error status: ${error.message}`);
+  // The row keeps whatever status it had — `running` — so the PWA polling it
+  // waits on a job that will never finish, and the reason above exists only
+  // in this log. Both facts have to be greppable.
+  if (error) {
+    logError(
+      `job ${jobId} failed to persist error status — row is stuck in 'running' and the failure ` +
+        `reason was not saved: ${describeDbError(error)}`,
+    );
+    return false;
+  }
+  return true;
 }
 
+/** Returns whether the row actually reached `done`. Post-processing is
+ *  best-effort and deliberately does not affect that answer — but it is
+ *  skipped entirely when the `done` write failed: inserting tips against a
+ *  row still showing `running` invites a double-insert if the job is later
+ *  re-queued by hand (`tips` has no dedupe). */
 async function finalizeSuccess(db, job, data) {
   const { error } = await db
     .from("generation_jobs")
     .update({ status: "done", output: data, error: null, updated_at: new Date().toISOString() })
     .eq("id", job.id);
-  if (error) log(`job ${job.id} failed to persist done status: ${error.message}`);
+  // Same stuck-row problem, and worse: the generation succeeded and its
+  // validated output is discarded, so the work is paid for and lost.
+  if (error) {
+    logError(
+      `job ${job.id} failed to persist done status — row is stuck in 'running' and the validated ` +
+        `output was lost: ${describeDbError(error)}`,
+    );
+    return false;
+  }
   await runPostProcessing(db, job, data);
+  return true;
 }
 
 /** tip_derivation inserts new tips; tip_review deactivates (never deletes).
@@ -589,16 +633,18 @@ async function runPostProcessing(db, job, data) {
           source: "post_derived",
           derived_from_media_id: postId,
         });
-        if (error) log(`job ${job.id} tip insert failed: ${error.message}`);
+        if (error) logWarn(`job ${job.id} tip insert failed: ${describeDbError(error)}`);
       }
     } else if (job.kind === "tip_review") {
       for (const item of data.deactivate ?? []) {
         const { error } = await db.from("tips").update({ active: false }).eq("id", item.id);
-        if (error) log(`job ${job.id} tip deactivate failed for ${item.id}: ${error.message}`);
+        if (error) {
+          logWarn(`job ${job.id} tip deactivate failed for ${item.id}: ${describeDbError(error)}`);
+        }
       }
     }
   } catch (err) {
-    log(`job ${job.id} post-processing error: ${err.message}`);
+    logWarn(`job ${job.id} post-processing error: ${err.message}`);
   }
 }
 
@@ -675,6 +721,11 @@ async function preflightSupabase(db) {
   );
 }
 
+/** Returns whether the job reached a terminal state in the database (`done`
+ *  or `error`). `false` means the row is stranded in `running` — the work
+ *  happened but nothing recorded it, so the caller must not report success.
+ *  A job that legitimately fails and records `error` returns `true`: that is
+ *  a completed outcome, just not a happy one. */
 async function processJob(db, job) {
   const startedAt = Date.now();
   log(`job ${job.id} claimed kind=${job.kind}`);
@@ -684,44 +735,45 @@ async function processJob(db, job) {
   try {
     context = await buildContext(db, job.kind, input);
   } catch (err) {
-    await setError(db, job.id, `Context build failed: ${err.message}`);
-    return;
+    return await setError(db, job.id, `Context build failed: ${err.message}`);
   }
 
   let prompt;
   try {
     prompt = buildPrompt(job.kind, input, context);
   } catch (err) {
-    await setError(db, job.id, `Prompt build failed: ${err.message}`);
-    return;
+    return await setError(db, job.id, `Prompt build failed: ${err.message}`);
   }
 
   const spawnRes = await spawnClaudeWithRetries(db, job, prompt);
-  if (!spawnRes.ok) return; // already errored inside
+  if (!spawnRes.ok) return spawnRes.persisted; // already errored inside
 
   const text1 = extractFinalText(spawnRes);
   const parsed1 = validateOutput(job.kind, text1);
   if (parsed1.success) {
-    await finalizeSuccess(db, job, parsed1.data);
-    log(`job ${job.id} done in ${Date.now() - startedAt}ms`);
-    return;
+    const persisted = await finalizeSuccess(db, job, parsed1.data);
+    // Only claim "done" when the database agrees. On a failed write the
+    // ERROR line from finalizeSuccess is the whole story.
+    if (persisted) log(`job ${job.id} done in ${Date.now() - startedAt}ms`);
+    return persisted;
   }
   log(`job ${job.id} validation failed (attempt 1): ${parsed1.error}`);
 
   const repairPrompt = `${prompt}\n\n---\nYour previous reply failed validation: ${parsed1.error}. Return ONLY the corrected JSON object.`;
   const spawnRes2 = await spawnClaudeWithRetries(db, job, repairPrompt);
-  if (!spawnRes2.ok) return;
+  if (!spawnRes2.ok) return spawnRes2.persisted;
 
   const text2 = extractFinalText(spawnRes2);
   const parsed2 = validateOutput(job.kind, text2);
   if (parsed2.success) {
-    await finalizeSuccess(db, job, parsed2.data);
-    log(`job ${job.id} done (after repair) in ${Date.now() - startedAt}ms`);
-    return;
+    const persisted = await finalizeSuccess(db, job, parsed2.data);
+    if (persisted) log(`job ${job.id} done (after repair) in ${Date.now() - startedAt}ms`);
+    return persisted;
   }
   log(`job ${job.id} validation failed (attempt 2, after repair): ${parsed2.error}`);
-  await setError(db, job.id, `Validation failed after repair retry: ${parsed2.error}`);
-  log(`job ${job.id} error in ${Date.now() - startedAt}ms`);
+  const persisted = await setError(db, job.id, `Validation failed after repair retry: ${parsed2.error}`);
+  if (persisted) log(`job ${job.id} error in ${Date.now() - startedAt}ms`);
+  return persisted;
 }
 
 // ---------------------------------------------------------------------------
@@ -816,9 +868,15 @@ async function main() {
       continue;
     }
 
-    await processJob(db, job);
+    const persisted = await processJob(db, job);
 
     if (once) {
+      if (!persisted) {
+        // The job ran but its outcome never reached the row. Exiting 0 here
+        // would be the same lie the empty-queue branch used to tell.
+        logError("--once: the job's outcome could not be written back. Exiting 1.");
+        process.exit(1);
+      }
       log("--once: processed one job, exiting 0.");
       process.exit(0);
     }

@@ -76,12 +76,13 @@ Two files make up the daemon:
 
    | Exit | Meaning |
    |---|---|
-   | `0` | The queue was read successfully — a job ran, or there was genuinely nothing queued. Also the disabled-by-flag no-op. |
-   | `1` | The daemon could not do its job at all: Supabase config missing, the service role key rejected, or the queue read failed. The reason is on **stderr**, prefixed `ERROR`. |
+   | `0` | The queue was read successfully and, if a job ran, its outcome (`done` or `error`) reached the row. Also covers a genuinely empty queue and the disabled-by-flag no-op. |
+   | `1` | Something the daemon needed didn't work: Supabase config missing, the service role key rejected, the queue read failed, or a job ran but its result could not be written back. The reason is on **stderr**, prefixed `ERROR`. |
 
    A queue read that fails is never reported as an empty queue — `no queued
    jobs` in the log means the query succeeded and returned zero rows, and
-   nothing else.
+   nothing else. Likewise `done` is only logged once the database has
+   acknowledged the write.
 
 4. **Install as a background service (launchd):**
 
@@ -170,9 +171,14 @@ launchctl list | grep com.megcmusic.playbook-agent
 tail -n 20 agent/logs/agent.log
 tail -n 20 agent/logs/agent-error.log
 
-# Is anything actually broken? Every failure that stops the daemon doing its
-# job at all — rejected credential, unreadable queue — goes to stderr with a
-# literal ERROR token, so one grep answers it:
+# Is anything actually broken? agent-error.log (stderr) holds failures only —
+# agent.log is the routine narrative. Two severities, both greppable:
+#   ERROR — needs a human: the daemon can't work (rejected credential,
+#           unreadable queue), or a job's outcome was lost and its row is
+#           stranded in 'running'.
+#   WARN  — a real failure with bounded blast radius: a dropped streaming
+#           partial (next sync rewrites it), or a post-processing tip write
+#           (the job itself is done and valid).
 grep ERROR agent/logs/agent-error.log
 
 # Is it actually claiming jobs? Enqueue a real job via the PWA or
@@ -229,6 +235,15 @@ one that proves the thing works.** Run it.
   it can't read the queue (grep that same file for `ERROR`), or it's
   mid-backoff after a spawn failure (see below — up to ~20s before it gives
   up and marks the job `error`).
+- **Job sits in `running` forever** — different failure, different cause:
+  the generation finished but the write back to the row didn't. Grep
+  `agent-error.log` for `failed to persist` — the `ERROR` line says whether
+  the lost outcome was a `done` (the validated output is gone; re-queue the
+  job) or an `error` (the reason is in that log line and nowhere else). The
+  daemon does not retry the write: it has already moved on to the next job,
+  and there's no way to tell a lost write from one another process made.
+  Post-processing is skipped when a `done` write fails, so re-queuing won't
+  double-insert tips.
 - **Job goes to `error` with "claude spawn failed after retries"** — the
   daemon retries a failed `claude` spawn twice with backoff (5s, then 15s)
   before giving up and erroring the job. This covers a transient failure to
@@ -259,7 +274,9 @@ one that proves the thing works.** Run it.
 | Queue read / claim fails (network, outage, revoked key) | unlimited (loop mode) | `POLL_INTERVAL_MS`, doubling to a 60s cap; resets on success | loop mode never gives up; `--once` logs `ERROR` and **exits 1** |
 | `claude` spawn fails (ENOENT, or exits with no output at all) | 2 | 5s, then 15s | `status='error'`, `error` set |
 | Model reply fails JSON.parse or schema validation | 1 (re-spawn with a repair-instruction prompt) | none (immediate) | `status='error'`, `error` set |
-| Post-processing (tip insert/deactivate) fails | 0 (best-effort) | — | logged only; the job stays `done` — its `output` already validated |
+| Writing the job's `done` / `error` outcome back fails | 0 | — | `ERROR` on stderr, row stranded in `running`; `--once` **exits 1** |
+| Streaming-partial write fails | next ~2s sync retries | 2s | `WARN` on stderr; cosmetic only — the final write is what matters |
+| Post-processing (tip insert/deactivate) fails | 0 (best-effort) | — | `WARN` on stderr; the job stays `done` — its `output` already validated |
 
 A single daemon processes one job at a time, claimed via a double-`.eq`
 guard (`update ... where id = <id> and status = 'queued'`) so a claim never
@@ -277,11 +294,14 @@ the following are **untested against a real queued row in the live
 Supabase schema and untested on Meghan's own machine**, and should be
 confirmed during her onboarding:
 
-- The `generation_jobs` / `tips` tables from
+- ~~The `generation_jobs` / `tips` tables from
   `supabase/migrations/20260713000000_playbook_generation_init.sql` had not
-  been applied to the project's live Supabase database as of this build —
-  `--once` could not be run against a real row here. Confirm the migration
-  has landed before Meghan's first run.
+  been applied to the project's live Supabase database as of this build.~~
+  **Resolved 2026-07-24:** a live `--once` run reaches `preflight ok` and
+  `queue read ok`, so the credential works and `generation_jobs` exists and
+  is readable. Still not exercised: a real **queued row** driving a full
+  generation end to end — that spends subscription tokens and writes to the
+  live database, so it belongs to Meghan's onboarding run, not a dev check.
 - `launchd` install/verify (`install-launchd.sh` / `uninstall-launchd.sh`)
   — the plist substitution and `plutil -lint` validity were dry-run tested
   here, but the script was not actually bootstrapped into a live
