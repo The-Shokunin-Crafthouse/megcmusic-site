@@ -12,7 +12,14 @@
  *
  * Usage:
  *   node agent/playbook-agent.mjs            # run forever, polling every POLL_INTERVAL_MS
- *   node agent/playbook-agent.mjs --once      # process at most one job, then exit 0
+ *   node agent/playbook-agent.mjs --once      # process at most one job, then exit
+ *
+ * Exit codes (`--once`): 0 means the queue was read successfully — a job ran,
+ * or there was genuinely nothing queued (also 0 when the agent is disabled by
+ * flag, which is a deliberate no-op). 1 means the daemon could not do its job
+ * at all: missing Supabase config, a service role key Supabase rejects, or a
+ * queue read that failed. A failed read is never reported as an empty queue
+ * (studio learning #45 — don't let a broken thing look idle).
  *
  * Env (agent/.env, gitignored — see agent/.env.example):
  *   PLAYBOOK_AGENT_ENABLED   "1" to run; anything else (including unset) is
@@ -38,6 +45,13 @@ const ENV_PATH = path.join(__dirname, ".env");
 const DEFAULT_POLL_INTERVAL_MS = 5000;
 const SPAWN_RETRY_BACKOFFS_MS = [5000, 15000];
 const STREAM_SYNC_INTERVAL_MS = 2000;
+/** Ceiling on the exponential back-off applied after a failed claim, so a
+ *  long Supabase outage doesn't get polled every 5s for hours. */
+const CLAIM_ERROR_MAX_BACKOFF_MS = 60000;
+/** PostgREST's "no (or multiple) rows returned" code — what `.single()`
+ *  reports when the claim UPDATE matched nothing. That is the expected
+ *  outcome of losing a claim race, not a failure. */
+const PGRST_NO_ROWS = "PGRST116";
 
 const PROMPT_FILES = {
   questions: "questions.md",
@@ -60,6 +74,61 @@ function nowIso() {
 
 function log(message) {
   console.log(`[${nowIso()}] ${message}`);
+}
+
+/** Loud severity for failures that mean the daemon cannot do its job at all
+ *  (as opposed to a single job failing). Goes to **stderr**, which launchd
+ *  routes to `agent/logs/agent-error.log`, with a fixed `ERROR` token so it
+ *  is greppable: `grep ERROR agent/logs/agent-error.log`. */
+function logError(message) {
+  console.error(`[${nowIso()}] ERROR ${message}`);
+}
+
+/** Flattens a Supabase/PostgREST error to a single line — `message` alone
+ *  often omits the part that names the actual cause, while `details` on a
+ *  network failure carries a multi-line `Caused by:` stack that would break
+ *  one-failure-per-line grepping. Newlines are collapsed, parts already
+ *  contained in another part are dropped, and the result is capped. */
+function describeDbError(error) {
+  const parts = [error?.message, error?.details, error?.hint]
+    .filter(Boolean)
+    .map((part) => String(part).replace(/\s+/g, " ").trim())
+    .filter(Boolean);
+
+  const kept = [];
+  for (const part of parts) {
+    if (kept.some((other) => other.includes(part))) continue;
+    for (let i = kept.length - 1; i >= 0; i--) {
+      if (part.includes(kept[i])) kept.splice(i, 1);
+    }
+    kept.push(part);
+  }
+
+  const text = kept.join(" — ") || "unknown error";
+  return text.length > 400 ? `${text.slice(0, 400)}…` : text;
+}
+
+/** True when the failure is Supabase refusing the credential (as opposed to
+ *  a network blip or a Supabase outage). These never fix themselves: they
+ *  need `agent/.env` edited, so the daemon should die loudly rather than
+ *  poll forever against a key that will never work. */
+function isCredentialFailure(error) {
+  if (error?.status === 401 || error?.status === 403) return true;
+  if (error?.code === "42501") return true; // insufficient_privilege
+  const text = `${error?.message ?? ""} ${error?.hint ?? ""}`.toLowerCase();
+  return (
+    text.includes("invalid api key") ||
+    text.includes("no api key") ||
+    text.includes("jwt") ||
+    text.includes("permission denied")
+  );
+}
+
+/** Back-off after N consecutive claim failures: pollInterval, ×2 each time,
+ *  capped at CLAIM_ERROR_MAX_BACKOFF_MS. */
+function claimErrorBackoffMs(consecutiveFailures, pollIntervalMs) {
+  const factor = 2 ** Math.min(consecutiveFailures - 1, 10);
+  return Math.min(pollIntervalMs * factor, CLAIM_ERROR_MAX_BACKOFF_MS);
 }
 
 function sleep(ms) {
@@ -540,8 +609,13 @@ async function runPostProcessing(db, job, data) {
 /** Selects the oldest queued job, then claims it with a double-`.eq` update
  *  (`status='running' where id=<id> and status='queued'`) as the atomicity
  *  guard — if another process (or a race within this one) already claimed
- *  it, the update matches zero rows and `.single()` errors, which this
- *  treats as "someone else got it" rather than a fatal error. */
+ *  it, the update matches zero rows and `.single()` reports PGRST116, which
+ *  this treats as "someone else got it" rather than a fatal error.
+ *
+ *  Returns `null` **only** for the two genuine idle cases: the queue really
+ *  is empty, or the one candidate was claimed by someone else. Every other
+ *  failure throws — a caller must never be able to read a broken credential
+ *  or an unreachable database as "nothing to do" (studio learning #45). */
 async function claimNextJob(db) {
   const { data: candidates, error: selectError } = await db
     .from("generation_jobs")
@@ -549,7 +623,7 @@ async function claimNextJob(db) {
     .eq("status", "queued")
     .order("created_at", { ascending: true })
     .limit(1);
-  if (selectError) throw new Error(`select queued jobs: ${selectError.message}`);
+  if (selectError) throw new Error(`select queued jobs: ${describeDbError(selectError)}`);
   if (!candidates || candidates.length === 0) return null;
 
   const id = candidates[0].id;
@@ -560,9 +634,45 @@ async function claimNextJob(db) {
     .eq("status", "queued")
     .select()
     .single();
-  if (claimError) return null; // lost the race (or a transient error) — try again next poll
+  if (claimError) {
+    // Zero rows matched: another worker (or an earlier pass of this one)
+    // already moved it out of `queued`. Idle, not broken — try again next
+    // poll. Anything else is a real failure and must surface.
+    if (claimError.code === PGRST_NO_ROWS) return null;
+    throw new Error(`claim job ${id}: ${describeDbError(claimError)}`);
+  }
 
   return claimed;
+}
+
+/** Startup check that the configured Supabase credential can actually read
+ *  `generation_jobs`. Without this, an unusable key first surfaces on the
+ *  poll loop — where it used to be indistinguishable from an empty queue.
+ *
+ *  A rejected credential exits 1: it cannot recover without an `agent/.env`
+ *  edit, so crash-looping loudly under launchd's `KeepAlive` is the honest
+ *  signal. Anything else (network, Supabase down) only warns — the poll
+ *  loop's own retry/back-off handles a transient outage. */
+async function preflightSupabase(db) {
+  const { error } = await db.from("generation_jobs").select("id").limit(1);
+  if (!error) {
+    log("preflight ok — Supabase reachable and generation_jobs readable.");
+    return;
+  }
+
+  const detail = describeDbError(error);
+  if (isCredentialFailure(error)) {
+    logError(
+      `preflight: Supabase rejected the service role key — ${detail}. Check SUPABASE_URL / ` +
+        `SUPABASE_SERVICE_ROLE_KEY in agent/.env (and that the generation_jobs migration has been ` +
+        `applied). Exiting 1 — this cannot be retried into working.`,
+    );
+    process.exit(1);
+  }
+  logError(
+    `preflight: could not read generation_jobs — ${detail}. Treating as transient and continuing ` +
+      `into the poll loop; claim failures will be logged here.`,
+  );
 }
 
 async function processJob(db, job) {
@@ -629,7 +739,7 @@ async function main() {
   const supabaseUrl = process.env.SUPABASE_URL;
   const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
   if (!supabaseUrl || !supabaseServiceRoleKey) {
-    log("SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are not set — cannot start. Exiting 1.");
+    logError("SUPABASE_URL / SUPABASE_SERVICE_ROLE_KEY are not set — cannot start. Exiting 1.");
     process.exit(1);
   }
 
@@ -652,6 +762,8 @@ async function main() {
     `playbook-agent starting (once=${once}, pollIntervalMs=${pollIntervalMs}, claudeBin=${CLAUDE_BIN})`,
   );
 
+  await preflightSupabase(db);
+
   let shuttingDown = false;
   const requestShutdown = (signal) => {
     if (!shuttingDown) log(`received ${signal} — finishing any in-flight job, then exiting.`);
@@ -659,6 +771,8 @@ async function main() {
   };
   process.on("SIGINT", () => requestShutdown("SIGINT"));
   process.on("SIGTERM", () => requestShutdown("SIGTERM"));
+
+  let consecutiveClaimErrors = 0;
 
   for (;;) {
     if (shuttingDown) {
@@ -669,13 +783,33 @@ async function main() {
     let job = null;
     try {
       job = await claimNextJob(db);
+      consecutiveClaimErrors = 0;
     } catch (err) {
-      log(`error claiming next job: ${err.message}`);
+      // A failed claim is NOT an empty queue. Reporting it as one made a
+      // misconfigured daemon satisfy both of README.md's runtime checks
+      // (launchctl label present, log file non-empty) while never being able
+      // to work — exactly the false positive learning #45 warns about.
+      consecutiveClaimErrors += 1;
+      logError(
+        `could not claim a job (${consecutiveClaimErrors} consecutive ` +
+          `${consecutiveClaimErrors === 1 ? "failure" : "failures"}): ${err.message}`,
+      );
+      if (once) {
+        logError("--once: the queue could not be read, so no job was processed. Exiting 1.");
+        process.exit(1);
+      }
+      // Keep the daemon alive — a Supabase outage should not need a manual
+      // restart to recover from — but back off so it isn't hammered.
+      const backoff = claimErrorBackoffMs(consecutiveClaimErrors, pollIntervalMs);
+      log(`retrying claim in ${backoff}ms.`);
+      await sleepInterruptible(backoff, () => shuttingDown);
+      continue;
     }
 
     if (!job) {
       if (once) {
-        log("no queued jobs — --once exiting 0.");
+        // Reached only when the query SUCCEEDED and returned no queued row.
+        log("queue read ok, no queued jobs — --once exiting 0.");
         process.exit(0);
       }
       await sleepInterruptible(pollIntervalMs, () => shuttingDown);
@@ -692,6 +826,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error(`[${nowIso()}] fatal: ${err && err.stack ? err.stack : err}`);
+  logError(`fatal: ${err && err.stack ? err.stack : err}`);
   process.exit(1);
 });
