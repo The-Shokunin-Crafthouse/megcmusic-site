@@ -157,7 +157,15 @@ export type QuestionsOutput = z.infer<typeof questionsOutputSchema>;
 
 export const frameSchema = z.object({
   description: z.string().min(1),
-  onScreenText: z.string().min(1),
+  // Deliberately NOT `.min(1)`: a frame with no overlay text is valid
+  // content, and `agent/prompts/storyboard.md` tells Claude to return an
+  // empty string for exactly that case. Requiring a character contradicted
+  // the prompt, so any storyboard with a text-free frame failed validation
+  // and burned its one repair retry — whose only way to pass was to invent
+  // overlay text for frames that should not have any. `StoryboardResult`
+  // already conditionally renders this field, so empty renders correctly.
+  // Mirror any change here in `agent/contracts.mjs`.
+  onScreenText: z.string(),
   assetPrompt: z.string().min(1),
 });
 export type Frame = z.infer<typeof frameSchema>;

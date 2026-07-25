@@ -61,7 +61,11 @@ const questionsOutputSchema = z.object({
 
 const frameSchema = z.object({
   description: z.string().min(1),
-  onScreenText: z.string().min(1),
+  // Deliberately NOT `.min(1)` — mirrors src/lib/playbook/generation.ts.
+  // `prompts/storyboard.md` instructs an empty string when a frame has no
+  // overlay text, so requiring a character rejected valid output and forced
+  // the repair retry to invent text. See that file for the full reasoning.
+  onScreenText: z.string(),
   assetPrompt: z.string().min(1),
 });
 
