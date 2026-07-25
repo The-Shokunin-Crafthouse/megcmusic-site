@@ -24,6 +24,17 @@ Two files make up the daemon:
   daemon (`claude` on `PATH`, or set `CLAUDE_BIN` to its absolute path).
   Verify with `claude -p "say hi"` in a normal terminal first — if that
   doesn't work, nothing here will either.
+
+  Note the Claude **desktop app does not ship the CLI** — having Claude
+  installed on the Mac is not the same as having `claude` available. Install
+  it with `curl -fsSL https://claude.ai/install.sh | bash` (lands in
+  `~/.local/bin/claude`, no sudo), then log in interactively: run `claude`,
+  `/login`, and follow the browser flow. Set `CLAUDE_BIN` to the absolute
+  path in `agent/.env` — `~/.local/bin` is not on launchd's minimal PATH.
+  Verify auth from a *scrubbed* environment, not just your own shell:
+  `env -i HOME="$HOME" PATH="$HOME/.local/bin:/usr/bin:/bin" claude -p "say hi"`.
+  A shell that inherits `ANTHROPIC_BASE_URL`/`CLAUDE_CODE_*` from a parent
+  Claude session can report success where launchd would fail.
 - **Node 20.12+** (the daemon uses `process.loadEnvFile`, added in that
   release). Check with `node --version`.
 - The repo cloned locally, with root dependencies installed (`npm install`
@@ -87,7 +98,31 @@ Two files make up the daemon:
 
    To remove it: `bash agent/uninstall-launchd.sh`.
 
-## Alternative: LaunchDaemon under a dedicated user (running on Levi's Mac)
+## Alternative: LaunchDaemon under a dedicated user — DOES NOT WORK
+
+> **Superseded 2026-07-24 (decisions.md). Do not use this path.** It was
+> installed and tested for real on Meghan's Mac and fails 100% of jobs. The
+> `claude` CLI keeps its credentials in the macOS **login Keychain**, and a
+> LaunchDaemon runs in the system bootstrap context, which cannot read any
+> user's login keychain — **even while that user is logged in**. Keychain
+> reachability follows the security session, not the unlock state. The
+> daemon claims a job, `claude` returns the literal string `Not logged in ·
+> Please run /login`, that fails `JSON.parse` on both the first attempt and
+> the repair retry, and the job is marked `error` about 4.5 seconds later.
+> Every launchd-level check still reports healthy while this happens —
+> `launchctl list` shows the label and the log file is non-empty — which is
+> exactly why those two checks alone are not proof (studio learning #45).
+>
+> Use the per-user **LaunchAgent** above (`install-launchd.sh`). The
+> identical job that the LaunchDaemon killed completed in 13.7s under it.
+> The scripts below are kept only for a hypothetical future where the CLI
+> is authenticated by something the system domain can read (an env-var API
+> key) — which this project deliberately does not use, since running on
+> Meghan's own subscription instead of a metered key is the whole point.
+>
+> The reasoning that follows is left intact for the record, but its central
+> premise — that a LaunchDaemon buys log-out survival — is wrong for any
+> Keychain-authenticated CLI. That benefit cannot exist here.
 
 **Decided 2026-07-13** (decisions.md) — Meghan's own laptop (Windows, 8GB
 RAM, 11th-gen i3) isn't a good fit for this. Instead: a second macOS user
@@ -111,10 +146,16 @@ Setup:
    repo (into that user's own home directory, not the admin's — the
    daemon runs as this user and needs to read/write `agent/.env` and
    `agent/logs/`), `npm install`, `cp agent/.env.example agent/.env` +
-   fill it in, then run `claude -p "say hi"` yourself. This step matters
-   beyond a sanity check: it's what unlocks Keychain access for whatever
-   token store the CLI uses — a LaunchDaemon spawned before this first
-   interactive login can fail to read those credentials.
+   fill it in, then run `claude -p "say hi"` yourself.
+
+   ~~This step matters beyond a sanity check: it's what unlocks Keychain
+   access for whatever token store the CLI uses — a LaunchDaemon spawned
+   before this first interactive login can fail to read those
+   credentials.~~ **False, corrected 2026-07-24.** An interactive login
+   does not grant a later system-domain daemon any Keychain access; there
+   is no ordering that makes this work. Verified by doing it: the
+   interactive `claude -p "say hi"` succeeded and the LaunchDaemon
+   installed afterwards still could not authenticate.
 3. Test with `node agent/playbook-agent.mjs --once` against a real queued
    job, same as the LaunchAgent flow.
 4. Install Node **system-wide** (Homebrew: `brew install node`), not via
@@ -137,11 +178,11 @@ Trade-off worth knowing: this moves the "is the daemon awake" dependency
 from Meghan's machine to Levi's, and her Claude Code login now lives on
 his laptop rather than hers. Accepted 2026-07-13 given her hardware.
 
-**Untested as of this writing** — built and syntax/plist-checked in the
-studio's dev environment (`bash -n`, `plutil -lint`, all pass), but the
-actual `sudo bash agent/install-launchdaemon.sh` bootstrap, the Keychain
-unlock, and a real `--once` run under the second account have not been
-run on Levi's actual Mac.
+**Tested 2026-07-24 and found broken** — see the warning at the top of this
+section. The scripts themselves work exactly as written (the bootstrap
+succeeds, the plist substitutes correctly, the verification prints PASS);
+what fails is the daemon's ability to authenticate `claude` at all from the
+system domain.
 
 ## Verification
 
@@ -221,34 +262,84 @@ A single daemon processes one job at a time, claimed via a double-`.eq`
 guard (`update ... where id = <id> and status = 'queued'`) so a claim never
 races another process.
 
+## Model and effort
+
+The daemon **pins** both at the spawn site (2026-07-24 ADR) rather than
+inheriting the CLI's session defaults:
+
+```js
+const CLAUDE_MODEL = "sonnet";
+const DEFAULT_EFFORT = "medium";
+const EFFORT_BY_KIND = { storyboard: "high" };
+```
+
+Two reasons. First, `claude -p` with no `--model` resolved to
+`claude-opus-5[1m]` here — while the interactive REPL header on the same
+machine showed `Sonnet 5`, so the headless and interactive defaults differ
+and the app was quietly running the most expensive option against a Pro
+allowance **shared with Meghan's own Claude usage**. Second, without pinning,
+a `/model` or `/effort` she sets for her own work silently retunes the app,
+and vice versa. Check the resolved model by reading the `stream-json` init
+event, not the REPL header.
+
+`storyboard` gets `high` because it emits the largest structure and was
+observed failing `JSON.parse` on the first attempt at `medium`, surviving
+only via the one-shot repair retry — a coin flip on a dead job. At `high` it
+passed first try twice and was *faster end to end* (41s, 48s) than the
+medium run that needed repair (89s): a repair round trip costs more than the
+extra thinking. If a kind starts logging `validation failed (attempt 1)`
+after a prompt or contract change, it likely outgrew its effort level —
+check that before editing the prompt or the schema.
+
+## Verified end to end on Meghan's Mac, 2026-07-24
+
+Installed as a **LaunchAgent** (`install-launchd.sh`), running as
+`meggybahn` on her own Claude Pro subscription, `claude` v2.1.219 at
+`~/.local/bin/claude`:
+
+- The `generation_jobs` / `tips` migration is applied to the live Supabase
+  project (`megcmusic-outreach`, ref `lydxxqrhmlubanneepyl`) — all four
+  tables verified column-by-column against the migration file. Note it is
+  not recorded in Supabase's own migration ledger (applied outside the CLI),
+  so `list_migrations` does not show it; the schema is nonetheless correct.
+- `--once` against a real PWA-created queued row: `claimed` → `streaming` →
+  `done` in 33s, output validated.
+- Four of six job kinds green through the installed agent, no errors:
+  `questions` (22s, 6 items), `make_it_better` (28s), `titles` (18s, 4
+  `titleOptions`), `storyboard` (6 frames; see effort note above).
+- `titles`' `{{FRAMES}}` placeholder works when the job carries an explicit
+  `input.frames` array — the open question below is narrowed, not closed.
+- All three verification criteria: `launchctl list` shows the label, the log
+  has content, and a real queued job goes `queued` → `done` unattended.
+
 ## What has NOT been verified on Meghan's actual Mac
 
-This was built and syntax/contract-checked in the studio's dev environment,
-including a real end-to-end `claude -p --output-format stream-json --verbose`
-smoke test and a `contracts.mjs` validation pass against the project's
-committed mock fixtures (`src/app/megs-playbook/__fixtures__/*.json`) — but
-the following are **untested against a real queued row in the live
-Supabase schema and untested on Meghan's own machine**, and should be
-confirmed during her onboarding:
+Everything in the section above is now confirmed on her machine. These are
+what remain, after the 2026-07-24 install pass:
 
-- The `generation_jobs` / `tips` tables from
-  `supabase/migrations/20260713000000_playbook_generation_init.sql` had not
-  been applied to the project's live Supabase database as of this build —
-  `--once` could not be run against a real row here. Confirm the migration
-  has landed before Meghan's first run.
-- `launchd` install/verify (`install-launchd.sh` / `uninstall-launchd.sh`)
-  — the plist substitution and `plutil -lint` validity were dry-run tested
-  here, but the script was not actually bootstrapped into a live
-  `launchctl` session (this is a shared dev machine, not Meghan's Mac —
-  installing a real background job here would be the wrong target).
-- `claude` CLI auth state on Meghan's Mac, and whether her subscription's
-  rate limits comfortably cover the daemon's usage pattern.
-- Real-world timing of the ~2s partial-output sync against an actual
-  30s–2min generation (only a `"pong"`-scale reply was exercised live here).
-- The `titles` job's `{{FRAMES}}` placeholder: the page-facing input schema
-  for `titles` in `generation.ts` is still being extended by a concurrent
-  sprint step as of this writing (currently `idea` + optional `context` +
-  optional `previousTitles`, no dedicated `frames` field yet). The daemon
-  reads `input.frames` if present, else tries to `JSON.parse` `input.context`,
-  else falls back to the raw `context` string — this should be re-checked
-  once that UI step lands its final shape.
+- **`tip_derivation` and `tip_review` have never run.** They were held back
+  deliberately: `tip_derivation`'s post-processing writes real rows into the
+  `tips` table, so a test run leaves lasting data. This also means the
+  tip insert/deactivate post-processing path is entirely unexercised.
+- **The PWA rendering a completed job.** `output` is confirmed written to the
+  row and contract-valid, but no one has watched the app poll and display
+  it. A bug on the read side would look like a permanent spinner while
+  `agent/logs/agent.log` reports everything as `done` — check the row's
+  `status` before assuming the daemon is at fault.
+- **Nothing writes to the `storyboards` table.** It is still empty, and the
+  daemon does not populate it on completion — whatever persists a finished
+  storyboard lives on the app side and is unverified.
+- **Restart survival.** `RunAtLoad` is set, so the agent should start at her
+  next login, but a real reboot has not been exercised. If the login
+  keychain is somehow unavailable after a FileVault boot, the signature is
+  jobs failing fast with `Not logged in` — running `claude -p "say hi"` once
+  in a terminal prompts the unlock and clears it.
+- **Rate limits under real day-to-day use.** The daemon draws on the same
+  Pro allowance as Meghan's own Claude usage; an exhausted allowance
+  produces unparseable output, which becomes an `error` job rather than a
+  graceful retry. Pinning Sonnet (above) reduces but does not remove this.
+- The `titles` job's `{{FRAMES}}` placeholder: verified working when the job
+  carries an explicit `input.frames` array. The `input.context` fallback
+  paths (JSON-parsed, then raw string) are still untested, and the
+  page-facing input schema in `generation.ts` was still being extended by a
+  concurrent sprint step when this was written — re-check once that lands.

@@ -48,6 +48,18 @@ const PROMPT_FILES = {
   tip_review: "tip_review.md",
 };
 
+// Model and effort are pinned per job kind rather than inherited from the
+// CLI's session default — see runClaudeProcess. `medium` handles the short
+// fixed-contract kinds fine; `storyboard` emits the largest structure (a
+// full frames array) and was observed failing JSON.parse on the first
+// attempt at medium, surviving only via the one-shot repair retry, so it
+// gets more headroom rather than sitting one bad roll from a dead job.
+const CLAUDE_MODEL = "sonnet";
+const DEFAULT_EFFORT = "medium";
+const EFFORT_BY_KIND = {
+  storyboard: "high",
+};
+
 let CLAUDE_BIN = "claude";
 
 // ---------------------------------------------------------------------------
@@ -349,9 +361,18 @@ function runClaudeProcess(db, job, prompt) {
   return new Promise((resolve) => {
     let child;
     try {
-      child = spawn(CLAUDE_BIN, ["-p", "--output-format", "stream-json", "--verbose"], {
-        stdio: ["pipe", "pipe", "pipe"],
-      });
+      // Pinned, not inherited: `claude -p` otherwise resolves to whatever
+      // the CLI's session default is (it resolved to claude-opus-5[1m]
+      // here), so Meghan's own `/model` or `/effort` choices in interactive
+      // Claude would silently retune the app — and Opus burns her shared Pro
+      // allowance far faster than these short JSON jobs need.
+      const effort = EFFORT_BY_KIND[job.kind] ?? DEFAULT_EFFORT;
+      child = spawn(
+        CLAUDE_BIN,
+        // prettier-ignore
+        ["-p", "--model", CLAUDE_MODEL, "--effort", effort, "--output-format", "stream-json", "--verbose"],
+        { stdio: ["pipe", "pipe", "pipe"] },
+      );
     } catch (err) {
       resolve({ spawnFailed: true, error: err.message });
       return;
