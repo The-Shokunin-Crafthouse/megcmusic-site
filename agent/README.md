@@ -242,13 +242,20 @@ while looking entirely healthy (2026-07-24 ADR).
 
 ```bash
 # Compare the daemon's start time against the mtime of what it imports.
-# Any source file newer than the process => the running code is stale.
+# Any source file newer than the process => the running code MAY be stale.
 ps -o lstart -p $(launchctl list | awk '/playbook-agent/{print $1}')
 ls -l agent/*.mjs
 
 # Restart onto current HEAD:
 launchctl kickstart -k gui/$(id -u)/com.megcmusic.playbook-agent
 ```
+
+Newer mtime means *possibly* stale, not definitely: a `git checkout`/merge
+rewrites mtimes even when the contents don't change, so any branch switch
+touching `agent/` trips this. Confirm with `git diff HEAD -- agent/` — empty
+means the running process already has this code and the restart is optional.
+The check is deliberately biased that way: an unnecessary restart costs
+seconds, a silently stale daemon cost us PR #59.
 
 Note the stale-contract failure mode impersonates prompt drift: it shows up
 as `validation failed (attempt 1)` and a burned repair retry, which sends
@@ -504,7 +511,14 @@ what remain, after the 2026-07-24 install pass:
   `posting_window` **and `chosen_title`**. Exercised end to end this pass: one
   real storyboard saved with `chosen_title = "the porch take"`, 5 frames, 4
   title options. So the learning-loop signal everyone assumed was being thrown
-  away is in fact captured the moment she saves — what is missing is anything
-  that *reads* `chosen_title` back into a prompt.
-- **Partial-output streaming** — see its own section above. Fix identified, not
-  applied.
+  away is in fact captured the moment she saves. ~~What is missing is anything
+  that *reads* `chosen_title` back into a prompt.~~ **Read side landed
+  2026-07-26** — `fetchChosenTitles` feeds her last 10 `{idea, chose,
+  passedOver}` triples into `{{CHOSEN_TITLES}}` in **both** prompts that emit
+  `titleOptions` (`storyboard.md` and `titles.md`). The loop is closed; see the
+  2026-07-26 ADR for the A/B evidence. Note the coupling it creates: title
+  quality now depends on her pressing "Save to library", so if she stops
+  saving, the context goes *stale* rather than empty (the last 10 picks
+  persist indefinitely). Recency weighting is the next lever if that shows up.
+- ~~**Partial-output streaming**~~ — **fixed 2026-07-26**, see its own section
+  above.

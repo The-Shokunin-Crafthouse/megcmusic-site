@@ -337,6 +337,39 @@ async function fetchStatsContext(db) {
   };
 }
 
+/** {{CHOSEN_TITLES}}: the closing quarter of the learning loop. Every saved
+ *  storyboard records both the options that were offered and the one Meghan
+ *  actually picked, so the pair is a preference signal that costs nothing to
+ *  collect — it was being written and never read. What makes it worth more
+ *  than a list of good titles is the contrast: `passedOver` are titles the
+ *  model itself judged strong enough to offer and she declined, which is the
+ *  part a prompt can't infer from her published captions.
+ *
+ *  Empty until she saves storyboards — a new install has no history, and the
+ *  prompts are written to ignore an empty array rather than invent a pattern
+ *  from nothing. */
+async function fetchChosenTitles(db, limit = 10) {
+  const { data, error } = await db
+    .from("storyboards")
+    .select("idea, title_options, chosen_title, created_at")
+    .not("chosen_title", "is", null)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw new Error(`fetchChosenTitles: ${error.message}`);
+
+  return (data ?? []).map((row) => {
+    const options = Array.isArray(row.title_options) ? row.title_options : [];
+    const offered = options
+      .map((option) => (typeof option?.title === "string" ? option.title : null))
+      .filter(Boolean);
+    return {
+      idea: safeSlice80(row.idea),
+      chose: row.chosen_title,
+      passedOver: offered.filter((title) => title !== row.chosen_title),
+    };
+  });
+}
+
 /** {{NEAREST_TIPS}}: for each surface, the 5 most recent active tips. */
 async function fetchNearestTips(db) {
   const bySurface = {};
@@ -412,8 +445,19 @@ async function buildContext(db, kind, input) {
   switch (kind) {
     case "questions":
     case "make_it_better":
-    case "storyboard":
       return { statsContext: await fetchStatsContext(db) };
+    // The two kinds that emit `titleOptions` also get her past picks. Fetched
+    // in parallel because both are independent reads and `storyboard` is
+    // already the slowest job kind.
+    case "storyboard": {
+      const [statsContext, chosenTitles] = await Promise.all([
+        fetchStatsContext(db),
+        fetchChosenTitles(db),
+      ]);
+      return { statsContext, chosenTitles };
+    }
+    case "titles":
+      return { chosenTitles: await fetchChosenTitles(db) };
     case "tip_derivation":
       return { nearestTips: await fetchNearestTips(db) };
     case "tip_review":
@@ -421,7 +465,6 @@ async function buildContext(db, kind, input) {
         activeTips: await fetchActiveTips(db),
         ruleChanges: computeRuleChanges(input.previousRules ?? null, input.rules ?? []),
       };
-    case "titles":
     default:
       return {};
   }
@@ -457,6 +500,7 @@ function buildPrompt(kind, input, context) {
         IDEA: input.idea ?? "",
         ANSWERS: JSON.stringify(input.answers ?? {}),
         STATS_CONTEXT: JSON.stringify(context.statsContext ?? {}),
+        CHOSEN_TITLES: JSON.stringify(context.chosenTitles ?? []),
         REGENERATE_NOTE: regenerateNote,
       });
       break;
@@ -481,6 +525,7 @@ function buildPrompt(kind, input, context) {
         IDEA: input.idea ?? "",
         FRAMES: typeof framesValue === "string" ? framesValue : JSON.stringify(framesValue),
         PREVIOUS_TITLES: JSON.stringify(input.previousTitles ?? []),
+        CHOSEN_TITLES: JSON.stringify(context.chosenTitles ?? []),
       });
       break;
     }
