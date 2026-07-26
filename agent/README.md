@@ -339,6 +339,8 @@ one that proves the thing works.** Run it.
 | Queue read / claim fails (network, outage, revoked key) | unlimited (loop mode) | `POLL_INTERVAL_MS`, doubling to a 60s cap; resets on success | loop mode never gives up; `--once` logs `ERROR` and **exits 1** |
 | `claude` spawn fails (ENOENT, or exits with no output at all) | 2 | 5s, then 15s | `status='error'`, `error` set |
 | Model reply fails JSON.parse or schema validation | 1 (re-spawn with a repair-instruction prompt) | none (immediate) | `status='error'`, `error` set |
+| CLI refuses: quota / rate limit (transient) | 3 requeues, **no repair retry** | claims paused 5min, then 15, then 30 | `status='error'` naming the limit, only after all three |
+| CLI refuses: not logged in / bad key / no credit (permanent) | 0 | — | `status='error'` naming the cause + `ERROR` on stderr with the fix |
 | Writing the job's `done` / `error` outcome back fails | 0 | — | `ERROR` on stderr, row stranded in `running`; `--once` **exits 1** |
 | Streaming-partial write fails | next ~2s sync retries | 2s | `WARN` on stderr; cosmetic only — the final write is what matters |
 | Post-processing (tip insert/deactivate) fails | 0 (best-effort) | — | `WARN` on stderr; the job stays `done` — its `output` already validated |
@@ -431,20 +433,39 @@ Installed as a **LaunchAgent** (`install-launchd.sh`), running as
   sound from frame 1" respectively. **But see the open item below — the app
   sends neither.**
 
-## Partial-output streaming does not work (2026-07-24)
+## Partial-output streaming — broken 2026-07-24, fixed 2026-07-26
 
-`runClaudeProcess` spawns without `--include-partial-messages`, so
-`--output-format stream-json` frames *complete* messages: `system/init` at
+**Fixed.** `runClaudeProcess` now passes `--include-partial-messages` and
+handles `stream_event`/`content_block_delta`. Measured after the fix: a 102.5s
+storyboard wrote 7 partials (148 → 5152 chars) at the ~2s interval while
+`status='streaming'`; a 16s `questions` job wrote 3. Before, both wrote none.
+
+Note the accumulator is deliberately **two** variables — `deltaText` (deltas,
+drives the progress sync) and `assistantText` (complete message, drives the
+validated result). With the flag on, both arrive for the same content, so
+appending them to one buffer doubles every reply and corrupts only the final
+output. Don't merge them.
+
+The original diagnosis follows, since it explains what to look for if progress
+ever goes quiet again.
+
+### Why it was broken (2026-07-24)
+
+`runClaudeProcess` spawned without `--include-partial-messages`, so
+`--output-format stream-json` framed *complete* messages: `system/init` at
 0.54s, silence, then the entire assistant message as one event at 9.52s, then
-`result`. `accumulatedText` is `""` for ~88% of the run, so every ~2s tick
-returns early on its own empty-string guard. Sampling a real 42s storyboard job
+`result`. The accumulator was `""` for ~88% of the run, so every ~2s tick
+returned early on its own empty-string guard. Sampling a real 42s storyboard job
 once a second: `output.partial` was **never** non-null and `status` went
 `running → done` with no `streaming` transition at all.
 
-The fix is two edits (add the flag; handle `event.type === "stream_event"` /
-`content_block_delta` next to the existing `assistant` branch), but it changes
-what the PWA shows mid-generation — a product call, deferred. See the
-2026-07-24 ADR.
+The lines that looked like proof it worked were the tell, once read with
+timestamps: job `42922222` logged `streaming` at 04:00:28.332 and `done` at
+04:00:28.718 — 386ms apart, at the *end* of a 54-second job. **If progress ever
+goes quiet again, measure the gap between the first partial and the terminal
+event rather than grepping for the word `streaming`** — a status written a
+fraction of a second before completion is indistinguishable from a working one
+if you only check that it appeared.
 
 ## What has NOT been verified on Meghan's actual Mac
 
@@ -457,31 +478,23 @@ what remain, after the 2026-07-24 install pass:
   jobs failing fast with `Not logged in` — running `claude -p "say hi"` once
   in a terminal prompts the unlock and clears it. Still the only item that
   needs Meghan's own machine to be rebooted; everything else below is code.
-- **Rate limits are worse than "not graceful" — they produce dead jobs, and
-  the error message points at the wrong thing.** Reproduced 2026-07-24: after
-  nine spawns in ~8.5 minutes the CLI returned prose beginning `You've hit…`,
-  which `validateOutput` reported as `JSON.parse failed`; the repair retry
-  fired 2.8s later into the same limit and the job died as
-  `Validation failed after repair retry: JSON.parse failed: Unexpected token
-  'Y', "You've hit"…`. The queued job behind it died the same way in 6.1s,
-  spending two more spawns against an already-refusing endpoint. **The limit
-  is transient** — a probe and a full storyboard both succeeded later in the
-  same session, unchanged. So the daemon converts a self-healing upstream
-  condition into a permanent failure, labelled as a contract error. Three
-  candidate mitigations and why nothing was changed yet: 2026-07-24 ADR.
+- ~~**Rate limits produce dead jobs with a misleading error.**~~ **Fixed
+  2026-07-26.** Refusals are now classified before validation and split by
+  whether waiting helps — transient quota refusals requeue with a 5/15/30min
+  claim pause (3 attempts), permanent auth refusals fail immediately naming
+  the cause, and neither spends the repair retry. See the retry table above
+  and the 2026-07-26 ADR. **Watch the refusal patterns** in
+  `playbook-agent.mjs` if a `JSON.parse failed` error quoting English prose
+  ever reappears — a reworded CLI message degrades silently back to the old
+  behaviour.
   Rough per-kind cost for sizing a session: `tip_review` ~10s, `titles`
-  ~16–18s, `questions` ~7–20s, `tip_derivation` ~20s, `storyboard` ~42–55s at
-  `high` (~99s if a repair round trip is involved); one spawn per job, two
-  when validation fails.
-- **`titles` never actually receives the frames.** All three of the daemon's
-  `{{FRAMES}}` input shapes work when fed directly, but nothing feeds them:
-  `jobInputSchemas.titles` has no `frames` field and the route inserts
-  `parsedInput.data`, so zod strips it — and the only call site,
-  `handleFreshTitles` in `src/components/playbook/library/StoryboardResult.tsx`,
-  sends `{ idea, previousTitles }` with no `context` either. Every real "Fresh
-  titles" request therefore falls through to the `[]` default and the prompt
-  reads `THE STORYBOARD FRAMES: []`. It still returns plausible titles, which
-  is why this was invisible. `frames` is in scope at that call site.
+  ~7–18s, `questions` ~7–20s, `tip_derivation` ~20s, `storyboard` ~42–103s at
+  `high`; one spawn per job, two when validation genuinely fails.
+- ~~**`titles` never actually receives the frames.**~~ **Fixed 2026-07-26** —
+  `jobInputSchemas.titles` now carries an optional `frames` array and
+  `handleFreshTitles` sends it. Verified from the button: the job carries 6
+  frames matching the rendered storyboard, and the returned rationales cite
+  "frame 5" and "the cold-open frame" rather than generalities.
 - ~~**Nothing writes to the `storyboards` table.**~~ **Corrected 2026-07-24 —
   the write path is complete and now verified.** The table was empty because
   the button had never been pressed, not because persistence was unbuilt:

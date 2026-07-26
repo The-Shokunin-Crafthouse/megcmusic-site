@@ -111,6 +111,17 @@ export const jobInputSchemas = {
   make_it_better: z.object({ idea: z.string().min(1) }),
   titles: z.object({
     idea: z.string().min(1),
+    // The storyboard the titles are for. Without this the daemon's
+    // `{{FRAMES}}` placeholder resolves to `[]` and "Fresh titles" generates
+    // from the idea string alone — which it did silently until 2026-07-26,
+    // because the job still validated and still returned plausible titles.
+    // `unknown` rather than `frameSchema`: the daemon only serialises these
+    // into a prompt, so a stricter shape here would reject a storyboard the
+    // renderer is otherwise happy with, for no gain.
+    frames: z.array(z.unknown()).optional(),
+    // Legacy/free-form alternative to `frames`, kept because the daemon still
+    // accepts it (JSON-parsed, then raw) and callers outside the page may use
+    // it. `frames` wins when both are present.
     context: z.string().optional(),
     // Titles already offered — the prompt forbids repeating them (P5 spec,
     // "Fresh titles" action).
