@@ -17,7 +17,7 @@ project:
   client: "Meghan Clarisse Cave"
   kind: "site"            # brand | product | site | app | campaign
   stage: "01-brief"       # current stage id
-  current_sprint: ""      # active sprint CONTEXT.md path — set before each sprint (mirrors WORKSPACE.md)
+  current_sprint: "stages/03-build/sprint-07-shop/CONTEXT.md"      # active sprint CONTEXT.md path — set before each sprint (mirrors WORKSPACE.md)
   lead: "Levi Bahn"
   started: "2026-06-16"    # YYYY-MM-DD
   target_launch: ""       # YYYY-MM-DD
