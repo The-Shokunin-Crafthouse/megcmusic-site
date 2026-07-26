@@ -53,6 +53,19 @@ const CLAIM_ERROR_MAX_BACKOFF_MS = 60000;
  *  outcome of losing a claim race, not a failure. */
 const PGRST_NO_ROWS = "PGRST116";
 
+/** How long to stop claiming after the CLI reports an exhausted allowance,
+ *  indexed by how many times this job has already been put back. Escalating,
+ *  because if 5 minutes wasn't enough the window is a long one. Without a
+ *  pause the daemon just pulls the next queued job straight into the same
+ *  refusal — which is what killed a second storyboard job in 6.1s on
+ *  2026-07-24. */
+const RATE_LIMIT_COOLDOWNS_MS = [5 * 60 * 1000, 15 * 60 * 1000, 30 * 60 * 1000];
+
+/** Requeue attempts before a rate-limited job is finally errored. Bounded so
+ *  a genuinely exhausted allowance can't spin a job forever; the count lives
+ *  in memory (see `refusalRequeues`), so a daemon restart forgives it. */
+const MAX_RATE_LIMIT_REQUEUES = RATE_LIMIT_COOLDOWNS_MS.length;
+
 const PROMPT_FILES = {
   questions: "questions.md",
   storyboard: "storyboard.md",
@@ -227,6 +240,66 @@ function tryParseJson(value) {
   } catch {
     return undefined;
   }
+}
+
+// ---------------------------------------------------------------------------
+// CLI refusal classification
+//
+// When the CLI declines to answer at all — allowance exhausted, not logged
+// in, no credit — it says so in plain English on the same channel a JSON
+// reply would use. Everything downstream then treats that sentence as the
+// model getting the format wrong: `JSON.parse failed`, one repair retry
+// fired seconds later into the identical refusal, job dead. Observed
+// 2026-07-24: `You've hit…` killed two storyboard jobs, the second in 6.1s,
+// and the stored error pointed at the prompt and the schema — both correct.
+//
+// So classify BEFORE validating, and split by whether waiting fixes it.
+// ---------------------------------------------------------------------------
+
+/** Quota/rate refusals: transient. The allowance refills on its own — the
+ *  2026-07-24 event cleared within the same session with no change. */
+const TRANSIENT_REFUSAL_PATTERNS = [
+  /you've hit (?:your|the)[^.]{0,40}limit/i,
+  /you have hit (?:your|the)[^.]{0,40}limit/i,
+  /usage limit reached/i,
+  /rate limit(?:ed)?/i,
+  /too many requests/i,
+  /try again (?:later|in a)/i,
+];
+
+/** Auth/billing refusals: permanent. No amount of waiting helps; a human has
+ *  to log in or add credit, so these must fail loudly and immediately. */
+const PERMANENT_REFUSAL_PATTERNS = [
+  /not logged in/i,
+  /please run \/login/i,
+  /invalid api key/i,
+  /authentication (?:failed|error)/i,
+  /credit balance is too low/i,
+];
+
+/** Longest reply still considered "a refusal sentence" rather than content.
+ *  Real job output is a JSON object several hundred characters minimum. */
+const REFUSAL_MAX_LENGTH = 600;
+
+/** Returns `{ kind: "transient"|"permanent", message }` when the CLI refused
+ *  outright, else `null`. Deliberately conservative: anything that parses as
+ *  JSON, or that opens like JSON, or that is long enough to be real output,
+ *  is never a refusal — a false positive here would requeue or kill a job
+ *  whose reply was merely malformed, which is what the repair retry is for. */
+function detectCliRefusal(text) {
+  const trimmed = (text ?? "").trim();
+  if (!trimmed || trimmed.length > REFUSAL_MAX_LENGTH) return null;
+  if (trimmed.startsWith("{") || trimmed.startsWith("[")) return null;
+  if (tryParseJson(trimmed) !== undefined) return null;
+
+  const message = trimmed.replace(/\s+/g, " ").slice(0, 200);
+  for (const pattern of PERMANENT_REFUSAL_PATTERNS) {
+    if (pattern.test(trimmed)) return { kind: "permanent", message };
+  }
+  for (const pattern of TRANSIENT_REFUSAL_PATTERNS) {
+    if (pattern.test(trimmed)) return { kind: "transient", message };
+  }
+  return null;
 }
 
 // ---------------------------------------------------------------------------
@@ -452,8 +525,13 @@ function runClaudeProcess(db, job, prompt) {
       const effort = EFFORT_BY_KIND[job.kind] ?? DEFAULT_EFFORT;
       child = spawn(
         CLAUDE_BIN,
+        // `--include-partial-messages` is what makes the streaming below
+        // real. Without it `stream-json` frames only *complete* messages:
+        // measured, init at 0.54s, then silence, then the entire reply as one
+        // `assistant` event at 9.52s — so the progress accumulator stayed
+        // empty for 88% of every run and the ~2s sync had nothing to write.
         // prettier-ignore
-        ["-p", "--model", CLAUDE_MODEL, "--effort", effort, "--output-format", "stream-json", "--verbose"],
+        ["-p", "--model", CLAUDE_MODEL, "--effort", effort, "--output-format", "stream-json", "--include-partial-messages", "--verbose"],
         { stdio: ["pipe", "pipe", "pipe"] },
       );
     } catch (err) {
@@ -463,14 +541,26 @@ function runClaudeProcess(db, job, prompt) {
 
     let stdoutBuf = "";
     let stderrBuf = "";
-    let accumulatedText = "";
+    // Two accumulators, deliberately separate. `deltaText` is the progressive
+    // one, fed by `stream_event` deltas; `assistantText` is the authoritative
+    // one, fed by complete `assistant` events. With partial messages enabled
+    // BOTH arrive for the same content — the deltas during, the whole message
+    // at the end — so appending to a single buffer would double every reply.
+    // Progress reads the deltas; the job's result reads the complete message.
+    let deltaText = "";
+    let assistantText = "";
     let finalResultText = null;
     let sawAnyOutput = false;
     let loggedStreaming = false;
     let lastSyncedText = null;
     let settled = false;
 
+    /** What to show as in-progress output: the deltas while they're the only
+     *  thing available, the complete message once it lands. */
+    const progressText = () => deltaText || assistantText;
+
     const syncPartial = async () => {
+      const accumulatedText = progressText();
       if (accumulatedText === lastSyncedText || accumulatedText === "") return;
       lastSyncedText = accumulatedText;
       if (!loggedStreaming) {
@@ -508,10 +598,22 @@ function runClaudeProcess(db, job, prompt) {
         } catch {
           continue; // non-JSON line — ignore rather than fail the job
         }
-        if (event.type === "assistant" && Array.isArray(event.message?.content)) {
+        if (event.type === "stream_event") {
+          // Progressive text, one delta at a time (`--include-partial-messages`).
+          // Anything that isn't a text delta — thinking, tool blocks, block
+          // start/stop — is not part of the reply and is skipped.
+          const inner = event.event;
+          if (
+            inner?.type === "content_block_delta" &&
+            inner.delta?.type === "text_delta" &&
+            typeof inner.delta.text === "string"
+          ) {
+            deltaText += inner.delta.text;
+          }
+        } else if (event.type === "assistant" && Array.isArray(event.message?.content)) {
           for (const block of event.message.content) {
             if (block?.type === "text" && typeof block.text === "string") {
-              accumulatedText += block.text;
+              assistantText += block.text;
             }
           }
         } else if (event.type === "result") {
@@ -546,7 +648,16 @@ function runClaudeProcess(db, job, prompt) {
         });
         return;
       }
-      resolve({ spawnFailed: false, accumulatedText, finalResultText, code, stderr: stderrBuf });
+      // `accumulatedText` keeps its old meaning for callers: the best
+      // available full reply. Prefer the complete assistant message; fall
+      // back to the concatenated deltas if the process died before it landed.
+      resolve({
+        spawnFailed: false,
+        accumulatedText: assistantText || deltaText,
+        finalResultText,
+        code,
+        stderr: stderrBuf,
+      });
     });
 
     child.stdin.write(prompt, "utf8");
@@ -616,6 +727,72 @@ async function setError(db, jobId, message) {
   return true;
 }
 
+/** Requeue counts per job id, for rate-limit refusals only. In memory on
+ *  purpose: `generation_jobs` has no attempts column, and a restart
+ *  forgiving the count is the right default — the operator restarting the
+ *  daemon is usually the operator who just fixed the reason. */
+const refusalRequeues = new Map();
+
+/** Set by a transient refusal; the poll loop won't claim before it. */
+let claimPausedUntil = 0;
+
+/** A quota refusal is not the job's fault, so don't burn it. Put the row back
+ *  to `queued` and stop claiming for a while. Returns whether the row was
+ *  written — same contract as setError/finalizeSuccess: `false` means the row
+ *  is stranded in `running` and the caller must not report success. */
+async function requeueAfterRateLimit(db, job, message, attempt) {
+  const cooldownMs = RATE_LIMIT_COOLDOWNS_MS[Math.min(attempt - 1, RATE_LIMIT_COOLDOWNS_MS.length - 1)];
+  claimPausedUntil = Date.now() + cooldownMs;
+
+  const { error } = await db
+    .from("generation_jobs")
+    .update({ status: "queued", error: null, updated_at: new Date().toISOString() })
+    .eq("id", job.id);
+  if (error) {
+    logError(
+      `job ${job.id} hit a usage limit and could not be requeued — row is stuck in 'running': ` +
+        `${describeDbError(error)}. Original refusal: ${message}`,
+    );
+    return false;
+  }
+
+  logWarn(
+    `job ${job.id} requeued after a usage limit (attempt ${attempt}/${MAX_RATE_LIMIT_REQUEUES}); ` +
+      `pausing claims for ${Math.round(cooldownMs / 60000)}min. CLI said: ${message}`,
+  );
+  return true;
+}
+
+/** Routes a detected refusal. Permanent ones die immediately with the real
+ *  reason; transient ones are requeued until the bound is reached, then
+ *  errored with a message that still names the cause rather than pretending
+ *  the model emitted bad JSON. */
+async function handleRefusal(db, job, refusal) {
+  if (refusal.kind === "permanent") {
+    refusalRequeues.delete(job.id);
+    logError(
+      `job ${job.id}: the claude CLI refused and waiting will not fix it — "${refusal.message}". ` +
+        `Check that the CLI is logged in as the user running this agent ` +
+        `(\`claude -p "say hi"\` in a terminal) before re-queuing.`,
+    );
+    return await setError(db, job.id, `claude CLI unavailable: ${refusal.message}`);
+  }
+
+  const attempt = (refusalRequeues.get(job.id) ?? 0) + 1;
+  refusalRequeues.set(job.id, attempt);
+
+  if (attempt <= MAX_RATE_LIMIT_REQUEUES) {
+    return await requeueAfterRateLimit(db, job, refusal.message, attempt);
+  }
+
+  refusalRequeues.delete(job.id);
+  return await setError(
+    db,
+    job.id,
+    `claude usage limit not cleared after ${MAX_RATE_LIMIT_REQUEUES} requeues: ${refusal.message}`,
+  );
+}
+
 /** Returns whether the row actually reached `done`. Post-processing is
  *  best-effort and deliberately does not affect that answer — but it is
  *  skipped entirely when the `done` write failed: inserting tips against a
@@ -635,6 +812,9 @@ async function finalizeSuccess(db, job, data) {
     );
     return false;
   }
+  // Terminal and happy — this job will never be requeued again, so stop
+  // tracking it (the map would otherwise grow for the daemon's lifetime).
+  refusalRequeues.delete(job.id);
   await runPostProcessing(db, job, data);
   return true;
 }
@@ -770,6 +950,13 @@ async function processJob(db, job) {
   if (!spawnRes.ok) return spawnRes.persisted; // already errored inside
 
   const text1 = extractFinalText(spawnRes);
+  // Before validating: did the CLI answer at all? A refusal is prose, so it
+  // fails JSON.parse exactly like a malformed reply would — but the repair
+  // retry that exists for malformed replies cannot fix a quota, and firing
+  // it spends another request against the limit that just refused.
+  const refusal1 = detectCliRefusal(text1);
+  if (refusal1) return await handleRefusal(db, job, refusal1);
+
   const parsed1 = validateOutput(job.kind, text1);
   if (parsed1.success) {
     const persisted = await finalizeSuccess(db, job, parsed1.data);
@@ -785,6 +972,12 @@ async function processJob(db, job) {
   if (!spawnRes2.ok) return spawnRes2.persisted;
 
   const text2 = extractFinalText(spawnRes2);
+  // The limit can equally be reached *during* a legitimate repair — first
+  // reply genuinely malformed, retry refused. Same handling: the job is
+  // recoverable and shouldn't be recorded as a contract failure.
+  const refusal2 = detectCliRefusal(text2);
+  if (refusal2) return await handleRefusal(db, job, refusal2);
+
   const parsed2 = validateOutput(job.kind, text2);
   if (parsed2.success) {
     const persisted = await finalizeSuccess(db, job, parsed2.data);
@@ -851,6 +1044,22 @@ async function main() {
     if (shuttingDown) {
       log("shutdown complete, exiting.");
       process.exit(0);
+    }
+
+    // A usage limit pauses claiming rather than the daemon: without this the
+    // loop pulls the next queued job straight into the same refusal, so one
+    // limit event burns the whole queue instead of waiting it out.
+    const pauseRemainingMs = claimPausedUntil - Date.now();
+    if (pauseRemainingMs > 0) {
+      if (once) {
+        logError(
+          `--once: paused for ${Math.round(pauseRemainingMs / 1000)}s after a usage limit, so no ` +
+            `job was processed. The job was returned to the queue. Exiting 1.`,
+        );
+        process.exit(1);
+      }
+      await sleepInterruptible(Math.min(pauseRemainingMs, pollIntervalMs), () => shuttingDown);
+      continue;
     }
 
     let job = null;

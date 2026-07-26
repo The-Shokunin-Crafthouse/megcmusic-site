@@ -359,7 +359,13 @@ export function StoryboardResult({
     if (regenBusy) return;
     setActiveRegen({ type: "titles" });
     createJob.mutate(
-      { kind: "titles", input: { idea, previousTitles: titleOptions.map((t) => t.title) } },
+      {
+        kind: "titles",
+        // `frames` matters: without it the daemon's {{FRAMES}} placeholder
+        // resolves to `[]` and fresh titles are written from the idea string
+        // alone. The failure was invisible because the job still succeeded.
+        input: { idea, frames, previousTitles: titleOptions.map((t) => t.title) },
+      },
       {
         onSuccess: (result) => setActiveJobId(result.id),
         onError: () => setActiveRegen(null),
