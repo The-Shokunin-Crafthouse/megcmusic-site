@@ -28,6 +28,9 @@ coverage/
 playwright-report/
 test-results/
 
+# stray output from ad-hoc screenshot tooling when its dest var is unset
+/undefined/
+
 # env files — never commit
 .env
 .env.*
