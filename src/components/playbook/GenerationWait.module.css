@@ -14,6 +14,17 @@
   height: 28px;
 }
 
+/* The bars are a CSS animation, not a framer-motion keyframe loop.
+   Framer starts a keyframe animation on mount; when this component mounts
+   into a subtree that a `pickRevealRise` CSS animation is still holding at
+   its from-state (the idea screen swaps its content block in under a live
+   `[data-pick-reveal]` cascade), the animation is never started and every
+   bar sits frozen on the first keyframe — measured `scaleY(0.3)` with
+   `getAnimations()` empty, while the identical component on the
+   generating screen ran normally. A declarative CSS animation has no
+   mount-timing dependency, costs no main-thread work, and matches how the
+   rest of this codebase draws its indeterminate loops (`micPulse`,
+   `framePulse`). */
 .bar {
   display: block;
   width: 4px;
@@ -21,12 +32,48 @@
   border-radius: var(--pb-radius-pill);
   background: var(--pb-teal);
   transform-origin: bottom;
+  animation: equalizerBar 900ms ease-in-out infinite;
 }
 
+.bar:nth-child(2) {
+  animation-delay: 120ms;
+}
+
+.bar:nth-child(3) {
+  animation-delay: 240ms;
+}
+
+.bar:nth-child(4) {
+  animation-delay: 360ms;
+}
+
+@keyframes equalizerBar {
+  0%,
+  100% {
+    transform: scaleY(0.3);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+/* Reduced motion keeps the shape and the "something is happening" read
+   without the loop — a static, evenly-weighted level meter. */
+@media (prefers-reduced-motion: reduce) {
+  .bar {
+    animation: none;
+    transform: scaleY(0.6);
+  }
+}
+
+/* The single status line for a running job — it carries the job's own
+   label while queued and the live stage copy once running, so it takes the
+   teal the separate caption above it used to have. */
 .stageText {
   margin: 0;
   font-size: var(--pb-text-sm);
-  color: var(--pb-text-muted);
+  color: var(--pb-teal);
+  text-align: center;
 }
 
 .errorText {

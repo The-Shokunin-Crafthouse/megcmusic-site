@@ -20,6 +20,14 @@
   color: var(--pb-white);
 }
 
+/* A titled group inside the screen's own `.stack` — carries none of that
+   container's padding, background or viewport floor. */
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--pb-space-tight);
+}
+
 .rows {
   display: flex;
   flex-direction: column;

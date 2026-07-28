@@ -107,6 +107,7 @@ export function LibraryTakeover({ isOpen, onClose }: LibraryTakeoverProps) {
   const [view, setView] = useState<View>({ kind: "list" });
   const [direction, setDirection] = useState<StackDirection>("forward");
   const startCreation = usePlaybookStore((s) => s.startCreation);
+  const resumeDraft = usePlaybookStore((s) => s.resumeDraft);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const openerRef = useRef<HTMLElement | null>(null);
 
@@ -175,6 +176,13 @@ export function LibraryTakeover({ isOpen, onClose }: LibraryTakeoverProps) {
     startCreation();
   }
 
+  function handleResumeDraft() {
+    onClose();
+    // `resumeDraft` sets the phase itself (idea or the question she left
+    // off on); `startCreation` would force it back to the idea screen.
+    resumeDraft();
+  }
+
   function handleUseAsNewIdea(seedIdea: string) {
     onClose();
     startCreation(seedIdea);
@@ -199,7 +207,11 @@ export function LibraryTakeover({ isOpen, onClose }: LibraryTakeoverProps) {
 
         <StackNavigator screenKey={screenKey} direction={direction}>
           {view.kind === "list" ? (
-            <LibraryScreen onOpen={openStoryboard} onStartIdea={handleStartIdea} />
+            <LibraryScreen
+              onOpen={openStoryboard}
+              onStartIdea={handleStartIdea}
+              onResumeDraft={handleResumeDraft}
+            />
           ) : storyboardQuery.isLoading ? (
             <DetailSkeleton />
           ) : storyboardQuery.isError ? (

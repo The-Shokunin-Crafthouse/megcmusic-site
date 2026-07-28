@@ -111,8 +111,16 @@ export function CreationFlow({ renderStoryboard }: CreationFlowProps) {
     content = (
       <div className={shared.screen}>
         <div className={shared.content}>
-          <p className={styles.waitLabel}>Building your storyboard&hellip;</p>
-          <GenerationWait status={status} onRetry={handleRetryStoryboard}>
+          {/* One status display, not two: the job's own label and the live
+              stage copy share a single line inside `GenerationWait` (it
+              shows "Building your storyboard…" while queued and the stage
+              copy once running), so the screen no longer carries a static
+              caption above a second, separately-updating one. */}
+          <GenerationWait
+            status={status}
+            label="Building your storyboard…"
+            onRetry={handleRetryStoryboard}
+          >
             {(() => {
               const tail = getPartialTail(storyboardJob.data?.output);
               return tail ? <p className={styles.partialText}>{tail}</p> : null;

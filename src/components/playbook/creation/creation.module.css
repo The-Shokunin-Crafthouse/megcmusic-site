@@ -107,6 +107,37 @@
   opacity: 0.5;
 }
 
+/* The primary action on a creation screen, matched to the first-run
+   "Let's look around" button (FirstRun.module.css `.cta`) at Levi's
+   direction: same filled cream pill, same ink, same 44px floor, same
+   tap-scale spring. Comp 155:1207 draws this as an outline pill and the
+   2026-07-22 reconcile matched it; the filled treatment supersedes that
+   for the flow's primary button so the first button she ever pressed and
+   every "go" button after it are one control. `.pillButton` stays as the
+   outline variant — the post-save confirmation and "Use as new idea" are
+   secondary and still use it. */
+.ctaButton {
+  composes: focusable;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--mc-touch-target);
+  border: none;
+  border-radius: var(--pb-radius-pill);
+  background: var(--pb-cta-bg);
+  color: var(--pb-cta-ink);
+  padding: var(--pb-space-card) var(--pb-space-content);
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  line-height: var(--pb-space-card);
+  white-space: nowrap;
+}
+
+.ctaButton[aria-disabled="true"],
+.ctaButton:disabled {
+  opacity: 0.5;
+}
+
 /* Comp 157:78 ("Make it better"): a 48px-tall borderless target with no
    horizontal padding — same 16px vertical rhythm as .pillButton so the two
    sit on one baseline in the button row. */

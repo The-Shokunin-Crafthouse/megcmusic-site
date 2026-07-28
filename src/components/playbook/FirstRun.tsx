@@ -108,7 +108,7 @@ export function FirstRun() {
           <div className={styles.markWrap} aria-hidden="true">
             <img
               className={styles.mark}
-              src="/images/hero/logo-pick.svg"
+              src="/images/playbook/pick-mark.svg"
               alt=""
               width={96}
               height={96}

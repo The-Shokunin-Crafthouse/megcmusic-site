@@ -8,17 +8,27 @@
  * Meta row: "N frames / <date> / <posting window first clause>" per the
  * spec — the list route selects `posting_window` (superset extension,
  * studio learning #60); rows saved without one just show the two fields.
+ *
+ * Drafts sit above the saved list in their own section. A draft is not a
+ * storyboard — it has no frames, no title and no row in `storyboards` — so
+ * it cannot be folded into that list without lying about what it is; and
+ * leaving it out entirely made an unfinished idea reachable only by
+ * re-opening the creation flow and noticing a row there. The store models
+ * exactly one draft at a time, so this section is one row or nothing.
  */
 
 import { TapScale } from "../motion/TapScale";
 import { Staggered } from "../motion/Staggered";
 import { StarDivider } from "../screens/shared/StarDivider";
+import { usePlaybookStore, hasResumableDraft } from "../store";
 import { useStoryboardsList, type StoryboardListItem } from "../useStoryboards";
 import styles from "./LibraryScreen.module.css";
 
 export interface LibraryScreenProps {
   onOpen: (id: string) => void;
   onStartIdea: () => void;
+  /** Re-enters the creation flow where the saved draft left off. */
+  onResumeDraft: () => void;
 }
 
 function formatDate(iso: string): string {
@@ -62,12 +72,63 @@ function LibraryRow({ item, onOpen }: LibraryRowProps) {
   );
 }
 
-export function LibraryScreen({ onOpen, onStartIdea }: LibraryScreenProps) {
+function DraftRow({ onResume }: { onResume: () => void }) {
+  const ideaDraft = usePlaybookStore((s) => s.ideaDraft);
+  const questions = usePlaybookStore((s) => s.questions);
+  const questionIndex = usePlaybookStore((s) => s.questionIndex);
+  const draftPhase = usePlaybookStore((s) => s.draftPhase);
+  const draftSavedAt = usePlaybookStore((s) => s.draftSavedAt);
+
+  const resumable = hasResumableDraft({
+    ideaDraft,
+    questions,
+    questionIndex,
+    draftPhase,
+    draftSavedAt,
+    answers: {},
+  });
+  if (!resumable) return null;
+
+  const title = ideaDraft.trim() || "Untitled idea";
+  const position =
+    draftPhase === "questions" && questions.length > 0
+      ? `question ${Math.min(questionIndex, questions.length - 1) + 1} of ${questions.length}`
+      : "not started yet";
+
+  return (
+    <div className={styles.section}>
+      <p className={styles.eyebrow}>Drafts</p>
+      <TapScale
+        as="div"
+        className={styles.row}
+        onClick={onResume}
+        ariaLabel={`${title} — pick up where you left off`}
+      >
+        <p className={styles.rowTitle}>{title}</p>
+        <p className={styles.rowMeta}>
+          <span>In progress</span>
+          <span className={styles.slash}> / </span>
+          <span>{position}</span>
+          {draftSavedAt ? (
+            <>
+              <span className={styles.slash}> / </span>
+              <span>{formatDate(draftSavedAt)}</span>
+            </>
+          ) : null}
+        </p>
+      </TapScale>
+    </div>
+  );
+}
+
+export function LibraryScreen({ onOpen, onStartIdea, onResumeDraft }: LibraryScreenProps) {
   const listQuery = useStoryboardsList();
   const items = listQuery.data ?? [];
 
   return (
     <div className={styles.stack}>
+      <DraftRow onResume={onResumeDraft} />
+
       <p className={styles.eyebrow}>Storyboards</p>
 
       {listQuery.isLoading ? (
