@@ -73,3 +73,23 @@
 **What shipped:** search filtering the active tab live (with a written empty-search state), numbered pagination with a 20/50/100 page-size dropdown (keyboard-operable, five states), per-show add-to-calendar via `add-to-calendar-button`, persistent site chrome with the full-screen portrait backdrop extended to `/shows`, and the mobile treatment (Menu overlay, lazy-load, search-as-icon).
 
 **Scope reversals (logged in decisions.md):** search and numbered pagination — anti-defaults in Sprint 4 — reversed by live directive; the full archive now loads at build, retiring the `/api/shows/past` proxy and "Show more" append.
+
+---
+
+## Sprint 10 — Megs Playbook Redesign (iOS-feel PWA + Claude generation daemon)
+**Build merged:** 2026-07-23 → 2026-07-26 (PRs #46, #57, #58, #59, #61, #62, #63)
+**Go-live + Gate-3 verification pass:** 2026-07-28
+**Status at close: Gate 3 FAIL — one measured failure (LCP) and three items needing hardware.**
+
+**What shipped:** `/megs-playbook` rebuilt from a static rules document into a mobile-first installable PWA — four surfaces (Home, Stats, Booking, Checklist), a guided AI creation flow entered from the corner pick, a storyboard library, and a local-Mac Claude daemon (`agent/playbook-agent.mjs`) that runs generation under Meghan's own subscription via a Supabase job queue. Motion runs Systemic Restraint everywhere except the creation take-over, which runs Cinematic Direction by direction (ADR 2026-07-22).
+
+**What the go-live pass found and fixed.**
+
+1. **Nothing had ever been live.** Every Production Deploy since PR #46 (2026-07-23) failed at a `npm ci` step that sat in front of a remote Vercel build — ten consecutive red runs across five days, invisible because local installs and PR previews both stayed green and a failed post-merge deploy raises no red check on any PR. Fixed by regenerating the lockfile for npm 10 and deleting the dead preflight step (PR #66, ADR 2026-07-28). The learning-#94 shape, at the deploy tier.
+2. **Tips were never seeded.** The live `tips` table held 3 `post_derived` rows and none of the 210 reviewed seeds. Seeded and verified at the destination: 52/42/42/42/32 per surface, 213 total.
+3. **First CWV measurement failed both budgets.** CLS 0.394 (all of it Home's in-flow skeletons re-flowing when data lands) — fixed to 0 by rendering the boot column out of flow (PR #67, learning #54). LCP 6.8s — architectural, surfaced as an owner scope call rather than absorbed (ADR 2026-07-28).
+4. **The daemon round-trip is real.** A production `questions` job was claimed by the LaunchAgent on Meghan's Mac and completed `queued → streaming → done` with no error — closing the item the 2026-07-12 verification listed as unverifiable.
+
+**Key decisions:** see `decisions/decisions.md` — the Sprint-10 architecture ADR (2026-07-12), the LaunchDaemon → LaunchAgent correction (2026-07-24), model/effort pinning (2026-07-24), the three deferred daemon fixes taken (2026-07-26), the chosen-title read loop (2026-07-26), and the two 2026-07-28 go-live entries above.
+
+**Open at close (each needs something this session could not reach):** the LCP scope call (Levi); the installed-PWA walk on a physical iPhone (Meghan's phone); a real VoiceOver spot-check (interactive session); daemon reboot survival (access to Meghan's Mac); and — surfaced, not fixed — production deploys still send no failure notification, which is what turned a one-line lockfile problem into a five-day outage.
