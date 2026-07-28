@@ -555,6 +555,17 @@ When the email-to-create-event feature is built, the venue handling must auto-cr
 
 **Still open — 4a launch gate (NOT resolved here; needs owner decision + live transaction).** `checkout.ts` still carries an internal origin split: `STORE_API=https://megcmusic.com`, `LIVE_CHECKOUT_URL=https://www.megcmusic.com` (apex vs www). Aligning these + the Vercel-front/WP-back host split (line 468 open item) + one real cart→Woo→PayPal transaction from the staging domain is a scope/money/live-service call — surfaced to Levi, not decided unilaterally.
 
+## 2026-07-13 — Newsletter → Mailchimp live signup verified (closes the 2026-07-04 "needs a live test" follow-up)
+**Stage:** 03-build
+**Type:** Verification
+**Status:** accepted
+
+**Context.** The 2026-07-04 Phase-2 homepage entry shipped the Newsletter section wired to Mailchimp via the classic JSONP subscribe endpoint but flagged as a consequence: "a real Mailchimp signup needs a live test." No app-level Mailchimp MCP exists for audience/subscriber management (the only registry connector, Intuit Mailchimp, covers campaign authoring only), so verification was done directly against the live form.
+**Decision.** Live-tested against production (`megcmusic.com`): submitted a real email through the on-page form twice. First attempt (name containing parentheses) returned Mailchimp's own validation error verbatim ("Please be sure that name fields use alphanumeric characters..."), confirming the request reaches Mailchimp's real API rather than failing silently. Second attempt with a clean name returned `result:"success"` and the form's success state ("You're on the list — see you at a show soon."). The JSONP → Mailchimp audience wiring is confirmed working end-to-end in production.
+**Rationale.** Only a real submission against the live audience proves the integration; Mailchimp's own error/success responses are the authoritative signal, not just the client-side state transition.
+**Alternatives considered.** Connecting the Intuit Mailchimp MCP — rejected, its tools address campaign creation, not audience/signup verification, so it would not have tested anything.
+**Consequences.** The 2026-07-04 open follow-up is closed. One real test subscriber (`levi@levibahn.com`) now sits in Meg's live audience — Levi may want to remove or tag it as internal/test.
+
 ## 2026-07-05 — Launch domain architecture: single WP-origin env (`NEXT_PUBLIC_WP_ORIGIN`)
 
 **Context.** 4a launch gate. Confirmed target architecture (Levi, 2026-07-05): the new Next site TAKES the public `megcmusic.com` (apex + www) on Vercel; WordPress + WooCommerce + The Events Calendar (Bluehost) move to their own subdomain — Meghan's admin/edit surface (planned `admin.megcmusic.com`). WP stays the source of all content, catalogue, events, and checkout. The old model (WP at the apex, Next on a Vercel preview) had the WP host wired as a hardcoded/per-file constant in ~13 places — flipping it meant editing 13 files, and once the Next site owns the apex, every `megcmusic.com/wp-json/…` REST call and every `www.megcmusic.com/<wp-page>` outbound link would recursively resolve to the Next site itself (broken data + dead links).
