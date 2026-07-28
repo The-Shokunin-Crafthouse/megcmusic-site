@@ -141,6 +141,36 @@ export function HomeScreen({ onOpenLibrary }: HomeScreenProps) {
     usePlaybookStore.getState().startCreation();
   }
 
+  // Every block below is sized by data that is still in flight on first
+  // paint, and the shaped skeletons stand in at a fraction of the height
+  // their content lands at (Next Post: 150px placeholder, ~490px real), so
+  // painting them in flow means the whole column jumps when the queries
+  // resolve together — measured CLS 0.33-0.39 against a 0.1 budget, the
+  // entire score from this one screen. Per studio learning #54 the boot
+  // state renders OUT of flow (`.bootLayer`, absolutely positioned inside
+  // the relatively-positioned `.stack`) and the real column mounts at its
+  // final position: content appearing where nothing was displaces nothing,
+  // so the shift is zero rather than merely smaller. Reserving heights
+  // instead was rejected — the copy is variable-length, so any reserved
+  // value is a guess that is wrong for most recommendations.
+  const isBooting =
+    dailyInsightQuery.isLoading ||
+    recommendationQuery.isLoading ||
+    postsQuery.isLoading;
+
+  if (isBooting) {
+    return (
+      <div className={styles.stack}>
+        <div className={styles.bootLayer} aria-busy="true" aria-label="Loading your playbook">
+          <Skeleton height="5.5rem" />
+          <Skeleton height="9.375rem" />
+          <Skeleton height="9.375rem" />
+          <Skeleton height="5.5rem" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.stack}>
       <TipCard
