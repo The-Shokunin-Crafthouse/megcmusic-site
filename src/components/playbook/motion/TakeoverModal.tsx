@@ -31,6 +31,16 @@ import styles from "./TakeoverModal.module.css";
  *  a number, not a custom property, so the one value is read here. */
 const PICK_CORNER_SCALE = 0.0942873;
 
+/** How long the pick entrance's reveal choreography runs: the last beat
+ *  (`--pb-beat-exit`, 560ms) plus one `--pb-motion-reveal` (300ms).
+ *  `data-pick-reveal` is dropped after this, because the choreography is
+ *  the ENTRANCE — left on permanently it re-fires on every block that
+ *  mounts later (a question screen pushed by StackNavigator, or the idea
+ *  screen swapping its input block for the waiting block), holding fresh
+ *  content invisible at its `both` from-state for up to half a second
+ *  underneath a transition that is already narrating the change. */
+const PICK_REVEAL_MS = 560 + 300;
+
 interface TakeoverModalProps {
   isOpen: boolean;
   ariaLabel: string;
@@ -51,10 +61,29 @@ export function TakeoverModal({
 }: TakeoverModalProps) {
   const reducedMotion = useReducedMotion();
   const [container, setContainer] = useState<HTMLElement | null>(null);
+  // Armed on the very first render rather than in an effect: the cascade's
+  // whole job is to hold the screen at its from-state, so arming it a frame
+  // late would show one frame of the content it exists to hide. Reduced
+  // motion needs no branch here — the cascade's own media query already
+  // resolves it to `animation: none`.
+  const [revealing, setRevealing] = useState(() => isOpen);
 
   useEffect(() => {
     setContainer(document.body);
   }, []);
+
+  // The cascade is armed for one entrance and then disarmed, so content
+  // that mounts later gets whatever transition its own screen owns rather
+  // than replaying the entrance beats.
+  useEffect(() => {
+    if (!isOpen) {
+      setRevealing(false);
+      return;
+    }
+    setRevealing(true);
+    const timer = window.setTimeout(() => setRevealing(false), PICK_REVEAL_MS);
+    return () => window.clearTimeout(timer);
+  }, [isOpen]);
 
   if (!container) return null;
 
@@ -96,7 +125,10 @@ export function TakeoverModal({
                 screens' own blocks (see creation.module.css), keyed off
                 this attribute, so both take-over screens get the same
                 choreography without either knowing about it. */}
-            <div className={styles.pickContent} data-pick-reveal="true">
+            <div
+              className={styles.pickContent}
+              data-pick-reveal={revealing ? "true" : undefined}
+            >
               {children}
             </div>
           </motion.div>

@@ -55,11 +55,18 @@
   }
 }
 
-.restoreRow {
-  composes: focusable from "./creation.module.css";
+.restoreBlock {
   display: flex;
   align-items: center;
-  min-height: 44px;
+  gap: var(--pb-space-tight);
+}
+
+.restoreRow {
+  composes: focusable from "./creation.module.css";
+  flex: 1;
+  display: flex;
+  align-items: center;
+  min-height: var(--mc-touch-target);
   border: none;
   background: transparent;
   padding: 0;
@@ -67,6 +74,61 @@
   font-weight: 700;
   color: var(--pb-teal);
   text-align: left;
+}
+
+/* Dismissing the resume offer is its own control rather than the row's
+   own tap — the row now does the thing it names, so "not this time" needs
+   somewhere else to live. */
+.restoreDismiss {
+  composes: focusable from "./creation.module.css";
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--mc-touch-target);
+  height: var(--mc-touch-target);
+  border: none;
+  background: transparent;
+  color: var(--pb-text-muted);
+}
+
+/* ---- Dictation status + stop (spec §Screen 5 mic) ----
+   The pulsing ring alone was the only signal that dictation was live, and
+   the only way out was to find and re-tap the mic. A labelled Stop sits in
+   the content column where the eye already is. */
+.micStatus {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--pb-space-card);
+}
+
+.micStatusText {
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-teal);
+}
+
+.micStop {
+  composes: focusable from "./creation.module.css";
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: var(--mc-touch-target);
+  padding: 0 var(--pb-space-card);
+  border: none;
+  box-shadow: inset 0 0 0 1px var(--pb-cta-bg);
+  border-radius: var(--pb-radius-pill);
+  background: transparent;
+  font-size: var(--pb-text-2xs);
+  font-weight: 700;
+  color: var(--pb-cta-bg);
+}
+
+.micError {
+  margin: 0;
+  font-size: var(--pb-text-2xs);
+  color: var(--pb-accent-red);
 }
 
 .buttonRow {
@@ -79,13 +141,6 @@
   display: flex;
   flex-direction: column;
   gap: var(--pb-space-card);
-}
-
-.waitLabel {
-  margin: 0;
-  font-size: var(--pb-text-sm);
-  color: var(--pb-teal);
-  text-align: center;
 }
 
 /* ---- Make-it-better compare strip (specs.md §9.12) ---- */
@@ -147,9 +202,16 @@
 }
 
 /* Comp 155:1126 (the block under the title) starts at y=97; the card
-   itself sits 8px inside it at y=105. */
+   itself sits 8px inside it at y=105.
+
+   Height is written by the component (it grows to `scrollHeight` on every
+   change), so the shared `min-height` is the FLOOR the comp sets and
+   `overflow-y: hidden` keeps a stale one-frame value from flashing a
+   scrollbar. Nothing nests a scroll inside this card any more — a
+   sharpened idea makes the card taller instead of hiding its own tail. */
 .ideaCard {
   margin-top: var(--pb-space-tight);
+  overflow-y: hidden;
 }
 
 /* The mic is secondary to the heading it sits beside, so it arrives on its

@@ -20,11 +20,24 @@
   overflow-y: auto;
 }
 
+/* The welcome mark is the same pick + bulb lockup as the bottom-left idea
+   entry she is about to meet — the bulb sits INSIDE the pick body, not
+   pinned to the outside of its bounding box. This screen was built before
+   the 2026-07-22 reconcile and kept its own ad-hoc pairing (the public
+   site's plum `logo-pick.svg` with the glyph hung off the corner at
+   -4/-4), so it read as two marks that happened to be near each other.
+   The corner instance's own geometry can't be reused literally — that one
+   is a viewport-sized clipped layer that grows into the take-over ground
+   (`PickLockup`), and this is a 96px badge — so this is the same two
+   parts composed at badge scale, using the comp's own export. */
 .markWrap {
   position: relative;
   width: 96px;
   height: 96px;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .mark {
@@ -32,14 +45,17 @@
   height: 100%;
 }
 
+/* Centred across the pick and set below its midline, where the silhouette
+   is still full width — the widest part of the body, so the glyph is
+   comfortably inside the shape rather than riding an edge. */
 .lightbulb {
   position: absolute;
-  right: -4px;
-  bottom: -4px;
-  width: 24px;
-  height: 24px;
-  color: var(--pb-teal);
-  filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.4));
+  left: 50%;
+  top: 52%;
+  width: 30px;
+  height: 30px;
+  transform: translate(-50%, -50%);
+  color: var(--pb-cta-bg);
 }
 
 .headline {

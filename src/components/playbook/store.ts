@@ -11,13 +11,24 @@
  *     generating → storyboard`, driven by StackNavigator (P4 wires the
  *     screens; this store only owns the state transitions).
  *
- * Only the *draft* slice (`ideaDraft` + `answers`) persists to
- * localStorage, via `persist`'s `partialize` — everything else
- * (activeTab, phase, jobId, live question list, storyboard result) is
- * session-only and resets on reload. That's what makes "Exit → confirm →
- * save draft" work: closing the take-over and reopening later restores
- * what Meg typed/selected without resurrecting a stale job id or a
- * finished-but-abandoned storyboard.
+ * The *draft* slice persists to localStorage via `persist`'s `partialize`;
+ * `activeTab`, `jobId` and the finished storyboard stay session-only and
+ * reset on reload. That's what makes "Exit → confirm → save draft" work:
+ * closing the take-over and reopening later restores where she was without
+ * resurrecting a stale job id or a finished-but-abandoned storyboard.
+ *
+ * The draft slice carries the QUESTION SET and the position in it, not
+ * just the typed idea. It originally held `ideaDraft` + `answers` alone,
+ * which made "Pick up where you left off" structurally unable to do what
+ * it says: the answers survived, but the questions they belonged to did
+ * not, so the only reachable state was the idea screen with the text
+ * refilled and every answer stranded. Nothing is stored server-side —
+ * `generation_jobs` rows hold a job's INPUT and OUTPUT, never the
+ * in-progress answer map — so localStorage is the whole of a draft, and
+ * it has to hold everything needed to re-enter the flow.
+ *
+ * One draft at a time, by construction: this is a single slice, not a
+ * collection. That is what the Library's Drafts section reflects.
  */
 
 import { create } from "zustand";
@@ -40,6 +51,18 @@ interface DraftSlice {
    *  string[] / number / boolean), same looseness as the server contract
    *  (`answersSchema` in generation.ts) since this is client scratch state. */
   answers: Record<string, unknown>;
+  /** The generated question set the answers belong to. Persisted because
+   *  the answers are meaningless without it — regenerating would produce a
+   *  different set and orphan every answer she already gave. */
+  questions: Question[];
+  /** Index into `questions`. */
+  questionIndex: number;
+  /** Which screen she was on when she left, and so where resuming puts her
+   *  back. `null` means there is no resumable draft. */
+  draftPhase: "idea" | "questions" | null;
+  /** When the draft was last put down (ISO). Drives the Library row's meta
+   *  line; `null` for a draft that has never been exited. */
+  draftSavedAt: string | null;
 }
 
 interface PlaybookState extends DraftSlice {
@@ -49,9 +72,6 @@ interface PlaybookState extends DraftSlice {
 
   // ---- creation flow ----
   creationPhase: CreationPhase;
-  /** Index into `questions` for the question-page take-over (Screen 6). */
-  questionIndex: number;
-  questions: Question[];
   jobId: string | null;
   storyboard: StoryboardOutput | null;
 
@@ -63,6 +83,9 @@ interface PlaybookState extends DraftSlice {
   /** idle -> idea. Opens the creation take-over, seeded optionally (e.g.
    *  from Home's "Let's go!" recommendation). */
   startCreation: (seedIdea?: string) => void;
+  /** idle -> wherever the saved draft left off, question set and answers
+   *  intact. No-ops when there is no resumable draft. */
+  resumeDraft: () => void;
   /** idea -> questions. Stores the generated question set and rewinds to
    *  the first question. */
   advanceToQuestions: (questions: Question[]) => void;
@@ -83,7 +106,20 @@ interface PlaybookState extends DraftSlice {
 const initialDraft: DraftSlice = {
   ideaDraft: "",
   answers: {},
+  questions: [],
+  questionIndex: 0,
+  draftPhase: null,
+  draftSavedAt: null,
 };
+
+/** A draft is resumable once it has something to come back to: text she
+ *  typed, or a question set she started answering. */
+export function hasResumableDraft(state: DraftSlice): boolean {
+  return (
+    state.draftPhase !== null &&
+    (state.ideaDraft.trim().length > 0 || state.questions.length > 0)
+  );
+}
 
 export const usePlaybookStore = create<PlaybookState>()(
   persist(
@@ -93,8 +129,6 @@ export const usePlaybookStore = create<PlaybookState>()(
 
       ...initialDraft,
       creationPhase: "idle",
-      questionIndex: 0,
-      questions: [],
       jobId: null,
       storyboard: null,
 
@@ -111,6 +145,24 @@ export const usePlaybookStore = create<PlaybookState>()(
           creationPhase: "idea",
           ideaDraft: seedIdea ?? state.ideaDraft,
         })),
+
+      resumeDraft: () =>
+        set((state) => {
+          if (!hasResumableDraft(state)) return state;
+          if (state.draftPhase === "questions" && state.questions.length > 0) {
+            return {
+              creationPhase: "questions",
+              // Clamp: a persisted index can outrun a question set that
+              // was itself persisted at a different length (or trimmed by
+              // a schema change between releases).
+              questionIndex: Math.min(
+                state.questionIndex,
+                state.questions.length - 1,
+              ),
+            };
+          }
+          return { creationPhase: "idea" };
+        }),
 
       advanceToQuestions: (questions) =>
         set({
@@ -139,19 +191,22 @@ export const usePlaybookStore = create<PlaybookState>()(
           if (opts?.discardDraft) {
             return {
               creationPhase: "idle",
-              questionIndex: 0,
-              questions: [],
               jobId: null,
               storyboard: null,
               ...initialDraft,
             };
           }
+          // Keeping the draft means keeping the question set and the
+          // position in it, not just the text — that pair is what makes
+          // resuming land on the question she left off on.
+          const resumeAt: DraftSlice["draftPhase"] =
+            state.creationPhase === "questions" ? "questions" : "idea";
           return {
             creationPhase: "idle",
-            questionIndex: 0,
-            questions: [],
             jobId: null,
             storyboard: null,
+            draftPhase: resumeAt,
+            draftSavedAt: new Date().toISOString(),
           };
         }),
 
@@ -159,9 +214,28 @@ export const usePlaybookStore = create<PlaybookState>()(
     }),
     {
       name: "pb-creation-draft",
+      // Bumped from the implicit v0 because the persisted shape grew the
+      // question set and the resume position. A v0 payload has neither, so
+      // it migrates to "an idea-screen draft" rather than being read as a
+      // question-screen draft with an empty question list.
+      version: 1,
+      migrate: (persisted, version) => {
+        const prior = (persisted ?? {}) as Partial<DraftSlice>;
+        if (version >= 1) return prior as DraftSlice;
+        return {
+          ...initialDraft,
+          ideaDraft: prior.ideaDraft ?? "",
+          answers: prior.answers ?? {},
+          draftPhase: (prior.ideaDraft ?? "").trim() ? "idea" : null,
+        } as DraftSlice;
+      },
       partialize: (state) => ({
         ideaDraft: state.ideaDraft,
         answers: state.answers,
+        questions: state.questions,
+        questionIndex: state.questionIndex,
+        draftPhase: state.draftPhase,
+        draftSavedAt: state.draftSavedAt,
       }),
     },
   ),

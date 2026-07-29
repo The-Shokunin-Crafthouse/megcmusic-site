@@ -39,7 +39,7 @@
    uses elsewhere in this flow), so it can't express this soft-disabled
    pattern without being edited — out of this file's ownership. */
 .nextButton {
-  composes: pillButton from "./creation.module.css";
+  composes: ctaButton from "./creation.module.css";
 }
 
 .nextButton[aria-disabled="true"] {

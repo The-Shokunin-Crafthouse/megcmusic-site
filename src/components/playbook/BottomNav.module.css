@@ -3,10 +3,17 @@
    flat 0.7 (168x39.2, 28px circles, 16.8px glyphs), scaled about its own
    centre, which is what the scrolled state animates to. Frame-pinned,
    safe-area aware. */
+/* `max()`, not `16px + inset`. Stacking them anchors the pill to the top
+   of the home indicator and then adds the comp's 16px on top, so the
+   installed app parks the cluster 50px off the physical bottom while the
+   browser tab (where the toolbar makes the inset 0) parks it at 16px —
+   the same control sitting at two different heights depending on how the
+   app was launched. `max()` reads as "16px clear of the frame, and never
+   inside the home indicator": 16px in a tab, 34px installed. */
 .pill {
   position: fixed;
   right: 18px;
-  bottom: calc(16px + env(safe-area-inset-bottom));
+  bottom: max(16px, env(safe-area-inset-bottom));
   z-index: 60;
   transform-origin: center;
   display: flex;
@@ -155,7 +162,10 @@
 .cornerBulb {
   position: fixed;
   left: var(--pb-bulb-corner-left);
-  bottom: calc(var(--pb-bulb-corner-bottom) + env(safe-area-inset-bottom));
+  /* Same `max()` reasoning as `.pill` — the bulb is chrome that has to
+     clear the home indicator, but it must not stack the comp offset on
+     top of the inset and drift away from the wedge it sits in. */
+  bottom: max(var(--pb-bulb-corner-bottom), env(safe-area-inset-bottom));
   z-index: 56;
   width: var(--pb-bulb-size);
   height: var(--pb-bulb-size);

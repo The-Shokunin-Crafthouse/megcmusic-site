@@ -93,8 +93,31 @@
   color: var(--pb-cta-bg);
 }
 
+/* Disabled-because-busy still has to read as legible running copy, so the
+   pending state keeps its own weight rather than inheriting the generic
+   0.5 knockdown. */
 .freshTitles:disabled {
   opacity: 0.5;
+}
+
+.freshTitlesPending:disabled {
+  opacity: 1;
+}
+
+.spinning {
+  animation: freshTitlesSpin 900ms linear infinite;
+}
+
+@keyframes freshTitlesSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinning {
+    animation: none;
+  }
 }
 
 /* ---- Frame cards ---- */
@@ -287,20 +310,39 @@
   white-space: pre-line;
 }
 
-/* ---- Posting window ---- */
+/* ---- Posting window ----
+   The caption card and the window it recommends are one thought — "here is
+   the post, here is when to put it up" — so they close up to the tight
+   step instead of taking the full section gap that separates the screen's
+   major blocks. `align-items: flex-start` because this line wraps to three
+   on a real recommendation; centring pushed the glyph to the middle of the
+   paragraph. */
 .postingWindow {
-  margin: 0;
+  margin: calc(var(--pb-space-tight) - var(--pb-space-section)) 0 0;
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: var(--pb-space-micro);
   font-size: var(--pb-text-2xs);
   color: var(--pb-teal);
 }
 
-/* ---- Bottom action bar ---- */
+.postingWindow svg {
+  flex-shrink: 0;
+  /* Optical alignment to the first line's cap height. */
+  margin-top: 1px;
+}
+
+/* ---- Bottom action bar ----
+   `shared.content` ends with its own 24px bottom padding and this bar
+   opened with another 16px of its own, so the last line of the storyboard
+   and the button that acts on it were 40px apart with nothing in between.
+   The bar cancels the content's trailing padding and owns the whole step
+   itself, which also keeps the gap identical whether or not the content
+   above happens to end in a card. */
 .actionBar {
   flex-shrink: 0;
   width: 100%;
+  margin-top: calc(var(--pb-space-content) * -1);
   background: var(--pb-bg-takeover);
   padding: var(--pb-space-card) var(--pb-space-content);
   display: flex;

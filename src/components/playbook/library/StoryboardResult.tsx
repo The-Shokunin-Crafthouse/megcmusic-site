@@ -353,7 +353,12 @@ export function StoryboardResult({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [regenJob.data, activeJobId]);
 
-  const regenBusy = activeJobId !== null;
+  // `activeJobId` only lands once the POST has come back, so a regenerate
+  // is genuinely in flight for a beat before it sets. `activeRegen` is set
+  // synchronously on tap, so the pending state starts at the tap — which
+  // is the whole point of a pending state.
+  const regenBusy = activeJobId !== null || activeRegen !== null;
+  const titlesPending = activeRegen?.type === "titles";
 
   function handleFreshTitles() {
     if (regenBusy) return;
@@ -454,9 +459,10 @@ export function StoryboardResult({
           <div
             role="radiogroup"
             aria-label="Pick a title"
-            className={[styles.titleList, activeRegen?.type === "titles" ? styles.titlesPulsing : ""]
+            className={[styles.titleList, titlesPending ? styles.titlesPulsing : ""]
               .filter(Boolean)
               .join(" ")}
+            aria-busy={titlesPending || undefined}
           >
             <AnimatePresence initial={false}>
               {titleOptions.map((option, index) => (
@@ -477,16 +483,26 @@ export function StoryboardResult({
               ))}
             </AnimatePresence>
           </div>
+          {/* The only pending signal used to be a 0.6 dim on the list —
+              easy to miss, and it says nothing about which control caused
+              it. The button now states its own state: the icon spins and
+              the label says what is happening. */}
           {isCreation ? (
             <TapScale
               as="button"
-              className={styles.freshTitles}
+              className={[styles.freshTitles, titlesPending ? styles.freshTitlesPending : ""]
+                .filter(Boolean)
+                .join(" ")}
               onClick={handleFreshTitles}
               disabled={regenBusy}
-              ariaLabel="Fresh titles"
+              ariaLabel={titlesPending ? "Writing fresh titles" : "Fresh titles"}
             >
-              <ArrowsClockwise size={16} aria-hidden="true" />
-              Fresh titles
+              <ArrowsClockwise
+                size={16}
+                className={titlesPending ? styles.spinning : undefined}
+                aria-hidden="true"
+              />
+              {titlesPending ? "Writing fresh titles…" : "Fresh titles"}
             </TapScale>
           ) : null}
         </section>

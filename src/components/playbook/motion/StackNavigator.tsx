@@ -13,6 +13,16 @@
  * ("forward" | "back") set right before the key changes.
  *
  * Reduced motion: no transform — an instant opacity-only cross-cut.
+ *
+ * The outgoing screen fades all the way OUT rather than settling at the
+ * parallax dim. These screens have no background of their own — the
+ * take-over's ground is the pick lockup behind them — so an outgoing
+ * screen left at 0.82 opacity stays fully legible underneath the incoming
+ * one for the whole push. Measured on the question flow: both screens
+ * mounted for ~480ms with their headings overlapping across a ~270px band,
+ * which is the "content overlaps mid-transition" defect. Container opacity
+ * is the only lever that occludes here; painting a surface colour onto the
+ * screens would cover the pick ground the entrance ADR exists to preserve.
  */
 
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -36,7 +46,7 @@ const variants = {
   center: { x: "0%", opacity: 1 },
   exit: (direction: StackDirection) => ({
     x: direction === "forward" ? "-24%" : "100%",
-    opacity: direction === "forward" ? 0.82 : 1,
+    opacity: 0,
   }),
 };
 
@@ -67,7 +77,14 @@ export function StackNavigator({
           transition={
             reducedMotion
               ? REDUCED_MOTION_TRANSITION
-              : { x: stackNavigatorSpring, opacity: { duration: 0.22 } }
+              : {
+                  x: stackNavigatorSpring,
+                  // The outgoing screen has to be gone before the incoming
+                  // one has travelled far enough to read as two stacked
+                  // screens — 160ms clears it inside the first third of the
+                  // spring, while the parallax still reads.
+                  opacity: { duration: 0.16 },
+                }
           }
         >
           {children}

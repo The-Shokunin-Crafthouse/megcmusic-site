@@ -99,13 +99,25 @@
   will-change: transform;
 }
 
-/* The corner instance sits above page content but under the nav pill, and
-   offsets with the safe area the way the rest of the frame chrome does.
-   It also pins its own scale: a registered custom property always has a
-   value (the @property initial-value), so a `var(..., fallback)` never
-   reaches its fallback and the corner mark would render full-size. */
+/* The corner instance sits above page content but under the nav pill. It
+   also pins its own scale: a registered custom property always has a value
+   (the @property initial-value), so a `var(..., fallback)` never reaches
+   its fallback and the corner mark would render full-size.
+
+   No safe-area offset here, deliberately. This layer is the CLIP WINDOW,
+   and the wedge is artwork that bleeds off the bottom-left corner — its
+   transform-origin is `calc(100% + var(--pb-pick-anchor-below))`, i.e.
+   measured from the layer's own bottom edge. Insetting that edge by
+   `env(safe-area-inset-bottom)` therefore does two things at once: it
+   moves the origin up and it crops the window the wedge is drawn into, so
+   the mark is cut off along the bottom. That never showed in a browser tab
+   (with the toolbar drawn, the inset resolves to 0) and appeared the
+   moment the app was launched from the Home Screen, where a home-indicator
+   device reports 34px. Safe-area offsets belong on the interactive chrome
+   that must clear the indicator — the nav pill, the bulb, the tap target
+   (see BottomNav.module.css) — not on artwork that is supposed to run to
+   the physical edge. */
 .corner {
   --pb-pick-scale: var(--pb-pick-corner-scale);
   z-index: 55;
-  bottom: env(safe-area-inset-bottom);
 }

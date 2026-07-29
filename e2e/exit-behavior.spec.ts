@@ -38,10 +38,15 @@ test.describe("exit / draft behavior", () => {
     await expect(page.getByText("Leave this idea?")).toHaveCount(0);
     await expect(startIdea).toBeVisible();
 
-    // ---- reopen -> draft restore row + text present ----
+    // ---- reopen -> text restored, and NO resume row ----
+    // An idea-only draft is fully restored by the textarea itself, so the
+    // resume row has nothing to offer and does not appear. It used to
+    // render here with a handler that only dismissed itself; the row now
+    // means "re-enter the question you left off on" and is asserted in the
+    // question-draft test below.
     await startIdea.click();
-    await expect(page.getByRole("button", { name: "Pick up where you left off →" })).toBeVisible();
     await expect(ideaBox).toHaveValue(DRAFT_TEXT);
+    await expect(page.getByRole("button", { name: /^Pick up where you left off/ })).toHaveCount(0);
 
     // ---- exit -> Discard draft ----
     await exitBar.click();
@@ -53,6 +58,53 @@ test.describe("exit / draft behavior", () => {
     await startIdea.click();
     await expect(ideaBox).toBeVisible();
     await expect(ideaBox).toHaveValue("");
-    await expect(page.getByRole("button", { name: "Pick up where you left off →" })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^Pick up where you left off/ })).toHaveCount(0);
+  });
+
+  // A draft put down mid-questions has to come back mid-questions. Before
+  // the draft slice carried the question set, the answers survived in
+  // localStorage while the questions they belonged to did not, so the only
+  // reachable state was the idea screen with every answer stranded.
+  test("a draft saved mid-questions resumes at that question with its answers", async ({ page }) => {
+    const startIdea = page.getByRole("button", { name: "Start your own idea" });
+    const ideaBox = page.getByRole("textbox", { name: "Your idea" });
+    const exitBar = page.getByRole("button", { name: "Exit", exact: true });
+
+    await startIdea.click();
+    await ideaBox.fill(DRAFT_TEXT);
+    await page.getByRole("button", { name: /Generate\s+Storyboard/ }).click();
+
+    // q1 (multiselect) -> q2, so the draft is put down on a question that
+    // is neither the first nor the last.
+    const q1 = "Which vibes fit this idea best?";
+    const q2 = "What's the main goal for this post?";
+    await expect(page.getByText(q1).first()).toBeVisible();
+    await page.getByRole("button", { name: "Behind-the-scenes" }).click();
+    await page.getByRole("button", { name: "Next", exact: true }).click();
+    await expect(page.getByText(q2).first()).toBeVisible();
+    // The push mounts two screens (and so two Exit bars) until the
+    // outgoing one unmounts — wait for the stack to settle to one.
+    await expect(page.locator("h1")).toHaveCount(1);
+
+    await exitBar.click();
+    await page.getByRole("button", { name: "Save draft & exit" }).click();
+    await expect(startIdea).toBeVisible();
+
+    // ---- reopen -> the row names the question and lands on it ----
+    await startIdea.click();
+    const resume = page.getByRole("button", { name: /^Pick up where you left off/ });
+    await expect(resume).toBeVisible();
+    await expect(resume).toContainText("question 2 of 6");
+    await resume.click();
+    await expect(page.getByText(q2).first()).toBeVisible();
+
+    // ---- and the answer given before exiting is still selected ----
+    // Multiselect communicates its state through the filled/empty icon
+    // swap, so that is what the assertion reads.
+    await page.getByRole("button", { name: "Back", exact: true }).click();
+    await expect(page.getByText(q1).first()).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Behind-the-scenes" }).locator("[class*='rowIconChecked']"),
+    ).toHaveCount(1);
   });
 });
