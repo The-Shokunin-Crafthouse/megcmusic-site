@@ -14,7 +14,11 @@
  * without the vars present — a route only fails when it actually needs the DB.
  */
 
-import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import {
+  createClient,
+  type PostgrestError,
+  type SupabaseClient,
+} from "@supabase/supabase-js";
 
 let client: SupabaseClient | null = null;
 
@@ -33,4 +37,62 @@ export function appDb(): SupabaseClient {
     auth: { persistSession: false, autoRefreshToken: false },
   });
   return client;
+}
+
+/**
+ * PostgREST caps an unbounded `.select()` at its `max-rows` setting (1000 by
+ * default) and reports nothing — no error, no truncation flag — so a read that
+ * outgrows the cap silently returns a partial set and any aggregation over it
+ * is quietly wrong. Every read that can exceed 1000 rows must page explicitly.
+ */
+const PAGE_SIZE = 1000;
+
+/** The `{ data, error }` shape every supabase-js query resolves to. */
+type PageResult<T> = { data: T[] | null; error: PostgrestError | null };
+
+/**
+ * Exhaust a query by paging with `.range()` until a page comes back empty.
+ *
+ * `page(from, to)` must build a *fresh* query each call — a supabase-js builder
+ * is single-use — and must carry a stable sort (`.order("id", …)`), or rows can
+ * repeat or vanish across page boundaries as the server's ordering shifts.
+ *
+ * Advances by the number of rows actually returned rather than by PAGE_SIZE, so
+ * a server-side `max-rows` lower than PAGE_SIZE pages correctly instead of
+ * stopping one short page in. Costs one extra empty request per call.
+ *
+ * Returns the error rather than throwing, matching the supabase-js convention
+ * the route handlers already branch on (see studio learnings #84/#85).
+ * `rows` holds whatever was collected before the failure.
+ */
+export async function fetchAllPages<T>(
+  page: (from: number, to: number) => PromiseLike<PageResult<T>>,
+): Promise<{ rows: T[]; error: PostgrestError | null }> {
+  const rows: T[] = [];
+  for (let from = 0; ; ) {
+    const { data, error } = await page(from, from + PAGE_SIZE - 1);
+    if (error) return { rows, error };
+    const batch = data ?? [];
+    rows.push(...batch);
+    if (batch.length === 0) return { rows, error: null };
+    from += batch.length;
+  }
+}
+
+/**
+ * Max ids per `.in(...)` filter. PostgREST takes filters in the query string, so
+ * a single `.in()` over every actionable prospect grows the URL without bound —
+ * at ~39 bytes per quoted uuid, a few hundred ids already approach the common
+ * 8KB request-line limit and the query starts failing with a 414. Callers chunk
+ * the id list and merge the results.
+ */
+const ID_CHUNK_SIZE = 200;
+
+/** Split ids into `.in()`-sized chunks. Returns `[]` for an empty list. */
+export function chunkIds<T>(ids: readonly T[], size = ID_CHUNK_SIZE): T[][] {
+  const chunks: T[][] = [];
+  for (let i = 0; i < ids.length; i += size) {
+    chunks.push(ids.slice(i, i + size));
+  }
+  return chunks;
 }

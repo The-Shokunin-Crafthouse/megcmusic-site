@@ -10,13 +10,16 @@
  * and lean for the automation.
  */
 
-import { appDb } from "@/lib/api/appDb";
+import { appDb, chunkIds, fetchAllPages } from "@/lib/api/appDb";
 import { fail, hasMachineSecret, ok, unauthorized } from "@/lib/outreach/http";
-import type { Prospect, Template } from "@/lib/outreach/types";
+import type { Message, Prospect, Template } from "@/lib/outreach/types";
 
 export const dynamic = "force-dynamic";
 
 const ACTIONABLE_STATUSES = ["new", "contacted", "cooling"];
+
+/** The three message columns the inbound-per-cycle count needs. */
+type InboundCycleRow = Pick<Message, "prospect_id" | "cycle" | "direction">;
 
 export async function GET(req: Request): Promise<Response> {
   if (!hasMachineSecret(req)) return unauthorized();
@@ -24,25 +27,38 @@ export async function GET(req: Request): Promise<Response> {
   try {
     const db = appDb();
 
-    const prospectsRes = await db
-      .from("prospects")
-      .select("*")
-      .in("status", ACTIONABLE_STATUSES);
+    // Paged: this is the automation's work list, so a silent 1000-row cap
+    // would mean prospects never get contacted or followed up at all.
+    const prospectsRes = await fetchAllPages<Prospect>((from, to) =>
+      db
+        .from("prospects")
+        .select("*")
+        .in("status", ACTIONABLE_STATUSES)
+        .order("id", { ascending: true })
+        .range(from, to),
+    );
     if (prospectsRes.error) return fail(prospectsRes.error.message, 502);
-    const prospects = (prospectsRes.data ?? []) as Prospect[];
+    const prospects = prospectsRes.rows;
 
-    // Inbound counts for the current cycle, one query over the relevant ids.
+    // Inbound counts for the current cycle. This spans every inbound message
+    // for every actionable prospect, so it crosses 1000 well before the
+    // pipeline does — undercounting here would send a follow-up to someone who
+    // already replied. Chunked by id (URL length) and paged within each chunk.
     const cycleByProspect = new Map(prospects.map((p) => [p.id, p.cycle]));
     const inboundThisCycle = new Map<string, number>();
-    if (prospects.length > 0) {
-      const messagesRes = await db
-        .from("messages")
-        .select("prospect_id, cycle, direction")
-        .in("prospect_id", [...cycleByProspect.keys()])
-        .eq("direction", "inbound");
+    for (const ids of chunkIds([...cycleByProspect.keys()])) {
+      const messagesRes = await fetchAllPages<InboundCycleRow>((from, to) =>
+        db
+          .from("messages")
+          .select("prospect_id, cycle, direction")
+          .in("prospect_id", ids)
+          .eq("direction", "inbound")
+          .order("id", { ascending: true })
+          .range(from, to),
+      );
       if (messagesRes.error) return fail(messagesRes.error.message, 502);
-      for (const message of messagesRes.data ?? []) {
-        const pid = message.prospect_id as string;
+      for (const message of messagesRes.rows) {
+        const pid = message.prospect_id;
         if (message.cycle === cycleByProspect.get(pid)) {
           inboundThisCycle.set(pid, (inboundThisCycle.get(pid) ?? 0) + 1);
         }
