@@ -20,6 +20,7 @@ interface IncomingProspect {
   email: string;
   contact_name?: string | null;
   contact_role?: string | null;
+  cc_email?: string | null;
   city?: string | null;
   source?: string | null;
   research_notes?: string | null;

@@ -42,6 +42,7 @@ interface SendBody {
   cycle?: unknown;
   new_thread?: unknown;
   test_to?: unknown;
+  cc?: unknown;
 }
 
 /** Follow-up kinds carry their number in the suffix (followup_2 → 2). */
@@ -61,11 +62,16 @@ export async function POST(req: Request): Promise<Response> {
     if (typeof raw.subject !== "string" || typeof raw.body !== "string") {
       return fail("test_to mode requires string subject and body.", 400);
     }
+    if (raw.cc !== undefined && typeof raw.cc !== "string") {
+      return fail("cc must be a string when present.", 400);
+    }
+    const testCc = typeof raw.cc === "string" ? raw.cc : undefined;
     try {
       const sent = await sendEmail({
         to: raw.test_to,
         subject: raw.subject,
         body: raw.body,
+        cc: testCc,
       });
       return ok({ test: true, ...sent });
     } catch (err) {
@@ -160,6 +166,7 @@ export async function POST(req: Request): Promise<Response> {
       subject: raw.subject,
       body: raw.body,
       threadId,
+      cc: prospect.cc_email ?? undefined,
     });
 
     const now = new Date().toISOString();
