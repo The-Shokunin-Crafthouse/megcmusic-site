@@ -41,6 +41,18 @@ function gmailClient(): gmail_v1.Gmail {
   return google.gmail({ version: "v1", auth });
 }
 
+/**
+ * RFC 2822 header fields are US-ASCII only. Any non-ASCII value (an em dash,
+ * a curly quote, an accented venue name) must be wrapped in RFC 2047
+ * encoded-word syntax, or receiving clients are free to guess a charset —
+ * Gmail guesses Latin-1, which mangles UTF-8 bytes into mojibake
+ * ("Ã¢Â€Â”" for an em dash). Pure-ASCII values pass through unchanged.
+ */
+function encodeHeaderValue(value: string): string {
+  if (/^[\x00-\x7F]*$/.test(value)) return value;
+  return `=?UTF-8?B?${Buffer.from(value, "utf8").toString("base64")}?=`;
+}
+
 /** RFC 2822 message, base64url-encoded for the Gmail API `raw` field. */
 function encodeMime(
   to: string,
@@ -51,10 +63,12 @@ function encodeMime(
   const headers = [
     `To: ${to}`,
     ...(replyTo ? [`Reply-To: ${replyTo}`] : []),
-    `Subject: ${subject}`,
+    `Subject: ${encodeHeaderValue(subject)}`,
     "MIME-Version: 1.0",
     'Content-Type: text/plain; charset="UTF-8"',
-    "Content-Transfer-Encoding: 7bit",
+    // 8bit, not 7bit: the body is declared UTF-8 above and may contain
+    // non-ASCII bytes (same mojibake risk as the subject, one level down).
+    "Content-Transfer-Encoding: 8bit",
   ];
   const mime = `${headers.join("\r\n")}\r\n\r\n${body}`;
   return Buffer.from(mime)
