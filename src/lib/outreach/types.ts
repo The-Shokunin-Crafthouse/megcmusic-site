@@ -62,6 +62,8 @@ export interface Prospect {
   contact_role: string | null;
   org: string;
   email: string;
+  /** Secondary contact to CC, e.g. a venue's booking page asking for two names. */
+  cc_email: string | null;
   city: string | null;
   source: string;
   research_notes: string | null;

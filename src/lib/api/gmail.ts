@@ -59,9 +59,11 @@ function encodeMime(
   subject: string,
   body: string,
   replyTo?: string,
+  cc?: string,
 ): string {
   const headers = [
     `To: ${to}`,
+    ...(cc ? [`Cc: ${cc}`] : []),
     ...(replyTo ? [`Reply-To: ${replyTo}`] : []),
     `Subject: ${encodeHeaderValue(subject)}`,
     "MIME-Version: 1.0",
@@ -90,9 +92,17 @@ export async function sendEmail(params: {
   threadId?: string | null;
   /** Sets the Reply-To header — e.g. a booking enquirer, so a reply reaches them. */
   replyTo?: string;
+  /** Secondary recipient, e.g. a second booking contact a venue asked to be included. */
+  cc?: string;
 }): Promise<SentMessage> {
   const gmail = gmailClient();
-  const raw = encodeMime(params.to, params.subject, params.body, params.replyTo);
+  const raw = encodeMime(
+    params.to,
+    params.subject,
+    params.body,
+    params.replyTo,
+    params.cc,
+  );
   const res = await gmail.users.messages.send({
     userId: "me",
     requestBody: params.threadId

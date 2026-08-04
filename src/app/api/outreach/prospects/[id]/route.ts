@@ -69,6 +69,7 @@ const MACHINE_FIELDS = [
   "cycle",
   "followups_sent",
   "research_notes",
+  "cc_email",
 ] as const;
 
 const VALID_STATUS: ReadonlySet<ProspectStatus> = new Set([
@@ -107,6 +108,10 @@ function validateField(key: string, value: unknown): string | null {
       return value === null || typeof value === "string"
         ? null
         : "research_notes must be a string or null";
+    case "cc_email":
+      return value === null || typeof value === "string"
+        ? null
+        : "cc_email must be a string or null";
     default:
       return "unknown field";
   }
