@@ -1,4 +1,4 @@
-# LEARNINGS — <repo name>
+# LEARNINGS — megcmusic-site
 
 > Repo-specific learnings: quirks, gotchas, and stack-specific fixes for THIS project.
 > Read at session start (referenced by the Claude Code adapter). Append at sprint close.
