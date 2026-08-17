@@ -1,20 +1,19 @@
 /**
  * Single source for the WordPress / WooCommerce host origin.
  *
- * Today's model: WordPress + WooCommerce + The Events Calendar all live at the
- * apex `megcmusic.com` (Bluehost), and the Next front-end runs on a Vercel
- * preview — so the default below keeps every REST base and every outbound
- * WP-page link pointing at the apex, exactly as before.
+ * Post-cutover model (live): the Next front-end OWNS the apex `megcmusic.com`
+ * on Vercel, and WordPress + WooCommerce + The Events Calendar moved to
+ * `admin.megcmusic.com` (Meghan's admin/edit surface). The apex now 403s every
+ * `/wp-json/*` path — it is served by Next, not WordPress — so the default
+ * below points at the subdomain. `NEXT_PUBLIC_WP_ORIGIN` still overrides it.
  *
- * At the launch cutover the Next site TAKES `megcmusic.com`, so WordPress must
- * move to its own subdomain (Meghan's admin/edit surface, e.g.
- * `https://admin.megcmusic.com`). Set `NEXT_PUBLIC_WP_ORIGIN` to that subdomain
- * in Vercel and rebuild — every consumer here follows in one step; no code edit
- * at flip time.
+ * The default matching production is deliberate: if the Vercel env var is ever
+ * dropped, the fallback stays on a host that actually answers instead of
+ * silently emptying every REST-backed surface (shows, shop, media).
  *
  * `NEXT_PUBLIC_` so the value is readable in BOTH server (ISR prerender) and
  * browser (residential-IP fallback, checkout hand-off) code paths. Like all
  * NEXT_PUBLIC_ vars it bakes at build — a change needs a rebuild, not a restart.
  */
 export const WP_ORIGIN =
-  process.env.NEXT_PUBLIC_WP_ORIGIN ?? "https://megcmusic.com";
+  process.env.NEXT_PUBLIC_WP_ORIGIN ?? "https://admin.megcmusic.com";
