@@ -12,14 +12,22 @@
  *
  * Env (GitHub secrets): PIPELINE_EMAIL, PIPELINE_APP_PASSWORD,
  *   WP_APP_USER, WP_APP_PASSWORD
- * Env (plain): ALLOWED_SENDERS (comma-sep), DRY_RUN ("1" = no writes/sends)
+ * Env (plain): ALLOWED_SENDERS (comma-sep), DRY_RUN ("1" = no writes/sends),
+ *   WP_ORIGIN (override the WordPress host origin)
  */
 
 import { ImapFlow } from 'imapflow';
 import { simpleParser } from 'mailparser';
 import nodemailer from 'nodemailer';
 
-const WP_BASE = 'https://megcmusic.com/wp-json/tribe/events/v1';
+// WordPress moved to its own subdomain at the launch cutover — the apex
+// `megcmusic.com` is now the Next front-end on Vercel and 403s every
+// `/wp-json/*` path. Mirrors src/lib/wp-origin.ts; override with WP_ORIGIN.
+const WP_ORIGIN = process.env.WP_ORIGIN ?? 'https://admin.megcmusic.com';
+const WP_BASE = `${WP_ORIGIN}/wp-json/tribe/events/v1`;
+// Public proof-of-life link for Meg's confirmation email — the WP `url` the
+// API returns points at the admin subdomain, which is not what she should see.
+const PUBLIC_SHOWS_URL = 'https://megcmusic.com/shows';
 const TIMEZONE = 'America/Denver';
 const PROCESSED_BOX = 'Pipeline/Processed';
 const CONFIRM_TAG = /\[MC-(\d+)\]/;
@@ -91,17 +99,23 @@ async function findDuplicate(show) {
 const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july',
   'august', 'september', 'october', 'november', 'december'];
 
-function parseDate(raw) {
+// `now` is injectable so the self-test can freeze the clock. Without it the
+// year-rollover branch below made every bare "Month D" assertion time-dependent
+// — and one of them silently went red on 2026-07-26, failing the self-test step
+// and stopping the whole scheduled pipeline for weeks. UTC throughout: the
+// candidate was already built with Date.UTC, so reading the current year in
+// local time was an off-by-one waiting for a negative-offset host.
+function parseDate(raw, now = Date.now()) {
   const iso = raw.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
   if (iso) return `${iso[1]}-${iso[2].padStart(2, '0')}-${iso[3].padStart(2, '0')}`;
   const named = raw.toLowerCase().match(/([a-z]+)\.?\s+(\d{1,2})(?:st|nd|rd|th)?(?:,?\s*(\d{4}))?/);
   if (!named) return null;
   const mi = MONTHS.findIndex((m) => m.startsWith(named[1]));
   if (mi < 0) return null;
-  let year = named[3] ? Number(named[3]) : new Date().getFullYear();
+  let year = named[3] ? Number(named[3]) : new Date(now).getUTCFullYear();
   const candidate = new Date(Date.UTC(year, mi, Number(named[2])));
   // No year given and the date is >2 days past → she means next year.
-  if (!named[3] && candidate.getTime() < Date.now() - 2 * 86_400_000) year += 1;
+  if (!named[3] && candidate.getTime() < now - 2 * 86_400_000) year += 1;
   return `${year}-${String(mi + 1).padStart(2, '0')}-${String(named[2]).padStart(2, '0')}`;
 }
 
@@ -122,7 +136,7 @@ function parseTime(raw) {
 }
 
 /** Strip quoted reply tails, then read "Field: value" lines (forgiving aliases). */
-function parseTemplate(text) {
+function parseTemplate(text, now = Date.now()) {
   const lines = text.split('\n')
     .filter((l) => !l.trim().startsWith('>'))
     .join('\n').split(/^\s*On .+ wrote:\s*$/m)[0].split('\n');
@@ -142,7 +156,7 @@ function parseTemplate(text) {
 
   const show = { ...fields };
   if (fields.date) {
-    show.date = parseDate(fields.date);
+    show.date = parseDate(fields.date, now);
     if (!show.date) return { error: `I couldn't read the date "${fields.date}". Try "2026-07-24" or "July 24".` };
   }
   if (fields.time) Object.assign(show, parseTime(fields.time));
@@ -260,7 +274,7 @@ async function handleReply(from, subject, text, eventId) {
       online: norm(live.venue?.venue ?? '') === 'online',
     };
     await send(from, `Re: ${subject}`,
-      `It's live on megcmusic.com ✓\n${live.url}\n\nLast step for Bandsintown: open artists.bandsintown.com on your phone or laptop, go to Events → Upload, and drag in the attached file. That's it!`,
+      `It's live on megcmusic.com ✓\n${PUBLIC_SHOWS_URL}\n\nLast step for Bandsintown: open artists.bandsintown.com on your phone or laptop, go to Events → Upload, and drag in the attached file. That's it!`,
       [{ filename: `bandsintown-${show.date}.csv`, content: bitCsv(show, live) }]);
     return `published ${eventId}`;
   }
@@ -360,19 +374,31 @@ function selftest() {
     if (g !== w) throw new Error(`${label}\n  got  ${g}\n  want ${w}`);
     console.log(`✓ ${label}`);
   };
-  const t1 = parseTemplate('Date: 2026-07-24\nVenue: Rock Rest Lodge\nCity: Golden\nTime: 7pm-9pm\nTickets: https://t.co/x');
+  // Frozen clock — 2026-06-15T12:00Z. Every bare "Month D" case below resolves
+  // against THIS instant, not the wall clock, so these assertions stay true
+  // forever. They did not before: "July 24" was pinned to a literal 2026, which
+  // the rollover rule correctly re-read as 2027 from 2026-07-26 onward. The
+  // self-test step gates the scheduled run, so that turned a rotted assertion
+  // into a silently dead pipeline. Any new bare-month case MUST pass NOW.
+  const NOW = Date.UTC(2026, 5, 15, 12);
+  const t1 = parseTemplate('Date: 2026-07-24\nVenue: Rock Rest Lodge\nCity: Golden\nTime: 7pm-9pm\nTickets: https://t.co/x', NOW);
   eq([t1.date, t1.venue, t1.start, t1.end, t1.online],
     ['2026-07-24', 'Rock Rest Lodge', '19:00', '21:00', false], 'standard show');
-  const t2 = parseTemplate('When: July 24\nWhere: The Ambler\ntime: 19:30');
+  const t2 = parseTemplate('When: July 24\nWhere: The Ambler\ntime: 19:30', NOW);
   eq([t2.date, t2.venue, t2.start, t2.end], ['2026-07-24', 'The Ambler', '19:30', null], 'aliases + named month + 24h');
-  const t3 = parseTemplate('Date: Aug 2\nVenue: Online\nTime: 7\nStream: https://youtu.be/x');
+  const t3 = parseTemplate('Date: Aug 2\nVenue: Online\nTime: 7\nStream: https://youtu.be/x', NOW);
   eq([t3.online, t3.venue, t3.start], [true, 'Online', '19:00'], 'online show, bare evening hour');
-  const t4 = parseTemplate('Date: sometime soon\nVenue: X');
+  const t4 = parseTemplate('Date: sometime soon\nVenue: X', NOW);
   eq(!!t4.error, true, 'unreadable date errors instead of guessing');
-  eq(parseTemplate('hey! are you coming to dinner?'), null, 'non-show email yields null');
+  eq(parseTemplate('hey! are you coming to dinner?', NOW), null, 'non-show email yields null');
   eq(missing({ venue: 'X' }), ['Date'], 'missing-field detection');
-  const t5 = parseTemplate('Date: Jan 5\nVenue: Shifterz\n\nOn Tue, Jul 1 wrote:\n> Date: old stuff\n> Venue: wrong');
+  const t5 = parseTemplate('Date: Jan 5\nVenue: Shifterz\n\nOn Tue, Jul 1 wrote:\n> Date: old stuff\n> Venue: wrong', NOW);
   eq(t5.date, '2027-01-05', 'quoted lines stripped; past month rolls to next year');
+  // The rollover rule itself, pinned from both sides of the frozen clock.
+  eq(parseTemplate('Date: June 20\nVenue: X', NOW).date, '2026-06-20', 'future bare month keeps the current year');
+  eq(parseTemplate('Date: June 1\nVenue: X', NOW).date, '2027-06-01', 'past bare month rolls forward');
+  eq(parseTemplate('Date: June 14\nVenue: X', NOW).date, '2026-06-14', 'within the 2-day grace window, no roll');
+  eq(parseTemplate('Date: Jan 5, 2024\nVenue: X', NOW).date, '2024-01-05', 'an explicit year is never rolled');
   console.log('All parser self-tests passed.');
 }
 
