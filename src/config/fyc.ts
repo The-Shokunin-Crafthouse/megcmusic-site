@@ -64,17 +64,33 @@ export const FYC_CURRENT_SLUG = "shadows-of-a-ghost-town";
  * "69th GRAMMY Awards" on the cycle line, add it here.
  *
  * lyricSheets paths are populated by `node scripts/fetch-fyc-assets.mjs`
- * (downloads the 11 sheets into public/images/fyc/). Run it once locally
- * before merge — the config lists the local paths already, so until the
- * files exist the lyric section renders broken images. Alt text is
- * positional; swap in per-song titles if Meg wants them announced by name.
+ * (runs inside `npm run build` with --skip-if-present; commit the files to
+ * public/images/fyc/ someday for durability and the build step no-ops).
+ *
+ * Track titles below are the album's CD tracklist in order (Discogs release
+ * 67607). Sheet order matches the source booklet-page batch (sequential WP
+ * uploads following the cover + credits pages) — if a sheet is ever found
+ * mislabeled, fix the order of SHADOWS_TRACKS, nothing else.
  */
 
-const SHADOWS_LYRIC_SHEETS: readonly FycLyricSheet[] = Array.from(
-  { length: 11 },
-  (_, i) => ({
+const SHADOWS_TRACKS = [
+  "Bright Lights",
+  "Desert Run",
+  "Copper and Quartz",
+  "Here I Am Again",
+  "The Catch That Got Away",
+  "The Ballad of Lily Mae",
+  "Fire and Fly",
+  "Never Going Home",
+  "Strong",
+  "Ghost of California",
+  "Life of the Party",
+] as const;
+
+const SHADOWS_LYRIC_SHEETS: readonly FycLyricSheet[] = SHADOWS_TRACKS.map(
+  (song, i) => ({
     src: `/images/fyc/lyric-${String(i + 1).padStart(2, "0")}.png`,
-    alt: `Lyric sheet ${i + 1} of 11 from Shadows of a Ghost Town`,
+    alt: `Lyric sheet for “${song}” — track ${i + 1} of 11 on Shadows of a Ghost Town`,
     width: 1024,
     height: 1024,
   }),
