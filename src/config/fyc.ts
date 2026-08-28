@@ -56,32 +56,70 @@ export interface FycCampaign {
 /** The campaign /fyc redirects to (next.config.ts) and the nav points at. */
 export const FYC_CURRENT_SLUG = "shadows-of-a-ghost-town";
 
+/*
+ * Shadows content source: admin.megcmusic.com/shadows-of-a-ghost-town
+ * (the original WP campaign page), extracted 2026-08-28. Category wording,
+ * quotes, and description are verbatim from that page; video titles resolved
+ * via YouTube oEmbed. The WP page names no ceremony year — if Meg wants e.g.
+ * "69th GRAMMY Awards" on the cycle line, add it here.
+ *
+ * lyricSheets paths are populated by `node scripts/fetch-fyc-assets.mjs`
+ * (downloads the 11 sheets into public/images/fyc/). Run it once locally
+ * before merge — the config lists the local paths already, so until the
+ * files exist the lyric section renders broken images. Alt text is
+ * positional; swap in per-song titles if Meg wants them announced by name.
+ */
+
+const SHADOWS_LYRIC_SHEETS: readonly FycLyricSheet[] = Array.from(
+  { length: 11 },
+  (_, i) => ({
+    src: `/images/fyc/lyric-${String(i + 1).padStart(2, "0")}.png`,
+    alt: `Lyric sheet ${i + 1} of 11 from Shadows of a Ghost Town`,
+    width: 1024,
+    height: 1024,
+  }),
+);
+
 export const FYC_CAMPAIGNS: Record<string, FycCampaign> = {
-  /*
-   * TODO(Levi) — content drop-in from admin.megcmusic.com/shadows-of-a-ghost-town.
-   * This session's network egress could not reach the WP subdomain, so every
-   * field below marked "from the WP page" is intentionally empty rather than
-   * invented (the page renders each section only once its content exists):
-   *   - cycle + category: verbatim from the WP page's FYC framing.
-   *   - about: the full album description paragraphs.
-   *   - quotes: the three press quotes — Americana Highways, Jack Mesenbourg,
-   *     Fervor Coulee — verbatim with attribution.
-   *   - videos: the six live-performance YouTube ids + titles.
-   *   - lyricSheets: the eleven lyric images, downloaded into
-   *     public/images/fyc/ (real intrinsic width/height per image).
-   */
   "shadows-of-a-ghost-town": {
     slug: "shadows-of-a-ghost-town",
     album: "Shadows of a Ghost Town",
     artist: "Meghan Clarisse",
-    category: "", // from the WP page — see TODO above
-    cycle: "", // from the WP page — see TODO above
+    category: "Contemporary Country Album",
+    cycle: "For Your Grammy Consideration · Country & American Roots Music",
     status: "live",
-    releaseMeta: "Americana · Released September 26, 2025",
-    about: [], // from the WP page — see TODO above
-    quotes: [], // from the WP page — see TODO above
-    videos: [], // from the WP page — see TODO above
-    lyricSheets: [], // from the WP page — see TODO above
+    releaseMeta: "Released September 26, 2025",
+    about: [
+      "Shadows of a Ghost Town is a deeply personal and poetic exploration of place, memory, and mortality, told through the lens of the American West. Rooted in the traditions of Americana and brushed with shades of country and bluegrass, this album is both a love letter to the land and a reckoning with the ghosts we carry.",
+      "Set against the backdrop of wide-open skies, dusty trails, and abandoned towns, each track captures a moment suspended between the living and the lost. There are stories of a quiet ache that follows when something—or someone—disappears. The mountains aren't just scenery here; they're characters. So are the shadows, the silence, and the wind.",
+      "With raw instrumentation, vivid storytelling, and melodies that rise like canyon winds and fall like dusk over the plains, Shadows of a Ghost Town weaves together the grit of bluegrass with the soul of country and the heart of folk. These songs don't shy away from sorrow, but they don't dwell in it either. Instead, they honor it. They ride through it. At its core, this album is about transience—how everything we know and love eventually fades, and yet somehow, that makes it all the more beautiful. Whether it's a home, a way of life, or a person you thought you'd never lose, Shadows of a Ghost Town reminds us that some things linger even after they're gone. You can still hear the music if you know where to listen.",
+    ],
+    quotes: [
+      {
+        quote:
+          "This collection will strike listeners as a personal & poetic exploration that touches upon places, memories & mortality. It focuses on the traditions of the American West with music that would be accomplished most genuinely through Country, & bluegrass blended into the land & celebrating it.",
+        source: "John Apice · Americana Highways",
+      },
+      {
+        quote:
+          "A very worthy collection of eleven songs that I suspect are going to increase her visibility in the country and bluegrass genre.",
+        source: "Jack Mesenbourg",
+      },
+      {
+        quote:
+          "Clarisse utilizes 'place' better than most to magnify the emotional heft of her creations. There is sorrow within the deliberately crafted lyrics, but the overarching theme is the impermanence that we must accept as we survive the years: eventually everything fades to memory.",
+        source: "Fervor Coulee",
+      },
+    ],
+    videos: [
+      { id: "xqS1ZpZF7Fc", title: "Strong — Colorado & Company (with Todd Clayton)" },
+      { id: "A8E_XRwkhTk", title: "Copper & Quartz — live at Society Hall" },
+      { id: "4kXga9Vwc2g", title: "The Ghost of California — live from Shelton Manor" },
+      { id: "oIrtaOZ2Yb8", title: "Life of the Party — Second Sunday Showcase" },
+      { id: "hwLbMyR4SLw", title: "Fire and Fly — Society Hall (with Don Richmond)" },
+      { id: "WeYjhIiKNiU", title: "Strong — Great Day Colorado" },
+    ],
+    lyricSheets: SHADOWS_LYRIC_SHEETS,
     albumHref: "/music/shadows-of-a-ghost-town",
   },
   "kindred-spirits": {
