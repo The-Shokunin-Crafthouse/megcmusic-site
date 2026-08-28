@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "node scripts/fetch-fyc-assets.mjs --skip-if-present && next build",
     "start": "next start",
-    "preview": "next build && node --import tsx scripts/preview.ts",
+    "preview": "npm run build && node --import tsx scripts/preview.ts",
     "verify:apis": "node --env-file=.env.local --import tsx scripts/verify-apis.ts",
     "playbook:backfill": "node --env-file=.env.local --import tsx scripts/playbook-backfill.ts",
     "playbook:seed-tips": "node --env-file=.env.local --import tsx scripts/seed-tips.ts"
