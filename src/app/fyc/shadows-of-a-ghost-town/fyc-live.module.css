@@ -1,0 +1,288 @@
+/* /fyc/shadows-of-a-ghost-town — the LIVE campaign page. Same plum-scrim
+   shell and section rhythm as the archived record, but pitched: press quotes,
+   a live-performance grid, and the lyric sheets. Tokens only. Indexable. */
+
+.page {
+  position: relative;
+  min-height: 100svh;
+  background: var(--mc-bg);
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgb(var(--mc-bg-rgb) / 0.95) 0%,
+    rgb(var(--mc-bg-rgb) / 0.9) 30%,
+    rgb(var(--mc-bg-rgb) / 0.85) 100%
+  );
+}
+
+.main {
+  position: relative;
+  z-index: 2;
+}
+
+.header {
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-6);
+}
+
+.headerInner {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.eyebrow {
+  margin: 0 0 var(--mc-space-3);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--mc-accent-gold);
+}
+
+.title {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-2xl);
+  line-height: 1.1;
+  color: var(--mc-text-primary);
+}
+
+.category {
+  margin: var(--mc-space-2) 0 0;
+  font-family: var(--mc-font-display);
+  font-style: italic;
+  font-size: var(--mc-text-lg);
+  line-height: 1.3;
+  color: var(--mc-text-liner);
+}
+
+.cycle {
+  margin: var(--mc-space-2) 0 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mc-text-body);
+}
+
+.releaseMeta {
+  margin: var(--mc-space-2) 0 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mc-text-subtle);
+}
+
+.section {
+  position: relative;
+  z-index: var(--mc-z-content);
+  padding: var(--mc-space-6) var(--mc-space-4) var(--mc-space-7);
+}
+
+.inner {
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-4);
+}
+
+.about {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-prose);
+  line-height: 1.65;
+  color: var(--mc-text-body);
+}
+
+/* Press quotes — the framed pull-quote surface from the homepage register,
+   scaled to sit three-up in the campaign flow. */
+.quotes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+}
+
+.quote {
+  margin: 0;
+  padding: var(--mc-space-4);
+  background: var(--mc-bg-quote);
+  border-radius: var(--mc-radius-quote);
+}
+
+.quoteText {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-style: italic;
+  font-size: var(--mc-text-md);
+  line-height: 1.45;
+  color: var(--mc-text-liner);
+}
+
+.quoteSource {
+  margin: var(--mc-space-3) 0 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mc-accent-gold);
+}
+
+/* Live-performance grid — video facades (thumbnail links out to YouTube; no
+   iframes: six embeds would drag LCP for a page a voter skims). */
+.videos {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--mc-space-3);
+}
+
+.video {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--mc-radius-card);
+  overflow: hidden;
+  box-shadow: var(--mc-shadow-card);
+}
+
+.video:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+}
+
+.videoThumb {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .video:hover .videoThumb {
+    transform: scale(1.03);
+  }
+}
+
+.video:active .videoThumb {
+  transform: scale(1.01);
+}
+
+.videoPlay {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 64px;
+  height: 64px;
+  color: var(--mc-text-primary);
+  filter: drop-shadow(0 2px 12px rgb(0 0 0 / 0.55));
+}
+
+/* Title rides the thumbnail's lower edge over the card scrim so each tile is
+   labeled without a caption row breaking the grid rhythm. */
+.videoTitle {
+  position: absolute;
+  inset: auto 0 0;
+  padding: var(--mc-space-4) var(--mc-space-3) var(--mc-space-2);
+  background: linear-gradient(
+    180deg,
+    rgb(var(--mc-bg-rgb) / 0) 0%,
+    rgb(var(--mc-bg-rgb) / 0.85) 100%
+  );
+  font-family: var(--mc-font-video);
+  font-size: var(--mc-text-base);
+  line-height: 1.3;
+  color: var(--mc-text-primary);
+}
+
+/* Lyric sheets — eleven images, lazy below the fold. Explicit width/height
+   attributes + aspect-ratio from those attributes guard CLS. */
+.lyrics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--mc-space-3);
+}
+
+.lyricSheet {
+  width: 100%;
+  height: auto;
+  border-radius: var(--mc-radius-card);
+  box-shadow: var(--mc-shadow-card);
+}
+
+.links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--mc-space-2);
+}
+
+.link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  padding: var(--mc-space-2) var(--mc-space-4);
+  border-radius: var(--mc-radius-pill);
+  border: 1px solid var(--mc-divider);
+  font-family: var(--mc-font-ui);
+  font-weight: 600;
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--mc-text-primary);
+  transition:
+    color var(--mc-motion-micro) var(--mc-ease-out),
+    border-color var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.link:hover {
+  color: var(--mc-teal-light);
+  border-color: var(--mc-teal);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+}
+
+.link:active {
+  transform: translateY(1px);
+}
+
+@media (min-width: 768px) {
+  .header {
+    padding: var(--mc-space-9) var(--mc-space-6) var(--mc-space-6);
+  }
+  .section {
+    padding: var(--mc-space-6) var(--mc-space-6) var(--mc-space-7);
+  }
+  .videos {
+    grid-template-columns: 1fr 1fr;
+  }
+  .lyrics {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .videoThumb,
+  .link:active {
+    transition: none;
+    transform: none;
+  }
+}

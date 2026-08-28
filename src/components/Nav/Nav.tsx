@@ -14,8 +14,8 @@ export function Nav() {
   return (
     <nav className={styles.nav} aria-label="Primary">
       <ul className={styles.list}>
-        {NAV_ITEMS.map(({ label, href }) => {
-          const active = isActiveRoute(pathname, href);
+        {NAV_ITEMS.map(({ label, href, match }) => {
+          const active = isActiveRoute(pathname, { href, match });
           return (
             <li key={href}>
               <Link
