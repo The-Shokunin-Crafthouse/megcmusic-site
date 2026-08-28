@@ -137,8 +137,8 @@ export function MobileMenu() {
 
           <nav className={styles.menuNav} aria-label="Primary">
             <ul className={styles.list}>
-              {NAV_ITEMS.map(({ label, href }, i) => {
-                const active = isActiveRoute(pathname, href);
+              {NAV_ITEMS.map(({ label, href, match }, i) => {
+                const active = isActiveRoute(pathname, { href, match });
                 return (
                   <li key={href}>
                     <span

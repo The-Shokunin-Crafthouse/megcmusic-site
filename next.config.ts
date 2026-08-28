@@ -6,6 +6,26 @@ const nextConfig: NextConfig = {
   // fail the build; paired with the 25s fetch timeout + 1 retry in
   // src/lib/api/events.ts (worst case ~50s/fetch across paginated calls).
   staticPageGenerationTimeout: 180,
+  async redirects() {
+    return [
+      // /fyc has no page of its own — it permanently points at the CURRENT
+      // campaign (old /fyc links from the 2024 cycle keep working). Retarget
+      // this when a future campaign ships; keep it in lockstep with
+      // FYC_CURRENT_SLUG in src/config/fyc.ts.
+      {
+        source: "/fyc",
+        destination: "/fyc/shadows-of-a-ghost-town",
+        permanent: true,
+      },
+      // The campaign's old WordPress path, shared before the cutover — those
+      // links now land on the apex, where they 404 without this.
+      {
+        source: "/shadows-of-a-ghost-town",
+        destination: "/fyc/shadows-of-a-ghost-town",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 // Sprint 10 — Megs Playbook PWA shell. `@serwist/turbopack` (not

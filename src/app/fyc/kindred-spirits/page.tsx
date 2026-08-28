@@ -4,8 +4,11 @@ import { PlayCircle } from "@phosphor-icons/react/dist/ssr/PlayCircle";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { ARTIST_LINKS } from "@/config/discography";
-import { FYC } from "@/config/fyc";
+import { FYC_CAMPAIGNS } from "@/config/fyc";
 import styles from "./fyc.module.css";
+
+const FYC = FYC_CAMPAIGNS["kindred-spirits"];
+const VIDEO = FYC.videos[0];
 
 // Archived campaign page — reachable by link, kept out of search and the nav.
 export const metadata: Metadata = {
@@ -21,8 +24,8 @@ const LISTEN = [
 ];
 
 export default function FycPage() {
-  const watch = `https://www.youtube.com/watch?v=${FYC.videoId}`;
-  const thumb = `https://i.ytimg.com/vi/${FYC.videoId}/hqdefault.jpg`;
+  const watch = `https://www.youtube.com/watch?v=${VIDEO.id}`;
+  const thumb = `https://i.ytimg.com/vi/${VIDEO.id}/hqdefault.jpg`;
 
   return (
     <div className={styles.page}>
@@ -48,19 +51,23 @@ export default function FycPage() {
         <section className={styles.section} aria-labelledby="fyc-about">
           <div className={styles.inner}>
             <SectionLabel id="fyc-about">About the Album</SectionLabel>
-            <p className={styles.about}>{FYC.about}</p>
+            {FYC.about.map((paragraph) => (
+              <p key={paragraph} className={styles.about}>
+                {paragraph}
+              </p>
+            ))}
           </div>
         </section>
 
         <section className={styles.section} aria-labelledby="fyc-watch">
           <div className={styles.inner}>
-            <SectionLabel id="fyc-watch">Watch — {FYC.videoTitle}</SectionLabel>
+            <SectionLabel id="fyc-watch">Watch — {VIDEO.title}</SectionLabel>
             <a
               className={styles.video}
               href={watch}
               target="_blank"
               rel="noopener noreferrer"
-              aria-label={`Watch ${FYC.videoTitle} on YouTube`}
+              aria-label={`Watch ${VIDEO.title} on YouTube`}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
@@ -99,7 +106,7 @@ export default function FycPage() {
           <div className={styles.inner}>
             <SectionLabel id="fyc-more">More</SectionLabel>
             <div className={styles.links}>
-              <Link className={styles.link} href="/music/kindred-spirits">
+              <Link className={styles.link} href={FYC.albumHref}>
                 The album
                 <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
               </Link>
