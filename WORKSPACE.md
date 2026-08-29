@@ -46,7 +46,7 @@ This file is a directive, not documentation. Read it. Follow it.
 - **Start date:** 2026-06-16
 - **Target launch:** TBD (set at Gate 1)
 - **Production domain:** megcmusic.com
-- **Current sprint:** `stages/03-build/sprint-10-playbook-redesign/` (Megs Playbook → iOS-feel PWA + Claude creation flow; branch `playbook-redesign`, 2026-07-12)
+- **Current sprint:** `stages/03-build/sprint-11-wp-editability/` (Total WordPress Editability Overhaul — every visitor-facing content element editable from Meg's WP dashboard; branch `sprint-11-wp-editability`, 2026-08-29)
 
 Canonical machine-readable meta lives in `workspace.manifest.yaml`. Keep this section and the manifest in sync.
 
