@@ -1,0 +1,42 @@
+{
+  "key": "group_megc_fyc_campaign",
+  "title": "FYC Campaign",
+  "fields": [
+    { "key": "field_megc_fyc_album_title", "label": "Album", "name": "album_title", "type": "text", "instructions": "The big heading on the FYC page." },
+    { "key": "field_megc_fyc_category_line", "label": "Category", "name": "category_line", "type": "text", "instructions": "e.g. “Contemporary Country Album”." },
+    { "key": "field_megc_fyc_cycle_line", "label": "Awards cycle", "name": "cycle_line", "type": "text", "instructions": "e.g. “For Your Grammy Consideration · Country & American Roots Music”." },
+    { "key": "field_megc_fyc_release_meta", "label": "Release line", "name": "release_meta", "type": "text", "instructions": "e.g. “Released September 26, 2025”. Optional." },
+    { "key": "field_megc_fyc_pitch", "label": "About the album", "name": "pitch_paragraphs", "type": "repeater", "layout": "block", "button_label": "Add a paragraph", "instructions": "The pitch, paragraph by paragraph.",
+      "sub_fields": [
+        { "key": "field_megc_fyc_pitch_paragraph", "label": "Paragraph", "name": "paragraph", "type": "textarea", "rows": 4, "new_lines": "", "instructions": "" }
+      ]
+    },
+    { "key": "field_megc_fyc_quotes", "label": "Press quotes", "name": "quotes", "type": "repeater", "layout": "block", "button_label": "Add a quote", "instructions": "The “What People Are Saying” cards.",
+      "sub_fields": [
+        { "key": "field_megc_fyc_quote_text", "label": "Quote", "name": "quote", "type": "textarea", "rows": 3, "new_lines": "", "instructions": "" },
+        { "key": "field_megc_fyc_quote_source", "label": "Who", "name": "source", "type": "text", "instructions": "e.g. “John Apice”." },
+        { "key": "field_megc_fyc_quote_source_detail", "label": "Where", "name": "source_detail", "type": "text", "instructions": "e.g. “Americana Highways”. Optional." }
+      ]
+    },
+    { "key": "field_megc_fyc_videos", "label": "Watch-live videos", "name": "videos", "type": "repeater", "layout": "block", "button_label": "Add a video", "instructions": "Performance links, in order.",
+      "sub_fields": [
+        { "key": "field_megc_fyc_video_url", "label": "YouTube link", "name": "youtube_url", "type": "url", "instructions": "The full watch URL." },
+        { "key": "field_megc_fyc_video_title", "label": "Caption", "name": "title", "type": "text", "instructions": "Shows under the thumbnail, e.g. “Strong — Colorado & Company”." }
+      ]
+    },
+    { "key": "field_megc_fyc_lyric_sheets", "label": "Lyric sheets", "name": "lyric_sheets", "type": "gallery", "return_format": "array", "library": "all", "insert": "append", "instructions": "The lyric images, in track order. Each image’s description for screen readers (its “alt text”) is edited on the image itself in the media library." },
+    { "key": "field_megc_fyc_album_link", "label": "Album page", "name": "album_link", "type": "url", "instructions": "Where “The album” points, e.g. https:\/\/megcmusic.com\/music\/shadows-of-a-ghost-town." }
+  ],
+  "location": [
+    [ { "param": "page", "operator": "==", "value": "4350" } ],
+    [ { "param": "page", "operator": "==", "value": "4566" } ]
+  ],
+  "menu_order": 10,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "active": true,
+  "show_in_rest": 1,
+  "description": "A For Your Consideration campaign page. Live vs. archived framing stays with the site."
+}

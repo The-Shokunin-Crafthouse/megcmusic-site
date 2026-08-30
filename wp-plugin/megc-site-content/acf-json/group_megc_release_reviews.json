@@ -1,0 +1,28 @@
+{
+  "key": "group_megc_release_reviews",
+  "title": "Release Reviews",
+  "fields": [
+    { "key": "field_megc_reviews", "label": "What people are saying", "name": "reviews", "type": "repeater", "layout": "block", "button_label": "Add a quote or accolade", "instructions": "Press quotes or chart placements for this record. Shown on the release’s page on the site.",
+      "sub_fields": [
+        { "key": "field_megc_reviews_quote", "label": "Quote or accolade", "name": "quote_or_accolade", "type": "textarea", "rows": 3, "new_lines": "", "instructions": "Either a review quote or a placement like “Top 10 — October 2025”." },
+        { "key": "field_megc_reviews_source", "label": "Source", "name": "source", "type": "text", "instructions": "Outlet or reviewer, e.g. “The Alternate Root”." },
+        { "key": "field_megc_reviews_link", "label": "Link", "name": "link", "type": "url", "instructions": "Where the quote lives. Optional." }
+      ]
+    }
+  ],
+  "location": [
+    [ { "param": "page", "operator": "==", "value": "4350" } ],
+    [ { "param": "page", "operator": "==", "value": "4378" } ],
+    [ { "param": "page", "operator": "==", "value": "4395" } ],
+    [ { "param": "page", "operator": "==", "value": "4403" } ],
+    [ { "param": "page", "operator": "==", "value": "4411" } ]
+  ],
+  "menu_order": 2,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "active": true,
+  "show_in_rest": 1,
+  "description": "Press for this release. The page’s own text and lyric images stay the release story."
+}

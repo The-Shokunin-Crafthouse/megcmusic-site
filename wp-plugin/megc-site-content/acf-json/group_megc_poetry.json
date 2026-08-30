@@ -1,0 +1,26 @@
+{
+  "key": "group_megc_poetry",
+  "title": "Poetry Page",
+  "fields": [
+    { "key": "field_megc_poetry_book_title", "label": "Book title", "name": "book_title", "type": "text", "instructions": "“Secrets From a Songbird”." },
+    { "key": "field_megc_poetry_subtitle", "label": "Subtitle", "name": "subtitle", "type": "text", "instructions": "“A collection of poetry by Meghan Clarisse”." },
+    { "key": "field_megc_poetry_lede", "label": "Opening line", "name": "lede", "type": "textarea", "rows": 2, "new_lines": "", "instructions": "The italic line at the top of the Poetry page." },
+    { "key": "field_megc_poetry_body", "label": "About the book", "name": "body_paragraphs", "type": "repeater", "layout": "block", "button_label": "Add a paragraph", "instructions": "The “Inside the Pages” paragraphs. The book cover comes from the shop item’s photo, as today.",
+      "sub_fields": [
+        { "key": "field_megc_poetry_body_paragraph", "label": "Paragraph", "name": "paragraph", "type": "textarea", "rows": 4, "new_lines": "", "instructions": "" }
+      ]
+    },
+    { "key": "field_megc_poetry_cta_note", "label": "Buy-button note", "name": "cta_note", "type": "text", "instructions": "“A first edition, straight from Meghan.”" },
+    { "key": "field_megc_poetry_meta_title", "label": "Browser-tab title", "name": "meta_title", "type": "text", "instructions": "What Google and the browser tab show for the Poetry page." },
+    { "key": "field_megc_poetry_meta_description", "label": "Search description", "name": "meta_description", "type": "textarea", "rows": 2, "new_lines": "", "instructions": "The sentence Google shows for the Poetry page." }
+  ],
+  "location": [ [ { "param": "megc_page_slug", "operator": "==", "value": "site-poetry" } ] ],
+  "menu_order": 9,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "active": true,
+  "show_in_rest": 1,
+  "description": "The Poetry page on megcmusic.com. This dashboard page exists only for editing — visitors see megcmusic.com\/poetry."
+}

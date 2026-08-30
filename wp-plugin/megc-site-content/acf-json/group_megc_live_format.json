@@ -1,0 +1,20 @@
+{
+  "key": "group_megc_live_format",
+  "title": "Live Format",
+  "fields": [
+    { "key": "field_megc_format_label", "label": "Format name", "name": "format_label", "type": "text", "instructions": "“Solo Acoustic” \/ “Full Band” — shown on the Music page. The photo stays this page’s first image, as today." },
+    { "key": "field_megc_format_blurb", "label": "One-line description", "name": "format_blurb", "type": "textarea", "rows": 2, "new_lines": "", "instructions": "The sentence under the format name on the Music page." }
+  ],
+  "location": [
+    [ { "param": "page", "operator": "==", "value": "2931" } ],
+    [ { "param": "page", "operator": "==", "value": "2939" } ]
+  ],
+  "menu_order": 3,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "active": true,
+  "show_in_rest": 1,
+  "description": "How this live format is described on the Music page."
+}
