@@ -1211,3 +1211,46 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 
 **Alternatives considered.** (1) Overwrite `/fyc` in place with the new campaign (the old header comment's literal reading) — rejected: destroys the 2024 record and makes every campaign URL ephemeral. (2) `/fyc` as a campaign index page — rejected: a voter clicking an FYC link should land on the pitch, not a menu; an index earns its place only after there are more campaigns than fit one nav item. (3) Nav at the far end after Shop — rejected: a live awards campaign is a primary promotional surface, not a footnote.
 
+
+## 2026-08-29 — Sprint 11 kickoff: Total WordPress Editability Overhaul — five owner decisions locked
+
+**Stage:** 03-build (sprint-11-wp-editability)
+**Type:** Architecture · Product · Process
+**Status:** accepted — decided by Levi in the 2026-08-28 contract (`stages/03-build/sprint-11-wp-editability/CONTEXT.md`); logged at kickoff per contract §1. Do not reopen.
+
+**Context.** The 2026-06 brief locked headless WordPress: WP is the CMS, Next renders it. Shows (TEC), shop (Woo), booking, and music release pages honor that; newer surfaces drifted into repo-held content (`src/config/fyc.ts`, `discography.ts`, `releases.ts`, home/EPK/media/poetry copy). Meg opened her dashboard to edit the FYC page and it wasn't there. The contract eliminates the class: every visitor-facing content element editable from wp-admin, live in ~3 minutes, zero design/URL/content change.
+
+**Decisions (five, verbatim from contract §1).**
+1. **Editing model: ACF structured fields** (free ACF on the existing install). Each surface is a WP page with named plain-language field boxes + help text; field groups designed for a non-technical musician; full field-group design presented at the Phase-0 gate.
+2. **Publish speed: rebuild on save, ~2–3 min.** WP-side hook pings GitHub `repository_dispatch` on publish/update of site-content pages; 60s debounce so a burst of saves = one build.
+3. **Scope: all visitor-facing content**, except Meg's Playbook (an app) and cart/checkout transactional flow. Shows/shop/booking already WP-driven — verify, don't rebuild.
+4. **Edit existing surfaces only.** New site pages remain a studio task; no generic page-builder template.
+5. **Supersession of the 2026-08-28 FYC-config decision** — see the dedicated entry below.
+
+**Consequences.** Easier: one editing model (ACF) across all surfaces; content class-drift becomes impossible (repo-held prose is a contract violation); publish loop is self-healing (nightly rebuild backstop). Harder: WP install gains one plugin dependency (ACF) plus one tiny custom plugin on a fragile Bluehost install (2026-08-27 outage class — every hook guarded, PHP-8.3-clean, versioned in repo); builds gain a WP read dependency (fail loudly, previous deploy stays live).
+
+## 2026-08-29 — SUPERSEDES 2026-08-28 "FYC becomes a per-campaign surface" (config-file half only)
+
+**Stage:** 03-build (sprint-11-wp-editability)
+**Type:** Architecture
+**Status:** accepted — supersession ordered by Levi in contract §1.5.
+
+**What is superseded.** The 2026-08-28 entry's decision that campaign *content* lives in `src/config/fyc.ts` (`FYC_CAMPAIGNS` + `FYC_CURRENT_SLUG`, pages consume config only). Under Sprint 11, FYC campaign content moves into WordPress (ACF fields on WP pages) and the Next pages read it at build over REST. `src/config/fyc.ts` is deleted in the Phase-3 PR that replaces it, after its replacement ships green.
+
+**What stands.** Everything else in the 2026-08-28 entry: the `/fyc/<slug>` URL scheme, `/fyc` permanent redirect to the current campaign, the two-layer redirect scheme, nav placement with the `match: "/fyc"` prefix. Contract §6: "`/fyc` retarget and nav stay as shipped."
+
+**Harvest before deletion (contract §1.5).** Keep and reuse: the build-time media fetcher pattern (`scripts/fetch-fyc-assets.mjs` — download at build, validate bytes, skip when present, fail loudly) as the template for ALL WP image fields in Phase 3; the per-song alt text on lyric sheets (PR #79) which migrates into the ACF gallery field's per-image alt; the parity checks from PR #78.
+
+## 2026-08-29 — Phase-0 gate cleared: SCF, GHA-side prebuilt builds, meta fields in scope, canonical Songs From the Sofa page
+
+**Stage:** 03-build (sprint-11-wp-editability)
+**Type:** Architecture · Scope
+**Status:** accepted — Levi's gate answers, 2026-08-29.
+
+**Decisions.**
+1. **Field plugin: Secure Custom Fields** (wp.org fork, free, ACF-PRO feature set — repeater/gallery/options). Chosen over ACF PRO ($149/yr) and free-ACF fixed slots. Field definitions live as repo JSON, portable to ACF PRO in minutes if SCF governance ever degrades.
+2. **Builds move to the GHA runner** (`vercel pull` + `vercel build` + `vercel deploy --prebuilt`) because Vercel's builders cannot reach `/wp-json` while the GHA runner reads it cleanly (probe run 33282133387). Migrated content surfaces render static at build; a content save triggers a rebuild (Phase 4); nightly rebuild self-heals. Shows/shop keep their existing ISR + browser-fallback pattern untouched.
+3. **Meta titles/descriptions are in scope** — editable per surface via `meta_title`/`meta_description` fields.
+4. **Interface-vs-content boundary stands as classified** in `content-inventory.md` (`stays-code` rows: forms, validation/error copy, empty/loading states, buttons, tabs, cart/checkout copy, ★★★ section labels). Levi may flip individual rows at any time; a flip is a field addition, not a redesign.
+5. **Canonical WP page for Songs From the Sofa is `songs-from-the-sofa-2` (ID 4395)** — it holds the real EP story (~664 chars of body prose); `songs-from-the-sofa` (4386) is a streaming-link hub with no featured image and contributes nothing to the rendered site today. The Phase-3 registry row points at 4395; page 4386 is left untouched in WP.
+6. **`wp-probe.yml` deleted** — it was a temporary Phase-0 diagnostic; its findings are recorded in `content-inventory.md` and run log 33282133387.
