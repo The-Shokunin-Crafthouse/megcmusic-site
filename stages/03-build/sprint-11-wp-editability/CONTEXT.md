@@ -15,7 +15,11 @@
 > | Content sources | `src/config/*.ts`, `src/app/**/page.tsx` | Audit subjects |
 >
 > **Resume pointer:** see `SESSION-RESUME.md` at repo root (hook-owned).
-> **Phase status:** Phase 0 in progress (audit + mapping). Gate: Levi approves inventory + ACF field design before any build.
+> **Phase status (2026-08-29):**
+> - Phase 0 ✅ gate cleared (PR #80 merged — SCF, GHA prebuilt builds, meta in scope, no stays-code flips, canonical SFTS page 4395)
+> - Phase 1 ✅ plugin built + merged (PR #81) — **awaiting the human gate:** wp-admin visit per `wp-plugin/megc-site-content/README.md` steps 1–6 (SCF install, plugin upload, PAT, wp-config constants, `megc-automation` application password)
+> - Phase 4 infrastructure in this PR (pulled forward per learning #91 — Phase 3's build-time reads need the GHA-side build); timed end-to-end proof deferred until the human gate
+> - Phase 2 (content migration) blocked on the human gate; Phase 3 (rewire, one surface per PR) follows Phase 2
 
 ---
 
