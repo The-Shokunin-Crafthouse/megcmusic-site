@@ -1254,3 +1254,15 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 4. **Interface-vs-content boundary stands as classified** in `content-inventory.md` (`stays-code` rows: forms, validation/error copy, empty/loading states, buttons, tabs, cart/checkout copy, ★★★ section labels). Levi may flip individual rows at any time; a flip is a field addition, not a redesign.
 5. **Canonical WP page for Songs From the Sofa is `songs-from-the-sofa-2` (ID 4395)** — it holds the real EP story (~664 chars of body prose); `songs-from-the-sofa` (4386) is a streaming-link hub with no featured image and contributes nothing to the rendered site today. The Phase-3 registry row points at 4395; page 4386 is left untouched in WP.
 6. **`wp-probe.yml` deleted** — it was a temporary Phase-0 diagnostic; its findings are recorded in `content-inventory.md` and run log 33282133387.
+
+## 2026-08-29 — Phase 1 implementation decisions: transient debounce (not wp-cron), PAT scope correction, custom page-slug location rule, plugin lint CI
+
+**Stage:** 03-build (sprint-11-wp-editability, Phase 1)
+**Type:** Architecture
+**Status:** accepted
+
+**Decisions.**
+1. **The 60s dispatch debounce is a transient, not a wp-cron event.** This install's cron option intermittently fails to persist (Bluehost error logs, 2026-08-27 entry) — a `wp_schedule_single_event` debounce would silently drop pings. Leading-edge transient instead: first save dispatches immediately; saves inside the window are suppressed; bursts collapse in the receiving workflow's GHA concurrency group (one running + one queued run, the queued run builds final state); the Phase-4 nightly rebuild self-heals stragglers.
+2. **PAT scope correction: `Contents: Read and write`, not the contract's "contents:read + actions".** The `repository_dispatch` API requires contents write on a fine-grained PAT; contents:read cannot fire it. The contract's *mechanism* (repository_dispatch, event `wp-content-updated`) is kept as written; only the stated scope was unachievable. Mitigation for the wider scope: fine-grained token limited to this single repo, stored only as a `wp-config.php` constant (never plugin file, never DB), 1-year expiry.
+3. **Custom ACF location rule `megc_page_slug`** so the Poetry field group can target the `site-poetry` page by slug before the page exists (it is created in Phase 2); all other groups pin existing page IDs.
+4. **`wp-plugin-lint.yml` CI**: PHP 8.3 `php -l` over the plugin + JSON validity on every PR touching `wp-plugin/**` — the 2026-08-27 outage class (PHP-incompatible plugin code fataling on admin hooks) gets a deterministic gate. No local PHP exists on the dev Mac, so CI is the lint surface.

@@ -1,0 +1,32 @@
+{
+  "key": "group_megc_music",
+  "title": "Music Page & Releases",
+  "fields": [
+    { "key": "field_megc_music_page_lede", "label": "Page intro line", "name": "page_lede", "type": "text", "instructions": "The sentence under the big “Music” heading." },
+    { "key": "field_megc_music_releases", "label": "Your releases", "name": "releases", "type": "repeater", "layout": "block", "button_label": "Add a release", "instructions": "One row per release, newest first. Powers the Discography on Home, Music, and Press Kit, the Singles list, and each release’s own page.",
+      "sub_fields": [
+        { "key": "field_megc_music_release_title", "label": "Title", "name": "title", "type": "text", "instructions": "Release title as it should appear everywhere." },
+        { "key": "field_megc_music_release_year", "label": "Year", "name": "year", "type": "text", "instructions": "e.g. “2025”." },
+        { "key": "field_megc_music_release_kind", "label": "Kind", "name": "kind", "type": "select", "choices": { "LP": "LP", "EP": "EP", "SINGLE": "Single" }, "return_format": "value", "instructions": "Albums and EPs go in the Discography; Singles go in the Singles list." },
+        { "key": "field_megc_music_release_page", "label": "Its page on this dashboard", "name": "release_page", "type": "post_object", "post_type": [ "page" ], "return_format": "id", "allow_null": 1, "instructions": "The WordPress page whose text and lyric images make up the release’s “About the Record” page." },
+        { "key": "field_megc_music_release_product", "label": "Shop item", "name": "product", "type": "post_object", "post_type": [ "product" ], "return_format": "id", "allow_null": 1, "instructions": "The shop product for the “Buy” button. Leave empty if it isn’t sold." },
+        { "key": "field_megc_music_release_spotify", "label": "Spotify link", "name": "spotify_url", "type": "url", "instructions": "This release’s own Spotify link. Leave empty to use your artist profile link below." },
+        { "key": "field_megc_music_release_apple", "label": "Apple Music link", "name": "apple_url", "type": "url", "instructions": "This release’s own Apple Music link. Leave empty to use your artist profile link below." }
+      ]
+    },
+    { "key": "field_megc_music_artist_spotify", "label": "Your Spotify profile", "name": "artist_spotify", "type": "url", "instructions": "Used wherever a release doesn’t have its own link, and on the FYC “Listen” buttons." },
+    { "key": "field_megc_music_artist_apple", "label": "Your Apple Music profile", "name": "artist_apple", "type": "url", "instructions": "Used wherever a release doesn’t have its own link, and on the FYC “Listen” buttons." },
+    { "key": "field_megc_music_artist_amazon", "label": "Your Amazon Music profile", "name": "artist_amazon", "type": "url", "instructions": "Used on the FYC “Listen” buttons." },
+    { "key": "field_megc_music_meta_title", "label": "Browser-tab title", "name": "meta_title", "type": "text", "instructions": "What Google and the browser tab show for the Music page." },
+    { "key": "field_megc_music_meta_description", "label": "Search description", "name": "meta_description", "type": "textarea", "rows": 2, "new_lines": "", "instructions": "The sentence Google shows for the Music page." }
+  ],
+  "location": [ [ { "param": "page", "operator": "==", "value": "5562" } ] ],
+  "menu_order": 1,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "active": true,
+  "show_in_rest": 1,
+  "description": "The Music page intro plus the master list of releases. The page’s own text below stays your Liner Notes intro."
+}

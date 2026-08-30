@@ -1,0 +1,21 @@
+{
+  "key": "group_megc_page_basics",
+  "title": "Page Basics",
+  "fields": [
+    { "key": "field_megc_basics_page_lede", "label": "Page intro line", "name": "page_lede", "type": "text", "instructions": "The sentence under this page’s big heading on megcmusic.com. Shows and shop items themselves are managed exactly as today." },
+    { "key": "field_megc_basics_meta_title", "label": "Browser-tab title", "name": "meta_title", "type": "text", "instructions": "What Google and the browser tab show for this page." },
+    { "key": "field_megc_basics_meta_description", "label": "Search description", "name": "meta_description", "type": "textarea", "rows": 2, "new_lines": "", "instructions": "The sentence Google shows for this page." }
+  ],
+  "location": [
+    [ { "param": "page", "operator": "==", "value": "20" } ],
+    [ { "param": "page", "operator": "==", "value": "1847" } ]
+  ],
+  "menu_order": 11,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "active": true,
+  "show_in_rest": 1,
+  "description": "Intro line and search text for the Shows and Shop pages."
+}

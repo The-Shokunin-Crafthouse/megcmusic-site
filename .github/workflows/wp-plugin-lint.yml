@@ -1,0 +1,26 @@
+# Lints the WordPress plugin on every PR that touches it: PHP 8.3 syntax
+# (the 2026-08-27 wp-admin outage class was PHP-incompatible plugin code
+# fataling on admin hooks) and field-group JSON validity.
+name: WP plugin lint
+on:
+  pull_request:
+    paths: ["wp-plugin/**"]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+      - name: PHP syntax check (8.3)
+        run: |
+          set -e
+          find wp-plugin -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Field-group JSON validity
+        run: |
+          set -e
+          for f in wp-plugin/megc-site-content/acf-json/*.json; do
+            python3 -m json.tool "$f" > /dev/null && echo "OK $f"
+          done

@@ -1,0 +1,21 @@
+{
+  "key": "group_megc_videos",
+  "title": "Videos",
+  "fields": [
+    { "key": "field_megc_videos_featured", "label": "Featured video", "name": "featured_video_url", "type": "url", "instructions": "Paste a YouTube link to pin it as the big player on Home and Media." },
+    { "key": "field_megc_videos_list", "label": "Video list", "name": "video_list", "type": "repeater", "layout": "table", "button_label": "Add a video", "instructions": "The playlist order on Home and Media. Paste YouTube links; titles come from YouTube automatically.",
+      "sub_fields": [
+        { "key": "field_megc_videos_list_url", "label": "YouTube link", "name": "youtube_url", "type": "url", "instructions": "The full watch URL." }
+      ]
+    }
+  ],
+  "location": [ [ { "param": "page", "operator": "==", "value": "5560" } ] ],
+  "menu_order": 6,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "active": true,
+  "show_in_rest": 1,
+  "description": "Which videos show on Home and the Media page, and which one leads."
+}

@@ -1,0 +1,39 @@
+{
+  "key": "group_megc_press_kit",
+  "title": "Press Kit",
+  "fields": [
+    { "key": "field_megc_epk_page_lede", "label": "Page intro line", "name": "page_lede", "type": "textarea", "rows": 2, "new_lines": "", "instructions": "Under the “Electronic Press Kit” heading. Your bio and pull quote come from the Home page — edit them there." },
+    { "key": "field_megc_epk_fact_based", "label": "Quick fact — Based", "name": "fact_based", "type": "text", "instructions": "e.g. “Front Range, Colorado”." },
+    { "key": "field_megc_epk_fact_sound", "label": "Quick fact — Sound", "name": "fact_sound", "type": "text", "instructions": "e.g. “Americana · Country · Rock”." },
+    { "key": "field_megc_epk_fact_formats", "label": "Quick fact — Formats", "name": "fact_formats", "type": "text", "instructions": "e.g. “Solo Acoustic · Full Band”." },
+    { "key": "field_megc_epk_fact_played", "label": "Quick fact — Played", "name": "fact_played", "type": "text", "instructions": "e.g. “Cider Days · Parker Days · Adams County Fair”." },
+    { "key": "field_megc_epk_kit_items", "label": "Press-kit downloads", "name": "kit_items", "type": "repeater", "layout": "block", "button_label": "Add a download", "instructions": "The download rows on Home and the EPK page.",
+      "sub_fields": [
+        { "key": "field_megc_epk_kit_title", "label": "Name", "name": "title", "type": "text", "instructions": "e.g. “Solo Acoustic EPK”." },
+        { "key": "field_megc_epk_kit_description", "label": "One-liner", "name": "description", "type": "text", "instructions": "What’s inside." },
+        { "key": "field_megc_epk_kit_file", "label": "The file", "name": "file", "type": "file", "return_format": "array", "library": "all", "instructions": "Upload the PDF here when it’s ready; until then the row shows “Coming soon”." },
+        { "key": "field_megc_epk_kit_link", "label": "Or a link", "name": "link", "type": "url", "instructions": "Use instead of a file for things that live elsewhere (the Sample Set List page today)." }
+      ]
+    },
+    { "key": "field_megc_epk_press_items", "label": "Press coverage", "name": "press_items", "type": "repeater", "layout": "block", "button_label": "Add a piece", "instructions": "The “What People Are Saying” links on the EPK page.",
+      "sub_fields": [
+        { "key": "field_megc_epk_press_outlet", "label": "Outlet", "name": "outlet", "type": "text", "instructions": "e.g. “Canvas Rebel”." },
+        { "key": "field_megc_epk_press_title", "label": "Piece", "name": "title", "type": "text", "instructions": "The article or review’s name." },
+        { "key": "field_megc_epk_press_url", "label": "Link", "name": "url", "type": "url", "instructions": "Where it lives." }
+      ]
+    },
+    { "key": "field_megc_epk_set_list_intro", "label": "Set-list intro", "name": "set_list_intro", "type": "text", "instructions": "The line above the sample set list. The set list itself stays your Sample Set List page." },
+    { "key": "field_megc_epk_resources_note", "label": "Photos & booking note", "name": "resources_note", "type": "textarea", "rows": 3, "new_lines": "", "instructions": "The paragraph in the closing “Photos & Booking” section." },
+    { "key": "field_megc_epk_meta_title", "label": "Browser-tab title", "name": "meta_title", "type": "text", "instructions": "What Google and the browser tab show for the EPK page." },
+    { "key": "field_megc_epk_meta_description", "label": "Search description", "name": "meta_description", "type": "textarea", "rows": 2, "new_lines": "", "instructions": "The sentence Google shows for the EPK page." }
+  ],
+  "location": [ [ { "param": "page", "operator": "==", "value": "608" } ] ],
+  "menu_order": 7,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "active": true,
+  "show_in_rest": 1,
+  "description": "The Electronic Press Kit page. Extra downloads also keep coming from links in this page’s own text, as today."
+}

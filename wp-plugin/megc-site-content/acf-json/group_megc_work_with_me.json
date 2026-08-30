@@ -1,0 +1,28 @@
+{
+  "key": "group_megc_work_with_me",
+  "title": "Work With Me",
+  "fields": [
+    { "key": "field_megc_collab_groups", "label": "Audience groups", "name": "collab_groups", "type": "repeater", "layout": "block", "button_label": "Add a group", "instructions": "The “Work With Me” columns on the Music page. Two today: fans & community, business & brands.",
+      "sub_fields": [
+        { "key": "field_megc_collab_heading", "label": "Group heading", "name": "heading", "type": "text", "instructions": "e.g. “For fans & community”." },
+        { "key": "field_megc_collab_blurb", "label": "Group blurb", "name": "blurb", "type": "text", "instructions": "The short line under the heading." },
+        { "key": "field_megc_collab_offerings", "label": "Offerings", "name": "offerings", "type": "repeater", "layout": "table", "button_label": "Add an offering", "instructions": "The starred list.",
+          "sub_fields": [
+            { "key": "field_megc_collab_offering_title", "label": "Offering", "name": "title", "type": "text", "instructions": "e.g. “House concerts”." },
+            { "key": "field_megc_collab_offering_detail", "label": "Detail", "name": "detail", "type": "text", "instructions": "The smaller explanatory line." }
+          ]
+        }
+      ]
+    },
+    { "key": "field_megc_cave_crew_url", "label": "Cave Crew link", "name": "cave_crew_url", "type": "url", "instructions": "Where “Join the Cave Crew” goes (the Facebook group today)." }
+  ],
+  "location": [ [ { "param": "page", "operator": "==", "value": "3742" } ] ],
+  "menu_order": 4,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "active": true,
+  "show_in_rest": 1,
+  "description": "The “Work With Me” section on the Music page."
+}
