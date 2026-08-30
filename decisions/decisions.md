@@ -1240,3 +1240,17 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **What stands.** Everything else in the 2026-08-28 entry: the `/fyc/<slug>` URL scheme, `/fyc` permanent redirect to the current campaign, the two-layer redirect scheme, nav placement with the `match: "/fyc"` prefix. Contract §6: "`/fyc` retarget and nav stay as shipped."
 
 **Harvest before deletion (contract §1.5).** Keep and reuse: the build-time media fetcher pattern (`scripts/fetch-fyc-assets.mjs` — download at build, validate bytes, skip when present, fail loudly) as the template for ALL WP image fields in Phase 3; the per-song alt text on lyric sheets (PR #79) which migrates into the ACF gallery field's per-image alt; the parity checks from PR #78.
+
+## 2026-08-29 — Phase-0 gate cleared: SCF, GHA-side prebuilt builds, meta fields in scope, canonical Songs From the Sofa page
+
+**Stage:** 03-build (sprint-11-wp-editability)
+**Type:** Architecture · Scope
+**Status:** accepted — Levi's gate answers, 2026-08-29.
+
+**Decisions.**
+1. **Field plugin: Secure Custom Fields** (wp.org fork, free, ACF-PRO feature set — repeater/gallery/options). Chosen over ACF PRO ($149/yr) and free-ACF fixed slots. Field definitions live as repo JSON, portable to ACF PRO in minutes if SCF governance ever degrades.
+2. **Builds move to the GHA runner** (`vercel pull` + `vercel build` + `vercel deploy --prebuilt`) because Vercel's builders cannot reach `/wp-json` while the GHA runner reads it cleanly (probe run 33282133387). Migrated content surfaces render static at build; a content save triggers a rebuild (Phase 4); nightly rebuild self-heals. Shows/shop keep their existing ISR + browser-fallback pattern untouched.
+3. **Meta titles/descriptions are in scope** — editable per surface via `meta_title`/`meta_description` fields.
+4. **Interface-vs-content boundary stands as classified** in `content-inventory.md` (`stays-code` rows: forms, validation/error copy, empty/loading states, buttons, tabs, cart/checkout copy, ★★★ section labels). Levi may flip individual rows at any time; a flip is a field addition, not a redesign.
+5. **Canonical WP page for Songs From the Sofa is `songs-from-the-sofa-2` (ID 4395)** — it holds the real EP story (~664 chars of body prose); `songs-from-the-sofa` (4386) is a streaming-link hub with no featured image and contributes nothing to the rendered site today. The Phase-3 registry row points at 4395; page 4386 is left untouched in WP.
+6. **`wp-probe.yml` deleted** — it was a temporary Phase-0 diagnostic; its findings are recorded in `content-inventory.md` and run log 33282133387.
