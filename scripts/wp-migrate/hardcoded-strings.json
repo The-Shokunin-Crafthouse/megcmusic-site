@@ -1,0 +1,82 @@
+{
+  "home": {
+    "meta": {
+      "title": "Meghan Clarisse Cave",
+      "description": "Colorado-based singer-songwriter — shows, music, merch, and press."
+    },
+    "pull_quote": "Music with country roots and cowgirl boots.",
+    "pull_quote_attribution": "~ Meghan Clarisse",
+    "instagram_caption": "Follow along between shows —",
+    "newsletter_headline": "Postcards from the road.",
+    "newsletter_blurb": "New shows, new songs, and the occasional story from the road — a few times a year, never more.",
+    "newsletter_birthday_note": "I’ll send you something special on your birthday."
+  },
+  "music": {
+    "meta": {
+      "title": "Music — MegCMusic",
+      "description": "The music of Meghan Clarisse Cave — Americana with country roots and cowgirl boots. Stream every release or take one home."
+    },
+    "page_lede": "Every release, in one place — stream Meghan Clarisse's records or take one home."
+  },
+  "media": {
+    "meta": {
+      "title": "Media — MegCMusic",
+      "description": "Watch Meghan Clarisse Cave live and browse the photo gallery — videos, press stills, and stage shots in one place."
+    },
+    "page_lede": "Live performances and the photo gallery — see and hear Meghan Clarisse."
+  },
+  "shows": {
+    "meta": {
+      "title": "Shows — MegCMusic",
+      "description": "Meghan Clarisse Cave's full show calendar — every upcoming date and the archive of shows already played."
+    },
+    "page_lede": "Every date on the calendar — and every one already played."
+  },
+  "shop": {
+    "meta": {
+      "title": "Shop — MegCMusic",
+      "description": "Records, books, and merch from Meghan Clarisse Cave — CDs, koozies, hats, and more. Ships from her own WooCommerce store."
+    },
+    "page_lede": "Records, books, and road-worn favorites — packed and shipped by Meghan herself."
+  },
+  "poetry": {
+    "meta": {
+      "title": "Secrets From a Songbird — Poetry by Meghan Clarisse",
+      "description": "Secrets From a Songbird — a collection of original poetry by Meghan Clarisse Cave, written in her late teens and early twenties and never before shared."
+    }
+  },
+  "epk": {
+    "meta": {
+      "title": "Press Kit — MegCMusic",
+      "description": "Electronic press kit for Meghan Clarisse Cave — bio, downloadable one-sheets, press coverage, music, and booking. Everything a promoter needs in one place."
+    },
+    "page_lede": "Bio, one-sheets, press, and music for Meghan Clarisse — booking a show starts here.",
+    "facts": {
+      "based": "Front Range, Colorado",
+      "sound": "Americana · Country · Rock",
+      "formats": "Solo Acoustic · Full Band",
+      "played": "Cider Days · Parker Days · Adams County Fair"
+    },
+    "set_list_intro": "A taste of the room — crowd-pleasing covers alongside Meghan's originals, shaped to the night.",
+    "resources_note": "Hi-res photos are ready to download for press and listings, and the full media gallery collects live video and stills. When you're ready to book, the booking form reaches Meghan directly."
+  },
+  "booking": {
+    "meta": {
+      "title": "Booking — MegCMusic",
+      "description": "Book Meghan Clarisse Cave for your venue, festival, or private event — solo acoustic or full band across the Colorado Front Range and beyond."
+    },
+    "page_lede": "Tell Meghan about your show and she’ll get back to you directly. Bars, venues, festivals, and private events — solo or full band.",
+    "intro": "Every show is booked personally — no agency in between. Send a few details and Meghan will follow up from her own inbox to work out the rest.",
+    "include_items": [
+      "The date (or a few options) and the city",
+      "Venue name and rough set length",
+      "Solo acoustic or full band",
+      "Anything else — budget, ticketing, a private event"
+    ],
+    "facts": {
+      "formats": "Solo Acoustic · Duo · Full Band",
+      "based": "Front Range, Colorado",
+      "plays": "Bars · Venues · Festivals · Private events"
+    }
+  }
+}
