@@ -92,19 +92,17 @@ async function productIdBySlug(slug: string): Promise<number> {
 }
 
 async function mediaIdByFile(basename: string): Promise<number> {
-  // Search then match the attachment whose file path ends with 2025/07/<basename>.png
-  const rows = await wp(`/media?search=${encodeURIComponent(basename)}&per_page=100&_fields=id,media_details.file,source_url`);
-  const hit = rows.find((r: any) => {
-    const f = r.media_details?.file ?? "";
-    return f === `2025/07/${basename}.png` || f.endsWith(`/${basename}.png`);
-  });
+  // Match on source_url — this WP install returns media_details unreliably
+  // under nested _fields, but source_url is always present.
+  const rows = await wp(`/media?search=${encodeURIComponent(basename)}&per_page=100&_fields=id,source_url`);
+  const hit = rows.find((r: any) => (r.source_url ?? "").endsWith(`/2025/07/${basename}.png`));
   if (!hit) throw new Error(`no media attachment for ${basename}.png (2025/07)`);
   return hit.id;
 }
 
 async function ensureHeroPhoto(): Promise<number> {
-  const rows = await wp(`/media?search=meghan-hero&per_page=20&_fields=id,media_details.file`);
-  const hit = rows.find((r: any) => (r.media_details?.file ?? "").includes("meghan-hero"));
+  const rows = await wp(`/media?search=meghan-hero&per_page=20&_fields=id,source_url`);
+  const hit = rows.find((r: any) => (r.source_url ?? "").includes("meghan-hero"));
   if (hit) return hit.id;
   if (DRY_RUN) {
     console.log("[dry-run] would upload public/images/hero/meghan-hero.jpg");
