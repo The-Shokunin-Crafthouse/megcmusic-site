@@ -1303,3 +1303,15 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **Alternatives considered.** PROCEED-WITH-CONDITIONS (Ops, withdrawn in rebuttal — its conditions were already PARK's structure). KILL the product (rejected — no seat argued the Claude-native, performance-conditioned storyboard wedge is dead; the cold-start problem is the open question, and condition 3 tests it). Pricing at $10–15/mo on "inference is free" (rejected — under any user-funded shape the variable cost is founder support time). Reusing Meghan's Booking/Gmail rig for studio prospecting (rejected — client-funded asset, IP unresolved).
 
 **Consequences.** Easier: the credential question never reopens; the pilot is cheap, bounded and measures the product rather than Levi; a policy change breaks an option, not the business. Harder: the first target is a vertical the studio has no relationships in; the pilot is a sales motion by a non-salesperson, and condition 10 names that as its own failure mode. Full transcript (brief, five seats, peer ranking, rebuttal, five premortem rounds, final synthesis v5) at `decisions/council/2026-09-03-playbook-byo-claude-transcript.md`, per learning #122.
+
+## 2026-09-05 — Phase 2 implementation decisions: migration runs in GHA, extracted-not-transcribed strings, collab offerings stored whole
+
+**Stage:** 03-build (sprint-11-wp-editability, Phase 2)
+**Type:** Architecture · Process
+**Status:** accepted
+
+**Decisions.**
+1. **The content migration executes on the GitHub Actions runner**, not from a local session: the WP application password lives only in GHA secrets (and wp-admin), the runner reaches `admin.megcmusic.com`, and no credential ever passes through a chat or local file. Pushes to the phase branch dry-run (auth + every lookup, zero writes); the real write is a `workflow_dispatch` with input `write=write`, run after the PR is reviewed.
+2. **Hardcoded JSX strings are extracted, never transcribed.** `scripts/wp-migrate/extract-hardcoded.mjs` regenerates `hardcoded-strings.json` from the page sources — exact bytes (em dashes, curly quotes), entities decoded, whitespace collapsed to what the DOM renders — and hard-fails on any empty extraction. Config-held content is imported directly by the migration script via tsx.
+3. **Collab offerings are stored whole in the repeater's `title` sub-field** (detail empty): the config holds single strings, and a schema split would require re-uploading the plugin through the human gate for zero rendered difference. Phase 3 renders `title` (+ `detail` when present).
+4. **Verification is at the destination:** after writing, every field is read back over REST (`acf_format=standard`) and diffed against the payload; any mismatch exits non-zero. The 11 lyric attachments (existing `2025/07` uploads, re-linked not re-uploaded) get per-song alt text, verified the same way.
