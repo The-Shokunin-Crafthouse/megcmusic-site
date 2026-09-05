@@ -1,8 +1,27 @@
 name: Production Deploy
 
+# Builds on the GitHub Actions runner and deploys the prebuilt output to
+# Vercel (mirrors preview-deploy.yml). The build runs here, not on Vercel's
+# infra, because the runner can reach admin.megcmusic.com/wp-json while
+# Vercel's builders cannot (verified 2026-08-29, decisions.md) — every
+# build-time WordPress read depends on it. A failed build deploys nothing;
+# the previous production deploy stays live.
+#
+# Triggers:
+# - push to main (code changes)
+# - repository_dispatch wp-content-updated (Meg saved a site-content page
+#   in WordPress — sent by the megc-site-content plugin)
+# - nightly schedule (self-heals any missed dispatch; 09:00 UTC ≈ 2–3am Denver)
+# - workflow_dispatch (manual)
+
 on:
   push:
     branches: [main]
+  repository_dispatch:
+    types: [wp-content-updated]
+  schedule:
+    - cron: "0 9 * * *"
+  workflow_dispatch:
 
 concurrency:
   group: production-deploy
@@ -11,6 +30,9 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
       - uses: actions/checkout@v4
 
@@ -21,9 +43,17 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
-      - name: Deploy to Vercel
-        run: vercel deploy --prod --token="$VERCEL_TOKEN"
+      - name: Pull Vercel environment (production)
+        run: vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+
+      - name: Build
+        run: vercel build --prod --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      - name: Deploy to production
+        run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
