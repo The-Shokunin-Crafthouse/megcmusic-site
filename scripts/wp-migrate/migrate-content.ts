@@ -391,7 +391,9 @@ async function main() {
   const failures: string[] = [];
   const norm = (v: unknown): unknown => {
     if (v === null || v === undefined || v === false) return "";
-    if (Array.isArray(v)) return v.map(norm);
+    // ACF returns false/"" for an empty repeater or gallery — normalize an
+    // empty array to the same so "no rows" compares equal on both sides.
+    if (Array.isArray(v)) return v.length ? v.map(norm) : "";
     if (typeof v === "object") {
       const o = v as Record<string, unknown>;
       if ("id" in o && ("url" in o || "source_url" in o || "mime_type" in o)) return o.id; // image/file/gallery item
