@@ -10,8 +10,8 @@ const nextConfig: NextConfig = {
     return [
       // /fyc has no page of its own — it permanently points at the CURRENT
       // campaign (old /fyc links from the 2024 cycle keep working). Retarget
-      // this when a future campaign ships; keep it in lockstep with
-      // FYC_CURRENT_SLUG in src/config/fyc.ts.
+      // this when a future campaign ships; keep it in lockstep with the FYC
+      // nav href (navItems.ts) and FYC_PAGE_IDS in src/lib/fyc-content.ts.
       {
         source: "/fyc",
         destination: "/fyc/shadows-of-a-ghost-town",

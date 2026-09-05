@@ -4,26 +4,29 @@ import { PlayCircle } from "@phosphor-icons/react/dist/ssr/PlayCircle";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { ARTIST_LINKS } from "@/config/discography";
-import { FYC_CAMPAIGNS } from "@/config/fyc";
+import { getFycCampaign } from "@/lib/fyc-content";
 import styles from "./fyc-live.module.css";
 
-const FYC = FYC_CAMPAIGNS["shadows-of-a-ghost-town"];
+const SLUG = "shadows-of-a-ghost-town";
 
-// LIVE campaign page — indexable, on the nav (/fyc redirects here). Every
-// section renders only once its config content exists, so the page grows as
-// Levi drops the campaign content into src/config/fyc.ts without code changes.
-export const metadata: Metadata = {
-  title: `For Your Consideration — ${FYC.album}`,
-  description: `${FYC.album} (2025) by ${FYC.artist} — for your consideration. Press, live performances, and lyrics from her full-length album, an evocative exploration of death, nature, and the soul of the West.`,
-  alternates: { canonical: `/fyc/${FYC.slug}` },
-  openGraph: {
+// LIVE campaign page — indexable, on the nav (/fyc redirects here). Content
+// comes from the WP page Meg edits (ACF fields, read at build); every section
+// renders only once its content exists, so the page grows as she fills it in.
+export async function generateMetadata(): Promise<Metadata> {
+  const FYC = await getFycCampaign(SLUG);
+  return {
     title: `For Your Consideration — ${FYC.album}`,
-    description: `${FYC.album} (2025) by ${FYC.artist} — press, live performances, and lyrics.`,
-    url: `/fyc/${FYC.slug}`,
-    type: "website",
-    images: [{ url: "/images/hero/meghan-hero.jpg" }],
-  },
-};
+    description: `${FYC.album} (2025) by ${FYC.artist} — for your consideration. Press, live performances, and lyrics from her full-length album, an evocative exploration of death, nature, and the soul of the West.`,
+    alternates: { canonical: `/fyc/${FYC.slug}` },
+    openGraph: {
+      title: `For Your Consideration — ${FYC.album}`,
+      description: `${FYC.album} (2025) by ${FYC.artist} — press, live performances, and lyrics.`,
+      url: `/fyc/${FYC.slug}`,
+      type: "website",
+      images: [{ url: "/images/hero/meghan-hero.jpg" }],
+    },
+  };
+}
 
 const LISTEN = [
   { label: "Apple Music", href: ARTIST_LINKS.apple },
@@ -31,7 +34,8 @@ const LISTEN = [
   { label: "Amazon Music", href: ARTIST_LINKS.amazon },
 ];
 
-export default function FycLivePage() {
+export default async function FycLivePage() {
+  const FYC = await getFycCampaign(SLUG);
   return (
     <div className={styles.page}>
       <img

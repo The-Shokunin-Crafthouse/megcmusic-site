@@ -1315,3 +1315,17 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 2. **Hardcoded JSX strings are extracted, never transcribed.** `scripts/wp-migrate/extract-hardcoded.mjs` regenerates `hardcoded-strings.json` from the page sources — exact bytes (em dashes, curly quotes), entities decoded, whitespace collapsed to what the DOM renders — and hard-fails on any empty extraction. Config-held content is imported directly by the migration script via tsx.
 3. **Collab offerings are stored whole in the repeater's `title` sub-field** (detail empty): the config holds single strings, and a schema split would require re-uploading the plugin through the human gate for zero rendered difference. Phase 3 renders `title` (+ `detail` when present).
 4. **Verification is at the destination:** after writing, every field is read back over REST (`acf_format=standard`) and diffed against the payload; any mismatch exits non-zero. The 11 lyric attachments (existing `2025/07` uploads, re-linked not re-uploaded) get per-song alt text, verified the same way.
+
+## 2026-09-05 — Phase 3 (FYC surface): WordPress becomes the source; manifest-mediated build-time media; migration retires its FYC payloads
+
+**Stage:** 03-build (sprint-11-wp-editability, Phase 3 — first surface)
+**Type:** Architecture
+**Status:** accepted
+
+**Decisions.**
+1. **`src/lib/fyc-content.ts` replaces `src/config/fyc.ts`** (deleted in the same PR after its replacement built green, per contract §6). Both FYC pages read the ACF fields on their WP page at build (`AbortSignal.timeout` + retry); any fetch failure throws and fails the build with a named cause — a field WP explicitly returns empty renders as section-absent-by-content, which the pages already handled.
+2. **Lyric images flow WP gallery → local files via a manifest.** `scripts/fetch-fyc-assets.mjs` (rewritten) reads each campaign's gallery, downloads every image into `public/images/fyc/` (magic-byte + size validation, loud failure), and writes `manifest.json` that the lib reads — no hotlinking, one source for names/alts/dimensions. `public/images/fyc/` is now gitignored (pure build artifact).
+3. **Originals, not named renditions:** Jetpack Photon rewrites the WP `large` rendition down to 525px — softer than the 1024px files the page shipped. The original upload (1400px, same square ratio) is fetched instead.
+4. **The migration script's FYC payloads are removed** (and its lyric-alt writes): WordPress is now their source of truth, and a migration re-run must never overwrite Meg's edits with stale config. The same retirement applies to each surface as its Phase-3 PR lands.
+
+**Verification.** Local production build green with both FYC routes prerendered static; rendered text diff-identical to production (2882/709 chars), 11/0 lyric images matching, head metadata (title/description/OG/canonical/robots) identical on both routes; zero remaining references to the deleted config.

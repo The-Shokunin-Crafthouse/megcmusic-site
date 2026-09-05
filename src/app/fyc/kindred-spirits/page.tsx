@@ -4,18 +4,21 @@ import { PlayCircle } from "@phosphor-icons/react/dist/ssr/PlayCircle";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { ARTIST_LINKS } from "@/config/discography";
-import { FYC_CAMPAIGNS } from "@/config/fyc";
+import { getFycCampaign } from "@/lib/fyc-content";
 import styles from "./fyc.module.css";
 
-const FYC = FYC_CAMPAIGNS["kindred-spirits"];
-const VIDEO = FYC.videos[0];
+const SLUG = "kindred-spirits";
 
 // Archived campaign page — reachable by link, kept out of search and the nav.
-export const metadata: Metadata = {
-  title: `For Your Consideration — ${FYC.album}`,
-  description: `An archived awards submission for ${FYC.album} by ${FYC.artist} — ${FYC.category}, ${FYC.cycle}.`,
-  robots: { index: false, follow: false },
-};
+// Content comes from the WP page Meg edits (ACF fields, read at build).
+export async function generateMetadata(): Promise<Metadata> {
+  const FYC = await getFycCampaign(SLUG);
+  return {
+    title: `For Your Consideration — ${FYC.album}`,
+    description: `An archived awards submission for ${FYC.album} by ${FYC.artist} — ${FYC.category}, ${FYC.cycle}.`,
+    robots: { index: false, follow: false },
+  };
+}
 
 const LISTEN = [
   { label: "Apple Music", href: ARTIST_LINKS.apple },
@@ -23,9 +26,9 @@ const LISTEN = [
   { label: "Amazon Music", href: ARTIST_LINKS.amazon },
 ];
 
-export default function FycPage() {
-  const watch = `https://www.youtube.com/watch?v=${VIDEO.id}`;
-  const thumb = `https://i.ytimg.com/vi/${VIDEO.id}/hqdefault.jpg`;
+export default async function FycPage() {
+  const FYC = await getFycCampaign(SLUG);
+  const VIDEO = FYC.videos[0];
 
   return (
     <div className={styles.page}>
@@ -59,28 +62,30 @@ export default function FycPage() {
           </div>
         </section>
 
-        <section className={styles.section} aria-labelledby="fyc-watch">
-          <div className={styles.inner}>
-            <SectionLabel id="fyc-watch">Watch — {VIDEO.title}</SectionLabel>
-            <a
-              className={styles.video}
-              href={watch}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`Watch ${VIDEO.title} on YouTube`}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                className={styles.videoThumb}
-                src={thumb}
-                alt=""
-                loading="lazy"
-                decoding="async"
-              />
-              <PlayCircle className={styles.videoPlay} weight="fill" aria-hidden="true" />
-            </a>
-          </div>
-        </section>
+        {VIDEO ? (
+          <section className={styles.section} aria-labelledby="fyc-watch">
+            <div className={styles.inner}>
+              <SectionLabel id="fyc-watch">Watch — {VIDEO.title}</SectionLabel>
+              <a
+                className={styles.video}
+                href={`https://www.youtube.com/watch?v=${VIDEO.id}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                aria-label={`Watch ${VIDEO.title} on YouTube`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  className={styles.videoThumb}
+                  src={`https://i.ytimg.com/vi/${VIDEO.id}/hqdefault.jpg`}
+                  alt=""
+                  loading="lazy"
+                  decoding="async"
+                />
+                <PlayCircle className={styles.videoPlay} weight="fill" aria-hidden="true" />
+              </a>
+            </div>
+          </section>
+        ) : null}
 
         <section className={styles.section} aria-labelledby="fyc-listen">
           <div className={styles.inner}>

@@ -6,7 +6,7 @@
 
 import { WP_ORIGIN } from "@/lib/wp-origin";
 
-const WP_API_URL =
+export const WP_API =
   process.env.WP_API_URL ?? `${WP_ORIGIN}/wp-json/wp/v2`;
 
 export interface WpRendered {
@@ -29,7 +29,7 @@ export interface WpPage {
 const TIMEOUT_MS = 12_000;
 
 async function wpFetch<T>(path: string, revalidate: number): Promise<T> {
-  const res = await fetch(`${WP_API_URL}${path}`, {
+  const res = await fetch(`${WP_API}${path}`, {
     next: { revalidate },
     signal: AbortSignal.timeout(TIMEOUT_MS),
   });
