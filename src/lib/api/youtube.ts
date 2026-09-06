@@ -1,9 +1,5 @@
-import {
-  CHANNEL_ID,
-  extraVideoIds,
-  primaryVideoId,
-  seedVideoIds,
-} from "@/config/videos";
+import { CHANNEL_ID, extraVideoIds } from "@/config/videos";
+import { primaryVideoId, seedVideoIds } from "@/lib/videos-content";
 
 // YouTube is not the WP host, so it isn't datacenter-blocked — these run
 // server-side at build/ISR. Everything is bounded + falls back so a slow
@@ -50,9 +46,10 @@ async function fetchMeta(id: string): Promise<{ title: string; author: string }>
 }
 
 /**
- * The merged video list: primary first, then the channel's newest uploads, then
- * the seed lineup and any cross-channel extras — deduped. Title + author come
- * from oEmbed (per-video, so cross-channel uploads carry their real uploader).
+ * The merged video list: Meg's featured video first, then the channel's newest
+ * uploads, then her curated list and any cross-channel extras — deduped. Title
+ * and author come from oEmbed (per-video, so cross-channel uploads carry their
+ * real uploader).
  */
 export async function getVideos(): Promise<Video[]> {
   const order = await fetchChannelOrder();
