@@ -8,6 +8,7 @@ import { Discography } from "@/components/Discography/Discography";
 import { BootScene } from "@/components/BootScene/BootScene";
 import { SiteFooter } from "@/components/SiteFooter/SiteFooter";
 import { getEvents, type TribeEvent } from "@/lib/api/events";
+import { HOME_CONTENT } from "@/lib/home-content";
 import styles from "./page.module.css";
 
 // Never let a flaky Events API break the build — fall back to an empty list,
@@ -50,7 +51,11 @@ export default async function Home() {
         <BootScene />
       </div>
       <Videos />
-      <Newsletter />
+      <Newsletter
+        headline={HOME_CONTENT.newsletterHeadline}
+        blurb={HOME_CONTENT.newsletterBlurb}
+        birthdayNote={HOME_CONTENT.newsletterBirthdayNote}
+      />
       <Discography />
       <SiteFooter />
     </div>

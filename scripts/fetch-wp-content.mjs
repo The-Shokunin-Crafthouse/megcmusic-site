@@ -45,6 +45,7 @@ const TIMEOUT_MS = 15_000;
 /** Surface key → the WP page Meg edits, as a page id or a `{ slug }` to resolve.
  *  A Phase-3 PR adds its surface here. */
 const SURFACES = {
+  home: 4, // "Home Page" — bio, pull quote, recognition, social, site metadata
   epk: 608, // "Press Kit"
   media: 10, // "Media" — the page's own copy
   videos: 5560, // "Videos" — the featured video + list, shown on Home and Media

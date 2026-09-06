@@ -20,14 +20,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-import { BIO_PARAGRAPHS } from "../../src/config/bio";
-import { RECOGNITION } from "../../src/config/recognition";
-import {
-  INSTAGRAM_HANDLE,
-  INSTAGRAM_URL,
-  FACEBOOK_URL,
-  YOUTUBE_URL,
-} from "../../src/config/social";
 import { ARTIST_LINKS, RELEASES } from "../../src/config/discography";
 import { RELEASE_DETAILS } from "../../src/config/releases";
 import { REVIEWS } from "../../src/config/reviews";
@@ -145,7 +137,10 @@ async function main() {
   for (const slug of ["shadows-of-a-ghost-town-cd", "kindred-spirits-ep", "songs-from-the-sofa-cd"]) {
     productIds[slug] = await productIdBySlug(slug);
   }
-  const heroId = await ensureHeroPhoto();
+  // Still ensured (a fresh install needs the hero in the media library for the
+  // home page's Site photo field), but its id is no longer written from here —
+  // Phase 3 made WordPress the source for the home surface.
+  await ensureHeroPhoto();
   // Still ensured (a fresh install needs the page Meg edits to exist), but its
   // content is no longer written from here — Phase 3 made WordPress the source.
   await ensureSitePoetryPage();
@@ -194,28 +189,9 @@ async function main() {
     }));
 
   const writes: Array<{ page: number; label: string; acf: Record<string, unknown> }> = [
-    {
-      page: ids.home, label: "home",
-      acf: {
-        bio_paragraph_1: BIO_PARAGRAPHS[0],
-        bio_paragraph_2: BIO_PARAGRAPHS[1],
-        bio_paragraph_3: BIO_PARAGRAPHS[2],
-        pull_quote: STRINGS.home.pull_quote,
-        pull_quote_attribution: STRINGS.home.pull_quote_attribution,
-        recognition: RECOGNITION.map((r) => ({ years: r.period, honor: r.title, detail: r.detail })),
-        instagram_caption: STRINGS.home.instagram_caption,
-        instagram_handle: INSTAGRAM_HANDLE,
-        newsletter_headline: STRINGS.home.newsletter_headline,
-        newsletter_blurb: STRINGS.home.newsletter_blurb,
-        newsletter_birthday_note: STRINGS.home.newsletter_birthday_note,
-        hero_photo: heroId,
-        facebook_url: FACEBOOK_URL,
-        instagram_url: INSTAGRAM_URL,
-        youtube_url: YOUTUBE_URL,
-        meta_title: STRINGS.home.meta.title,
-        meta_description: STRINGS.home.meta.description,
-      },
-    },
+    // NOTE: the home payload was removed after Phase 3 made WordPress the
+    // source of truth for the home surface (migrated + verified in run
+    // 33978411393) — a re-run must never overwrite Meg's edits with stale data.
     {
       page: ids.music, label: "music",
       acf: {

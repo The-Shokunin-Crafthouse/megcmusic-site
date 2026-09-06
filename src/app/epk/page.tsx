@@ -10,7 +10,7 @@ import { parseDownloadableAssets, type EpkAsset } from "@/lib/epk-assets";
 import { parseSetList, type SetGroup } from "@/lib/set-list";
 import { SetList } from "./SetList";
 import { getEpkContent } from "@/lib/epk-content";
-import { BIO_PARAGRAPHS } from "@/config/bio";
+import { HOME_CONTENT } from "@/lib/home-content";
 import { WP_ORIGIN } from "@/lib/wp-origin";
 import styles from "./epk.module.css";
 
@@ -95,16 +95,18 @@ export default async function EpkPage() {
             <SectionLabel id="epk-bio">The Story</SectionLabel>
             <div className={styles.bioGrid}>
               <div className={styles.bioProse}>
-                {BIO_PARAGRAPHS.map((para, i) => (
+                {HOME_CONTENT.bioParagraphs.map((para, i) => (
                   <p key={i} className={styles.bioPara}>
                     {para}
                   </p>
                 ))}
                 <blockquote className={styles.bioQuote}>
                   <p className={styles.bioQuoteText}>
-                    “Music with country roots and cowgirl boots.”
+                    {`“${HOME_CONTENT.pullQuote}”`}
                   </p>
-                  <cite className={styles.bioQuoteAttr}>~ Meghan Clarisse</cite>
+                  <cite className={styles.bioQuoteAttr}>
+                    {HOME_CONTENT.pullQuoteAttribution}
+                  </cite>
                 </blockquote>
               </div>
 

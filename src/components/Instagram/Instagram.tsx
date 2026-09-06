@@ -2,11 +2,10 @@ import { InstagramLogo } from "@phosphor-icons/react/dist/ssr/InstagramLogo";
 import { SectionLabel } from "../SectionLabel/SectionLabel";
 import {
   BEHOLD_FEED_ID,
-  INSTAGRAM_HANDLE,
-  INSTAGRAM_URL,
   parseBeholdPosts,
   type BeholdPost,
 } from "@/config/social";
+import { HOME_CONTENT } from "@/lib/home-content";
 import styles from "./Instagram.module.css";
 
 // Instagram strip (Figma 39:147). Recent posts via Behold's public feed JSON
@@ -69,27 +68,27 @@ export async function Instagram() {
           ) : (
             <a
               className={styles.follow}
-              href={INSTAGRAM_URL}
+              href={HOME_CONTENT.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
             >
               <InstagramLogo className={styles.igIcon} weight="duotone" aria-hidden="true" />
               <span className={styles.followLead}>New reels &amp; photos land here</span>
-              <span className={styles.followHandle}>@{INSTAGRAM_HANDLE}</span>
+              <span className={styles.followHandle}>@{HOME_CONTENT.instagramHandle}</span>
             </a>
           )}
           </div>
         </div>
 
         <p className={styles.caption}>
-          Follow along between shows —{" "}
+          {HOME_CONTENT.instagramCaption}{" "}
           <a
             className={styles.handle}
-            href={INSTAGRAM_URL}
+            href={HOME_CONTENT.instagramUrl}
             target="_blank"
             rel="noopener noreferrer"
           >
-            @{INSTAGRAM_HANDLE}
+            @{HOME_CONTENT.instagramHandle}
           </a>
         </p>
       </div>

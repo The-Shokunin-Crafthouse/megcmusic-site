@@ -4,7 +4,7 @@ import { InstagramLogo } from "@phosphor-icons/react/dist/ssr/InstagramLogo";
 import { YoutubeLogo } from "@phosphor-icons/react/dist/ssr/YoutubeLogo";
 import { EnvelopeSimple } from "@phosphor-icons/react/dist/ssr/EnvelopeSimple";
 import { WP_ORIGIN } from "@/lib/wp-origin";
-import { FACEBOOK_URL, INSTAGRAM_URL, YOUTUBE_URL } from "@/config/social";
+import { HOME_CONTENT } from "@/lib/home-content";
 import styles from "./SiteFooter.module.css";
 
 // Footer (Figma 39:286) — oversized "BOOK ME" watermark behind the connect
@@ -16,9 +16,9 @@ const BOOKING_HREF = `${WP_ORIGIN}/contact-me/`;
 // than her personal address, so her email stays off a public repo — the booking
 // form reaches her the same way.
 const SOCIALS = [
-  { label: "Meghan on Facebook", href: FACEBOOK_URL, Icon: FacebookLogo, external: true },
-  { label: "Meghan on Instagram", href: INSTAGRAM_URL, Icon: InstagramLogo, external: true },
-  { label: "Meghan on YouTube", href: YOUTUBE_URL, Icon: YoutubeLogo, external: true },
+  { label: "Meghan on Facebook", href: HOME_CONTENT.facebookUrl, Icon: FacebookLogo, external: true },
+  { label: "Meghan on Instagram", href: HOME_CONTENT.instagramUrl, Icon: InstagramLogo, external: true },
+  { label: "Meghan on YouTube", href: HOME_CONTENT.youtubeUrl, Icon: YoutubeLogo, external: true },
   { label: "Email Meghan", href: "/booking", Icon: EnvelopeSimple, external: false },
 ] as const;
 

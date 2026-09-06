@@ -1,12 +1,15 @@
-import { BIO_PARAGRAPHS } from "@/config/bio";
-import { RECOGNITION } from "@/config/recognition";
+import { HOME_CONTENT } from "@/lib/home-content";
 import { SectionLabel } from "../SectionLabel/SectionLabel";
 import styles from "./LinerNotes.module.css";
 
 // Liner Notes (Figma 39:106): Meg's homepage bio (comp copy) with a Praise
 // drop-cap and her signature pull-quote, beside a curated Recognition timeline.
 export function LinerNotes() {
-  const [first, ...rest] = BIO_PARAGRAPHS;
+  const { bioParagraphs, pullQuote, pullQuoteAttribution, recognition } = HOME_CONTENT;
+  const [first, ...rest] = bioParagraphs;
+  // Section absent by content: with every bio field emptied there is no story
+  // to tell, and no drop cap to take a letter from.
+  if (!first) return null;
   const dropCap = first.charAt(0);
   const firstRest = first.slice(1);
 
@@ -28,10 +31,8 @@ export function LinerNotes() {
             </p>
 
             <blockquote className={styles.quote}>
-              <p className={styles.quoteText}>
-                “Music with country roots and cowgirl boots.”
-              </p>
-              <cite className={styles.quoteAttr}>~ Meghan Clarisse</cite>
+              <p className={styles.quoteText}>{`“${pullQuote}”`}</p>
+              <cite className={styles.quoteAttr}>{pullQuoteAttribution}</cite>
             </blockquote>
 
             {rest.map((para, i) => (
@@ -44,7 +45,7 @@ export function LinerNotes() {
           <aside className={styles.recognition} aria-label="Recognition">
             <h3 className={styles.recHeading}>Recognition</h3>
             <ul className={styles.recList}>
-              {RECOGNITION.map((r) => (
+              {recognition.map((r) => (
                 <li key={`${r.period}-${r.title}`} className={styles.recItem}>
                   <span className={styles.recPeriod}>{r.period}</span>
                   <span className={styles.recTitle}>{r.title}</span>
