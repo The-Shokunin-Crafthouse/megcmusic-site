@@ -6,23 +6,23 @@ import { ArrowSquareOut } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import { FilePdf } from "@phosphor-icons/react/dist/ssr/FilePdf";
 import { fetchPageContentBrowser } from "@/lib/api/wordpress-browser";
 import { parseDownloadableAssets, type EpkAsset } from "@/lib/epk-assets";
-import type { EpkItem } from "@/config/epk";
+import type { EpkKitItem } from "@/lib/epk-content";
 import styles from "@/app/epk/epk.module.css";
 
 /**
  * Press-kit downloads. The named kits (Solo Acoustic / Full Band / Set List)
- * come from config — the first two ship a "coming soon" state until Meg adds the
- * PDFs, the Set List links to her live page. Below them, any downloadable file
- * actually linked on the /press-kit page surfaces automatically: rendered from
- * the server parse, then augmented in the browser (the WP host blocks datacenter
- * IPs, so a blocked deploy sees none server-side — the visitor's residential IP
- * fills them in). Zero code change when Meg uploads a one-sheet.
+ * come from the ACF repeater on Meg's Press Kit page — a row with neither a
+ * file nor a link ships a "coming soon" state until she adds the PDF. Below
+ * them, any downloadable file actually linked on the /press-kit page surfaces
+ * automatically: rendered from the server parse, then augmented in the browser
+ * (the WP host blocks datacenter IPs, so a blocked deploy sees none
+ * server-side — the visitor's residential IP fills them in).
  */
 export function EpkPressKit({
   named,
   serverAssets,
 }: {
-  named: EpkItem[];
+  named: readonly EpkKitItem[];
   serverAssets: EpkAsset[];
 }) {
   const [assets, setAssets] = useState<EpkAsset[]>(serverAssets);

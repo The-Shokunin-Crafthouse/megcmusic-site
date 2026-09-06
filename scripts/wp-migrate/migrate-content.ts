@@ -34,8 +34,6 @@ import { RELEASE_DETAILS } from "../../src/config/releases";
 import { REVIEWS } from "../../src/config/reviews";
 import { LIVE_FORMATS } from "../../src/config/formats";
 import { COLLAB_GROUPS, CAVE_CREW_URL } from "../../src/config/collaborate";
-import { EPK_ITEMS } from "../../src/config/epk";
-import { PRESS_ITEMS } from "../../src/config/press";
 import { POETRY } from "../../src/config/poetry";
 
 const DRY_RUN = process.argv.includes("--dry-run");
@@ -268,27 +266,9 @@ async function main() {
         video_list: seedVideoIds.map((id) => ({ youtube_url: watchUrl(id) })),
       },
     },
-    {
-      page: ids.epk, label: "press-kit",
-      acf: {
-        page_lede: STRINGS.epk.page_lede,
-        fact_based: STRINGS.epk.facts.based,
-        fact_sound: STRINGS.epk.facts.sound,
-        fact_formats: STRINGS.epk.facts.formats,
-        fact_played: STRINGS.epk.facts.played,
-        kit_items: EPK_ITEMS.map((k) => ({
-          title: k.title,
-          description: k.description,
-          file: null,
-          link: k.href ?? "",
-        })),
-        press_items: PRESS_ITEMS.map((p) => ({ outlet: p.outlet, title: p.title, url: p.href })),
-        set_list_intro: STRINGS.epk.set_list_intro,
-        resources_note: STRINGS.epk.resources_note,
-        meta_title: STRINGS.epk.meta.title,
-        meta_description: STRINGS.epk.meta.description,
-      },
-    },
+    // NOTE: the press-kit payload was removed after Phase 3 made WordPress the
+    // source of truth for the EPK surface (migrated + verified in run
+    // 33978411393) — a re-run must never overwrite Meg's edits with stale data.
     {
       page: ids.booking, label: "booking",
       acf: {
