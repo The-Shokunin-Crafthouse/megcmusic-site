@@ -23,8 +23,22 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
-const ORIGIN = process.env.NEXT_PUBLIC_WP_ORIGIN ?? "https://admin.megcmusic.com";
-const API = process.env.WP_API_URL ?? `${ORIGIN}/wp-json/wp/v2`;
+// Env overrides are used only when they parse as absolute URLs — the Vercel
+// env delivers these set-but-invalid (runs 33989616503, 34045385710: fetch
+// threw "Failed to parse URL" before any network I/O).
+function urlOr(envName, fallback) {
+  const v = process.env[envName];
+  if (!v) return fallback;
+  try {
+    new URL(v);
+    return v;
+  } catch {
+    console.warn(`${envName} is set but not an absolute URL — using ${fallback}`);
+    return fallback;
+  }
+}
+const ORIGIN = urlOr("NEXT_PUBLIC_WP_ORIGIN", "https://admin.megcmusic.com");
+const API = urlOr("WP_API_URL", `${ORIGIN}/wp-json/wp/v2`);
 const OUT_DIR = path.join(process.cwd(), "public", "images", "fyc");
 
 /** Campaign WP pages carrying the FYC field group — mirrors FYC_PAGE_IDS in

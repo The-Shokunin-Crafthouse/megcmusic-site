@@ -6,8 +6,24 @@
 
 import { WP_ORIGIN } from "@/lib/wp-origin";
 
-export const WP_API =
-  process.env.WP_API_URL ?? `${WP_ORIGIN}/wp-json/wp/v2`;
+// The env override is honored only when it parses as an absolute URL — the
+// Vercel env delivers WP_API_URL set-but-invalid, and fetch then throws
+// "Failed to parse URL" before any network I/O (masked for months by the
+// silent catch → [] on every server-side page fetch; runs 33989616503,
+// 34045385710 surfaced it when the FYC build started failing loudly).
+function absoluteUrlOr(value: string | undefined, fallback: string): string {
+  if (!value) return fallback;
+  try {
+    new URL(value);
+    return value;
+  } catch {
+    return fallback;
+  }
+}
+export const WP_API = absoluteUrlOr(
+  process.env.WP_API_URL,
+  `${WP_ORIGIN}/wp-json/wp/v2`,
+);
 
 export interface WpRendered {
   rendered: string;

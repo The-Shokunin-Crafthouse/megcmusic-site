@@ -39,7 +39,7 @@ import { PRESS_ITEMS } from "../../src/config/press";
 import { POETRY } from "../../src/config/poetry";
 
 const DRY_RUN = process.argv.includes("--dry-run");
-const ORIGIN = process.env.NEXT_PUBLIC_WP_ORIGIN ?? "https://admin.megcmusic.com";
+const ORIGIN = process.env.NEXT_PUBLIC_WP_ORIGIN || "https://admin.megcmusic.com";
 const API = `${ORIGIN}/wp-json/wp/v2`;
 const USER = process.env.WP_APP_USER;
 const PASS = process.env.WP_APP_PASSWORD;
