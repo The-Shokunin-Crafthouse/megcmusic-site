@@ -6,8 +6,11 @@
 
 import { WP_ORIGIN } from "@/lib/wp-origin";
 
+// `||` not `??` — a Vercel-pulled env can be set-but-empty (see
+// scripts/fetch-fyc-assets.mjs), and an empty base makes fetch throw
+// "Failed to parse URL" on every call.
 export const WP_API =
-  process.env.WP_API_URL ?? `${WP_ORIGIN}/wp-json/wp/v2`;
+  process.env.WP_API_URL || `${WP_ORIGIN}/wp-json/wp/v2`;
 
 export interface WpRendered {
   rendered: string;

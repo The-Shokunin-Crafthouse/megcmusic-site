@@ -16,4 +16,4 @@
  * NEXT_PUBLIC_ vars it bakes at build — a change needs a rebuild, not a restart.
  */
 export const WP_ORIGIN =
-  process.env.NEXT_PUBLIC_WP_ORIGIN ?? "https://admin.megcmusic.com";
+  process.env.NEXT_PUBLIC_WP_ORIGIN || "https://admin.megcmusic.com";

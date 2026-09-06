@@ -23,8 +23,10 @@ import { mkdir, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
-const ORIGIN = process.env.NEXT_PUBLIC_WP_ORIGIN ?? "https://admin.megcmusic.com";
-const API = process.env.WP_API_URL ?? `${ORIGIN}/wp-json/wp/v2`;
+// `||` not `??`: Vercel-pulled envs deliver these SET-but-empty, and an
+// empty base built "…/pages/4350" with no host (preview run 33989616503).
+const ORIGIN = process.env.NEXT_PUBLIC_WP_ORIGIN || "https://admin.megcmusic.com";
+const API = process.env.WP_API_URL || `${ORIGIN}/wp-json/wp/v2`;
 const OUT_DIR = path.join(process.cwd(), "public", "images", "fyc");
 
 /** Campaign WP pages carrying the FYC field group — mirrors FYC_PAGE_IDS in
