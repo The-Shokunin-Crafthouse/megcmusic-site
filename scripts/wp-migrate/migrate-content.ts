@@ -28,7 +28,6 @@ import {
   FACEBOOK_URL,
   YOUTUBE_URL,
 } from "../../src/config/social";
-import { primaryVideoId, seedVideoIds } from "../../src/config/videos";
 import { ARTIST_LINKS, RELEASES } from "../../src/config/discography";
 import { RELEASE_DETAILS } from "../../src/config/releases";
 import { REVIEWS } from "../../src/config/reviews";
@@ -131,7 +130,6 @@ async function ensureSitePoetryPage(): Promise<number> {
   return page.id;
 }
 
-const watchUrl = (id: string) => `https://www.youtube.com/watch?v=${id}`;
 
 async function main() {
   // 1 — auth (context=edit proves the application password, not just anonymous read)
@@ -251,24 +249,10 @@ async function main() {
         cave_crew_url: CAVE_CREW_URL,
       },
     },
-    {
-      page: ids.media, label: "media",
-      acf: {
-        page_lede: STRINGS.media.page_lede,
-        meta_title: STRINGS.media.meta.title,
-        meta_description: STRINGS.media.meta.description,
-      },
-    },
-    {
-      page: ids.videos, label: "videos",
-      acf: {
-        featured_video_url: watchUrl(primaryVideoId),
-        video_list: seedVideoIds.map((id) => ({ youtube_url: watchUrl(id) })),
-      },
-    },
-    // NOTE: the press-kit payload was removed after Phase 3 made WordPress the
-    // source of truth for the EPK surface (migrated + verified in run
-    // 33978411393) — a re-run must never overwrite Meg's edits with stale data.
+    // NOTE: the press-kit, media and videos payloads were removed as Phase 3
+    // made WordPress the source of truth for those surfaces (migrated +
+    // verified in run 33978411393) — a re-run must never overwrite Meg's edits
+    // with stale data.
     {
       page: ids.booking, label: "booking",
       acf: {

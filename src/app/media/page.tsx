@@ -5,17 +5,17 @@ import { PhotoGrid } from "@/components/MediaGallery/PhotoGrid";
 import { getVideos, type Video } from "@/lib/api/youtube";
 import { getPage } from "@/lib/api/wordpress";
 import { parsePhotos, type Photo } from "@/lib/media-photos";
+import { getMediaContent } from "@/lib/media-content";
 import styles from "./media.module.css";
 
 // Videos come from YouTube (hourly), photos from her WP /photos page (hourly so a
 // new photo appears without a redeploy).
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "Media — MegCMusic",
-  description:
-    "Watch Meghan Clarisse Cave live and browse the photo gallery — videos, press stills, and stage shots in one place.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const media = await getMediaContent();
+  return { title: media.metaTitle, description: media.metaDescription };
+}
 
 async function safeVideos(): Promise<Video[]> {
   try {
@@ -37,7 +37,11 @@ async function safePhotos(): Promise<Photo[]> {
 }
 
 export default async function MediaPage() {
-  const [videos, photos] = await Promise.all([safeVideos(), safePhotos()]);
+  const [media, videos, photos] = await Promise.all([
+    getMediaContent(),
+    safeVideos(),
+    safePhotos(),
+  ]);
 
   return (
     <div className={styles.page}>
@@ -57,10 +61,7 @@ export default async function MediaPage() {
               ★★★
             </p>
             <h1 className={styles.title}>Media</h1>
-            <p className={styles.lede}>
-              Live performances and the photo gallery — see and hear Meghan
-              Clarisse.
-            </p>
+            <p className={styles.lede}>{media.pageLede}</p>
           </div>
         </header>
 
