@@ -24,7 +24,20 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 
-const ORIGIN = process.env.NEXT_PUBLIC_WP_ORIGIN ?? "https://admin.megcmusic.com";
+// `??` is not enough: the Vercel env delivers NEXT_PUBLIC_WP_ORIGIN set-but-empty,
+// which `??` passes through, and fetch then throws "Failed to parse URL" before
+// any network I/O. Same guard as src/lib/wp-origin.ts, same incident.
+const DEFAULT_ORIGIN = "https://admin.megcmusic.com";
+function validOrigin(value) {
+  if (!value) return DEFAULT_ORIGIN;
+  try {
+    new URL(value);
+    return value;
+  } catch {
+    return DEFAULT_ORIGIN;
+  }
+}
+const ORIGIN = validOrigin(process.env.NEXT_PUBLIC_WP_ORIGIN);
 const API = `${ORIGIN}/wp-json/wp/v2`;
 const OUT_DIR = path.join(process.cwd(), "src", "generated", "wp-content");
 const TIMEOUT_MS = 15_000;
