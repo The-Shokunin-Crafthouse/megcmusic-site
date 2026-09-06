@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SiteChrome } from "@/components/SiteChrome/SiteChrome";
+import { HOME_CONTENT } from "@/lib/home-content";
 import { ChromeGate } from "@/components/SiteChrome/ChromeGate";
 import "./globals.css";
 
@@ -19,9 +20,8 @@ function resolveSiteUrl(): URL {
 }
 
 export const metadata: Metadata = {
-  title: "Meghan Clarisse Cave",
-  description:
-    "Colorado-based singer-songwriter — shows, music, merch, and press.",
+  title: HOME_CONTENT.metaTitle,
+  description: HOME_CONTENT.metaDescription,
   metadataBase: resolveSiteUrl(),
 };
 

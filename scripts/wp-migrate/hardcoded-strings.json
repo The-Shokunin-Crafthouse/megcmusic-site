@@ -1,16 +1,4 @@
 {
-  "home": {
-    "meta": {
-      "title": "Meghan Clarisse Cave",
-      "description": "Colorado-based singer-songwriter — shows, music, merch, and press."
-    },
-    "pull_quote": "Music with country roots and cowgirl boots.",
-    "pull_quote_attribution": "~ Meghan Clarisse",
-    "instagram_caption": "Follow along between shows —",
-    "newsletter_headline": "Postcards from the road.",
-    "newsletter_blurb": "New shows, new songs, and the occasional story from the road — a few times a year, never more.",
-    "newsletter_birthday_note": "I’ll send you something special on your birthday."
-  },
   "music": {
     "meta": {
       "title": "Music — MegCMusic",

@@ -44,7 +44,15 @@ function jsonp(url: string): Promise<{ result: string; msg: string }> {
 const emailOk = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
 const stripTags = (s: string) => s.replace(/<[^>]*>/g, "").trim();
 
-export function Newsletter() {
+export function Newsletter({
+  headline,
+  blurb,
+  birthdayNote,
+}: {
+  headline: string;
+  blurb: string;
+  birthdayNote: string;
+}) {
   const [fname, setFname] = useState("");
   const [email, setEmail] = useState("");
   const [birthday, setBirthday] = useState("");
@@ -91,11 +99,8 @@ export function Newsletter() {
       <div className={styles.inner}>
         <div className={styles.pitch}>
           <SectionLabel id="news-heading">The Mailing List</SectionLabel>
-          <p className={styles.headline}>Postcards from the road.</p>
-          <p className={styles.blurb}>
-            New shows, new songs, and the occasional story from the road — a few
-            times a year, never more.
-          </p>
+          <p className={styles.headline}>{headline}</p>
+          <p className={styles.blurb}>{blurb}</p>
         </div>
 
         {status === "success" ? (
@@ -158,7 +163,7 @@ export function Newsletter() {
                 Birthday <span className={styles.optional}>(optional)</span>
               </label>
               <span id={`${baseId}-bday-hint`} className={styles.hint}>
-                I’ll send you something special on your birthday.
+                {birthdayNote}
               </span>
               <input
                 id={`${baseId}-bday`}

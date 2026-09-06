@@ -11,7 +11,7 @@
  * matching what the DOM renders.
  *
  * A surface drops out of this file as its Phase-3 PR lands and WordPress
- * becomes its source of truth (epk, media, poetry: 2026-09-06).
+ * becomes its source of truth (epk, media, poetry, home: 2026-09-06).
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -31,10 +31,6 @@ function one(src, re, label) {
   return norm(m[1]);
 }
 
-const layout = read("src/app/layout.tsx");
-const liner = read("src/components/LinerNotes/LinerNotes.tsx");
-const newsletter = read("src/components/Newsletter/Newsletter.tsx");
-const instagram = read("src/components/Instagram/Instagram.tsx");
 const booking = read("src/app/booking/page.tsx");
 const music = read("src/app/music/page.tsx");
 const shows = read("src/app/shows/page.tsx");
@@ -53,15 +49,6 @@ const bookingInclude = (booking.match(/WHAT_TO_INCLUDE\s*=\s*\[([^\]]+)\]/s) ||
   ?.match(/"([^"]+)"/g)?.map((s) => s.slice(1, -1));
 
 const out = {
-  home: {
-    meta: meta(layout, "layout"),
-    pull_quote: one(liner, /quoteText}>\s*[“"]([^”"]+)[”"]/, "pull quote"),
-    pull_quote_attribution: one(liner, /<cite[^>]*>([^<]+)<\/cite>/, "quote attribution"),
-    instagram_caption: one(instagram, />\s*(Follow along between shows —)/, "instagram caption"),
-    newsletter_headline: one(newsletter, />(Postcards[^<]*)</, "newsletter headline"),
-    newsletter_blurb: one(newsletter, />\s*(New shows,[^<]+)</, "newsletter blurb"),
-    newsletter_birthday_note: one(newsletter, />\s*(I’ll send[^<]+)</, "birthday note"),
-  },
   music: {
     meta: meta(music, "music"),
     page_lede: one(music, /className={styles\.lede}>\s*([^<]+)</, "music lede"),

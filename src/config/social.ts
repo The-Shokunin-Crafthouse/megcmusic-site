@@ -1,15 +1,13 @@
 /**
- * Social config — Meg's Instagram handle + the Behold feed id.
- * Behold (behold.so) serves her recent Instagram posts as public JSON; it is
- * NOT the WP host, so it isn't datacenter-blocked. The account isn't connected
- * yet: leave BEHOLD_FEED_ID unset and the section renders its intentional
- * unconfigured state (handle + follow link, no broken grid). It lights up the
- * moment the id is set in NEXT_PUBLIC_BEHOLD_FEED_ID.
+ * Behold feed plumbing. Behold (behold.so) serves Meg's recent Instagram posts
+ * as public JSON; it is NOT the WP host, so it isn't datacenter-blocked. The
+ * account isn't connected yet: leave BEHOLD_FEED_ID unset and the section
+ * renders its intentional unconfigured state (handle + follow link, no broken
+ * grid). It lights up the moment the id is set in NEXT_PUBLIC_BEHOLD_FEED_ID.
+ *
+ * Her handle and the footer's Facebook/Instagram/YouTube links moved to the WP
+ * Home page in Sprint 11 — see src/lib/home-content.ts.
  */
-export const INSTAGRAM_HANDLE = "meghanclarissecave";
-export const INSTAGRAM_URL = "https://www.instagram.com/meghanclarissecave/";
-export const FACEBOOK_URL = "https://www.facebook.com/MeghanClarisse";
-export const YOUTUBE_URL = "https://www.youtube.com/@MeghanClarisse";
 export const BEHOLD_FEED_ID = process.env.NEXT_PUBLIC_BEHOLD_FEED_ID ?? "";
 
 export interface BeholdPost {
