@@ -11,7 +11,7 @@
  * matching what the DOM renders.
  *
  * A surface drops out of this file as its Phase-3 PR lands and WordPress
- * becomes its source of truth (epk, media: 2026-09-06).
+ * becomes its source of truth (epk, media, poetry: 2026-09-06).
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -39,7 +39,6 @@ const booking = read("src/app/booking/page.tsx");
 const music = read("src/app/music/page.tsx");
 const shows = read("src/app/shows/page.tsx");
 const shop = read("src/app/shop/page.tsx");
-const poetry = read("src/app/poetry/page.tsx");
 
 const meta = (src, label) => ({
   title: one(src, /title:\s*"([^"]+)"/, `${label} meta title`),
@@ -74,9 +73,6 @@ const out = {
   shop: {
     meta: meta(shop, "shop"),
     page_lede: one(shop, /className={styles\.lede}>\s*([^<]+)</, "shop lede"),
-  },
-  poetry: {
-    meta: meta(poetry, "poetry"),
   },
   booking: {
     meta: meta(booking, "booking"),

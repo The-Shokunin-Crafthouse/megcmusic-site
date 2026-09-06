@@ -33,7 +33,6 @@ import { RELEASE_DETAILS } from "../../src/config/releases";
 import { REVIEWS } from "../../src/config/reviews";
 import { LIVE_FORMATS } from "../../src/config/formats";
 import { COLLAB_GROUPS, CAVE_CREW_URL } from "../../src/config/collaborate";
-import { POETRY } from "../../src/config/poetry";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const ORIGIN = process.env.NEXT_PUBLIC_WP_ORIGIN || "https://admin.megcmusic.com";
@@ -147,7 +146,9 @@ async function main() {
     productIds[slug] = await productIdBySlug(slug);
   }
   const heroId = await ensureHeroPhoto();
-  const poetryPageId = await ensureSitePoetryPage();
+  // Still ensured (a fresh install needs the page Meg edits to exist), but its
+  // content is no longer written from here — Phase 3 made WordPress the source.
+  await ensureSitePoetryPage();
   const releasePageIds: Record<string, number> = {
     "shadows-of-a-ghost-town": ids.fycShadows,
     "kindred-spirits": ids.kindred,
@@ -264,18 +265,6 @@ async function main() {
         fact_plays: STRINGS.booking.facts.plays,
         meta_title: STRINGS.booking.meta.title,
         meta_description: STRINGS.booking.meta.description,
-      },
-    },
-    {
-      page: poetryPageId, label: "poetry",
-      acf: {
-        book_title: POETRY.title,
-        subtitle: POETRY.subtitle,
-        lede: POETRY.lede,
-        body_paragraphs: POETRY.paragraphs.map((p) => ({ paragraph: p })),
-        cta_note: POETRY.note,
-        meta_title: STRINGS.poetry.meta.title,
-        meta_description: STRINGS.poetry.meta.description,
       },
     },
     {
