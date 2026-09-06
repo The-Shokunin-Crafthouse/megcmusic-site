@@ -3,7 +3,7 @@ import Link from "next/link";
 import { PlayCircle } from "@phosphor-icons/react/dist/ssr/PlayCircle";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
-import { ARTIST_LINKS } from "@/config/discography";
+import { ARTIST_LINKS } from "@/lib/releases-content";
 import { getFycCampaign } from "@/lib/fyc-content";
 import styles from "./fyc-live.module.css";
 import { heroImage } from "@/lib/hero-images";

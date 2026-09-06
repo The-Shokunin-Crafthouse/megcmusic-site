@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { SectionLabel } from "../SectionLabel/SectionLabel";
 import { ReleaseCover } from "./ReleaseCover";
-import { ARTIST_LINKS, RELEASES } from "@/config/discography";
+import { ARTIST_LINKS, RELEASES } from "@/lib/releases-content";
 import styles from "./Discography.module.css";
 
 // Discography (Figma 128:673) — releases with streaming + buy links. Static from
