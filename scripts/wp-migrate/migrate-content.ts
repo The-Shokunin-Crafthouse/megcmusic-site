@@ -37,7 +37,6 @@ import { COLLAB_GROUPS, CAVE_CREW_URL } from "../../src/config/collaborate";
 import { EPK_ITEMS } from "../../src/config/epk";
 import { PRESS_ITEMS } from "../../src/config/press";
 import { POETRY } from "../../src/config/poetry";
-import { FYC_CAMPAIGNS } from "../../src/config/fyc";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const ORIGIN = process.env.NEXT_PUBLIC_WP_ORIGIN ?? "https://admin.megcmusic.com";
@@ -54,9 +53,6 @@ const STRINGS = JSON.parse(
   readFileSync(path.join(import.meta.dirname, "hardcoded-strings.json"), "utf8"),
 );
 
-/** WP media basenames for the 11 Shadows lyric sheets, in track order —
- *  mirrors WP_FILES in scripts/fetch-fyc-assets.mjs (uploads/2025/07/<name>.png). */
-const LYRIC_WP_FILES = ["5-1", "6-1", "7-1", "8-1", "9-1", "10-1", "11-1", "12", "13-1", "14-1", "15-1"];
 
 async function wp(pathname: string, init: RequestInit = {}, attempt = 0): Promise<any> {
   const res = await fetch(`${API}${pathname}`, {
@@ -89,15 +85,6 @@ async function productIdBySlug(slug: string): Promise<number> {
   const rows = await wp(`/product?slug=${slug}&_fields=id,slug`);
   if (!rows.length) throw new Error(`no product with slug ${slug}`);
   return rows[0].id;
-}
-
-async function mediaIdByFile(basename: string): Promise<number> {
-  // Match on source_url — this WP install returns media_details unreliably
-  // under nested _fields, but source_url is always present.
-  const rows = await wp(`/media?search=${encodeURIComponent(basename)}&per_page=100&_fields=id,source_url`);
-  const hit = rows.find((r: any) => (r.source_url ?? "").endsWith(`/2025/07/${basename}.png`));
-  if (!hit) throw new Error(`no media attachment for ${basename}.png (2025/07)`);
-  return hit.id;
 }
 
 async function ensureHeroPhoto(): Promise<number> {
@@ -163,8 +150,6 @@ async function main() {
   for (const slug of ["shadows-of-a-ghost-town-cd", "kindred-spirits-ep", "songs-from-the-sofa-cd"]) {
     productIds[slug] = await productIdBySlug(slug);
   }
-  const lyricIds: number[] = [];
-  for (const f of LYRIC_WP_FILES) lyricIds.push(await mediaIdByFile(f));
   const heroId = await ensureHeroPhoto();
   const poetryPageId = await ensureSitePoetryPage();
   const releasePageIds: Record<string, number> = {
@@ -177,9 +162,9 @@ async function main() {
   };
 
   // 3 — payloads (field names match wp-plugin/megc-site-content/acf-json)
-  const shadows = FYC_CAMPAIGNS["shadows-of-a-ghost-town"];
-  const kindredFyc = FYC_CAMPAIGNS["kindred-spirits"];
-
+  // NOTE: the FYC campaign payloads and lyric-sheet alts were removed after
+  // Phase 3 made WordPress their source of truth (migrated + verified in run
+  // 33978411393) — a re-run must never overwrite Meg's edits with stale data.
   // Unified release registry: discography order (year desc), then paged singles —
   // renders back to today's Discography (EYATM/LP/EPs) and Singles (breaker, aint) lists.
   const releaseRows = [
@@ -210,22 +195,6 @@ async function main() {
       source: r.source,
       link: r.href ?? "",
     }));
-
-  const fycPayload = (c: typeof shadows, lyricGallery: number[]) => ({
-    album_title: c.album,
-    category_line: c.category,
-    cycle_line: c.cycle,
-    release_meta: (c as any).releaseMeta ?? "",
-    pitch_paragraphs: c.about.map((p) => ({ paragraph: p })),
-    quotes: c.quotes.map((q) => ({
-      quote: q.quote,
-      source: q.source,
-      source_detail: (q as any).sourceDetail ?? "",
-    })),
-    videos: c.videos.map((v) => ({ youtube_url: watchUrl(v.id), title: v.title })),
-    lyric_sheets: lyricGallery,
-    album_link: `https://megcmusic.com${c.albumHref}`,
-  });
 
   const writes: Array<{ page: number; label: string; acf: Record<string, unknown> }> = [
     {
@@ -345,8 +314,6 @@ async function main() {
         meta_description: STRINGS.poetry.meta.description,
       },
     },
-    { page: ids.fycShadows, label: "fyc:shadows", acf: fycPayload(shadows, lyricIds) },
-    { page: ids.fycKindred, label: "fyc:kindred", acf: fycPayload(kindredFyc as any, []) },
     {
       page: ids.shows, label: "shows",
       acf: {
@@ -365,21 +332,12 @@ async function main() {
     },
   ];
 
-  // 4 — lyric-sheet alt text on the attachments themselves
-  const lyricAlts = shadows.lyricSheets.map((s) => s.alt);
-  if (lyricAlts.length !== lyricIds.length) throw new Error("lyric alt/id count mismatch");
 
   if (DRY_RUN) {
     for (const w of writes) console.log(`[dry-run] page ${w.page} (${w.label}):`, JSON.stringify(w.acf).slice(0, 200));
-    console.log(`[dry-run] would set alt text on attachments: ${lyricIds.join(", ")}`);
     console.log("DRY RUN COMPLETE — auth + all lookups succeeded, nothing written.");
     return;
   }
-
-  for (let i = 0; i < lyricIds.length; i++) {
-    await wp(`/media/${lyricIds[i]}`, { method: "POST", body: JSON.stringify({ alt_text: lyricAlts[i] }) });
-  }
-  console.log(`alt text set on ${lyricIds.length} lyric attachments`);
 
   // 5 — writes (two writes to page 4350 merge: ACF updates only the keys sent)
   for (const w of writes) {
@@ -416,16 +374,12 @@ async function main() {
       }
     }
   }
-  for (let i = 0; i < lyricIds.length; i++) {
-    const m = await wp(`/media/${lyricIds[i]}?_fields=alt_text`);
-    if (m.alt_text !== lyricAlts[i]) failures.push(`media ${lyricIds[i]} alt_text mismatch`);
-  }
 
   if (failures.length) {
     console.error(`\nREAD-BACK MISMATCHES (${failures.length}):\n` + failures.join("\n"));
     process.exit(1);
   }
-  console.log(`\nMIGRATION VERIFIED — ${writes.length} page payloads + ${lyricIds.length} alts read back identical.`);
+  console.log(`\nMIGRATION VERIFIED — ${writes.length} page payloads read back identical.`);
 }
 
 main().catch((e) => {

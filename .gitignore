@@ -92,3 +92,6 @@ stages/02-design/figma/exports/
 agent/.env
 agent/logs/*
 !agent/logs/.gitkeep
+
+# FYC lyric sheets are fetched from WP at build (scripts/fetch-fyc-assets.mjs)
+/public/images/fyc/
