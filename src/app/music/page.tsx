@@ -5,7 +5,7 @@ import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { Discography } from "@/components/Discography/Discography";
 import { getPage } from "@/lib/api/wordpress";
 import { paragraphsFromHtml } from "@/lib/wp-content";
-import { SINGLE_SLUGS, getReleaseDetail } from "@/config/releases";
+import { SINGLE_SLUGS, getReleaseDetail, MUSIC_PAGE } from "@/lib/releases-content";
 import { LIVE_FORMATS } from "@/config/formats";
 import { COLLAB_GROUPS, CAVE_CREW_URL } from "@/config/collaborate";
 import { FormatCard } from "./FormatCard";
@@ -23,9 +23,8 @@ export const revalidate = 3600;
 const MUSIC_SLUG = "music";
 
 export const metadata: Metadata = {
-  title: "Music — MegCMusic",
-  description:
-    "The music of Meghan Clarisse Cave — Americana with country roots and cowgirl boots. Stream every release or take one home.",
+  title: MUSIC_PAGE.metaTitle,
+  description: MUSIC_PAGE.metaDescription,
 };
 
 // Server-side parse of the WP Music page for genuine intro prose. That page is
@@ -68,10 +67,7 @@ export default async function MusicPage() {
               ★★★
             </p>
             <h1 className={styles.title}>Music</h1>
-            <p className={styles.lede}>
-              Every release, in one place — stream Meghan Clarisse&apos;s records
-              or take one home.
-            </p>
+            <p className={styles.lede}>{MUSIC_PAGE.lede}</p>
           </div>
         </header>
 

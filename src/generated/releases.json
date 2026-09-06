@@ -1,0 +1,66 @@
+{
+  "pageLede": "Every release, in one place — stream Meghan Clarisse's records or take one home.",
+  "metaTitle": "Music — MegCMusic",
+  "metaDescription": "The music of Meghan Clarisse Cave — Americana with country roots and cowgirl boots. Stream every release or take one home.",
+  "artist": {
+    "spotify": "https://open.spotify.com/artist/3iUKOkvtyfkAcg8pOWU5wp",
+    "apple": "https://music.apple.com/us/artist/meghan-clarisse/1484763484",
+    "amazon": "https://music.amazon.com/artists/B082L4182W/meghan-clarisse"
+  },
+  "releases": [
+    {
+      "title": "Everything You Are To Me",
+      "year": "2026",
+      "kind": "SINGLE",
+      "pageSlug": null,
+      "productSlug": null,
+      "spotifyUrl": "",
+      "appleUrl": ""
+    },
+    {
+      "title": "Shadows of a Ghost Town",
+      "year": "2025",
+      "kind": "LP",
+      "pageSlug": "shadows-of-a-ghost-town",
+      "productSlug": "shadows-of-a-ghost-town-cd",
+      "spotifyUrl": "",
+      "appleUrl": ""
+    },
+    {
+      "title": "Kindred Spirits",
+      "year": "2024",
+      "kind": "EP",
+      "pageSlug": "kindred-spirits",
+      "productSlug": "kindred-spirits-ep",
+      "spotifyUrl": "",
+      "appleUrl": ""
+    },
+    {
+      "title": "Songs from the Sofa",
+      "year": "2023",
+      "kind": "EP",
+      "pageSlug": "songs-from-the-sofa-2",
+      "productSlug": "songs-from-the-sofa-cd",
+      "spotifyUrl": "",
+      "appleUrl": ""
+    },
+    {
+      "title": "Breaker Breaker",
+      "year": "2023",
+      "kind": "SINGLE",
+      "pageSlug": "breaker-breaker",
+      "productSlug": null,
+      "spotifyUrl": "",
+      "appleUrl": ""
+    },
+    {
+      "title": "Ain't Going Back",
+      "year": "2024",
+      "kind": "SINGLE",
+      "pageSlug": "aint-going-back",
+      "productSlug": null,
+      "spotifyUrl": "",
+      "appleUrl": ""
+    }
+  ]
+}

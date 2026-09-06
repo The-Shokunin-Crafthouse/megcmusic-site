@@ -20,8 +20,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-import { ARTIST_LINKS, RELEASES } from "../../src/config/discography";
-import { RELEASE_DETAILS } from "../../src/config/releases";
 import { REVIEWS } from "../../src/config/reviews";
 import { LIVE_FORMATS } from "../../src/config/formats";
 import { COLLAB_GROUPS, CAVE_CREW_URL } from "../../src/config/collaborate";
@@ -69,11 +67,6 @@ async function pageIdBySlug(slug: string): Promise<number> {
   return rows[0].id;
 }
 
-async function productIdBySlug(slug: string): Promise<number> {
-  const rows = await wp(`/product?slug=${slug}&_fields=id,slug`);
-  if (!rows.length) throw new Error(`no product with slug ${slug}`);
-  return rows[0].id;
-}
 
 async function ensureHeroPhoto(): Promise<number> {
   const rows = await wp(`/media?search=meghan-hero&per_page=20&_fields=id,source_url`);
@@ -133,10 +126,6 @@ async function main() {
     solo: 2931, band: 2939, collabs: 3742, fycShadows: 4350, kindred: 4378,
     sfts2: 4395, breaker: 4403, aint: 4411, fycKindred: 4566, videos: 5560, music: 5562,
   };
-  const productIds: Record<string, number> = {};
-  for (const slug of ["shadows-of-a-ghost-town-cd", "kindred-spirits-ep", "songs-from-the-sofa-cd"]) {
-    productIds[slug] = await productIdBySlug(slug);
-  }
   // Still ensured (a fresh install needs the hero in the media library for the
   // home page's Site photo field), but its id is no longer written from here —
   // Phase 3 made WordPress the source for the home surface.
@@ -144,42 +133,11 @@ async function main() {
   // Still ensured (a fresh install needs the page Meg edits to exist), but its
   // content is no longer written from here — Phase 3 made WordPress the source.
   await ensureSitePoetryPage();
-  const releasePageIds: Record<string, number> = {
-    "shadows-of-a-ghost-town": ids.fycShadows,
-    "kindred-spirits": ids.kindred,
-    // canonical page for Songs from the Sofa is songs-from-the-sofa-2 (decisions.md 2026-08-29)
-    "songs-from-the-sofa": ids.sfts2,
-    "breaker-breaker": ids.breaker,
-    "aint-going-back": ids.aint,
-  };
 
   // 3 — payloads (field names match wp-plugin/megc-site-content/acf-json)
   // NOTE: the FYC campaign payloads and lyric-sheet alts were removed after
   // Phase 3 made WordPress their source of truth (migrated + verified in run
   // 33978411393) — a re-run must never overwrite Meg's edits with stale data.
-  // Unified release registry: discography order (year desc), then paged singles —
-  // renders back to today's Discography (EYATM/LP/EPs) and Singles (breaker, aint) lists.
-  const releaseRows = [
-    { title: "Everything You Are To Me", year: "2026", kind: "SINGLE", release_page: null, product: null, spotify_url: "", apple_url: "" },
-    ...RELEASES.filter((r) => r.detailSlug).map((r) => ({
-      title: r.title,
-      year: r.year,
-      kind: r.type,
-      release_page: releasePageIds[r.detailSlug!],
-      product: r.productSlug ? productIds[r.productSlug] : null,
-      spotify_url: r.spotify ?? "",
-      apple_url: r.apple ?? "",
-    })),
-    ...RELEASE_DETAILS.filter((r) => r.type === "SINGLE").map((r) => ({
-      title: r.title,
-      year: r.year,
-      kind: r.type,
-      release_page: releasePageIds[r.slug],
-      product: null,
-      spotify_url: r.spotify ?? "",
-      apple_url: r.apple ?? "",
-    })),
-  ];
 
   const reviewsFor = (slug: string) =>
     (REVIEWS[slug] ?? []).map((r) => ({
@@ -189,21 +147,10 @@ async function main() {
     }));
 
   const writes: Array<{ page: number; label: string; acf: Record<string, unknown> }> = [
-    // NOTE: the home payload was removed after Phase 3 made WordPress the
-    // source of truth for the home surface (migrated + verified in run
-    // 33978411393) — a re-run must never overwrite Meg's edits with stale data.
-    {
-      page: ids.music, label: "music",
-      acf: {
-        page_lede: STRINGS.music.page_lede,
-        releases: releaseRows,
-        artist_spotify: ARTIST_LINKS.spotify,
-        artist_apple: ARTIST_LINKS.apple,
-        artist_amazon: ARTIST_LINKS.amazon,
-        meta_title: STRINGS.music.meta.title,
-        meta_description: STRINGS.music.meta.description,
-      },
-    },
+    // NOTE: the home and music payloads (the latter including the release
+    // registry) were removed as Phase 3 made WordPress the source of truth for
+    // those surfaces — migrated and verified in run 33978411393. A re-run must
+    // never overwrite Meg's edits with stale data.
     { page: ids.fycShadows, label: "reviews:shadows", acf: { reviews: reviewsFor("shadows-of-a-ghost-town") } },
     { page: ids.kindred, label: "reviews:kindred", acf: { reviews: reviewsFor("kindred-spirits") } },
     {

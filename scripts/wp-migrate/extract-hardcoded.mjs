@@ -11,7 +11,7 @@
  * matching what the DOM renders.
  *
  * A surface drops out of this file as its Phase-3 PR lands and WordPress
- * becomes its source of truth (epk, media, poetry, home: 2026-09-06).
+ * becomes its source of truth (epk, media, poetry, home, music: 2026-09-06).
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -32,7 +32,6 @@ function one(src, re, label) {
 }
 
 const booking = read("src/app/booking/page.tsx");
-const music = read("src/app/music/page.tsx");
 const shows = read("src/app/shows/page.tsx");
 const shop = read("src/app/shop/page.tsx");
 
@@ -49,10 +48,6 @@ const bookingInclude = (booking.match(/WHAT_TO_INCLUDE\s*=\s*\[([^\]]+)\]/s) ||
   ?.match(/"([^"]+)"/g)?.map((s) => s.slice(1, -1));
 
 const out = {
-  music: {
-    meta: meta(music, "music"),
-    page_lede: one(music, /className={styles\.lede}>\s*([^<]+)</, "music lede"),
-  },
   shows: {
     meta: meta(shows, "shows"),
     page_lede: one(shows, /className={styles\.lede}>\s*([^<]+)</, "shows lede"),

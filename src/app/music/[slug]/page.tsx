@@ -11,12 +11,12 @@ import {
   EMPTY_RELEASE_CONTENT,
   type ReleaseContent,
 } from "@/lib/release-content";
-import { ARTIST_LINKS } from "@/config/discography";
+import { ARTIST_LINKS } from "@/lib/releases-content";
 import {
   RELEASE_DETAILS,
   getReleaseDetail,
   type ReleaseDetail,
-} from "@/config/releases";
+} from "@/lib/releases-content";
 import { getReviews } from "@/config/reviews";
 import { ReleaseBody } from "./ReleaseBody";
 import styles from "./release.module.css";
