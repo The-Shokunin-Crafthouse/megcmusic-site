@@ -5,7 +5,7 @@ import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { Discography } from "@/components/Discography/Discography";
 import { getPage } from "@/lib/api/wordpress";
 import { paragraphsFromHtml } from "@/lib/wp-content";
-import { SINGLE_SLUGS, getReleaseDetail, MUSIC_PAGE } from "@/lib/releases-content";
+import { SINGLES, MUSIC_PAGE } from "@/lib/releases-content";
 import { LIVE_FORMATS } from "@/config/formats";
 import { COLLAB_GROUPS, CAVE_CREW_URL } from "@/config/collaborate";
 import { FormatCard } from "./FormatCard";
@@ -89,32 +89,43 @@ export default async function MusicPage() {
         {/* Release + track listings — the shared discography (home, /epk). */}
         <Discography />
 
-        {/* Standalone singles — their own detail pages, off the album list. */}
+        {/* Standalone singles, off the album list. One with a detail page links
+            to it; one without renders as a plain row rather than a dead link. */}
         <section className={styles.section} aria-labelledby="music-singles">
           <div className={styles.inner}>
             <SectionLabel id="music-singles">Singles</SectionLabel>
             <ul className={styles.singles}>
-              {SINGLE_SLUGS.map((slug) => {
-                const single = getReleaseDetail(slug);
-                if (!single) return null;
-                return (
-                  <li key={slug} className={styles.single}>
-                    <Link className={styles.singleLink} href={`/music/${slug}`}>
-                      <span className={styles.singleMeta}>
-                        <span className={styles.singleYear}>{single.year}</span>
-                        <span className={styles.singleStar} aria-hidden="true">
-                          ★
-                        </span>
-                        <span className={styles.singleType}>{single.type}</span>
+              {SINGLES.map((single) => {
+                const meta = (
+                  <>
+                    <span className={styles.singleMeta}>
+                      <span className={styles.singleYear}>{single.year}</span>
+                      <span className={styles.singleStar} aria-hidden="true">
+                        ★
                       </span>
-                      <span className={styles.singleTitle}>{single.title}</span>
-                      <ArrowUpRight
-                        className={styles.singleArrow}
-                        size={18}
-                        weight="bold"
-                        aria-hidden="true"
-                      />
-                    </Link>
+                      <span className={styles.singleType}>{single.type}</span>
+                    </span>
+                    <span className={styles.singleTitle}>{single.title}</span>
+                  </>
+                );
+                return (
+                  <li key={single.title} className={styles.single}>
+                    {single.detailSlug ? (
+                      <Link
+                        className={styles.singleLink}
+                        href={`/music/${single.detailSlug}`}
+                      >
+                        {meta}
+                        <ArrowUpRight
+                          className={styles.singleArrow}
+                          size={18}
+                          weight="bold"
+                          aria-hidden="true"
+                        />
+                      </Link>
+                    ) : (
+                      <span className={styles.singleStatic}>{meta}</span>
+                    )}
                   </li>
                 );
               })}

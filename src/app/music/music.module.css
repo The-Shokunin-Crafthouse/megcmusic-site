@@ -137,6 +137,14 @@
   transition: color var(--mc-motion-micro) var(--mc-ease-out);
 }
 
+.singleStatic {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mc-space-3);
+  padding: var(--mc-space-3) 0;
+  border-bottom: 1px solid var(--mc-divider);
+  color: var(--mc-text-primary);
+}
 .singleLink:hover {
   color: var(--mc-teal-light);
 }

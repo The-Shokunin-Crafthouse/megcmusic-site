@@ -1425,3 +1425,20 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **Verification.** Production builds green on both `main` and this branch. Rendered text and head metadata **byte-identical** across `/` (3,683 bytes), `/music` (1,621), `/epk` (4,795), a release detail page (3,058), a singles detail page (747) and an FYC campaign (723). Attribute-level checks beyond the text diff: the artist Spotify/Apple/shop links and both `/music/...` detail routes are unchanged on all three discography surfaces; the only raw-HTML difference anywhere is the `songs-from-the-sofa-2` cover slug covered above. `sc-hygiene` drift: 0 on changed files. Deadcode: 0 in touched files; the backlog drops 87 → 86 gating as `discography.ts` goes.
 
 **Phase 3 is complete.** All six surfaces — FYC, EPK, media, poetry, home, discography — now read from WordPress, and the migration script and hardcoded-string extractor have been emptied of every surface they once seeded.
+
+## 2026-09-06 — "Everything You Are To Me" is a single: the Discography/Singles split now follows the field's help text
+
+**Stage:** 03-build (sprint-11-wp-editability, Phase 3 follow-up)
+**Type:** Content · Product decision
+**Status:** accepted
+**supersedes:** the derived split recorded in 2026-09-06 "Phase 3 (discography surface)" §4, which was flagged there for exactly this decision.
+
+**Context.** The release registry's `kind` field promises Meg, in its own help text, that "Albums and EPs go in the Discography; Singles go in the Singles list". The shipped rule was subtler — a single stayed in the Discography if it had no detail page — which is how "Everything You Are To Me" (2026) came to lead the Discography. Levi's call: it is a single, so it belongs with the singles.
+
+**Decision.** The split is now exactly what the field says: `kind` alone decides. Albums and EPs render in the Discography; every single renders in the Singles list. A single no longer needs a detail page to be listed — one without a page renders as a plain row (`.singleStatic`, the same layout without the link's interactive states) rather than a dead link.
+
+**Consequence, deliberate and worth naming.** The Singles list exists only on `/music`. So "Everything You Are To Me" — her newest release — now appears on `/music` and nowhere else; it has left the Discography on Home and on the Press Kit page, where the Discography is the only release listing. If it should stay visible on Home, that needs its own decision: either give it a detail page and surface singles there too, or render a Singles block on Home. Not decided here.
+
+**Verification.** The rendered diff is exactly this change and nothing else: Home and `/epk` lose the "Everything You Are To Me" Discography row; `/music` loses that row and gains a Singles entry (2026 · SINGLE · Everything You Are To Me, unlinked). Head metadata identical on all three routes. The one remaining occurrence of the title on `/epk` is a song in the Sample Set List, unrelated to the registry. `sc-hygiene` drift introduces **zero** findings — `music.module.css` reports 55 on both `main` and this branch (project total 2,488 either way); the eleven surfaced by `--changed-since` are pre-existing, and eight of those are the checker substring-matching "gold"/"teal" inside token names like `var(--mc-accent-gold)`, which is a false positive worth fixing in the checker. Deadcode: 0 in touched files, backlog 87 → 86.
+
+**Also confirmed today:** plugin 1.2.0 is installed — the poetry `buy_url` and the per-page `page_photo` fields are registered and readable over REST, both empty, so every fallback still resolves to today's content.
