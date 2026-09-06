@@ -9,6 +9,9 @@
  * JSON is committed; re-run after any source-copy change before Phase 3
  * deletes these sources. JSX whitespace is collapsed to single spaces —
  * matching what the DOM renders.
+ *
+ * A surface drops out of this file as its Phase-3 PR lands and WordPress
+ * becomes its source of truth (epk: 2026-09-06).
  */
 
 import { readFileSync, writeFileSync } from "node:fs";
@@ -32,7 +35,6 @@ const layout = read("src/app/layout.tsx");
 const liner = read("src/components/LinerNotes/LinerNotes.tsx");
 const newsletter = read("src/components/Newsletter/Newsletter.tsx");
 const instagram = read("src/components/Instagram/Instagram.tsx");
-const epk = read("src/app/epk/page.tsx");
 const booking = read("src/app/booking/page.tsx");
 const music = read("src/app/music/page.tsx");
 const media = read("src/app/media/page.tsx");
@@ -51,7 +53,6 @@ const bookingFacts = [...booking.matchAll(factRe)].map((m) => [m[1], m[2]]);
 const bookingInclude = (booking.match(/WHAT_TO_INCLUDE\s*=\s*\[([^\]]+)\]/s) ||
   booking.match(/const\s+INCLUDE[^=]*=\s*\[([^\]]+)\]/s))?.[1]
   ?.match(/"([^"]+)"/g)?.map((s) => s.slice(1, -1));
-const epkFacts = [...epk.matchAll(factRe)].map((m) => [m[1], m[2]]);
 
 const out = {
   home: {
@@ -81,13 +82,6 @@ const out = {
   },
   poetry: {
     meta: meta(poetry, "poetry"),
-  },
-  epk: {
-    meta: meta(epk, "epk"),
-    page_lede: one(epk, /className={styles\.lede}>\s*([^<]+)</, "epk lede"),
-    facts: Object.fromEntries(epkFacts.map(([k, v]) => [k.toLowerCase(), v])),
-    set_list_intro: one(epk, /setIntro}>\s*([^<]+)</, "set list intro"),
-    resources_note: one(epk, /resourcesText}>\s*([^<]+)</, "resources note"),
   },
   booking: {
     meta: meta(booking, "booking"),

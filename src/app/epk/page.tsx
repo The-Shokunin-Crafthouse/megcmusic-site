@@ -9,29 +9,21 @@ import { getPage } from "@/lib/api/wordpress";
 import { parseDownloadableAssets, type EpkAsset } from "@/lib/epk-assets";
 import { parseSetList, type SetGroup } from "@/lib/set-list";
 import { SetList } from "./SetList";
-import { EPK_ITEMS } from "@/config/epk";
-import { PRESS_ITEMS } from "@/config/press";
+import { getEpkContent } from "@/lib/epk-content";
 import { BIO_PARAGRAPHS } from "@/config/bio";
 import { WP_ORIGIN } from "@/lib/wp-origin";
 import styles from "./epk.module.css";
 
-// The press-kit page changes only when Meg edits WordPress; refresh hourly so a
-// newly-added one-sheet appears without a redeploy.
+// The named kit rows, facts and copy come from Meg's Press Kit page, bundled at
+// build (src/lib/epk-content.ts) — her save triggers a rebuild. This revalidate
+// governs the two per-request WP reads below (auto-discovered downloads and the
+// set list), which fall back to the browser when the runtime can't reach WP.
 export const revalidate = 3600;
 
-export const metadata: Metadata = {
-  title: "Press Kit — MegCMusic",
-  description:
-    "Electronic press kit for Meghan Clarisse Cave — bio, downloadable one-sheets, press coverage, music, and booking. Everything a promoter needs in one place.",
-};
-
-// Booking-at-a-glance facts, drawn straight from her bio copy — no invention.
-const FACTS: { label: string; value: string }[] = [
-  { label: "Based", value: "Front Range, Colorado" },
-  { label: "Sound", value: "Americana · Country · Rock" },
-  { label: "Formats", value: "Solo Acoustic · Full Band" },
-  { label: "Played", value: "Cider Days · Parker Days · Adams County Fair" },
-];
+export async function generateMetadata(): Promise<Metadata> {
+  const epk = await getEpkContent();
+  return { title: epk.metaTitle, description: epk.metaDescription };
+}
 
 // Live hi-res photo pool + press-kit source page (residential-IP links; the WP
 // host serves these to visitors even when it blocks the datacenter build).
@@ -60,7 +52,11 @@ async function serverSetList(): Promise<SetGroup[]> {
 }
 
 export default async function EpkPage() {
-  const [assets, setList] = await Promise.all([serverAssets(), serverSetList()]);
+  const [epk, assets, setList] = await Promise.all([
+    getEpkContent(),
+    serverAssets(),
+    serverSetList(),
+  ]);
 
   return (
     <div className={styles.page}>
@@ -80,10 +76,7 @@ export default async function EpkPage() {
               ★★★
             </p>
             <h1 className={styles.title}>Electronic Press Kit</h1>
-            <p className={styles.lede}>
-              Bio, one-sheets, press, and music for Meghan Clarisse — booking a
-              show starts here.
-            </p>
+            <p className={styles.lede}>{epk.pageLede}</p>
             <Link className={styles.cta} href="/booking">
               Request a gig
               <ArrowUpRight
@@ -116,7 +109,7 @@ export default async function EpkPage() {
               </div>
 
               <dl className={styles.facts}>
-                {FACTS.map((f) => (
+                {epk.facts.map((f) => (
                   <div key={f.label} className={styles.factRow}>
                     <dt className={styles.factLabel}>{f.label}</dt>
                     <dd className={styles.factValue}>{f.value}</dd>
@@ -131,7 +124,7 @@ export default async function EpkPage() {
         <section className={styles.section} aria-labelledby="epk-kit">
           <div className={styles.inner}>
             <SectionLabel id="epk-kit">Press Kit</SectionLabel>
-            <EpkPressKit named={EPK_ITEMS} serverAssets={assets} />
+            <EpkPressKit named={epk.kitItems} serverAssets={assets} />
           </div>
         </section>
 
@@ -140,7 +133,7 @@ export default async function EpkPage() {
           <div className={styles.inner}>
             <SectionLabel id="epk-press">What People Are Saying</SectionLabel>
             <ul className={styles.pressList}>
-              {PRESS_ITEMS.map((item) => (
+              {epk.pressItems.map((item) => (
                 <li key={item.href} className={styles.pressCard}>
                   <div className={styles.pressText}>
                     <p className={styles.pressOutlet}>{item.outlet}</p>
@@ -175,10 +168,7 @@ export default async function EpkPage() {
         <section className={styles.section} aria-labelledby="epk-setlist">
           <div className={styles.inner}>
             <SectionLabel id="epk-setlist">Sample Set List</SectionLabel>
-            <p className={styles.setIntro}>
-              A taste of the room — crowd-pleasing covers alongside Meghan&apos;s
-              originals, shaped to the night.
-            </p>
+            <p className={styles.setIntro}>{epk.setListIntro}</p>
             <SetList server={setList} />
           </div>
         </section>
@@ -189,12 +179,7 @@ export default async function EpkPage() {
             <SectionLabel id="epk-resources">Photos &amp; Booking</SectionLabel>
             <div className={styles.resources}>
               <h3 className={styles.resourcesTitle}>Everything else you need</h3>
-              <p className={styles.resourcesText}>
-                Hi-res photos are ready to download for press and listings, and
-                the full media gallery collects live video and stills. When
-                you&apos;re ready to book, the booking form reaches Meghan
-                directly.
-              </p>
+              <p className={styles.resourcesText}>{epk.resourcesNote}</p>
               <div className={styles.resourcesActions}>
                 <Link className={styles.cta} href="/booking">
                   Request a gig

@@ -45,21 +45,6 @@
       "description": "Secrets From a Songbird — a collection of original poetry by Meghan Clarisse Cave, written in her late teens and early twenties and never before shared."
     }
   },
-  "epk": {
-    "meta": {
-      "title": "Press Kit — MegCMusic",
-      "description": "Electronic press kit for Meghan Clarisse Cave — bio, downloadable one-sheets, press coverage, music, and booking. Everything a promoter needs in one place."
-    },
-    "page_lede": "Bio, one-sheets, press, and music for Meghan Clarisse — booking a show starts here.",
-    "facts": {
-      "based": "Front Range, Colorado",
-      "sound": "Americana · Country · Rock",
-      "formats": "Solo Acoustic · Full Band",
-      "played": "Cider Days · Parker Days · Adams County Fair"
-    },
-    "set_list_intro": "A taste of the room — crowd-pleasing covers alongside Meghan's originals, shaped to the night.",
-    "resources_note": "Hi-res photos are ready to download for press and listings, and the full media gallery collects live video and stills. When you're ready to book, the booking form reaches Meghan directly."
-  },
   "booking": {
     "meta": {
       "title": "Booking — MegCMusic",

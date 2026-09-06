@@ -1,18 +1,21 @@
 import { SectionLabel } from "../SectionLabel/SectionLabel";
-import { EPK_ITEMS } from "@/config/epk";
+import { getEpkContent } from "@/lib/epk-content";
 import styles from "./EPK.module.css";
 
-// Electronic Press Kit (Figma 39:158) — rows of downloadable kits. Static from
-// config; a row with no href yet shows a "coming soon" state instead of a dead
-// button, so the section is always intentional.
-export function EPK() {
+// Electronic Press Kit (Figma 39:158) — rows of downloadable kits. The rows are
+// the same ACF repeater the /epk page reads, so Meg edits them in one place; a
+// row with neither a file nor a link shows a "coming soon" state instead of a
+// dead button, so the section is always intentional.
+export async function EPK() {
+  const { kitItems } = await getEpkContent();
+
   return (
     <section className={styles.section} aria-labelledby="epk-heading">
       <div className={styles.inner}>
         <SectionLabel id="epk-heading">Electronic Press Kit</SectionLabel>
 
         <ul className={styles.list}>
-          {EPK_ITEMS.map((item) => (
+          {kitItems.map((item) => (
             <li key={item.title} className={styles.row}>
               <div className={styles.meta}>
                 {/* eslint-disable-next-line @next/next/no-img-element */}
