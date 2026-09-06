@@ -6,6 +6,7 @@ import { POETRY } from "@/config/poetry";
 import { POETRY_CONTENT } from "@/lib/poetry-content";
 import { PoetryCover } from "./PoetryCover";
 import styles from "./poetry.module.css";
+import { heroImage } from "@/lib/hero-images";
 
 export const revalidate = 3600;
 
@@ -19,7 +20,7 @@ export default function PoetryPage() {
     <div className={styles.page}>
       <img
         className={styles.bg}
-        src="/images/hero/meghan-hero.jpg"
+        src={heroImage("poetry")}
         alt=""
         aria-hidden="true"
         decoding="async"

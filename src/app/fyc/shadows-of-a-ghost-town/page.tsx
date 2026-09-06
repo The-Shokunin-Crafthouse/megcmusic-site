@@ -6,6 +6,7 @@ import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { ARTIST_LINKS } from "@/config/discography";
 import { getFycCampaign } from "@/lib/fyc-content";
 import styles from "./fyc-live.module.css";
+import { heroImage } from "@/lib/hero-images";
 
 const SLUG = "shadows-of-a-ghost-town";
 
@@ -23,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
       description: `${FYC.album} (2025) by ${FYC.artist} — press, live performances, and lyrics.`,
       url: `/fyc/${FYC.slug}`,
       type: "website",
-      images: [{ url: "/images/hero/meghan-hero.jpg" }],
+      images: [{ url: heroImage("fyc-shadows-of-a-ghost-town") }],
     },
   };
 }
@@ -40,7 +41,7 @@ export default async function FycLivePage() {
     <div className={styles.page}>
       <img
         className={styles.bg}
-        src="/images/hero/meghan-hero.jpg"
+        src={heroImage("fyc-shadows-of-a-ghost-town")}
         alt=""
         aria-hidden="true"
         decoding="async"

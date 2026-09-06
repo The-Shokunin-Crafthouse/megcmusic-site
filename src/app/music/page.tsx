@@ -10,6 +10,7 @@ import { LIVE_FORMATS } from "@/config/formats";
 import { COLLAB_GROUPS, CAVE_CREW_URL } from "@/config/collaborate";
 import { FormatCard } from "./FormatCard";
 import styles from "./music.module.css";
+import { heroImage } from "@/lib/hero-images";
 
 // The Music page changes only when Meg edits WordPress; refresh hourly so new
 // intro copy appears without a redeploy. Same ISR window as /media and /epk.
@@ -53,7 +54,7 @@ export default async function MusicPage() {
     <div className={styles.page}>
       <img
         className={styles.bg}
-        src="/images/hero/meghan-hero.jpg"
+        src={heroImage("music")}
         alt=""
         aria-hidden="true"
         decoding="async"

@@ -1,0 +1,31 @@
+{
+  "key": "group_megc_page_photo",
+  "title": "Page Photo",
+  "fields": [
+    { "key": "field_megc_page_photo", "label": "Photo for this page", "name": "page_photo", "type": "image", "return_format": "array", "preview_size": "medium", "library": "all", "instructions": "The big background photo behind this page. Leave it empty and the page uses your Site photo from the Home page, which is what every page shows today." }
+  ],
+  "location": [
+    [ { "param": "page", "operator": "==", "value": "4" } ],
+    [ { "param": "page", "operator": "==", "value": "5" } ],
+    [ { "param": "page", "operator": "==", "value": "10" } ],
+    [ { "param": "page", "operator": "==", "value": "20" } ],
+    [ { "param": "page", "operator": "==", "value": "608" } ],
+    [ { "param": "page", "operator": "==", "value": "1847" } ],
+    [ { "param": "page", "operator": "==", "value": "4350" } ],
+    [ { "param": "page", "operator": "==", "value": "4378" } ],
+    [ { "param": "page", "operator": "==", "value": "4395" } ],
+    [ { "param": "page", "operator": "==", "value": "4403" } ],
+    [ { "param": "page", "operator": "==", "value": "4411" } ],
+    [ { "param": "page", "operator": "==", "value": "4566" } ],
+    [ { "param": "page", "operator": "==", "value": "5562" } ],
+    [ { "param": "megc_page_slug", "operator": "==", "value": "site-poetry" } ]
+  ],
+  "menu_order": 1,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "active": true,
+  "show_in_rest": 1,
+  "description": "Each page's own background photo. Empty means \"use the Site photo from the Home page\"."
+}

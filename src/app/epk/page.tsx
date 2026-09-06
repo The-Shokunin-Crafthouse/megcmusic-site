@@ -13,6 +13,7 @@ import { getEpkContent } from "@/lib/epk-content";
 import { HOME_CONTENT } from "@/lib/home-content";
 import { WP_ORIGIN } from "@/lib/wp-origin";
 import styles from "./epk.module.css";
+import { heroImage } from "@/lib/hero-images";
 
 // The named kit rows, facts and copy come from Meg's Press Kit page, bundled at
 // build (src/lib/epk-content.ts) — her save triggers a rebuild. This revalidate
@@ -62,7 +63,7 @@ export default async function EpkPage() {
     <div className={styles.page}>
       <img
         className={styles.bg}
-        src="/images/hero/meghan-hero.jpg"
+        src={heroImage("epk")}
         alt=""
         aria-hidden="true"
         decoding="async"

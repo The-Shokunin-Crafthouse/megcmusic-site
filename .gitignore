@@ -95,3 +95,7 @@ agent/logs/*
 
 # FYC lyric sheets are fetched from WP at build (scripts/fetch-fyc-assets.mjs)
 /public/images/fyc/
+
+# Per-page hero photos are downloaded from WP at build
+# (scripts/fetch-hero-images.mjs); the manifest in src/generated is committed.
+/public/images/page-hero/

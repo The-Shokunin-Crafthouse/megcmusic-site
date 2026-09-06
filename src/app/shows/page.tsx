@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { ShowsSection } from "@/components/ShowsSection/ShowsSection";
 import { getAllEvents, type TribeEvent } from "@/lib/api/events";
 import styles from "./shows.module.css";
+import { heroImage } from "@/lib/hero-images";
 
 // Shows refresh hourly, same cadence as the home section.
 export const revalidate = 3600;
@@ -48,7 +49,7 @@ export default async function ShowsPage() {
           a plum scrim so the cream cards keep their contrast. */}
       <img
         className={styles.bg}
-        src="/images/hero/meghan-hero.jpg"
+        src={heroImage("shows")}
         alt=""
         aria-hidden="true"
         decoding="async"

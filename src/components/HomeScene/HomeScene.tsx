@@ -5,6 +5,7 @@ import { ShowsSection } from "../ShowsSection/ShowsSection";
 import { LoadingVeil, type VeilPhase } from "../LoadingVeil/LoadingVeil";
 import type { TribeEvent } from "@/lib/api/events";
 import styles from "./HomeScene.module.css";
+import { heroImage } from "@/lib/hero-images";
 
 /** Millisecond value of a duration token (e.g. "600ms" / "10s" / "36s"). */
 function tokenMs(name: string, fallback: number): number {
@@ -325,7 +326,7 @@ export function HomeScene({
         <img
           ref={photoRef}
           className={styles.photo}
-          src="/images/hero/meghan-hero.jpg"
+          src={heroImage("home")}
           alt=""
           width={2849}
           height={1632}

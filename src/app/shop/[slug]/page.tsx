@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { getProduct } from "@/lib/api/woocommerce";
 import { ProductDetail } from "@/components/Shop/ProductDetail";
 import styles from "./product.module.css";
+import { heroImage } from "@/lib/hero-images";
 
 export const revalidate = 86400;
 
@@ -50,7 +51,7 @@ export default async function ProductPage({
     <div className={styles.page}>
       <img
         className={styles.bg}
-        src="/images/hero/meghan-hero.jpg"
+        src={heroImage("shop")}
         alt=""
         aria-hidden="true"
         decoding="async"
