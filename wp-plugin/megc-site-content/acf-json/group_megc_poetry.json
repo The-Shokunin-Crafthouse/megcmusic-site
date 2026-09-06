@@ -11,6 +11,7 @@
       ]
     },
     { "key": "field_megc_poetry_cta_note", "label": "Buy-button note", "name": "cta_note", "type": "text", "instructions": "“A first edition, straight from Meghan.”" },
+    { "key": "field_megc_poetry_buy_url", "label": "Buy-button link", "name": "buy_url", "type": "url", "instructions": "Where both “Buy the book” buttons go. Leave empty to use your shop page for the book, which is what they do today. The cover photo always comes from that shop item." },
     { "key": "field_megc_poetry_meta_title", "label": "Browser-tab title", "name": "meta_title", "type": "text", "instructions": "What Google and the browser tab show for the Poetry page." },
     { "key": "field_megc_poetry_meta_description", "label": "Search description", "name": "meta_description", "type": "textarea", "rows": 2, "new_lines": "", "instructions": "The sentence Google shows for the Poetry page." }
   ],

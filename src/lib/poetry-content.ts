@@ -12,11 +12,16 @@
  * async getter: /poetry renders statically and its page component is
  * synchronous, so there is nothing to await.
  *
- * The cover image and the buy destination are NOT here — they resolve from the
- * shop product (src/config/poetry.ts), as they always have.
+ * The cover image still resolves from the shop product (src/config/poetry.ts).
+ * The buy destination is Meg's to set: `buy_url` wins when she fills it, and
+ * falls back to that same shop route — which is where both buttons point today,
+ * so the page is unchanged until she changes it. The fallback also covers the
+ * window before the 1.1.0 plugin is uploaded, while the field does not yet
+ * exist; it can be dropped once the field is populated.
  */
 
 import acf from "@/generated/wp-content/poetry.json";
+import { POETRY } from "@/config/poetry";
 
 const text = (v: unknown): string => (typeof v === "string" ? v : "");
 const rows = (v: unknown): Record<string, unknown>[] =>
@@ -32,6 +37,7 @@ export const POETRY_CONTENT = {
     .map((r) => text(r.paragraph))
     .filter(Boolean),
   note: text(acf.cta_note),
+  buyHref: text((acf as Record<string, unknown>).buy_url) || POETRY.buyHref,
   metaTitle: text(acf.meta_title),
   metaDescription: text(acf.meta_description),
 } as const;
