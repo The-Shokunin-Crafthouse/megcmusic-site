@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MegC Site Content
  * Description: Registers the megcmusic.com site-content field groups (Secure Custom Fields / ACF) from bundled JSON and pings GitHub to rebuild the site when a site-content page is saved.
- * Version: 1.0.0
+ * Version: 1.1.0
  * Requires PHP: 8.1
  * Author: The Shokunin Crafthouse
  * License: GPL-2.0-or-later
@@ -134,7 +134,7 @@ add_action( 'save_post_page', function ( $post_id, $post, $update ) {
 					'Accept'               => 'application/vnd.github+json',
 					'Authorization'        => 'Bearer ' . MEGC_GH_PAT,
 					'X-GitHub-Api-Version' => '2022-11-28',
-					'User-Agent'           => 'megc-site-content/1.0.0',
+					'User-Agent'           => 'megc-site-content/1.1.0',
 				),
 				'body'    => wp_json_encode(
 					array(

@@ -42,7 +42,7 @@ export default function PoetryPage() {
               <p className={styles.lede}>{POETRY_CONTENT.lede}</p>
 
               <div className={styles.actions}>
-                <Link className={styles.buy} href={POETRY.buyHref}>
+                <Link className={styles.buy} href={POETRY_CONTENT.buyHref}>
                   Buy the book
                   <ArrowRight size={16} weight="bold" aria-hidden="true" />
                 </Link>
@@ -63,7 +63,7 @@ export default function PoetryPage() {
               ))}
             </div>
 
-            <Link className={styles.buyGhost} href={POETRY.buyHref}>
+            <Link className={styles.buyGhost} href={POETRY_CONTENT.buyHref}>
               Buy the book
               <ArrowRight size={15} weight="bold" aria-hidden="true" />
             </Link>
