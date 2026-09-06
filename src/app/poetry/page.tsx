@@ -3,15 +3,15 @@ import Link from "next/link";
 import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { POETRY } from "@/config/poetry";
+import { POETRY_CONTENT } from "@/lib/poetry-content";
 import { PoetryCover } from "./PoetryCover";
 import styles from "./poetry.module.css";
 
 export const revalidate = 3600;
 
 export const metadata: Metadata = {
-  title: "Secrets From a Songbird — Poetry by Meghan Clarisse",
-  description:
-    "Secrets From a Songbird — a collection of original poetry by Meghan Clarisse Cave, written in her late teens and early twenties and never before shared.",
+  title: POETRY_CONTENT.metaTitle,
+  description: POETRY_CONTENT.metaDescription,
 };
 
 export default function PoetryPage() {
@@ -37,16 +37,16 @@ export default function PoetryPage() {
               <p className={styles.eyebrow} aria-hidden="true">
                 ★★★ Poetry
               </p>
-              <h1 className={styles.title}>{POETRY.title}</h1>
-              <p className={styles.subtitle}>{POETRY.subtitle}</p>
-              <p className={styles.lede}>{POETRY.lede}</p>
+              <h1 className={styles.title}>{POETRY_CONTENT.title}</h1>
+              <p className={styles.subtitle}>{POETRY_CONTENT.subtitle}</p>
+              <p className={styles.lede}>{POETRY_CONTENT.lede}</p>
 
               <div className={styles.actions}>
                 <Link className={styles.buy} href={POETRY.buyHref}>
                   Buy the book
                   <ArrowRight size={16} weight="bold" aria-hidden="true" />
                 </Link>
-                <span className={styles.note}>{POETRY.note}</span>
+                <span className={styles.note}>{POETRY_CONTENT.note}</span>
               </div>
             </div>
           </div>
@@ -56,7 +56,7 @@ export default function PoetryPage() {
           <div className={styles.inner}>
             <SectionLabel id="poetry-about">Inside the Pages</SectionLabel>
             <div className={styles.prose}>
-              {POETRY.paragraphs.map((para, i) => (
+              {POETRY_CONTENT.paragraphs.map((para, i) => (
                 <p key={i} className={styles.para}>
                   {para}
                 </p>

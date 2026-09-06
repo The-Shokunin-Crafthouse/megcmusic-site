@@ -42,12 +42,29 @@ const API = `${ORIGIN}/wp-json/wp/v2`;
 const OUT_DIR = path.join(process.cwd(), "src", "generated", "wp-content");
 const TIMEOUT_MS = 15_000;
 
-/** Surface key → the WP page Meg edits. A Phase-3 PR adds its surface here. */
+/** Surface key → the WP page Meg edits, as a page id or a `{ slug }` to resolve.
+ *  A Phase-3 PR adds its surface here. */
 const SURFACES = {
   epk: 608, // "Press Kit"
   media: 10, // "Media" — the page's own copy
   videos: 5560, // "Videos" — the featured video + list, shown on Home and Media
+  // Created by the Phase-2 migration rather than pre-existing, and the plugin
+  // locates its field group by slug — so resolve it the same way.
+  poetry: { slug: "site-poetry" }, // "Site: Poetry"
 };
+
+/** Resolve a `{ slug }` surface to its page id. */
+async function resolvePageId(target) {
+  if (typeof target === "number") return target;
+  const url = `${API}/pages?slug=${encodeURIComponent(target.slug)}&_fields=id`;
+  const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+  if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} resolving slug "${target.slug}"`);
+  const rows = await res.json();
+  if (!Array.isArray(rows) || !rows.length) {
+    throw new Error(`no published page with slug "${target.slug}"`);
+  }
+  return rows[0].id;
+}
 
 async function readAcf(pageId) {
   const url = `${API}/pages/${pageId}?acf_format=standard&_fields=acf`;
@@ -78,9 +95,11 @@ const stripSourceKeys = (acf) =>
 
 mkdirSync(OUT_DIR, { recursive: true });
 
-for (const [surface, pageId] of Object.entries(SURFACES)) {
+for (const [surface, target] of Object.entries(SURFACES)) {
   let acf;
+  let pageId = typeof target === "number" ? target : `slug "${target.slug}"`;
   try {
+    pageId = await resolvePageId(target);
     acf = await readAcf(pageId);
   } catch (e) {
     console.error(
