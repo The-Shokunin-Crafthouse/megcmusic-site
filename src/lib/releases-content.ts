@@ -8,14 +8,15 @@
  * scripts/fetch-releases.mjs reads it at build, resolves ACF's page/product IDs
  * to slugs, and writes src/generated/releases.json.
  *
- * WHICH LIST A RELEASE LANDS IN. A release appears in the Discography unless it
- * is a single that has its own detail page — those go in the Singles list. That
- * reproduces today's site exactly: "Everything You Are To Me" is a single with
- * no page and sits at the top of the Discography, while Breaker Breaker and
- * Ain't Going Back are singles with pages and sit in the Singles list.
- * NOTE: the field's help text in WordPress says "Albums and EPs go in the
- * Discography; Singles go in the Singles list", which is not quite this rule —
- * flagged for Levi rather than silently changing where a release renders.
+ * WHICH LIST A RELEASE LANDS IN. Albums and EPs go in the Discography; singles
+ * go in the Singles list — exactly what the field's help text in WordPress
+ * promises Meg, and what the `kind` she picks now decides on its own.
+ *
+ * This replaced a subtler rule that also kept singles WITHOUT a detail page in
+ * the Discography, which is how "Everything You Are To Me" used to lead it
+ * (decisions.md 2026-09-06; Levi's call: it is a single, so it belongs with the
+ * singles). A single need not have a detail page to be listed — one without a
+ * page renders as a plain row rather than a link.
  */
 
 import data from "@/generated/releases.json";
@@ -74,8 +75,9 @@ export const MUSIC_PAGE = {
   metaDescription: data.metaDescription,
 };
 
+/** Albums and EPs — the Discography on Home, Music and Press Kit. */
 export const RELEASES: Release[] = data.releases
-  .filter((row) => !(kindOf(row) === "SINGLE" && routeFor(row)))
+  .filter((row) => kindOf(row) !== "SINGLE")
   .map((row) => ({
     year: row.year,
     type: kindOf(row),
@@ -110,7 +112,20 @@ export function getReleaseDetail(slug: string): ReleaseDetail | undefined {
   return RELEASE_DETAILS.find((r) => r.slug === slug);
 }
 
-/** Singles with their own page — listed on /music, not in the discography. */
-export const SINGLE_SLUGS: string[] = RELEASE_DETAILS.filter(
-  (r) => r.type === "SINGLE",
-).map((r) => r.slug);
+interface Single {
+  title: string;
+  year: string;
+  type: "SINGLE";
+  /** Route slug, when the single has a detail page; absent means a plain row. */
+  detailSlug?: string;
+}
+
+/** Every single, listed on /music — not in the discography. */
+export const SINGLES: Single[] = data.releases
+  .filter((row) => kindOf(row) === "SINGLE")
+  .map((row) => ({
+    title: row.title,
+    year: row.year,
+    type: "SINGLE" as const,
+    detailSlug: routeFor(row)?.slug,
+  }));
