@@ -2,21 +2,23 @@
  * Electronic Press Kit content, read at build time from the WordPress page Meg
  * edits (Sprint 11 Phase 3 — supersedes src/config/epk.ts and src/config/press.ts).
  *
- * Reads the ACF fields on WP page 608 ("Press Kit") over REST. The build runs on
- * the GitHub Actions runner (deploy.yml), which reaches admin.megcmusic.com; any
- * fetch failure THROWS and fails the build with a named cause — the previous
- * deploy stays live. A field WordPress explicitly returns empty renders as
- * "section absent by content" (empty string / dropped row), never as a fetch
- * failure rendered blank.
+ * The values come from the ACF fields on WP page 608 ("Press Kit"), fetched by
+ * scripts/fetch-wp-content.mjs (first step of `npm run build`) into
+ * src/generated/wp-content/epk.json and statically imported here. That fetch
+ * runs on the GitHub Actions runner, which reaches admin.megcmusic.com; the
+ * Vercel serverless runtime does not, and /epk is a dynamic route — so reading
+ * WordPress here per request would throw on every visit. Any failure fails the
+ * BUILD with a named cause and the previous deploy stays live.
+ *
+ * A field WordPress explicitly returns empty renders as "section absent by
+ * content" (dropped fact row / dropped entry / empty string) — never a fetch
+ * failure rendered blank, because a fetch failure never gets this far.
  *
  * Two surfaces read this: /epk and the Electronic Press Kit rows on the home
- * page. The module-level memo keeps one build seeing one snapshot.
+ * page, so Meg edits them in one place.
  */
 
-import { WP_API } from "@/lib/api/wordpress";
-
-/** The WP page Meg edits for the press kit. */
-export const EPK_PAGE_ID = 608;
+import acf from "@/generated/wp-content/epk.json";
 
 export interface EpkKitItem {
   title: string;
@@ -26,18 +28,18 @@ export interface EpkKitItem {
   href: string | null;
 }
 
-export interface EpkPressItem {
+interface EpkPressItem {
   outlet: string;
   title: string;
   href: string;
 }
 
-export interface EpkFact {
+interface EpkFact {
   label: string;
   value: string;
 }
 
-export interface EpkContent {
+interface EpkContent {
   pageLede: string;
   facts: readonly EpkFact[];
   kitItems: readonly EpkKitItem[];
@@ -48,47 +50,23 @@ export interface EpkContent {
   metaDescription: string;
 }
 
-interface AcfRepeaterRow {
-  [key: string]: unknown;
-}
+type AcfRecord = Record<string, unknown>;
 
-const rows = (v: unknown): AcfRepeaterRow[] => (Array.isArray(v) ? v : []);
+const rows = (v: unknown): AcfRecord[] => (Array.isArray(v) ? (v as AcfRecord[]) : []);
 const text = (v: unknown): string => (typeof v === "string" ? v : "");
 
 /** ACF file fields return `false` when empty and an object (return_format
  *  "array") when set; only the URL matters here. */
 function fileUrl(v: unknown): string {
   if (v && typeof v === "object" && !Array.isArray(v)) {
-    return text((v as Record<string, unknown>).url);
+    return text((v as AcfRecord).url);
   }
   return "";
 }
 
-async function fetchAcf(pageId: number): Promise<Record<string, unknown>> {
-  const url = `${WP_API}/pages/${pageId}?acf_format=standard&_fields=acf`;
-  let lastError: unknown;
-  for (let attempt = 0; attempt < 2; attempt++) {
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(12000) });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = (await res.json()) as { acf?: Record<string, unknown> };
-      if (!json.acf || typeof json.acf !== "object") {
-        throw new Error("response has no acf object — is the megc-site-content plugin active?");
-      }
-      return json.acf;
-    } catch (e) {
-      lastError = e;
-    }
-  }
-  throw new Error(
-    `EPK build failed: could not read ACF fields for WP page ${pageId} (${String(lastError)}). ` +
-      "The previous deploy stays live; check admin.megcmusic.com and re-run the build.",
-  );
-}
-
 /** Fact rows in the order the page has always shown them; an emptied field
  *  drops its row rather than rendering a blank definition. */
-function facts(acf: Record<string, unknown>): EpkFact[] {
+function facts(acf: AcfRecord): EpkFact[] {
   return [
     { label: "Based", value: text(acf.fact_based) },
     { label: "Sound", value: text(acf.fact_sound) },
@@ -97,7 +75,7 @@ function facts(acf: Record<string, unknown>): EpkFact[] {
   ].filter((f) => f.value);
 }
 
-function kitItems(acf: Record<string, unknown>): EpkKitItem[] {
+function kitItems(acf: AcfRecord): EpkKitItem[] {
   return rows(acf.kit_items)
     .map((r) => {
       const file = fileUrl(r.file);
@@ -113,7 +91,7 @@ function kitItems(acf: Record<string, unknown>): EpkKitItem[] {
     .filter((k) => k.title);
 }
 
-function pressItems(acf: Record<string, unknown>): EpkPressItem[] {
+function pressItems(acf: AcfRecord): EpkPressItem[] {
   return rows(acf.press_items)
     .map((r) => ({
       outlet: text(r.outlet),
@@ -123,23 +101,19 @@ function pressItems(acf: Record<string, unknown>): EpkPressItem[] {
     .filter((p) => p.href);
 }
 
-let cached: Promise<EpkContent> | undefined;
+const content: EpkContent = {
+  pageLede: text(acf.page_lede),
+  facts: facts(acf),
+  kitItems: kitItems(acf),
+  pressItems: pressItems(acf),
+  setListIntro: text(acf.set_list_intro),
+  resourcesNote: text(acf.resources_note),
+  metaTitle: text(acf.meta_title),
+  metaDescription: text(acf.meta_description),
+};
 
-async function load(): Promise<EpkContent> {
-  const acf = await fetchAcf(EPK_PAGE_ID);
-  return {
-    pageLede: text(acf.page_lede),
-    facts: facts(acf),
-    kitItems: kitItems(acf),
-    pressItems: pressItems(acf),
-    setListIntro: text(acf.set_list_intro),
-    resourcesNote: text(acf.resources_note),
-    metaTitle: text(acf.meta_title),
-    metaDescription: text(acf.meta_description),
-  };
-}
-
-export function getEpkContent(): Promise<EpkContent> {
-  cached ??= load();
-  return cached;
+/** Async so the call sites read the same whether a surface is bundled at build
+ *  (today) or fetched per request (a future statically-rendered surface). */
+export async function getEpkContent(): Promise<EpkContent> {
+  return content;
 }

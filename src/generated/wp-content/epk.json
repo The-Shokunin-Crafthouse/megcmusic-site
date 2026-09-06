@@ -1,0 +1,53 @@
+{
+  "page_lede": "Bio, one-sheets, press, and music for Meghan Clarisse — booking a show starts here.",
+  "fact_based": "Front Range, Colorado",
+  "fact_sound": "Americana · Country · Rock",
+  "fact_formats": "Solo Acoustic · Full Band",
+  "fact_played": "Cider Days · Parker Days · Adams County Fair",
+  "kit_items": [
+    {
+      "title": "Solo Acoustic EPK",
+      "description": "One-sheet, bio, and stage plot for intimate rooms.",
+      "file": false,
+      "link": ""
+    },
+    {
+      "title": "Full Band EPK",
+      "description": "Festival-ready one-sheet, input list, and tech rider.",
+      "file": false,
+      "link": ""
+    },
+    {
+      "title": "Sample Set List",
+      "description": "Crowd pleasers from covers to originals.",
+      "file": false,
+      "link": "https://admin.megcmusic.com/sample-set-list/"
+    }
+  ],
+  "press_items": [
+    {
+      "outlet": "Canvas Rebel",
+      "title": "Meet Meghan Clarisse Cave",
+      "url": "https://canvasrebel.com/meet-meghan-clarisse-cave/"
+    },
+    {
+      "outlet": "Denver Entertainment Hub",
+      "title": "Album Review — Songs From the Sofa",
+      "url": "https://denverentertainmenthub.com/2023/05/26/album-ep-review-songs-from-the-sofa-meghan-clarisse/"
+    },
+    {
+      "outlet": "Instagram",
+      "title": "Song Review — Monster",
+      "url": "https://www.instagram.com/p/CpuduK9MiHu/"
+    },
+    {
+      "outlet": "megcmusic.com",
+      "title": "Reviews — Shadows of a Ghost Town",
+      "url": "https://admin.megcmusic.com/reviews-shadows-of-a-ghost-town/"
+    }
+  ],
+  "set_list_intro": "A taste of the room — crowd-pleasing covers alongside Meghan's originals, shaped to the night.",
+  "resources_note": "Hi-res photos are ready to download for press and listings, and the full media gallery collects live video and stills. When you're ready to book, the booking form reaches Meghan directly.",
+  "meta_title": "Press Kit — MegCMusic",
+  "meta_description": "Electronic press kit for Meghan Clarisse Cave — bio, downloadable one-sheets, press coverage, music, and booking. Everything a promoter needs in one place."
+}

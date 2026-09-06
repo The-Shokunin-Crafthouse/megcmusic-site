@@ -14,8 +14,10 @@ import { BIO_PARAGRAPHS } from "@/config/bio";
 import { WP_ORIGIN } from "@/lib/wp-origin";
 import styles from "./epk.module.css";
 
-// The press-kit page changes only when Meg edits WordPress; refresh hourly so a
-// newly-added one-sheet appears without a redeploy.
+// The named kit rows, facts and copy come from Meg's Press Kit page, bundled at
+// build (src/lib/epk-content.ts) — her save triggers a rebuild. This revalidate
+// governs the two per-request WP reads below (auto-discovered downloads and the
+// set list), which fall back to the browser when the runtime can't reach WP.
 export const revalidate = 3600;
 
 export async function generateMetadata(): Promise<Metadata> {
