@@ -7,6 +7,7 @@ import { getPage } from "@/lib/api/wordpress";
 import { parsePhotos, type Photo } from "@/lib/media-photos";
 import { getMediaContent } from "@/lib/media-content";
 import styles from "./media.module.css";
+import { heroImage } from "@/lib/hero-images";
 
 // Videos come from YouTube (hourly), photos from her WP /photos page (hourly so a
 // new photo appears without a redeploy).
@@ -47,7 +48,7 @@ export default async function MediaPage() {
     <div className={styles.page}>
       <img
         className={styles.bg}
-        src="/images/hero/meghan-hero.jpg"
+        src={heroImage("media")}
         alt=""
         aria-hidden="true"
         decoding="async"

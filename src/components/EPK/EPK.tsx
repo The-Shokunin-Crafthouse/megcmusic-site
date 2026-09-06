@@ -1,6 +1,7 @@
 import { SectionLabel } from "../SectionLabel/SectionLabel";
 import { getEpkContent } from "@/lib/epk-content";
 import styles from "./EPK.module.css";
+import { heroImage } from "@/lib/hero-images";
 
 // Electronic Press Kit (Figma 39:158) — rows of downloadable kits. The rows are
 // the same ACF repeater the /epk page reads, so Meg edits them in one place; a
@@ -21,7 +22,7 @@ export async function EPK() {
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   className={styles.thumb}
-                  src="/images/hero/meghan-hero.jpg"
+                  src={heroImage("home")}
                   alt=""
                   aria-hidden="true"
                   loading="lazy"

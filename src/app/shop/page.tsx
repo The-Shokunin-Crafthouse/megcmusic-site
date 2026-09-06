@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { getProducts } from "@/lib/api/woocommerce";
 import { ProductGrid } from "@/components/Shop/ProductGrid";
 import styles from "./shop.module.css";
+import { heroImage } from "@/lib/hero-images";
 
 // Products are low-churn — refresh daily. A new item Meg adds in WooCommerce
 // appears on the next ISR cycle (brief: products ISR 24h).
@@ -31,7 +32,7 @@ export default async function ShopPage() {
     <div className={styles.page}>
       <img
         className={styles.bg}
-        src="/images/hero/meghan-hero.jpg"
+        src={heroImage("shop")}
         alt=""
         aria-hidden="true"
         decoding="async"

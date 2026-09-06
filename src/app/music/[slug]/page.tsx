@@ -20,6 +20,7 @@ import {
 import { getReviews } from "@/config/reviews";
 import { ReleaseBody } from "./ReleaseBody";
 import styles from "./release.module.css";
+import { heroImage } from "@/lib/hero-images";
 
 // The release's prose + lyric sheets change only when Meg edits WordPress;
 // refresh hourly, same as the other WP-sourced surfaces.
@@ -79,7 +80,7 @@ export default async function ReleasePage({
     <div className={styles.page}>
       <img
         className={styles.bg}
-        src="/images/hero/meghan-hero.jpg"
+        src={heroImage(`release-${release.wpSlug}`)}
         alt=""
         aria-hidden="true"
         decoding="async"

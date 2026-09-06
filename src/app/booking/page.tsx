@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { BookingForm } from "@/components/BookingForm/BookingForm";
 import styles from "./booking.module.css";
+import { heroImage } from "@/lib/hero-images";
 
 export const metadata: Metadata = {
   title: "Booking — MegCMusic",
@@ -28,7 +29,7 @@ export default function BookingPage() {
     <div className={styles.page}>
       <img
         className={styles.bg}
-        src="/images/hero/meghan-hero.jpg"
+        src={heroImage("booking")}
         alt=""
         aria-hidden="true"
         decoding="async"

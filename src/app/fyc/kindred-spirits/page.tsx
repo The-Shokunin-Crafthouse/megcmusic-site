@@ -6,6 +6,7 @@ import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { ARTIST_LINKS } from "@/config/discography";
 import { getFycCampaign } from "@/lib/fyc-content";
 import styles from "./fyc.module.css";
+import { heroImage } from "@/lib/hero-images";
 
 const SLUG = "kindred-spirits";
 
@@ -34,7 +35,7 @@ export default async function FycPage() {
     <div className={styles.page}>
       <img
         className={styles.bg}
-        src="/images/hero/meghan-hero.jpg"
+        src={heroImage("fyc-kindred-spirits")}
         alt=""
         aria-hidden="true"
         decoding="async"
