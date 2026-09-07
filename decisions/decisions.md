@@ -1529,3 +1529,20 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **One consequence worth stating.** `https://mail.google.com/` is a *restricted* scope, so a published app Google has not verified shows an "unverified app" interstitial at consent and is capped at 100 users. Both are acceptable here — one mailbox, and the warning clears with Advanced → Go to (unsafe). Verification is only worth pursuing if this ever serves people outside the studio. Publishing while unverified still lifts the 7-day refresh-token expiry, which is the reason to publish at all.
 
 **Still blocked on a human step:** publishing the OAuth consent screen and completing one browser consent grant. Both are Levi's — the first is a Google Cloud setting, the second needs a signed-in browser.
+
+## 2026-09-06 — Correction: the dead Gmail grant was a revoked token, not a Testing-status consent screen
+
+**Stage:** ops
+**Type:** Correction · Verification
+**Status:** accepted
+**corrects:** the cause asserted in the two entries above, and in `scripts/show-pipeline/pipeline.mjs` and `_config/ops/show-pipeline.md` as first written today.
+
+**What I asserted, and why it was wrong.** The outreach `GMAIL_REFRESH_TOKEN` failed with `invalid_grant`, and I attributed it to studio learning #70 — a Testing-status consent screen capping refresh tokens at ~7 days — and wrote that cause into the pipeline's error hint and the ops doc. Levi opened the console: the `megcmusic-outreach` app is **In production**, External, Gmail API enabled, 30 requests and 0 errors. The trap I named did not apply.
+
+**What it actually is.** Three token requests separate the possibilities: a valid client with a deliberately bogus refresh token returns `invalid_grant` (400); a bogus client with the real refresh token returns `invalid_client` (401); the real pair returns `invalid_grant`. So the client id and secret are intact and only the grant is dead. A live grant is revoked by a Google account **password change or a 2-Step Verification change** — both revoke Gmail-scoped refresh tokens — by a manual revoke at myaccount.google.com/permissions, or by six months of disuse. Meg's 2SV was being changed that same day while chasing the app password that started all of this.
+
+**Consequence for the design, not just the diagnosis.** Publishing the consent screen removes the 7-day cap; it does not make a grant permanent. Any unattended Gmail integration here should expect re-minting after a credential change on the mailbox rather than treating it as an incident, and the error path should say so. `pipeline.mjs` now names the real causes in the order they have actually occurred, and states that `invalid_grant` means the credentials are fine and only the grant needs re-minting.
+
+**Reversing the project decision, again, on better facts.** The pipeline will use the existing `megcmusic-outreach` project rather than a new one in the shows account: it is already published and reachable, which is what the earlier reasoning did not know. It gets **its own OAuth client** inside that project. Grants are per user *per client*, so two clients means rotating or deleting one never breaks the other — the coupling actually worth avoiding. A shared project costs nothing; a shared client would.
+
+**Both tokens now need minting** — the outreach one (Meg's mailbox, existing client) and the pipeline one (shows mailbox, new client). Each needs one browser consent grant.
