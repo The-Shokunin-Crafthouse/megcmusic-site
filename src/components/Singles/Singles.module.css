@@ -1,0 +1,127 @@
+/*
+ * Singles list, shared by Home and Music. The list rules below moved verbatim
+ * out of music.module.css so /music renders byte-identically; only the section
+ * chrome differs per surface.
+ *
+ * `home` sits on the opaque site ground, directly under the Discography it
+ * completes, and carries the bottom space before the footer. `page` matches the
+ * Music page's own section rhythm and stays transparent over the hero photo.
+ */
+.sectionHome {
+  position: relative;
+  z-index: var(--mc-z-content);
+  padding: var(--mc-space-4) var(--mc-space-4) var(--mc-space-9);
+  background: var(--mc-bg);
+}
+
+.sectionPage {
+  position: relative;
+  z-index: var(--mc-z-content);
+  padding: var(--mc-space-7) var(--mc-space-4) var(--mc-space-8);
+}
+
+.innerHome {
+  max-width: 1273px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+}
+
+.innerPage {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+}
+
+/* Singles list — links to each single's detail page. */
+.singles {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+}
+
+.single {
+  margin: 0;
+}
+
+/* One row box, two row kinds: a single with a detail page links, one without
+   renders as plain text rather than a dead link. Only the link transitions. */
+.singleLink,
+.singleStatic {
+  display: flex;
+  align-items: baseline;
+  gap: var(--mc-space-3);
+  padding: var(--mc-space-3) 0;
+  border-bottom: 1px solid var(--mc-divider);
+  color: var(--mc-text-primary);
+}
+
+.singleLink {
+  transition: color var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.singleLink:hover {
+  color: var(--mc-teal-light);
+}
+
+.singleLink:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.singleMeta {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  min-width: 8ch;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mc-accent-gold);
+}
+
+.singleStar {
+  color: var(--mc-accent-gold);
+}
+
+.singleType {
+  color: var(--mc-text-body);
+}
+
+.singleTitle {
+  flex: 1;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-lead);
+  line-height: 1.2;
+}
+
+.singleArrow {
+  flex-shrink: 0;
+  align-self: center;
+  color: var(--mc-text-body);
+}
+
+.singleLink:hover .singleArrow {
+  color: var(--mc-teal-light);
+}
+
+/* Match each host page's own 768px section override, so the shared component
+   keeps the rhythm of the page it sits on rather than introducing a third. */
+@media (min-width: 768px) {
+  .sectionPage {
+    padding: var(--mc-space-7) var(--mc-space-6) var(--mc-space-8);
+  }
+  .sectionHome {
+    padding: var(--mc-space-4) var(--mc-space-6) var(--mc-space-9);
+  }
+}

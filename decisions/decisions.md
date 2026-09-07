@@ -1483,3 +1483,22 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **Left open on purpose.** Three items are surfaced rather than decided, because each is Levi's call and none blocks the sprint closing: whether "Everything You Are To Me" should return to Home now that the Singles list exists only on `/music`; whether the FYC lyric sheets keep their 1400 px originals (11 MB on that page) or move to sized derivatives — the download and re-upload path is documented, replacing the files in `wp-content/uploads/2025/07/` under their existing names, since `public/images/fyc/` is regenerated every build; and the `PIPELINE_APP_PASSWORD` secret whose absence fails the unrelated Show pipeline workflow on every scheduled run, already logged 2026-08-13 but now failing daily and worth either creating or disabling, because a workflow that is always red teaches people to ignore red.
 
 **Sprint pointer cleared** in `WORKSPACE.md`; the contract carries a dated completion section; two learnings appended to `LEARNINGS.md`, both about checkers that could not fail.
+
+## 2026-09-06 — Singles reach Home, and a detail page becomes something Meg can create
+
+**Stage:** 03-build (post-Sprint-11 follow-up)
+**Type:** Product · Architecture
+**Status:** accepted
+**resolves:** the consequence flagged in 2026-09-06 "Everything You Are To Me is a single" — that her newest release appeared on `/music` and nowhere else.
+
+**Levi's call:** detail page *and* surface singles. Both halves shipped, but the first half turned out to be the more important one.
+
+**A detail page was not hers to create.** `routeFor` only returned a route when a hardcoded `RELEASE_ROUTES` row matched the release's WP page slug. So even after Meg created a WordPress page and pointed the registry row at it, the release stayed unlinked until someone edited `src/config/releases.ts` and deployed. That is precisely the dependency this sprint existed to remove, sitting inside the sprint's own work.
+
+**Now the route derives** from the page slug she points the row at: set "Its page on this dashboard" and the release is live at `/music/<that page's slug>` on the next build, with no code change. `RELEASE_ROUTES` shrank from five rows to one and changed meaning — it is an override list, not the route table, and it holds only `songs-from-the-sofa` → `songs-from-the-sofa-2`, the single release whose public URL stopped matching its page slug in 2026-07-13. **All five existing detail URLs are unchanged**, verified against the derived set rather than assumed.
+
+**Singles now render on Home** as well as `/music`, from one shared `Singles` component. Its list CSS moved verbatim out of `music.module.css`; only the section chrome differs, because the two hosts are genuinely different — Home's sits on the opaque site ground directly under the Discography it completes, `/music`'s stays transparent over the hero at that page's own rhythm.
+
+**Verification.** `/music`'s rendered text is byte-identical to production (1,443 characters both), and its computed section padding, background, inner max-width and gap match production at 390, 768 and 1440. That last check earned its place: the first cut of the shared module dropped `music.module.css`'s 768px override and quietly served 24px of horizontal padding where production serves 48px. The text diff could not see it and the class-name diff could not see it — only reading computed styles at each breakpoint did.
+
+**Still Meg's to do.** No WordPress page exists for "Everything You Are To Me" and no shop product, so it renders on Home and `/music` as a plain row today. The moment she creates the page and points the row at it, it becomes a link on both — which is the whole point.
