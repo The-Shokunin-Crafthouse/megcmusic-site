@@ -1502,3 +1502,26 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **Verification.** `/music`'s rendered text is byte-identical to production (1,443 characters both), and its computed section padding, background, inner max-width and gap match production at 390, 768 and 1440. That last check earned its place: the first cut of the shared module dropped `music.module.css`'s 768px override and quietly served 24px of horizontal padding where production serves 48px. The text diff could not see it and the class-name diff could not see it — only reading computed styles at each breakpoint did.
 
 **Still Meg's to do.** No WordPress page exists for "Everything You Are To Me" and no shop product, so it renders on Home and `/music` as a plain row today. The moment she creates the page and points the row at it, it becomes a link on both — which is the whole point.
+
+## 2026-09-06 — The show pipeline authenticates with OAuth, not an app password
+
+**Stage:** ops
+**Type:** Infrastructure · Security
+**Status:** accepted
+**supersedes:** the app-password auth in the 2026-07-02 show-pipeline decision.
+
+**Context.** The show pipeline has never run successfully — 0 of 288 runs — because its four GitHub secrets were never created (logged 2026-08-13). Creating them stalled on the first one: Google returned "There was an error generating your app password" for the pipeline mailbox. That is not a transient failure to retry around. Google is retiring app passwords, refuses to issue them under Advanced Protection, and generally requires a phone or authenticator second factor rather than a passkey alone. Chasing the app password would have bought a credential Google is actively deprecating.
+
+**Decision.** Both IMAP and SMTP now authenticate with XOAUTH2 against a long-lived refresh token, the same mechanism the outreach engine already uses. `PIPELINE_APP_PASSWORD` is replaced by `PIPELINE_CLIENT_ID`, `PIPELINE_CLIENT_SECRET` and `PIPELINE_REFRESH_TOKEN`.
+
+**It is a smaller change than it sounds**, which is why it was the right call rather than a rewrite: `imapflow` takes `auth: { user, accessToken }` and issues `AUTHENTICATE XOAUTH2`, and `nodemailer` takes `auth: { type: "OAuth2", user, accessToken }` and returns a static token without starting its own refresh loop. Both were verified in the installed sources rather than assumed. No new dependency — the token exchange is a `fetch` on Node 22. The pipeline's isolated `package.json` is untouched.
+
+**One token helper serves both**, cached until a minute before expiry, rather than letting nodemailer keep a second refresh loop: one code path to reason about, and one place where a revoked grant surfaces. A failed refresh is fatal and names the likely cause, because `invalid_grant` almost always means the consent screen is still in Testing — and a silent retry loop would hide exactly that.
+
+**The scope is `https://mail.google.com/`.** Gmail's narrower scopes (`gmail.modify`, `gmail.send`) are API-only; IMAP and SMTP reject them, and the rejection reads as a bad credential rather than a bad scope. Worth writing down because the wrong scope is the most plausible way to get this wrong twice.
+
+**`scripts/show-pipeline/oauth-setup.mjs`** mints the token: it writes to `.env.local` and never prints the secret, verifies the token refreshes before claiming success, reports which mailbox the grant belongs to, and warns outright if that mailbox is Meg's personal address — because the pipeline moves every message it sees out of INBOX, so pointing it at a human inbox empties that inbox on the first non-dry run.
+
+**No Google Cloud billing is required.** The console prompted for a card via the "Try Google Cloud for free" trial; that flow is optional. The project already exists (number 1034901181428, the outreach client's), project creation is free, and the Gmail API is quota-limited rather than billed.
+
+**Still blocked on a human step:** publishing the OAuth consent screen and completing one browser consent grant. Both are Levi's — the first is a Google Cloud setting, the second needs a signed-in browser.

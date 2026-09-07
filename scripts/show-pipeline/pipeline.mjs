@@ -10,8 +10,17 @@
  * without an explicit YES. Failures leave the message in INBOX so the next
  * run retries; a failed run notifies via GitHub's workflow-failure email.
  *
- * Env (GitHub secrets): PIPELINE_EMAIL, PIPELINE_APP_PASSWORD,
- *   WP_APP_USER, WP_APP_PASSWORD
+ * Auth is OAuth (XOAUTH2), not an app password. Google is winding app
+ * passwords down and blocks them outright under Advanced Protection, so both
+ * IMAP and SMTP authenticate with an access token minted from a long-lived
+ * refresh token. Mint it once with scripts/show-pipeline/oauth-setup.mjs.
+ *
+ * The scope must be `https://mail.google.com/`. Gmail's narrower scopes
+ * (gmail.modify, gmail.send) are API-only — IMAP and SMTP XOAUTH2 reject them.
+ *
+ * Env (GitHub secrets): PIPELINE_EMAIL, PIPELINE_CLIENT_ID,
+ *   PIPELINE_CLIENT_SECRET, PIPELINE_REFRESH_TOKEN, WP_APP_USER,
+ *   WP_APP_PASSWORD
  * Env (plain): ALLOWED_SENDERS (comma-sep), DRY_RUN ("1" = no writes/sends),
  *   WP_ORIGIN (override the WordPress host origin)
  */
@@ -170,13 +179,58 @@ const missing = (show) =>
 
 // ----------------------------------------------------------------- outbound
 
-const smtp = SELFTEST ? null : nodemailer.createTransport({
-  host: 'smtp.gmail.com', port: 465, secure: true,
-  auth: { user: PIPELINE_EMAIL, pass: env('PIPELINE_APP_PASSWORD') },
-});
+/**
+ * A Gmail access token for XOAUTH2, cached until shortly before it expires.
+ *
+ * Both IMAP and SMTP take the same token, so it is minted once here rather
+ * than letting nodemailer keep its own refresh loop — one code path to reason
+ * about, and one place where a revoked grant surfaces.
+ *
+ * A refresh that fails is fatal and says so: `invalid_grant` almost always
+ * means the OAuth consent screen is still in Testing, which caps refresh
+ * tokens at ~7 days (studio learning #70). Do not retry past it — a dead grant
+ * does not recover on its own, and a silent retry loop hides the cause.
+ */
+let cachedToken = null;
+async function accessToken() {
+  if (cachedToken && Date.now() < cachedToken.expiresAt) return cachedToken.value;
+  const res = await fetch('https://oauth2.googleapis.com/token', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({
+      client_id: env('PIPELINE_CLIENT_ID'),
+      client_secret: env('PIPELINE_CLIENT_SECRET'),
+      refresh_token: env('PIPELINE_REFRESH_TOKEN'),
+      grant_type: 'refresh_token',
+    }),
+    signal: AbortSignal.timeout(20000),
+  });
+  const body = await res.text();
+  if (!res.ok) {
+    const hint = body.includes('invalid_grant')
+      ? ' — the grant is dead. Publish the OAuth consent screen (a Testing-status'
+        + ' screen expires refresh tokens after ~7 days), then re-run'
+        + ' scripts/show-pipeline/oauth-setup.mjs and update PIPELINE_REFRESH_TOKEN.'
+      : '';
+    throw new Error(`Gmail token refresh failed: HTTP ${res.status} ${body.slice(0, 200)}${hint}`);
+  }
+  const { access_token, expires_in } = JSON.parse(body);
+  if (!access_token) throw new Error('Gmail token refresh returned no access_token');
+  // Refresh a minute early so a long run never presents an expired token.
+  cachedToken = { value: access_token, expiresAt: Date.now() + (expires_in - 60) * 1000 };
+  return access_token;
+}
+
+async function smtpTransport() {
+  return nodemailer.createTransport({
+    host: 'smtp.gmail.com', port: 465, secure: true,
+    auth: { type: 'OAuth2', user: PIPELINE_EMAIL, accessToken: await accessToken() },
+  });
+}
 
 async function send(to, subject, text, attachments = []) {
   if (DRY) return console.log(`[dry-run] would email ${to}: ${subject}`);
+  const smtp = await smtpTransport();
   await smtp.sendMail({ from: `"MegC Show Robot" <${PIPELINE_EMAIL}>`, to, subject, text, attachments });
 }
 
@@ -312,7 +366,7 @@ async function handleReply(from, subject, text, eventId) {
 async function main() {
   const imap = new ImapFlow({
     host: 'imap.gmail.com', port: 993, secure: true, logger: false,
-    auth: { user: PIPELINE_EMAIL, pass: env('PIPELINE_APP_PASSWORD') },
+    auth: { user: PIPELINE_EMAIL, accessToken: await accessToken() },
   });
   await imap.connect();
   if (!(await imap.mailboxOpen(PROCESSED_BOX).catch(() => null))) {
