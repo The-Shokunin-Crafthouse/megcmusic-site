@@ -7,16 +7,19 @@
  * all under Advanced Protection, which is how this conversion started.
  *
  * Prereqs:
- *   1. A Google Cloud project with the Gmail API enabled, created in the SHOWS
- *      account. The outreach project lives in Meg's personal Google account;
- *      keeping the bot's credentials in their own project means revoking or
- *      re-minting either one never touches the other. Project creation is free
- *      and the Gmail API is not billed — decline the "free trial" card prompt.
- *   2. An OAuth client of type "Desktop app".
- *   3. The consent screen PUBLISHED, not in Testing. A Testing-status screen
- *      expires refresh tokens after ~7 days and the pipeline dies a week later
- *      with invalid_grant (studio learning #70). This is the whole reason the
- *      outreach token had to be re-minted; do not repeat it here.
+ *   1. The `megcmusic-outreach` Google Cloud project — already In production,
+ *      External, Gmail API enabled. Nothing to create, nothing to publish.
+ *   2. Its OWN OAuth client of type "Desktop app", named `show-pipeline`, not
+ *      the outreach client. Grants are per user per client, so two clients
+ *      means rotating or deleting one never breaks the other. Sharing the
+ *      project costs nothing; sharing the client would.
+ *   3. The consent screen PUBLISHED, not in Testing — already true for this
+ *      project. A Testing-status screen expires refresh tokens after ~7 days
+ *      (studio learning #70). Note that publishing does NOT make a grant
+ *      permanent: a mailbox password change or a 2-Step Verification change
+ *      revokes Gmail-scoped refresh tokens outright, which is what killed the
+ *      outreach token on 2026-09-06 despite this project being In production.
+ *      Expect to re-run this script after any such change.
  *
  *      https://mail.google.com/ is a restricted scope, so a published app
  *      Google has not verified shows an "unverified app" interstitial —
