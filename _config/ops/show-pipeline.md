@@ -60,36 +60,23 @@ No state files, no databases.
    passwords and refuses to issue them under Advanced Protection, which is what
    blocked this setup.
 
-   Build this in **its own Google Cloud project, created in the shows account**.
-   The outreach project (number 1034901181428) lives in Meg's *personal* Google
-   account, so reaching it means signing in there — and sharing one project
-   would mean one consent screen and one client serving both the outreach engine
-   and the pipeline, where revoking or re-minting either touches both. A
-   separate project keeps the bot's credentials isolated from hers.
+   Use the existing **`megcmusic-outreach`** project. It is already In
+   production, External, with the Gmail API enabled — so there is no consent
+   screen to publish and no new project to create. (An earlier revision of this
+   doc said to make a separate project in the shows account; that was written
+   before we confirmed this one was already published and reachable.)
 
-   No billing account is needed. Project creation is free and the Gmail API is
-   quota-limited, not billed — the console's "Try Google Cloud for free" card
-   prompt is a separate, optional trial. Decline it.
+   Give the pipeline **its own OAuth client** inside that project rather than
+   reusing the outreach client. Grants are per user *per client*, so two
+   clients means rotating or deleting one never breaks the other — which is the
+   coupling actually worth avoiding. A shared project costs nothing here; a
+   shared client would.
 
-   Signed in as the **shows** account at `console.cloud.google.com`:
+   - Credentials → Create credentials → OAuth client ID → **Desktop app**,
+     named `show-pipeline`.
 
-   - **New project** — any name, e.g. `megc-show-pipeline`.
-   - APIs & Services → Library → **enable the Gmail API**.
-   - OAuth consent screen (newer UI: Google Auth Platform) → User type
-     **External** → **Publish app**. A Testing-status screen expires refresh
-     tokens after ~7 days; that is what killed the outreach token on 2026-09-06
-     (studio learning #70).
-   - Credentials → Create credentials → OAuth client ID → type **Desktop app**.
-
-   `https://mail.google.com/` is a *restricted* scope, so a published app that
-   Google has not verified shows an "unverified app" interstitial at consent and
-   is capped at 100 users. Both are fine here — one mailbox, and the warning is
-   cleared with **Advanced → Go to (unsafe)**. Verification is only worth
-   pursuing if this ever serves people outside the studio. Publishing while
-   unverified still lifts the 7-day refresh-token expiry, which is the point.
-
-   Then, from the repo root, signed into the **pipeline** mailbox in the
-   browser that opens:
+   Then, from the repo root, signed into the **shows** mailbox in the browser
+   that opens:
 
    ```
    PIPELINE_CLIENT_ID=... PIPELINE_CLIENT_SECRET=... \
@@ -101,7 +88,14 @@ No state files, no databases.
 
    The scope is `https://mail.google.com/`. The narrower Gmail API scopes are
    rejected by the IMAP and SMTP servers, and the failure looks like a bad
-   credential rather than a bad scope.
+   credential rather than a bad scope. Because that scope is *restricted* and
+   the app is unverified, consent shows an "unverified app" interstitial —
+   Advanced → Go to (unsafe) — and the project's lifetime OAuth user cap is
+   100. Two mailboxes against a cap of 100 is not a constraint.
+
+   **No billing account is needed.** Project creation is free and the Gmail API
+   is quota-limited, not billed. Decline the "Try Google Cloud for free" card
+   prompt; it is a separate, optional trial.
 
 3. WP admin → Users → (Editor/Admin user) → Application Passwords → create
    one for "show-pipeline".
