@@ -50,7 +50,7 @@ const env = (k) => {
 
 const SELFTEST = process.env.SELFTEST === '1';
 const PIPELINE_EMAIL = SELFTEST ? 'selftest@example.com' : env('PIPELINE_EMAIL');
-const ALLOWED = (process.env.ALLOWED_SENDERS ?? 'meghanclarisse@gmail.com')
+const ALLOWED = (process.env.ALLOWED_SENDERS ?? 'meghanclarisse@gmail.com,meghancave@yahoo.com')
   .toLowerCase().split(',').map((s) => s.trim()).filter(Boolean);
 
 const wpAuth = SELFTEST ? '' : 'Basic ' + Buffer.from(`${env('WP_APP_USER')}:${env('WP_APP_PASSWORD')}`).toString('base64');

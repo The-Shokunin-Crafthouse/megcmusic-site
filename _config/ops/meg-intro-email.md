@@ -34,7 +34,8 @@ file in, hit Publish. That keeps your BIT page in sync with about 10 seconds
 of work.
 
 Notes:
-- It only listens to your email address (meghanclarisse@gmail.com), so
+- It only listens to your two email addresses (meghanclarisse@gmail.com and
+  meghancave@yahoo.com), so
   nobody else can add shows.
 - Nothing ever goes live without your YES.
 - If a show changes after it's published, that edit still happens in
