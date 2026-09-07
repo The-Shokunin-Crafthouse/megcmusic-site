@@ -75,9 +75,19 @@ export const MUSIC_PAGE = {
   metaDescription: data.metaDescription,
 };
 
+/**
+ * Newest first, both listings. Before this the order was whatever order Meg's
+ * registry rows happened to be in — the albums read newest-first by luck while
+ * the singles read 2026, 2023, 2024 beside them. Sort is stable, so two
+ * releases sharing a year keep her row order between them.
+ */
+const newestFirst = <T extends { year: string }>(rows: T[]): T[] =>
+  [...rows].sort((a, b) => Number(b.year) - Number(a.year));
+
 /** Albums and EPs — the Discography on Home, Music and Press Kit. */
-export const RELEASES: Release[] = data.releases
-  .filter((row) => kindOf(row) !== "SINGLE")
+export const RELEASES: Release[] = newestFirst(
+  data.releases.filter((row) => kindOf(row) !== "SINGLE"),
+)
   .map((row) => ({
     year: row.year,
     type: kindOf(row),
@@ -121,8 +131,9 @@ interface Single {
 }
 
 /** Every single, listed on /music — not in the discography. */
-export const SINGLES: Single[] = data.releases
-  .filter((row) => kindOf(row) === "SINGLE")
+export const SINGLES: Single[] = newestFirst(
+  data.releases.filter((row) => kindOf(row) === "SINGLE"),
+)
   .map((row) => ({
     title: row.title,
     year: row.year,
