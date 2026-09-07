@@ -49,18 +49,51 @@ No state files, no databases.
 
 ## One-time setup
 
-1. Dedicated Gmail: `meghanclarisseshows@gmail.com` (created 2026-07-01). Enable 2FA,
-   create an **app password** (Google Account → Security → App passwords).
+1. Dedicated Gmail: `meghanclarisseshows@gmail.com` (created 2026-07-01).
    In Gmail settings → Forwarding and POP/IMAP → **enable IMAP**.
-2. WP admin → Users → (Editor/Admin user) → Application Passwords → create
+
+   It must be a mailbox no human reads. The pipeline moves *every* message it
+   sees out of INBOX into `Pipeline/Processed`, including mail from senders it
+   ignores — pointed at a personal inbox, the first non-dry run empties it.
+
+2. OAuth, not an app password (converted 2026-09-06). Google is retiring app
+   passwords and refuses to issue them under Advanced Protection, which is what
+   blocked this setup. In the existing Google Cloud project (**number
+   1034901181428** — the one the outreach client already lives in; no new
+   project and no billing account is needed, the Gmail API is free):
+
+   - APIs & Services → **enable the Gmail API** if it is not already.
+   - OAuth consent screen → **Publish app**. A Testing-status screen expires
+     refresh tokens after ~7 days; this is what killed the outreach token on
+     2026-09-06 (studio learning #70).
+   - Credentials → an OAuth client of type **Desktop app** (the outreach one
+     can be reused — a client is not tied to a mailbox; the consent grant
+     decides that).
+
+   Then, from the repo root, signed into the **pipeline** mailbox in the
+   browser that opens:
+
+   ```
+   PIPELINE_CLIENT_ID=... PIPELINE_CLIENT_SECRET=... \
+     node scripts/show-pipeline/oauth-setup.mjs
+   ```
+
+   It writes `PIPELINE_REFRESH_TOKEN` into `.env.local` (never prints it),
+   verifies the token refreshes, and reports which mailbox it belongs to.
+
+   The scope is `https://mail.google.com/`. The narrower Gmail API scopes are
+   rejected by the IMAP and SMTP servers, and the failure looks like a bad
+   credential rather than a bad scope.
+
+3. WP admin → Users → (Editor/Admin user) → Application Passwords → create
    one for "show-pipeline".
-3. GitHub repo → Settings → Secrets and variables → Actions:
-   `PIPELINE_EMAIL`, `PIPELINE_APP_PASSWORD`, `WP_APP_USER`,
-   `WP_APP_PASSWORD`.
-4. First run: Actions → Show pipeline → Run workflow with **dry run** ✓,
+4. GitHub repo → Settings → Secrets and variables → Actions:
+   `PIPELINE_EMAIL`, `PIPELINE_CLIENT_ID`, `PIPELINE_CLIENT_SECRET`,
+   `PIPELINE_REFRESH_TOKEN`, `WP_APP_USER`, `WP_APP_PASSWORD`.
+5. First run: Actions → Show pipeline → Run workflow with **dry run** ✓,
    after sending a test email to the pipeline address. Read the log, then run
    for real.
-5. Send Meg the intro email (`_config/ops/meg-intro-email.md`).
+6. Send Meg the intro email (`_config/ops/meg-intro-email.md`).
 
 ## Boundaries / risks
 

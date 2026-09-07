@@ -35,7 +35,12 @@ jobs:
         run: node scripts/show-pipeline/pipeline.mjs
         env:
           PIPELINE_EMAIL: ${{ secrets.PIPELINE_EMAIL }}
-          PIPELINE_APP_PASSWORD: ${{ secrets.PIPELINE_APP_PASSWORD }}
+          # OAuth (XOAUTH2), not an app password — Google is retiring app
+          # passwords and blocks them under Advanced Protection. Mint the
+          # refresh token with scripts/show-pipeline/oauth-setup.mjs.
+          PIPELINE_CLIENT_ID: ${{ secrets.PIPELINE_CLIENT_ID }}
+          PIPELINE_CLIENT_SECRET: ${{ secrets.PIPELINE_CLIENT_SECRET }}
+          PIPELINE_REFRESH_TOKEN: ${{ secrets.PIPELINE_REFRESH_TOKEN }}
           WP_APP_USER: ${{ secrets.WP_APP_USER }}
           WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
           ALLOWED_SENDERS: "meghanclarisse@gmail.com"
