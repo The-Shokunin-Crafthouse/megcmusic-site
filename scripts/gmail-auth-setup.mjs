@@ -10,6 +10,12 @@
  *   3. The OAuth consent screen PUBLISHED, not in Testing — a Testing-status
  *      screen caps refresh-token life at ~7 days and unattended sends die a
  *      week later (studio learning: oauth-refresh-needs-published-consent).
+ *      This is the whole reason to re-run this script; publish first or the
+ *      new token dies the same way. Verified dead 2026-09-06: invalid_grant.
+ *
+ * The minted token is written to .env.local and never printed — it is echoed
+ * nowhere, so it cannot leak through terminal scrollback or an agent
+ * transcript. The script prints the account it belongs to and a fingerprint.
  *
  * Usage:
  *   GMAIL_CLIENT_ID=... GMAIL_CLIENT_SECRET=... node scripts/gmail-auth-setup.mjs
@@ -18,6 +24,8 @@
  */
 
 import http from "node:http";
+import fs from "node:fs";
+import path from "node:path";
 import { URL } from "node:url";
 import { google } from "googleapis";
 
@@ -75,10 +83,47 @@ const server = http.createServer(async (req, res) => {
       process.exit(1);
     }
 
-    console.log("\n=== Gmail refresh token ===\n");
-    console.log(tokens.refresh_token);
+    // The token is written straight to .env.local and never printed. A secret
+    // echoed to a terminal ends up in scrollback, in shell history tooling and
+    // in any agent transcript that ran the command; the file it belongs in is
+    // already gitignored. Copy it from there for Vercel.
+    const envPath = path.join(process.cwd(), ".env.local");
+    const line = `GMAIL_REFRESH_TOKEN=${tokens.refresh_token}`;
+    let env = fs.existsSync(envPath) ? fs.readFileSync(envPath, "utf8") : "";
+    env = /^GMAIL_REFRESH_TOKEN=.*$/m.test(env)
+      ? env.replace(/^GMAIL_REFRESH_TOKEN=.*$/m, line)
+      : (env.endsWith("\n") || env === "" ? env : env + "\n") + line + "\n";
+    fs.writeFileSync(envPath, env, { mode: 0o600 });
+
+    // Prove the mint before declaring success: exchange it once and read the
+    // profile back. A token that cannot refresh is the failure this script
+    // exists to fix, so finding out now beats finding out from a dead cron.
+    const probe = new google.auth.OAuth2(CLIENT_ID, CLIENT_SECRET, REDIRECT_URI);
+    probe.setCredentials({ refresh_token: tokens.refresh_token });
+    const gmail = google.gmail({ version: "v1", auth: probe });
+    const { data: profile } = await gmail.users.getProfile({ userId: "me" });
+    let aliases = [];
+    try {
+      const { data } = await gmail.users.settings.sendAs.list({ userId: "me" });
+      aliases = (data.sendAs ?? []).map(
+        (a) => `${a.sendAsEmail}${a.isPrimary ? " (primary)" : " (send-as)"}`,
+      );
+    } catch {
+      aliases = ["(sendAs not readable with these scopes)"];
+    }
+
+    const t = tokens.refresh_token;
+    console.log("\n=== Gmail refresh token minted ===");
+    console.log(`  account   : ${profile.emailAddress}`);
+    console.log(`  addresses : ${aliases.join(", ") || "none listed"}`);
+    console.log(`  token     : ${t.slice(0, 6)}…${t.slice(-4)} (${t.length} chars)`);
+    console.log(`  written to: ${envPath} (not printed — copy it from there)`);
+    console.log("  refresh   : verified — exchanged once and read the profile back");
     console.log(
-      "\nPaste this into GMAIL_REFRESH_TOKEN in .env.local and Vercel (all environments).\n",
+      "\nSet the same value as GMAIL_REFRESH_TOKEN in Vercel (all environments).",
+    );
+    console.log(
+      "If the OAuth consent screen is still in Testing, this token expires in ~7 days.\n",
     );
     server.close();
     process.exit(0);
