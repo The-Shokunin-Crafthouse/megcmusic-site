@@ -186,10 +186,8 @@ const missing = (show) =>
  * than letting nodemailer keep its own refresh loop — one code path to reason
  * about, and one place where a revoked grant surfaces.
  *
- * A refresh that fails is fatal and says so: `invalid_grant` almost always
- * means the OAuth consent screen is still in Testing, which caps refresh
- * tokens at ~7 days (studio learning #70). Do not retry past it — a dead grant
- * does not recover on its own, and a silent retry loop hides the cause.
+ * A refresh that fails is fatal and says so. Do not retry past it — a dead
+ * grant does not recover on its own, and a silent retry loop hides the cause.
  */
 let cachedToken = null;
 async function accessToken() {
@@ -207,10 +205,20 @@ async function accessToken() {
   });
   const body = await res.text();
   if (!res.ok) {
+    // invalid_grant means the refresh token is dead, and the cause is almost
+    // never the code. Ranked by what has actually happened on this project:
+    // a Google password change or a 2SV change revokes Gmail-scoped grants
+    // outright; someone revoked it at myaccount.google.com/permissions; the
+    // consent screen slipped back to Testing (~7-day cap, studio learning
+    // #70); or six months passed unused. A bad client id/secret is a
+    // different error — invalid_client — so if you see invalid_grant the
+    // credentials are fine and only the grant needs re-minting.
     const hint = body.includes('invalid_grant')
-      ? ' — the grant is dead. Publish the OAuth consent screen (a Testing-status'
-        + ' screen expires refresh tokens after ~7 days), then re-run'
-        + ' scripts/show-pipeline/oauth-setup.mjs and update PIPELINE_REFRESH_TOKEN.'
+      ? ' — the refresh token is dead, not the client (a bad client returns'
+        + ' invalid_client). Most likely the mailbox password or its 2-Step'
+        + ' Verification changed, which revokes Gmail grants. Re-run'
+        + ' scripts/show-pipeline/oauth-setup.mjs and update'
+        + ' PIPELINE_REFRESH_TOKEN.'
       : '';
     throw new Error(`Gmail token refresh failed: HTTP ${res.status} ${body.slice(0, 200)}${hint}`);
   }
