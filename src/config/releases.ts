@@ -1,20 +1,21 @@
 /**
- * Release ROUTES — the one part of the registry that stays in code.
+ * Release route OVERRIDES — the small exception list, not the route table.
  *
- * Everything else about a release (title, year, kind, its WP page, its shop
- * item, streaming links) now comes from the `releases` list on Meg's Music page,
- * read at build by src/lib/releases-content.ts.
+ * A release's detail page normally lives at `/music/<its WP page slug>`, derived
+ * at build from the `releases` list on Meg's Music page. That matters: it means
+ * she can give a release a detail page entirely from her dashboard — create the
+ * page, point the row's "Its page on this dashboard" at it — with no code change
+ * and no deploy waiting on anyone.
  *
- * The route slug cannot: `/music/songs-from-the-sofa` is served from the WP page
- * `songs-from-the-sofa-2` (the maintained page took a suffixed slug when the old
- * duplicate was retired — decisions.md 2026-07-13). Deriving the route from the
- * page slug would change a live URL, which the sprint contract forbids. So the
- * mapping lives here, joined to the WP rows on `wpSlug`.
+ * One release cannot derive its route. `/music/songs-from-the-sofa` is served
+ * from the WP page `songs-from-the-sofa-2` (the maintained page took a suffixed
+ * slug when the old duplicate was retired — decisions.md 2026-07-13). Deriving
+ * that one would change a live URL. So it lives here, joined on `wpSlug`.
  *
- * A release with no row here simply has no detail page — it still appears in the
- * discography, exactly as "Everything You Are To Me" does today.
+ * Add a row here only to keep an existing public URL that no longer matches its
+ * page slug. Everything else derives.
  */
-interface ReleaseRoute {
+export interface ReleaseRoute {
   /** Route slug: /music/<slug>. */
   slug: string;
   /** The WP page the release's row points at. */
@@ -22,9 +23,6 @@ interface ReleaseRoute {
 }
 
 export const RELEASE_ROUTES: ReleaseRoute[] = [
-  { slug: "shadows-of-a-ghost-town", wpSlug: "shadows-of-a-ghost-town" },
-  { slug: "kindred-spirits", wpSlug: "kindred-spirits" },
+  // The only release whose public URL differs from its WP page slug.
   { slug: "songs-from-the-sofa", wpSlug: "songs-from-the-sofa-2" },
-  { slug: "breaker-breaker", wpSlug: "breaker-breaker" },
-  { slug: "aint-going-back", wpSlug: "aint-going-back" },
 ];

@@ -20,7 +20,7 @@
  */
 
 import data from "@/generated/releases.json";
-import { RELEASE_ROUTES } from "@/config/releases";
+import { RELEASE_ROUTES, type ReleaseRoute } from "@/config/releases";
 import { WP_ORIGIN } from "@/lib/wp-origin";
 
 interface Release {
@@ -53,8 +53,21 @@ export interface ReleaseDetail {
 
 type Row = (typeof data.releases)[number];
 
-const routeFor = (row: Row) =>
-  row.pageSlug ? RELEASE_ROUTES.find((r) => r.wpSlug === row.pageSlug) : undefined;
+/**
+ * A release's detail route. Derived from the WP page Meg points the row at, so
+ * giving a release a detail page is something she does in her dashboard rather
+ * than something that waits on a deploy. RELEASE_ROUTES overrides the derived
+ * slug for the one release whose public URL no longer matches its page slug.
+ */
+const routeFor = (row: Row): ReleaseRoute | undefined => {
+  if (!row.pageSlug) return undefined;
+  return (
+    RELEASE_ROUTES.find((r) => r.wpSlug === row.pageSlug) ?? {
+      slug: row.pageSlug,
+      wpSlug: row.pageSlug,
+    }
+  );
+};
 
 const kindOf = (row: Row): Release["type"] =>
   row.kind === "LP" || row.kind === "EP" ? row.kind : "SINGLE";

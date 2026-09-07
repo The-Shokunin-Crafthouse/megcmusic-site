@@ -3,9 +3,10 @@ import Link from "next/link";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { Discography } from "@/components/Discography/Discography";
+import { Singles } from "@/components/Singles/Singles";
 import { getPage } from "@/lib/api/wordpress";
 import { paragraphsFromHtml } from "@/lib/wp-content";
-import { SINGLES, MUSIC_PAGE } from "@/lib/releases-content";
+import { MUSIC_PAGE } from "@/lib/releases-content";
 import { LIVE_FORMATS } from "@/config/formats";
 import { COLLAB_GROUPS, CAVE_CREW_URL } from "@/config/collaborate";
 import { FormatCard } from "./FormatCard";
@@ -89,49 +90,8 @@ export default async function MusicPage() {
         {/* Release + track listings — the shared discography (home, /epk). */}
         <Discography />
 
-        {/* Standalone singles, off the album list. One with a detail page links
-            to it; one without renders as a plain row rather than a dead link. */}
-        <section className={styles.section} aria-labelledby="music-singles">
-          <div className={styles.inner}>
-            <SectionLabel id="music-singles">Singles</SectionLabel>
-            <ul className={styles.singles}>
-              {SINGLES.map((single) => {
-                const meta = (
-                  <>
-                    <span className={styles.singleMeta}>
-                      <span className={styles.singleYear}>{single.year}</span>
-                      <span className={styles.singleStar} aria-hidden="true">
-                        ★
-                      </span>
-                      <span className={styles.singleType}>{single.type}</span>
-                    </span>
-                    <span className={styles.singleTitle}>{single.title}</span>
-                  </>
-                );
-                return (
-                  <li key={single.title} className={styles.single}>
-                    {single.detailSlug ? (
-                      <Link
-                        className={styles.singleLink}
-                        href={`/music/${single.detailSlug}`}
-                      >
-                        {meta}
-                        <ArrowUpRight
-                          className={styles.singleArrow}
-                          size={18}
-                          weight="bold"
-                          aria-hidden="true"
-                        />
-                      </Link>
-                    ) : (
-                      <span className={styles.singleStatic}>{meta}</span>
-                    )}
-                  </li>
-                );
-              })}
-            </ul>
-          </div>
-        </section>
+        {/* Standalone singles, off the album list — shared with Home. */}
+        <Singles id="music-singles" surface="page" />
 
         {/* How she performs — photos from her WP format pages. */}
         <section className={styles.section} aria-labelledby="music-formats">
