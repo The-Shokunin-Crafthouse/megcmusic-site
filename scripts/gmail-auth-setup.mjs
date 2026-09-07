@@ -63,7 +63,7 @@ const server = http.createServer(async (req, res) => {
   const error = url.searchParams.get("error");
 
   if (error || !code) {
-    res.writeHead(400, { "Content-Type": "text/plain" });
+    res.writeHead(400, { "Content-Type": "text/plain; charset=utf-8" });
     res.end(`Authorization failed: ${error ?? "no code returned"}`);
     console.error(`\nAuthorization failed: ${error ?? "no code returned"}`);
     server.close();
@@ -72,7 +72,7 @@ const server = http.createServer(async (req, res) => {
 
   try {
     const { tokens } = await oauth2.getToken(code);
-    res.writeHead(200, { "Content-Type": "text/plain" });
+    res.writeHead(200, { "Content-Type": "text/plain; charset=utf-8" });
     res.end("Done — you can close this tab and return to the terminal.");
 
     if (!tokens.refresh_token) {
@@ -128,7 +128,7 @@ const server = http.createServer(async (req, res) => {
     server.close();
     process.exit(0);
   } catch (err) {
-    res.writeHead(500, { "Content-Type": "text/plain" });
+    res.writeHead(500, { "Content-Type": "text/plain; charset=utf-8" });
     res.end("Token exchange failed — see terminal.");
     console.error("\nToken exchange failed:", err);
     server.close();
