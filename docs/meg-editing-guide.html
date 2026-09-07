@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Editing megcmusic.com — a guide for Meghan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #33202c;
+    --ink-soft: #6b5460;
+    --paper: #f7eadd;
+    --paper-deep: #efdfd0;
+    --gold: #9a7532;
+    --teal: #3f6f6c;
+    --plum: #4f2c3d;
+    --rule: #d8c4b2;
+    --display: 'Lora', Georgia, serif;
+    --ui: 'Open Sans', system-ui, sans-serif;
+  }
+
+  @page { size: letter; margin: 15mm 14mm 16mm; }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--ui);
+    font-size: 10pt;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3 { font-family: var(--display); font-weight: 600; }
+
+  /* ── Cover ─────────────────────────────────────────── */
+  .cover { padding: 4mm 0 8mm; border-bottom: 2px solid var(--gold); margin-bottom: 7mm; }
+  .stars { color: var(--gold); letter-spacing: .5em; font-size: 9pt; margin: 0 0 3mm; }
+  h1 { font-size: 25pt; line-height: 1.12; margin: 0 0 3mm; color: var(--plum); }
+  .sub { font-family: var(--display); font-style: italic; font-size: 12pt; color: var(--ink-soft); margin: 0; }
+
+  /* ── Sections ──────────────────────────────────────── */
+  section { margin-bottom: 7mm; }
+  h2 {
+    font-size: 13pt; color: var(--plum); margin: 0 0 3mm;
+    padding-bottom: 1.5mm; border-bottom: 1px solid var(--rule);
+  }
+  h2 .num {
+    font-family: var(--ui); font-size: 8pt; font-weight: 600; color: var(--gold);
+    letter-spacing: .12em; display: inline-block; min-width: 7mm; vertical-align: middle;
+  }
+  h3 { font-size: 10.5pt; margin: 4mm 0 1.5mm; color: var(--teal); }
+  p { margin: 0 0 2.5mm; }
+  .lede { font-size: 10.5pt; }
+
+  /* ── The big promise ───────────────────────────────── */
+  .promise {
+    background: var(--paper-deep); border-left: 3px solid var(--teal);
+    padding: 4mm 5mm; margin: 0 0 6mm;
+  }
+  .promise p { margin: 0; }
+  .promise strong { color: var(--plum); }
+
+  /* ── Tables ────────────────────────────────────────── */
+  table { width: 100%; border-collapse: collapse; margin: 2mm 0 3mm; font-size: 9pt; }
+  th {
+    text-align: left; font-family: var(--ui); font-size: 7.5pt; font-weight: 600;
+    letter-spacing: .1em; text-transform: uppercase; color: var(--gold);
+    border-bottom: 1px solid var(--rule); padding: 0 3mm 1.5mm 0;
+  }
+  td { padding: 1.8mm 3mm 1.8mm 0; border-bottom: 1px solid #e7d8c8; vertical-align: top; }
+  td:first-child { font-family: var(--display); color: var(--plum); white-space: nowrap; }
+  td code, .dash {
+    font-family: var(--ui); font-size: 8.5pt; color: var(--teal); font-weight: 600;
+  }
+
+  /* ── Field lists ───────────────────────────────────── */
+  dl { margin: 0 0 3mm; }
+  dt { font-weight: 600; color: var(--plum); font-size: 9.5pt; margin-top: 2mm; }
+  dd { margin: 0 0 0 0; font-size: 9pt; color: var(--ink-soft); }
+
+  ul { margin: 0 0 3mm; padding-left: 4.5mm; }
+  li { margin-bottom: 1.2mm; font-size: 9.5pt; }
+
+  .note {
+    font-size: 9pt; color: var(--ink-soft); font-style: italic;
+    border-left: 2px solid var(--rule); padding-left: 3mm; margin: 2.5mm 0;
+  }
+
+  .shared { background: #f1e2d2; padding: 3mm 4mm; border-radius: 2px; margin: 3mm 0; }
+  .shared p:last-child { margin-bottom: 0; }
+
+  .page-break { page-break-before: always; }
+  .avoid-break { page-break-inside: avoid; }
+
+  footer {
+    margin-top: 8mm; padding-top: 3mm; border-top: 1px solid var(--rule);
+    font-size: 8pt; color: var(--ink-soft); display: flex; justify-content: space-between;
+  }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <p class="stars">★★★</p>
+  <h1>Editing your website</h1>
+  <p class="sub">Everything on megcmusic.com, and where to change it — Meghan Clarisse</p>
+</div>
+
+<div class="promise">
+  <p><strong>The whole thing in one sentence.</strong> Every word and photo a visitor sees on megcmusic.com now lives in your WordPress dashboard. Edit it there, click <em>Update</em>, and the website rewrites itself — usually in about two and a half minutes. You never need to ask anyone.</p>
+</div>
+
+<section class="avoid-break">
+  <h2><span class="num">01</span> How to change anything</h2>
+  <ol style="margin:0 0 3mm; padding-left:5mm;">
+    <li>Sign in at <span class="dash">admin.megcmusic.com/wp-admin</span></li>
+    <li>Go to <span class="dash">Pages</span> and open the page from the table in the next section</li>
+    <li>Scroll past the page's own content — your website fields are in labelled boxes underneath</li>
+    <li>Change what you want and click <strong>Update</strong></li>
+    <li>Wait about three minutes, then refresh megcmusic.com</li>
+  </ol>
+  <p class="note">Every field has a grey line of help text under it telling you exactly where it appears. When in doubt, read that line — it was written for this.</p>
+</section>
+
+<section>
+  <h2><span class="num">02</span> Which dashboard page controls which part of the site</h2>
+  <table>
+    <thead><tr><th style="width:31%">Open this page</th><th>and you're editing</th></tr></thead>
+    <tbody>
+      <tr><td>Home</td><td>Your bio, the pull quote, the Recognition list, Instagram caption and handle, the mailing-list wording, your Facebook/Instagram/YouTube links, and the site's main background photo</td></tr>
+      <tr><td>Music</td><td>The Music page intro, and <strong>your whole release list</strong> — every album, EP and single, with its links and shop item</td></tr>
+      <tr><td>EPK</td><td>The Press Kit: intro, the four quick facts, press-kit downloads, press coverage links, set-list intro, closing note</td></tr>
+      <tr><td>Media</td><td>The Media page intro line</td></tr>
+      <tr><td>Videos</td><td>Which videos appear, and in what order, on Home and Media</td></tr>
+      <tr><td>Site: Poetry</td><td>The Poetry page — book title, opening line, the "Inside the Pages" paragraphs, and the Buy button</td></tr>
+      <tr><td>Booking</td><td>The Request a Gig intro, how-booking-works paragraph, the starred checklist, three quick facts</td></tr>
+      <tr><td>Shows / Shop</td><td>Just the intro line and search wording. The shows and products themselves work exactly as they always have</td></tr>
+      <tr><td>Collabs</td><td>The "Work With Me" groups on the Music page</td></tr>
+      <tr><td>Solo Acoustic<br>Full Band</td><td>The two Live Format cards on the Music page — name, description, photo</td></tr>
+      <tr><td>FYC pages</td><td>Each award campaign — album, category, cycle, the pitch, press quotes, videos, lyric sheets</td></tr>
+      <tr><td>Release pages</td><td>Each record's own page, plus the press quotes shown on it</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<section class="avoid-break">
+  <h2><span class="num">03</span> Three things are shared — change once, changes everywhere</h2>
+  <div class="shared">
+    <p><strong>Your bio and pull quote</strong> live on the <em>Home</em> page. They appear both in Liner Notes on the home page and as "The Story" on the Press Kit. Edit them in one place; both update.</p>
+    <p><strong>Your release list</strong> lives on the <em>Music</em> page. It feeds the Discography on Home, Music and the Press Kit, the Singles list, and each release's own page.</p>
+    <p><strong>The site photo</strong> lives on the <em>Home</em> page, under Site Basics. It is the background on every page. Any single page can override it with its own "Photo for this page" — leave that empty and the page uses the site photo, which is what they all do today.</p>
+  </div>
+  <p class="note">Because the site photo touches every page, check with Levi before swapping it.</p>
+</section>
+
+<section class="page-break">
+  <h2><span class="num">04</span> Your release list, in a little more detail</h2>
+  <p>This is the one field worth understanding properly, because it drives more of the site than anything else. On the <strong>Music</strong> page, under <em>Your releases</em>, each row is one record:</p>
+  <dl>
+    <dt>Kind</dt>
+    <dd>Albums and EPs go in the Discography. Singles go in the Singles list on the Music page. That is the only thing that decides it.</dd>
+    <dt>Its page on this dashboard</dt>
+    <dd>Points at the WordPress page whose text and lyric images become that release's "About the Record" page. Leave it empty and the release still lists — it just has no page of its own to click into.</dd>
+    <dt>Shop item</dt>
+    <dd>The product behind the "Buy" button. Leave empty if it isn't sold.</dd>
+    <dt>Spotify / Apple link</dt>
+    <dd>This record's own link. Leave either empty and the site falls back to your artist profile, set further down the same page.</dd>
+  </dl>
+  <p><strong>Order.</strong> Both lists sort themselves newest first by the Year you enter, so you can add a row anywhere and it lands in the right place.</p>
+</section>
+
+<section class="avoid-break">
+  <h2><span class="num">05</span> What is <em>not</em> a field — and doesn't need to be</h2>
+  <ul>
+    <li><strong>Your shows</strong> — still added the way you always have, in The Events Calendar</li>
+    <li><strong>Your shop products</strong> — still WooCommerce, unchanged, including prices and stock</li>
+    <li><strong>Your photo galleries</strong> — the Media page pulls from your Photos page</li>
+    <li><strong>Your sample set list</strong> — still its own page; the Press Kit links to it</li>
+    <li><strong>Lyric-sheet descriptions</strong> — set on the image itself in the Media Library, not in the gallery field</li>
+    <li><strong>The design</strong> — colours, fonts, spacing and layout are fixed. Nothing you type can break how the site looks.</li>
+  </ul>
+</section>
+
+<section class="avoid-break">
+  <h2><span class="num">06</span> If your change doesn't show up</h2>
+  <p>Work down this list. It is almost always the first one.</p>
+  <ol style="margin:0 0 3mm; padding-left:5mm;">
+    <li><strong>Wait three minutes and refresh.</strong> The site rebuilds itself after you save; it is not instant. Give it the full three minutes before deciding something is wrong.</li>
+    <li><strong>Force a fresh copy.</strong> Hold <em>Shift</em> and click reload — your browser may be showing you the page it already had.</li>
+    <li><strong>Open the page and click Update again.</strong> A second save re-sends the signal, and this fixes it more often than you'd expect.</li>
+    <li><strong>Tell Levi.</strong> Say which page you edited and roughly when. Nothing you can do in the dashboard breaks the site — the worst case is that a change sits and waits.</li>
+  </ol>
+  <p class="note">The site also rebuilds itself every night, so even a signal that goes missing entirely will have caught up by the next morning.</p>
+</section>
+
+<section class="avoid-break">
+  <h2><span class="num">07</span> Two small habits worth having</h2>
+  <p><strong>Leave a field empty rather than deleting the box.</strong> Empty means "use what the site does today" almost everywhere — the Buy link, a page's own photo, a release's Spotify link. It is a safe thing to do.</p>
+  <p><strong>Change one thing, check it, then change the next.</strong> Not because anything will break, but because if something does look off you will know immediately what caused it.</p>
+</section>
+
+<footer>
+  <span>megcmusic.com — content guide</span>
+  <span>The Shokunin Crafthouse · September 2026</span>
+</footer>
+
+</body>
+</html>

@@ -94,3 +94,17 @@ A one-page, plain-language guide for Meg: where each site page lives in her dash
 ## 10. Stop conditions — park and report instead of improvising
 
 Stop and surface to Levi if: WP REST writes are blocked from every available context; ACF cannot expose a needed structure via REST; Bluehost blocks the dispatch ping; parity cannot be achieved on a surface without a design change; or anything requires touching WooCommerce/TEC/checkout. Name the blocker, what you tried, and the smallest decision needed — then stop.
+
+---
+
+## COMPLETE — 2026-09-06
+
+Every phase delivered. Meghan can edit every visitor-facing word and photo on megcmusic.com from her WordPress dashboard, and her change is live in about **two and a half minutes** — measured, not estimated: two real `repository_dispatch` production deploys ran 138s and 154s end to end, and the nightly self-heal ran 104s.
+
+**Shipped as thirteen PRs**, one per surface: #80 contract, #81 plugin, #82 pipeline, #84–85 migration, #86–87 FYC, #88 EPK, #89 media, #90–91 poetry, #92 home, #93 per-page hero, #94 discography, #95 EYATM-as-single, #96 parity proof, #97 release ordering.
+
+**Parity held.** 65 route/breakpoint pairs against a rebuilt pre-sprint baseline: head metadata identical on 65 of 65, 37 pairs pixel-identical, and every difference accounted for — the deliberate EYATM move, the FYC lyric-sheet resolution change, and harness noise proven by self-parity. Redirects identical. Reduced motion preserves content on every touched route. Zero unstyled focus stops; the after tab order is a strict subsequence of the before order. `sc-hygiene` drift: zero findings added across ten PRs, whose entire CSS delta is eight lines.
+
+**Open, and deliberately not closed here.** Three items were surfaced rather than decided, each recorded in `decisions/decisions.md`: whether "Everything You Are To Me" should be visible on Home now that the Singles list lives only on `/music`; whether the FYC lyric sheets should keep their 1400 px originals (that page carries 11 MB of them) or be served as sized derivatives; and the `PIPELINE_APP_PASSWORD` secret that the unrelated Show pipeline workflow still fails on nightly.
+
+**Meg's guide** is `docs/meg-editing-guide.pdf` (source `docs/meg-editing-guide.html`, re-render with Playwright's `page.pdf`). The dashboard-visible note was not attempted — it would mean a plugin change touching the wp-admin UI, which is more risk than the contract's "if trivially possible" invites.
