@@ -45,6 +45,13 @@ import { URL } from 'node:url';
 
 const CLIENT_ID = process.env.PIPELINE_CLIENT_ID;
 const CLIENT_SECRET = process.env.PIPELINE_CLIENT_SECRET;
+
+// Load-bearing on both sides. The OAuth client is a Web application type, so
+// this exact URI — scheme, host, port, path — is registered in the Google Cloud
+// console under Authorized redirect URIs. Changing PORT here without changing
+// it there fails at consent with redirect_uri_mismatch, which reads like a
+// broken app rather than a config drift. A Desktop-app client would accept any
+// loopback port; this one does not.
 const PORT = 4600;
 const REDIRECT_URI = `http://localhost:${PORT}/oauth2callback`;
 
@@ -110,7 +117,7 @@ const server = http.createServer(async (req, res) => {
   const error = url.searchParams.get('error');
 
   if (error || !code) {
-    res.writeHead(400, { 'Content-Type': 'text/plain' }).end(`Authorization failed: ${error ?? 'no code'}`);
+    res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' }).end(`Authorization failed: ${error ?? 'no code'}`);
     console.error(`\nAuthorization failed: ${error ?? 'no code returned'}`);
     server.close();
     process.exit(1);
@@ -129,7 +136,7 @@ const server = http.createServer(async (req, res) => {
     if (!tokenRes.ok) throw new Error(`token exchange failed: ${JSON.stringify(tokens).slice(0, 300)}`);
 
     if (!tokens.refresh_token) {
-      res.writeHead(400, { 'Content-Type': 'text/plain' }).end('No refresh token — see terminal.');
+      res.writeHead(400, { 'Content-Type': 'text/plain; charset=utf-8' }).end('No refresh token — see terminal.');
       console.error(
         '\nNo refresh_token returned. Revoke prior access at ' +
         'https://myaccount.google.com/permissions and re-run.',
@@ -140,7 +147,7 @@ const server = http.createServer(async (req, res) => {
 
     const profile = await verify(tokens.refresh_token);
     const envPath = writeEnv(tokens.refresh_token);
-    res.writeHead(200, { 'Content-Type': 'text/plain' }).end('Done — close this tab and return to the terminal.');
+    res.writeHead(200, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Done — close this tab and return to the terminal.');
 
     const t = tokens.refresh_token;
     console.log('\n=== Show pipeline refresh token minted ===');
@@ -166,11 +173,26 @@ const server = http.createServer(async (req, res) => {
     server.close();
     process.exit(0);
   } catch (err) {
-    res.writeHead(500, { 'Content-Type': 'text/plain' }).end('Token exchange failed — see terminal.');
+    res.writeHead(500, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Token exchange failed — see terminal.');
     console.error('\n', err.message ?? err);
     server.close();
     process.exit(1);
   }
+});
+
+server.on('error', (err) => {
+  if (err.code === 'EADDRINUSE') {
+    console.error(
+      `\nPort ${PORT} is already in use, and it cannot simply be changed: it is\n` +
+      `part of the redirect URI registered on the OAuth client\n` +
+      `(${REDIRECT_URI}). Free the port and re-run — or register a new URI in\n` +
+      `the Google Cloud console and change PORT here to match.\n\n` +
+      `What is holding it:  lsof -nP -iTCP:${PORT} -sTCP:LISTEN\n`,
+    );
+    process.exit(1);
+  }
+  console.error('\n', err.message ?? err);
+  process.exit(1);
 });
 
 server.listen(PORT, () => {
