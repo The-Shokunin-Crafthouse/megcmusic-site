@@ -72,8 +72,19 @@ No state files, no databases.
    coupling actually worth avoiding. A shared project costs nothing here; a
    shared client would.
 
-   - Credentials → Create credentials → OAuth client ID → **Desktop app**,
-     named `show-pipeline`.
+   - Credentials → Create credentials → OAuth client ID → **Web application**,
+     named `show-pipeline`, with this exact Authorized redirect URI:
+
+     ```
+     http://localhost:4600/oauth2callback
+     ```
+
+     `http`, not `https`; no trailing slash. Leave Authorized JavaScript
+     origins empty. A **Desktop app** client would accept any loopback port
+     without registering one, and is the more natural type for a CLI — either
+     works. The Web type pins the port, which is fine because the mint script
+     pins it too; `oauth-setup.mjs` says so at the `PORT` constant and fails
+     with that explanation if the port is occupied.
 
    Then, from the repo root, signed into the **shows** mailbox in the browser
    that opens:
