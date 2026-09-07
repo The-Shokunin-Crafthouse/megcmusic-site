@@ -58,17 +58,35 @@ No state files, no databases.
 
 2. OAuth, not an app password (converted 2026-09-06). Google is retiring app
    passwords and refuses to issue them under Advanced Protection, which is what
-   blocked this setup. In the existing Google Cloud project (**number
-   1034901181428** — the one the outreach client already lives in; no new
-   project and no billing account is needed, the Gmail API is free):
+   blocked this setup.
 
-   - APIs & Services → **enable the Gmail API** if it is not already.
-   - OAuth consent screen → **Publish app**. A Testing-status screen expires
-     refresh tokens after ~7 days; this is what killed the outreach token on
-     2026-09-06 (studio learning #70).
-   - Credentials → an OAuth client of type **Desktop app** (the outreach one
-     can be reused — a client is not tied to a mailbox; the consent grant
-     decides that).
+   Build this in **its own Google Cloud project, created in the shows account**.
+   The outreach project (number 1034901181428) lives in Meg's *personal* Google
+   account, so reaching it means signing in there — and sharing one project
+   would mean one consent screen and one client serving both the outreach engine
+   and the pipeline, where revoking or re-minting either touches both. A
+   separate project keeps the bot's credentials isolated from hers.
+
+   No billing account is needed. Project creation is free and the Gmail API is
+   quota-limited, not billed — the console's "Try Google Cloud for free" card
+   prompt is a separate, optional trial. Decline it.
+
+   Signed in as the **shows** account at `console.cloud.google.com`:
+
+   - **New project** — any name, e.g. `megc-show-pipeline`.
+   - APIs & Services → Library → **enable the Gmail API**.
+   - OAuth consent screen (newer UI: Google Auth Platform) → User type
+     **External** → **Publish app**. A Testing-status screen expires refresh
+     tokens after ~7 days; that is what killed the outreach token on 2026-09-06
+     (studio learning #70).
+   - Credentials → Create credentials → OAuth client ID → type **Desktop app**.
+
+   `https://mail.google.com/` is a *restricted* scope, so a published app that
+   Google has not verified shows an "unverified app" interstitial at consent and
+   is capped at 100 users. Both are fine here — one mailbox, and the warning is
+   cleared with **Advanced → Go to (unsafe)**. Verification is only worth
+   pursuing if this ever serves people outside the studio. Publishing while
+   unverified still lifts the 7-day refresh-token expiry, which is the point.
 
    Then, from the repo root, signed into the **pipeline** mailbox in the
    browser that opens:

@@ -7,14 +7,21 @@
  * all under Advanced Protection, which is how this conversion started.
  *
  * Prereqs:
- *   1. A Google Cloud project with the Gmail API enabled. The site's outreach
- *      OAuth client can be reused — a client is not tied to one account, and
- *      the consent grant below decides which mailbox the token belongs to.
+ *   1. A Google Cloud project with the Gmail API enabled, created in the SHOWS
+ *      account. The outreach project lives in Meg's personal Google account;
+ *      keeping the bot's credentials in their own project means revoking or
+ *      re-minting either one never touches the other. Project creation is free
+ *      and the Gmail API is not billed — decline the "free trial" card prompt.
  *   2. An OAuth client of type "Desktop app".
  *   3. The consent screen PUBLISHED, not in Testing. A Testing-status screen
  *      expires refresh tokens after ~7 days and the pipeline dies a week later
  *      with invalid_grant (studio learning #70). This is the whole reason the
  *      outreach token had to be re-minted; do not repeat it here.
+ *
+ *      https://mail.google.com/ is a restricted scope, so a published app
+ *      Google has not verified shows an "unverified app" interstitial —
+ *      Advanced → Go to (unsafe) — and is capped at 100 users. Fine for one
+ *      mailbox. Publishing unverified still lifts the 7-day expiry.
  *   4. Sign in as the PIPELINE mailbox when the browser opens — not Meg's
  *      personal account. The pipeline moves every message it sees out of
  *      INBOX, so pointing it at a human inbox empties that inbox into a

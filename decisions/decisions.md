@@ -1522,6 +1522,10 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 
 **`scripts/show-pipeline/oauth-setup.mjs`** mints the token: it writes to `.env.local` and never prints the secret, verifies the token refreshes before claiming success, reports which mailbox the grant belongs to, and warns outright if that mailbox is Meg's personal address — because the pipeline moves every message it sees out of INBOX, so pointing it at a human inbox empties that inbox on the first non-dry run.
 
-**No Google Cloud billing is required.** The console prompted for a card via the "Try Google Cloud for free" trial; that flow is optional. The project already exists (number 1034901181428, the outreach client's), project creation is free, and the Gmail API is quota-limited rather than billed.
+**No Google Cloud billing is required.** The console prompted for a card via the "Try Google Cloud for free" trial; that flow is optional. Project creation is free and the Gmail API is quota-limited rather than billed.
+
+**Corrected the same day:** I first said to reuse the outreach project (number 1034901181428). That project lives in Meg's *personal* Google account, so it is invisible from the shows account and reaching it means signing in as her. The pipeline gets **its own project, created in the shows account** — which is the better arrangement anyway: one consent screen and one client serving both the outreach engine and the pipeline would mean revoking or re-minting either one touches both. Separate projects keep the bot's credentials isolated from hers.
+
+**One consequence worth stating.** `https://mail.google.com/` is a *restricted* scope, so a published app Google has not verified shows an "unverified app" interstitial at consent and is capped at 100 users. Both are acceptable here — one mailbox, and the warning clears with Advanced → Go to (unsafe). Verification is only worth pursuing if this ever serves people outside the studio. Publishing while unverified still lifts the 7-day refresh-token expiry, which is the reason to publish at all.
 
 **Still blocked on a human step:** publishing the OAuth consent screen and completing one browser consent grant. Both are Levi's — the first is a Google Cloud setting, the second needs a signed-in browser.
