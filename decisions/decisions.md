@@ -1529,3 +1529,19 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **One consequence worth stating.** `https://mail.google.com/` is a *restricted* scope, so a published app Google has not verified shows an "unverified app" interstitial at consent and is capped at 100 users. Both are acceptable here — one mailbox, and the warning clears with Advanced → Go to (unsafe). Verification is only worth pursuing if this ever serves people outside the studio. Publishing while unverified still lifts the 7-day refresh-token expiry, which is the reason to publish at all.
 
 **Still blocked on a human step:** publishing the OAuth consent screen and completing one browser consent grant. Both are Levi's — the first is a Google Cloud setting, the second needs a signed-in browser.
+
+## 2026-09-07 — The show pipeline accepts both of Meg's addresses
+
+**Stage:** ops
+**Type:** Access control
+**Status:** accepted
+
+**Context.** The pipeline's first live test failed as `ignored-sender`. The email was well-formed; it came from `meghancave@yahoo.com`, and the allowlist held only `meghanclarisse@gmail.com` — the address the design and her intro email both name.
+
+**Decision.** `ALLOWED_SENDERS` now holds both. Levi's call, and the right one: she reaches for whichever account is open on her phone, and a pipeline that silently drops half her mail is worse than one that accepts two senders. The failure mode of the narrow list is invisible to her — the email simply never becomes a show — which is the kind of quiet failure that gets a tool abandoned rather than reported.
+
+**Kept in three places deliberately.** The workflow's `ALLOWED_SENDERS`, the module's fallback default, and Meg's intro email now all name both addresses. The fallback matters because a missing env var would otherwise silently narrow the allowlist back to one address on a local or ad-hoc run.
+
+**The security position is unchanged and worth restating.** This `From` allowlist is the only authentication on a path that writes to WordPress, and `From` headers are trivially spoofable. Events are created as drafts and need a YES reply to publish, but that reply is checked the same way. Adding a second provider does not materially change the exposure — the exposure was already "anyone who can forge a From header can create and publish a show". Accepted, as before, because the blast radius is a bogus event on a shows page that Meg reads. If that ever stops being true, the fix is a shared secret in the body, not a longer allowlist.
+
+**Verified** by exercising the module's own parsing: both addresses match, matching is case-insensitive on the incoming header, a stray space after the comma is tolerated, and an unknown sender is still rejected.

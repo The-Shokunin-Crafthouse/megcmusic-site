@@ -43,5 +43,9 @@ jobs:
           PIPELINE_REFRESH_TOKEN: ${{ secrets.PIPELINE_REFRESH_TOKEN }}
           WP_APP_USER: ${{ secrets.WP_APP_USER }}
           WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
-          ALLOWED_SENDERS: "meghanclarisse@gmail.com"
+          # Both of Meg's addresses. She reaches for whichever is open on her
+          # phone, and a pipeline that silently ignores half her mail is worse
+          # than one that accepts two senders (2026-09-07: the first real test
+          # came from the Yahoo account and was dropped as ignored-sender).
+          ALLOWED_SENDERS: "meghanclarisse@gmail.com,meghancave@yahoo.com"
           DRY_RUN: ${{ inputs.dry_run && '1' || '' }}
