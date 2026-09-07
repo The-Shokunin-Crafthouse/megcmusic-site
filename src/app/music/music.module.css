@@ -127,16 +127,9 @@
   margin: 0;
 }
 
-.singleLink {
-  display: flex;
-  align-items: baseline;
-  gap: var(--mc-space-3);
-  padding: var(--mc-space-3) 0;
-  border-bottom: 1px solid var(--mc-divider);
-  color: var(--mc-text-primary);
-  transition: color var(--mc-motion-micro) var(--mc-ease-out);
-}
-
+/* One row box, two row kinds: a single with a detail page links, one without
+   renders as plain text rather than a dead link. Only the link transitions. */
+.singleLink,
 .singleStatic {
   display: flex;
   align-items: baseline;
@@ -145,6 +138,11 @@
   border-bottom: 1px solid var(--mc-divider);
   color: var(--mc-text-primary);
 }
+
+.singleLink {
+  transition: color var(--mc-motion-micro) var(--mc-ease-out);
+}
+
 .singleLink:hover {
   color: var(--mc-teal-light);
 }

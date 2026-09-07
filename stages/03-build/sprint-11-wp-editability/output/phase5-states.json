@@ -1,0 +1,116 @@
+[
+  {
+    "route": "/",
+    "reducedKeepsContentBefore": true,
+    "reducedKeepsContentAfter": true,
+    "reducedTextSame": false,
+    "focusCount": {
+      "before": 69,
+      "after": 66
+    },
+    "tabStops": {
+      "before": 25,
+      "after": 25
+    },
+    "ringsWithoutStyling": {
+      "before": [],
+      "after": []
+    },
+    "tabOrderSame": true
+  },
+  {
+    "route": "/music",
+    "reducedKeepsContentBefore": true,
+    "reducedKeepsContentAfter": true,
+    "reducedTextSame": false,
+    "focusCount": {
+      "before": 31,
+      "after": 28
+    },
+    "tabStops": {
+      "before": 25,
+      "after": 25
+    },
+    "ringsWithoutStyling": {
+      "before": [],
+      "after": []
+    },
+    "tabOrderSame": false
+  },
+  {
+    "route": "/epk",
+    "reducedKeepsContentBefore": true,
+    "reducedKeepsContentAfter": true,
+    "reducedTextSame": false,
+    "focusCount": {
+      "before": 36,
+      "after": 33
+    },
+    "tabStops": {
+      "before": 25,
+      "after": 25
+    },
+    "ringsWithoutStyling": {
+      "before": [],
+      "after": []
+    },
+    "tabOrderSame": false
+  },
+  {
+    "route": "/media",
+    "reducedKeepsContentBefore": true,
+    "reducedKeepsContentAfter": true,
+    "reducedTextSame": true,
+    "focusCount": {
+      "before": 65,
+      "after": 65
+    },
+    "tabStops": {
+      "before": 25,
+      "after": 25
+    },
+    "ringsWithoutStyling": {
+      "before": [],
+      "after": []
+    },
+    "tabOrderSame": true
+  },
+  {
+    "route": "/poetry",
+    "reducedKeepsContentBefore": true,
+    "reducedKeepsContentAfter": true,
+    "reducedTextSame": true,
+    "focusCount": {
+      "before": 11,
+      "after": 11
+    },
+    "tabStops": {
+      "before": 11,
+      "after": 11
+    },
+    "ringsWithoutStyling": {
+      "before": [],
+      "after": []
+    },
+    "tabOrderSame": true
+  },
+  {
+    "route": "/fyc/shadows-of-a-ghost-town",
+    "reducedKeepsContentBefore": true,
+    "reducedKeepsContentAfter": true,
+    "reducedTextSame": true,
+    "focusCount": {
+      "before": 21,
+      "after": 21
+    },
+    "tabStops": {
+      "before": 21,
+      "after": 21
+    },
+    "ringsWithoutStyling": {
+      "before": [],
+      "after": []
+    },
+    "tabOrderSame": true
+  }
+]
