@@ -18,24 +18,24 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { WP_API } from "@/lib/api/wordpress";
 
-export interface FycQuote {
+interface FycQuote {
   quote: string;
   source: string;
 }
 
-export interface FycVideo {
+interface FycVideo {
   id: string;
   title: string;
 }
 
-export interface FycLyricSheet {
+interface FycLyricSheet {
   src: string;
   alt: string;
   width: number;
   height: number;
 }
 
-export interface FycCampaign {
+interface FycCampaign {
   slug: string;
   album: string;
   artist: string;
@@ -51,7 +51,7 @@ export interface FycCampaign {
 
 /** Campaign route slug → the WP page Meg edits. Adding a campaign = a WP page
  *  with the FYC field group + a row here + a page directory (studio task). */
-export const FYC_PAGE_IDS: Record<string, number> = {
+const FYC_PAGE_IDS: Record<string, number> = {
   "shadows-of-a-ghost-town": 4350,
   "kindred-spirits": 4566,
 };
