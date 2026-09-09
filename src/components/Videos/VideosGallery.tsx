@@ -87,6 +87,9 @@ export function VideosGallery({ videos: initial }: { videos: Video[] }) {
   }, []);
 
   const active = videos.find((v) => v.id === activeId) ?? videos[0];
+  // Five tiles: the active video plus four. The server list already leads with
+  // Meg's featured pick and her curated order (src/lib/video-merge.ts), so the
+  // four here are hers unless her list is shorter than that.
   const rest = videos.filter((v) => v.id !== active.id).slice(0, 4);
 
   function select(id: string) {

@@ -1,0 +1,18 @@
+# Unit tests (node:test via tsx) on every pull request. Added in Sprint 12
+# with the first unit test in the repo — the video merge order — so the
+# regression it fixes cannot come back unnoticed.
+name: Unit tests
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm ci
+      - run: npm test
