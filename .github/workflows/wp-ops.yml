@@ -1,0 +1,43 @@
+# Sprint 12 — authenticated WordPress reads and small recorded writes
+# (page-title fixes, page trashing) that need the application password.
+# Runs here because the runner reaches admin.megcmusic.com and holds
+# WP_APP_USER / WP_APP_PASSWORD (the same secrets wp-migrate.yml uses).
+# Writes happen only when `confirm` is literally "write"; anything else
+# dry-runs. Output is uploaded as an artifact named after the op.
+name: WP ops
+on:
+  workflow_dispatch:
+    inputs:
+      op:
+        description: "Operation"
+        type: choice
+        required: true
+        options: [read-config, set-titles, trash-pages]
+      args:
+        description: "set-titles: \"id=Title;id=Title\" · trash-pages: \"id,id\""
+        type: string
+        default: ""
+      confirm:
+        description: "Type write to perform set-titles / trash-pages (anything else dry-runs)"
+        type: string
+        default: "dry-run"
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Run ${{ inputs.op }}
+        env:
+          WP_APP_USER: ${{ secrets.WP_APP_USER }}
+          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+          CONFIRM: ${{ inputs.confirm }}
+          OUT: wp-ops-output/${{ inputs.op }}.json
+        run: node scripts/wp-ops/wp-ops.mjs --op "${{ inputs.op }}" --args "${{ inputs.args }}"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wp-ops-${{ inputs.op }}-${{ github.run_id }}
+          path: wp-ops-output/
