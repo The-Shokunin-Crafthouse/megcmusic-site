@@ -9,6 +9,8 @@
  *   right-rail link.
  * - extraVideoIds: cross-channel videos (e.g. a venue's live set) the channel
  *   RSS omits and that are not hers to list — a studio task, not an edit.
+ *   They come last in the merge (src/lib/video-merge.ts), after her list and
+ *   the channel's newest uploads.
  *
  * VideosGallery still reconciles against her Videos page from the visitor's
  * browser, so a YouTube block pasted into the page body also appears.

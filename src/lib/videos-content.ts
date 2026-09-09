@@ -33,7 +33,8 @@ const rows = (v: unknown): Record<string, unknown>[] =>
  *  src/lib/api/youtube.ts then simply leads with the channel's newest upload. */
 export const primaryVideoId: string = youtubeId(text(acf.featured_video_url));
 
-/** Her curated list, in her order. */
+/** Her curated list, in her order — it comes right after the featured tile and
+ *  ahead of the channel's newest uploads (src/lib/video-merge.ts). */
 export const seedVideoIds: string[] = rows(acf.video_list)
   .map((r) => youtubeId(text(r.youtube_url)))
   .filter(Boolean);
