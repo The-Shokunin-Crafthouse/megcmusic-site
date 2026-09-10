@@ -1707,3 +1707,22 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **Result** (`output/phase-1-parity/README.md`). Zone empty: text, meta, refs identical at five widths; the rendered markup identical line for line, the RSC payload differing only in build id and row numbering. Zone with two announcements and one unknown row: above the zone 0 px at every width; below it 0 / 19 / 8 / 0 / 0 after the ±1-row recount; the page taller by exactly the zone's height; the unknown row dropped and logged. Tab order Instagram → block links → EPK; five states measured; reduced motion measured.
 
 **Alternatives considered.** A dedicated announcement style (its own panel, its own type) — rejected: the contract says design from existing parts, and a second panel vocabulary on one page is the kind of one-off the studio treats as debt. Live test block via `set-acf` as written — rejected for this phase, per decision 4. A `Reveal` wrapper for the zone — there is none on Home to follow; adding motion the section-reveal convention does not have would be ornament (§2, motion is causality).
+
+## 2026-09-10 — Sprint 13 Phase 2: the pull-quote block is the LinerNotes panel, extracted first and proven unchanged before the block uses it
+
+**Stage:** 03-build (sprint-13-home-blocks, Phase 2)
+**Type:** Architecture · UX / design tradeoff
+**Status:** accepted — builds on the 2026-09-10 Sprint 13 Phase 1 entry
+
+**Context.** The contract (§5) orders this phase: extract `LinerNotes`' pull-quote into a shared component and re-mount it there, prove Home identical after the extraction alone, then build the block on it. The LinerNotes quote carries a one-line-on-desktop rule (Levi's call, 2026-07-10) that suits a 43-character line in a wide column and would clip a quote of Meg's choosing.
+
+**Decisions.**
+1. **One component, `src/components/PullQuote`.** The blockquote and its three rules (`.quote`, `.quoteText`, `.quoteAttr`) moved verbatim; `LinerNotes.module.css` keeps a pointer comment where they were. Props: `quote`, optional `attribution`, and `oneLineFromTablet`.
+2. **The one-line rule is opt-in, kept by LinerNotes, not taken by the block.** `oneLineFromTablet` adds a modifier class carrying the 768-up `white-space: nowrap`; LinerNotes passes it, `PullQuoteBlock` does not, so a block quote of any length wraps. The 2026-07-10 decision stands where it was made and nowhere else.
+3. **`cite` renders only with an attribution.** LinerNotes always had one; the block's is optional, and an empty `cite` is markup with nothing to announce. Live Home carries an attribution, so the extraction changes nothing there.
+4. **The block is the panel and nothing more.** No heading, no article wrapper, no link, no motion: a native `blockquote` under the zone's h2, the same markup a screen reader already meets in Liner Notes. Spec rows appended to `_config/design-system/a11y-spec.md`.
+5. **Proof by local injection, as Phase 1** (decision 4 of that entry); built with `npx next build` because `npm run build`'s prebuild fetch overwrites the injected snapshot.
+
+**Result** (`output/phase-2-parity/README.md`). Extraction: text, meta, refs identical at five widths; pixels 6 @390 against a 1,030 px floor, 0 elsewhere; the document differs by the three blockquote lines' class names. Block: above the zone 0 px at every width; below it 0 / 19 / 8 / 0 / 0 after the recount; the page taller by exactly the zone's height; blank row dropped; zero focusables added. One pollution found and cured on the way: a parity worktree built without `.env.local` bakes `NEXT_PUBLIC_*` empty and renders Instagram's fallback (learning #95) — repo lesson for close-out.
+
+**Alternatives considered.** A `PullQuote` with the nowrap baked in — rejected: Meg's quotes are hers, any length. Passing a `className` from LinerNotes instead of a boolean — rejected: CSS-module hashes do not cross files, so the rule would have to live in LinerNotes and the component would no longer own its panel. Leaving LinerNotes untouched and duplicating the panel in the block — rejected by the contract and by the rule that one panel vocabulary exists on the page.

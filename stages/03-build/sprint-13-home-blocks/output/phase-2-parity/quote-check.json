@@ -1,0 +1,64 @@
+{
+  "zoneName": "★★★What’s New★★★",
+  "focusablesInZone": 0,
+  "quotes": [
+    {
+      "text": "“Cave writes like someone who has driven every mile of the road she sings about — the kind of record you keep in the truck for the long way home.”",
+      "cite": "Colorado Sound, album review",
+      "className": "PullQuote-module__WZ6hdW__quote",
+      "quoteTextCss": {
+        "font": "Lora",
+        "style": "italic",
+        "size": "20px",
+        "lineHeight": "24px",
+        "color": "rgb(229, 220, 211)",
+        "whiteSpace": "normal"
+      },
+      "panel": {
+        "bg": "rgb(51, 31, 46)",
+        "borderLeft": "3px solid rgb(246, 132, 154)",
+        "radius": "24px",
+        "padding": "24px 32px"
+      },
+      "height": 123.5
+    },
+    {
+      "text": "“Country roots, cowgirl boots.”",
+      "cite": null,
+      "className": "PullQuote-module__WZ6hdW__quote",
+      "quoteTextCss": {
+        "font": "Lora",
+        "style": "italic",
+        "size": "20px",
+        "lineHeight": "24px",
+        "color": "rgb(229, 220, 211)",
+        "whiteSpace": "normal"
+      },
+      "panel": {
+        "bg": "rgb(51, 31, 46)",
+        "borderLeft": "3px solid rgb(246, 132, 154)",
+        "radius": "24px",
+        "padding": "24px 32px"
+      },
+      "height": 72
+    }
+  ],
+  "linerQuote": {
+    "className": "PullQuote-module__WZ6hdW__quote",
+    "quoteTextCss": {
+      "font": "Lora",
+      "style": "italic",
+      "size": "20px",
+      "lineHeight": "24px",
+      "color": "rgb(229, 220, 211)",
+      "whiteSpace": "nowrap"
+    },
+    "panel": {
+      "bg": "rgb(51, 31, 46)",
+      "borderLeft": "3px solid rgb(246, 132, 154)",
+      "radius": "24px",
+      "padding": "24px 32px"
+    }
+  },
+  "droppedRowRendered": false
+}
