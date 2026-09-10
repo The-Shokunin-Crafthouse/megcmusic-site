@@ -1,0 +1,15 @@
+/* Video block — the facade at the zone's full measure, caption beneath in
+   the attribution's voice (PullQuote's cite). */
+.block {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+}
+
+.caption {
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-detail);
+  line-height: 1.5;
+  color: var(--mc-teal-light);
+}

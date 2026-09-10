@@ -1,0 +1,182 @@
+{
+  "normal": {
+    "info": {
+      "zoneName": "★★★What’s New★★★",
+      "figures": [
+        {
+          "buttonName": "Play Copper & Quartz live at Society Hall",
+          "thumb": "https://i.ytimg.com/vi/A8E_XRwkhTk/hqdefault.jpg",
+          "thumbAlt": "",
+          "caption": "Copper & Quartz, live at Society Hall — the full set.",
+          "boxClasses": "VideoFacade-module__dGpuiG__featured",
+          "aspect": 1.778,
+          "width": 1000
+        },
+        {
+          "buttonName": "Play September 1, 2025",
+          "thumb": "https://i.ytimg.com/vi/9L1cSL9u-U0/hqdefault.jpg",
+          "thumbAlt": "",
+          "caption": null,
+          "boxClasses": "VideoFacade-module__dGpuiG__featured",
+          "aspect": 1.778,
+          "width": 1000
+        }
+      ],
+      "focusablesInZone": 2,
+      "droppedRowRendered": false,
+      "galleryFacadeClasses": "VideoFacade-module__dGpuiG__facade"
+    },
+    "tabWalk": [
+      "button:Play Copper & Quartz live at Society Hall @home-blocks-heading",
+      "button:Play September 1, 2025 @home-blocks-heading",
+      "a:View @epk-heading",
+      "button:Play Copper & Quartz live at Society Hall @videos-heading"
+    ],
+    "focusedIsButton": true,
+    "states": [
+      {
+        "state": "default",
+        "outline": "none 3px rgb(0, 0, 0)",
+        "outlineOffset": "0px",
+        "glyphTransform": "matrix(1, 0, 0, 1, -44, -44)",
+        "imgTransform": "none",
+        "glyphTransition": "0.12s",
+        "imgTransition": "0.36s",
+        "cursor": "pointer"
+      },
+      {
+        "state": "hover",
+        "outline": "none 3px rgb(0, 0, 0)",
+        "outlineOffset": "0px",
+        "glyphTransform": "matrix(1.08, 0, 0, 1.08, -44, -44)",
+        "imgTransform": "matrix(1.03, 0, 0, 1.03, 0, 0)",
+        "glyphTransition": "0.12s",
+        "imgTransition": "0.36s",
+        "cursor": "pointer"
+      },
+      {
+        "state": "focus-visible",
+        "outline": "solid 3px rgb(96, 177, 173)",
+        "outlineOffset": "-3px",
+        "glyphTransform": "matrix(1, 0, 0, 1, -44, -44)",
+        "imgTransform": "none",
+        "glyphTransition": "0.12s",
+        "imgTransition": "0.36s",
+        "cursor": "pointer",
+        "focusedIsButton": true
+      },
+      {
+        "state": "active",
+        "outline": "none 3px rgb(0, 0, 0)",
+        "outlineOffset": "0px",
+        "glyphTransform": "matrix(0.96, 0, 0, 0.96, -44, -44)",
+        "imgTransform": "matrix(1.03, 0, 0, 1.03, 0, 0)",
+        "glyphTransition": "0.12s",
+        "imgTransition": "0.36s",
+        "cursor": "pointer",
+        "pressedIsButton": true
+      },
+      {
+        "state": "disabled",
+        "note": "not applicable — an invalid link renders no block (parser rule)"
+      }
+    ],
+    "afterClick": {
+      "iframe": true,
+      "src": "https://www.youtube-nocookie.com/embed/A8E_XRwkhTk?autoplay=1&rel=0",
+      "title": "Copper & Quartz live at Society Hall",
+      "buttonGone": true,
+      "iframeCount": 1
+    }
+  },
+  "reducedMotion": {
+    "info": {
+      "zoneName": "★★★What’s New★★★",
+      "figures": [
+        {
+          "buttonName": "Play Copper & Quartz live at Society Hall",
+          "thumb": "https://i.ytimg.com/vi/A8E_XRwkhTk/hqdefault.jpg",
+          "thumbAlt": "",
+          "caption": "Copper & Quartz, live at Society Hall — the full set.",
+          "boxClasses": "VideoFacade-module__dGpuiG__featured",
+          "aspect": 1.778,
+          "width": 1000
+        },
+        {
+          "buttonName": "Play September 1, 2025",
+          "thumb": "https://i.ytimg.com/vi/9L1cSL9u-U0/hqdefault.jpg",
+          "thumbAlt": "",
+          "caption": null,
+          "boxClasses": "VideoFacade-module__dGpuiG__featured",
+          "aspect": 1.778,
+          "width": 1000
+        }
+      ],
+      "focusablesInZone": 2,
+      "droppedRowRendered": false,
+      "galleryFacadeClasses": "VideoFacade-module__dGpuiG__facade"
+    },
+    "tabWalk": [
+      "button:Play Copper & Quartz live at Society Hall @home-blocks-heading",
+      "button:Play September 1, 2025 @home-blocks-heading",
+      "a:View @epk-heading",
+      "button:Play Copper & Quartz live at Society Hall @videos-heading"
+    ],
+    "focusedIsButton": true,
+    "states": [
+      {
+        "state": "default",
+        "outline": "none 3px rgb(0, 0, 0)",
+        "outlineOffset": "0px",
+        "glyphTransform": "matrix(1, 0, 0, 1, -44, -44)",
+        "imgTransform": "none",
+        "glyphTransition": "0s",
+        "imgTransition": "0s",
+        "cursor": "pointer"
+      },
+      {
+        "state": "hover",
+        "outline": "none 3px rgb(0, 0, 0)",
+        "outlineOffset": "0px",
+        "glyphTransform": "matrix(1.08, 0, 0, 1.08, -44, -44)",
+        "imgTransform": "matrix(1.03, 0, 0, 1.03, 0, 0)",
+        "glyphTransition": "0s",
+        "imgTransition": "0s",
+        "cursor": "pointer"
+      },
+      {
+        "state": "focus-visible",
+        "outline": "solid 3px rgb(96, 177, 173)",
+        "outlineOffset": "-3px",
+        "glyphTransform": "matrix(1, 0, 0, 1, -44, -44)",
+        "imgTransform": "none",
+        "glyphTransition": "0s",
+        "imgTransition": "0s",
+        "cursor": "pointer",
+        "focusedIsButton": true
+      },
+      {
+        "state": "active",
+        "outline": "none 3px rgb(0, 0, 0)",
+        "outlineOffset": "0px",
+        "glyphTransform": "matrix(0.96, 0, 0, 0.96, -44, -44)",
+        "imgTransform": "matrix(1.03, 0, 0, 1.03, 0, 0)",
+        "glyphTransition": "0s",
+        "imgTransition": "0s",
+        "cursor": "pointer",
+        "pressedIsButton": true
+      },
+      {
+        "state": "disabled",
+        "note": "not applicable — an invalid link renders no block (parser rule)"
+      }
+    ],
+    "afterClick": {
+      "iframe": true,
+      "src": "https://www.youtube-nocookie.com/embed/A8E_XRwkhTk?autoplay=1&rel=0",
+      "title": "Copper & Quartz live at Society Hall",
+      "buttonGone": true,
+      "iframeCount": 1
+    }
+  }
+}

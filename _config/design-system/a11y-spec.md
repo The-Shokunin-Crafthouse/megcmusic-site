@@ -31,3 +31,14 @@ Findings: none blocking. Not determinable without a build: the tab-order positio
 | `<cite>` attribution | — | visible text, rendered only when Meg gives one | cite (native) | none | not focusable | none | n/a | 1.3.1 |
 
 Empty quote: the parser drops the row, nothing renders. Same markup as the LinerNotes pull-quote, so a screen reader meets one pattern for both.
+
+## Video block (Sprint 13 Phase 3)
+
+| Element | Accessible name | Name source | Role | States announced | Focus order | Live region | Reduced motion | WCAG |
+|---|---|---|---|---|---|---|---|---|
+| `<figure>` | — | none; the figcaption, when present, is read with it | figure (native) | none | contains one focusable (the play button) until played | none | n/a | 1.3.1 |
+| Play `<button>` (shared `VideoFacade`, the gallery's featured tile) | "Play {video title}" — title from YouTube oEmbed at build; "Play featured video" if the read fails | `aria-label` | button (native) | default · hover (thumbnail 1.03, play glyph 1.08) · focus (3 px `--mc-teal-light` ring, inset) · active (play glyph 0.96 — added this phase to the shared facade, so the gallery gains it too) · disabled: not applicable — an invalid link renders no block (parser rule) | One stop per video block, in Meg's order, between the neighbouring blocks' focusables | none | transitions `none`; the ring and the swap to the player remain | 2.4.4, 2.4.7, 2.5.8 (the whole 16:9 box is the target), 1.4.11 |
+| `<iframe>` after play | the video title, "Meghan Clarisse video" if unknown | `title` attribute | embedded document | replaces the button; focus stays where the button was → the iframe (same DOM position) | — | none | n/a | 4.1.2 |
+| `<figcaption>` | — | visible text, rendered only when Meg gives one | caption | none | not focusable | none | n/a | 1.3.1 |
+
+Same markup as the Videos gallery's featured tile, so a screen reader meets one pattern for both. Thumbnail `alt=""` (decorative — the button carries the name).

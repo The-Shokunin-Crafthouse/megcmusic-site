@@ -1726,3 +1726,22 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **Result** (`output/phase-2-parity/README.md`). Extraction: text, meta, refs identical at five widths; pixels 6 @390 against a 1,030 px floor, 0 elsewhere; the document differs by the three blockquote lines' class names. Block: above the zone 0 px at every width; below it 0 / 19 / 8 / 0 / 0 after the recount; the page taller by exactly the zone's height; blank row dropped; zero focusables added. One pollution found and cured on the way: a parity worktree built without `.env.local` bakes `NEXT_PUBLIC_*` empty and renders Instagram's fallback (learning #95) — repo lesson for close-out.
 
 **Alternatives considered.** A `PullQuote` with the nowrap baked in — rejected: Meg's quotes are hers, any length. Passing a `className` from LinerNotes instead of a boolean — rejected: CSS-module hashes do not cross files, so the rule would have to live in LinerNotes and the component would no longer own its panel. Leaving LinerNotes untouched and duplicating the panel in the block — rejected by the contract and by the rule that one panel vocabulary exists on the page.
+
+## 2026-09-10 — Sprint 13 Phase 3: the video block is the gallery's featured tile, extracted first and proven unchanged on Home and Media before the block uses it
+
+**Stage:** 03-build (sprint-13-home-blocks, Phase 3)
+**Type:** Architecture · UX / design tradeoff
+**Status:** accepted — builds on the 2026-09-10 Sprint 13 Phase 2 entry
+
+**Context.** The contract (§6) reuses `VideosGallery`'s facade — thumbnail and play, one `youtube-nocookie` iframe on play — for Meg's `video` block, with ids through the one shared parser and an invalid link rendering nothing. The facade lived inline in the gallery, which also controls it from its playlist.
+
+**Decisions.**
+1. **One component, `src/components/VideoFacade`,** controlled or uncontrolled: the gallery passes `playing` / `onPlay` and keeps swapping the active video from its playlist; the block gives neither and the facade keeps its own state. Rules moved verbatim; the gallery keeps only its grid slot's `min-width` rule and passes it as `className`.
+2. **The block is a `figure`:** the facade at the zone's full measure, an optional `figcaption` in the attribution's voice (`--mc-font-ui`, `--mc-text-detail`, `--mc-teal-light`). The play button is named after the video by the same oEmbed read the gallery makes (`getVideoMeta`, now exported), at build; if that read fails the name falls back to "Play featured video" and the page still builds.
+3. **The facade gains its fifth state, and the gallery gets it too.** `:active` presses the play glyph to 0.96. A cascade (learning #19): the gallery's tile had hover and focus but no pressed state; sharing the component means both surfaces have it now. Reduced motion keeps the gallery's existing contract — transitions off, hover geometry kept.
+4. **Two pre-existing literals ride along untokenised:** `border: 3px solid #000` and the play glyph's `drop-shadow`, both on `main` before this phase. The extraction's standard is identical output; a token for them is its own decision, filed as a follow-up task.
+5. **Proof order corrected:** a parity side is built from a fresh fetch, then injected, then `npx next build`. Building the after side on the committed snapshot while the before side had fetched live content put six-figure differences above the zone; the run is kept in `output/phase-3-parity/stale-snapshot-run/` and is not the record.
+
+**Result** (`output/phase-3-parity/README.md`). Extraction: text, meta, refs identical on Home and Media at five widths each; pixels 1,068 @Home 390 against a 2,502 px floor, 0 on the other nine pairs; the document differs by the four facade lines' class names. Block: above the zone 0 px at every width; below it 0 / 19 / 8 / 0 / 0; the page taller by exactly the zone's height; invalid link dropped; five states and the swap to the iframe measured.
+
+**Alternatives considered.** A separate, simpler embed for the block (a bare iframe) — rejected: the contract reuses the facade, and a second player pattern on one page loads YouTube on scroll for nothing. Naming the play button from Meg's caption — rejected: a caption is optional and is not the video's name. Tokenising the two literals in passing — rejected by the identical-output standard and §2's rule that a new token needs a logged decision.

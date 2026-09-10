@@ -1,0 +1,71 @@
+/* YouTube facade — rules moved verbatim from Videos.module.css (Sprint 13
+   Phase 3). Reserves 16:9 so lazy loads never shift layout. */
+.featured {
+  position: relative;
+  aspect-ratio: 16 / 9;
+  border-radius: var(--mc-radius-quote);
+  overflow: hidden;
+  background: var(--mc-bg-quote);
+  border: 3px solid #000;
+}
+
+.frame,
+.facade {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.facade {
+  padding: 0;
+  cursor: pointer;
+  background: none;
+}
+
+.facadeImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--mc-motion-underline) var(--mc-ease-out);
+}
+
+.play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 88px;
+  height: 88px;
+  color: var(--mc-text-primary);
+  filter: drop-shadow(0 4px 12px rgb(0 0 0 / 0.5));
+  transition: transform var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+@media (hover: hover) {
+  .facade:hover .facadeImg {
+    transform: scale(1.03);
+  }
+  .facade:hover .play {
+    transform: translate(-50%, -50%) scale(1.08);
+  }
+}
+
+.facade:focus-visible {
+  outline: 3px solid var(--mc-teal-light);
+  outline-offset: -3px;
+}
+
+/* Pressed: the glyph gives a little (Sprint 13 Phase 3 — the facade's fifth
+   state, shared with the gallery; logged as a cascade). */
+.facade:active .play {
+  transform: translate(-50%, -50%) scale(0.96);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .facadeImg,
+  .play {
+    transition: none;
+  }
+}
