@@ -1671,3 +1671,20 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **Verification.** `output/phase-a-rail-scroll-parity/README.md`: text, metadata and refs identical on 10 of 10 pairs; section Δ equals page Δ everywhere; the Home below-region residue traced to Chromium's 16,384 px capture ceiling, with a section map proving a uniform shift.
 
 **Surfaced, not decided.** At 768 px the player is 146 px tall, so the rail shows one tile at a time. If that reads too tight: a narrower rail at 768–1023, or stacking the list beneath the player at that width. Levi's call.
+
+## 2026-09-10 — Sprint 13 Phase 0: the Blocks zone exists and renders nothing — field design, parser rules, and the parity baseline
+
+**Stage:** 03-build (sprint-13-home-blocks, Phase 0)
+**Type:** Architecture · Process
+**Status:** accepted — builds on the 2026-09-10 Sprint 13 kickoff entry
+
+**Decisions.**
+1. **Field design** (`output/phase-0-field-design.md`): a "Blocks" tab at the end of the Home field group with `home_blocks` (Flexible Content, button "Add a block") and three layouts — `announcement` (eyebrow, headline*, body, link_label, link_url), `pull_quote` (quote*, attribution), `video` (youtube_url*, caption) — help text written for Meg, required fields marked in the label. Plugin 1.3.0; JSON only, no hooks.
+2. **Parser rules** (`src/lib/home-blocks.ts`, unit-tested): a block missing its required field is dropped; a link needs both label and address or is no link; an unknown layout is dropped and logged by row at build; `false` or a missing key is `[]`. The YouTube link goes through the one shared parser.
+3. **Reader shape:** `HOME_CONTENT.blocks: HomeBlock[]` — a superset of the Home shape, never a swap; every existing field unchanged.
+4. **Mount:** `<HomeBlocks />` after `<Instagram />`, before the press-kit teaser wrapper; returns `null` while the zone is empty. The three block components are stubs that render nothing until their phases.
+5. **Parity baseline recorded as what it is** (`output/phase-0-parity/README.md`): text, metadata and links identical at five widths, pixels within the floor; the HTML document differs by 44 lines, all React `useId` values shifted one tree position (and the payload carrying them) because a node was added before the mailing-list form. Not bytes; everything rendered, read or linked.
+
+**Human gate.** The plugin re-upload (`output/phase-0-gate.md`) is Levi's; the session verifies `home_blocks: false` on page 4 afterwards. Phases 1–3 do not verify at the destination before it clears.
+
+**Alternatives considered.** Mounting the zone only once a block exists (no node, byte-identical HTML) — rejected: the mount point is the design decision, and hiding it would make the first block's PR the one that moves ids anyway. A `key`-stable id for the form — rejected: it would change `Newsletter` to preserve a property (byte identity) nothing depends on.
