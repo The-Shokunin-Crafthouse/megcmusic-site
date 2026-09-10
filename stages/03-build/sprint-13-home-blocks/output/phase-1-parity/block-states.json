@@ -1,0 +1,196 @@
+{
+  "normal": {
+    "info": {
+      "zoneRole": "section[aria-labelledby]",
+      "zoneName": "★★★What’s New★★★",
+      "articles": [
+        {
+          "labelledBy": "_S_1_",
+          "h3": "_S_1_",
+          "h3Text": "Everything You Are To Me — out now",
+          "labelMatches": true,
+          "eyebrow": "New single",
+          "hasLink": true
+        },
+        {
+          "labelledBy": "_S_2_",
+          "h3": "_S_2_",
+          "h3Text": "Booking for fall and winter shows is open",
+          "labelMatches": true,
+          "eyebrow": "House concerts, listening rooms, and private events across Colorado.",
+          "hasLink": true
+        }
+      ],
+      "links": [
+        {
+          "href": "https://open.spotify.com/artist/3iUKOkvtyfkAcg8pOWU5wp",
+          "target": "_blank",
+          "rel": "noopener noreferrer",
+          "name": "Listen on Spotify, opens in a new tab",
+          "height": 44,
+          "srOnly": ", opens in a new tab",
+          "arrow": true
+        },
+        {
+          "href": "/epk",
+          "target": null,
+          "rel": null,
+          "name": "See the press kit",
+          "height": 44,
+          "srOnly": null,
+          "arrow": false
+        }
+      ],
+      "unknownLayoutText": false
+    },
+    "tabWalk": [
+      "a:@meghanclarissecave",
+      "a:Listen on Spotify, opens in a new tab @home-blocks-heading",
+      "a:See the press kit @home-blocks-heading",
+      "a:View @epk-heading",
+      "button:Play Copper & Quartz live at Society Hal @videos-heading"
+    ],
+    "focusedIsLink": true,
+    "states": [
+      {
+        "state": "default",
+        "color": "rgb(96, 177, 173)",
+        "transform": "none",
+        "outline": "none 3px rgb(96, 177, 173)",
+        "outlineOffset": "0px",
+        "transition": "0.22s, 0.22s",
+        "minHeight": "44px"
+      },
+      {
+        "state": "hover",
+        "color": "rgb(124, 198, 193)",
+        "transform": "matrix(1, 0, 0, 1, 3, 0)",
+        "outline": "none 3px rgb(124, 198, 193)",
+        "outlineOffset": "0px",
+        "transition": "0.22s, 0.22s",
+        "minHeight": "44px"
+      },
+      {
+        "state": "focus-visible",
+        "color": "rgb(96, 177, 173)",
+        "transform": "none",
+        "outline": "solid 2px rgb(96, 177, 173)",
+        "outlineOffset": "3px",
+        "transition": "0.22s, 0.22s",
+        "minHeight": "44px",
+        "focusedIsLink": true
+      },
+      {
+        "state": "active",
+        "color": "rgb(124, 198, 193)",
+        "transform": "matrix(1, 0, 0, 1, 3, 0)",
+        "outline": "none 3px rgb(124, 198, 193)",
+        "outlineOffset": "0px",
+        "transition": "0.22s, 0.22s",
+        "minHeight": "44px",
+        "pressedIsLink": true
+      },
+      {
+        "state": "disabled",
+        "note": "not applicable — a block with no address renders no link (parser rule)"
+      }
+    ]
+  },
+  "reducedMotion": {
+    "info": {
+      "zoneRole": "section[aria-labelledby]",
+      "zoneName": "★★★What’s New★★★",
+      "articles": [
+        {
+          "labelledBy": "_S_1_",
+          "h3": "_S_1_",
+          "h3Text": "Everything You Are To Me — out now",
+          "labelMatches": true,
+          "eyebrow": "New single",
+          "hasLink": true
+        },
+        {
+          "labelledBy": "_S_2_",
+          "h3": "_S_2_",
+          "h3Text": "Booking for fall and winter shows is open",
+          "labelMatches": true,
+          "eyebrow": "House concerts, listening rooms, and private events across Colorado.",
+          "hasLink": true
+        }
+      ],
+      "links": [
+        {
+          "href": "https://open.spotify.com/artist/3iUKOkvtyfkAcg8pOWU5wp",
+          "target": "_blank",
+          "rel": "noopener noreferrer",
+          "name": "Listen on Spotify, opens in a new tab",
+          "height": 44,
+          "srOnly": ", opens in a new tab",
+          "arrow": true
+        },
+        {
+          "href": "/epk",
+          "target": null,
+          "rel": null,
+          "name": "See the press kit",
+          "height": 44,
+          "srOnly": null,
+          "arrow": false
+        }
+      ],
+      "unknownLayoutText": false
+    },
+    "tabWalk": [
+      "a:@meghanclarissecave",
+      "a:Listen on Spotify, opens in a new tab @home-blocks-heading",
+      "a:See the press kit @home-blocks-heading",
+      "a:View @epk-heading",
+      "button:Play Copper & Quartz live at Society Hal @videos-heading"
+    ],
+    "focusedIsLink": true,
+    "states": [
+      {
+        "state": "default",
+        "color": "rgb(96, 177, 173)",
+        "transform": "none",
+        "outline": "none 3px rgb(96, 177, 173)",
+        "outlineOffset": "0px",
+        "transition": "0s",
+        "minHeight": "44px"
+      },
+      {
+        "state": "hover",
+        "color": "rgb(124, 198, 193)",
+        "transform": "none",
+        "outline": "none 3px rgb(124, 198, 193)",
+        "outlineOffset": "0px",
+        "transition": "0s",
+        "minHeight": "44px"
+      },
+      {
+        "state": "focus-visible",
+        "color": "rgb(96, 177, 173)",
+        "transform": "none",
+        "outline": "solid 2px rgb(96, 177, 173)",
+        "outlineOffset": "3px",
+        "transition": "0s",
+        "minHeight": "44px",
+        "focusedIsLink": true
+      },
+      {
+        "state": "active",
+        "color": "rgb(124, 198, 193)",
+        "transform": "none",
+        "outline": "none 3px rgb(124, 198, 193)",
+        "outlineOffset": "0px",
+        "transition": "0s",
+        "minHeight": "44px",
+        "pressedIsLink": true
+      },
+      {
+        "state": "disabled",
+        "note": "not applicable — a block with no address renders no link (parser rule)"
+      }
+    ]
+  }
+}

@@ -1,0 +1,97 @@
+[
+  {
+    "width": 390,
+    "zoneRendered": {
+      "before": true,
+      "after": true
+    },
+    "seamTopBefore": 15869.84375,
+    "zoneTopAfter": 15869.84375,
+    "sameTop": true,
+    "zoneHeightAfter": 797.25,
+    "pageHeightBefore": 11499,
+    "pageHeightAfter": 11499,
+    "deltaPage": 0,
+    "pxAboveDiffering": 0,
+    "pxBelowDiffering": 0,
+    "pxBelowDifferingAllowing1pxShift": 0,
+    "pxAboveCompared": 6188910,
+    "pxBelowCompared": 2117700
+  },
+  {
+    "width": 768,
+    "zoneRendered": {
+      "before": true,
+      "after": true
+    },
+    "seamTopBefore": 11656.578125,
+    "zoneTopAfter": 11656.578125,
+    "sameTop": true,
+    "zoneHeightAfter": 759.6875,
+    "pageHeightBefore": 8715,
+    "pageHeightAfter": 8715,
+    "deltaPage": 0,
+    "pxAboveDiffering": 0,
+    "pxBelowDiffering": 0,
+    "pxBelowDifferingAllowing1pxShift": 0,
+    "pxAboveCompared": 8951808,
+    "pxBelowCompared": 3158784
+  },
+  {
+    "width": 1024,
+    "zoneRendered": {
+      "before": true,
+      "after": true
+    },
+    "seamTopBefore": 11688.578125,
+    "zoneTopAfter": 11688.578125,
+    "sameTop": true,
+    "zoneHeightAfter": 759.6875,
+    "pageHeightBefore": 8683,
+    "pageHeightAfter": 8683,
+    "deltaPage": 0,
+    "pxAboveDiffering": 0,
+    "pxBelowDiffering": 0,
+    "pxBelowDifferingAllowing1pxShift": 0,
+    "pxAboveCompared": 11968512,
+    "pxBelowCompared": 4113408
+  },
+  {
+    "width": 1440,
+    "zoneRendered": {
+      "before": true,
+      "after": true
+    },
+    "seamTopBefore": 12055.828125,
+    "zoneTopAfter": 12055.828125,
+    "sameTop": true,
+    "zoneHeightAfter": 759.6875,
+    "pageHeightBefore": 8964,
+    "pageHeightAfter": 8964,
+    "deltaPage": 0,
+    "pxAboveDiffering": 0,
+    "pxBelowDiffering": 0,
+    "pxBelowDifferingAllowing1pxShift": 0,
+    "pxAboveCompared": 17359200,
+    "pxBelowCompared": 6065280
+  },
+  {
+    "width": 1920,
+    "zoneRendered": {
+      "before": true,
+      "after": true
+    },
+    "seamTopBefore": 12055.828125,
+    "zoneTopAfter": 12055.828125,
+    "sameTop": true,
+    "zoneHeightAfter": 759.6875,
+    "pageHeightBefore": 8964,
+    "pageHeightAfter": 8964,
+    "deltaPage": 0,
+    "pxAboveDiffering": 0,
+    "pxBelowDiffering": 0,
+    "pxBelowDifferingAllowing1pxShift": 0,
+    "pxAboveCompared": 23145600,
+    "pxBelowCompared": 8087040
+  }
+]
