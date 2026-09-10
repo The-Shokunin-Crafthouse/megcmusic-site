@@ -101,6 +101,10 @@ export async function POST(req: Request): Promise<Response> {
         email,
         contact_name: asCleanString(item.contact_name),
         contact_role: asCleanString(item.contact_role),
+        // Second booking contact. The send route CCs this on every message in
+        // the thread, so dropping it here silently violates a venue's stated
+        // booking instructions (Lost Lake asks for two recipients by name).
+        cc_email: asCleanString(item.cc_email),
         city: asCleanString(item.city),
         source: asCleanString(item.source) ?? "web",
         research_notes: asCleanString(item.research_notes),
