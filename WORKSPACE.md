@@ -46,7 +46,7 @@ This file is a directive, not documentation. Read it. Follow it.
 - **Start date:** 2026-06-16
 - **Target launch:** TBD (set at Gate 1)
 - **Production domain:** megcmusic.com
-- **Current sprint:** `stages/03-build/sprint-12-findability-and-blocks/CONTEXT.md` (Video findability, page-list cleanup, and the content-blocks question — filed 2026-09-09). Last closed: `stages/03-build/sprint-11-wp-editability/` (complete 2026-09-06)
+- **Current sprint:** `stages/03-build/sprint-13-home-blocks/CONTEXT.md` (Home content blocks — filed 2026-09-10). Sprint 12 (`stages/03-build/sprint-12-findability-and-blocks/`) is built and merged; its close-out waits on two runs of Levi's (A.2 save-and-check, the Woo checkout hand-off), recorded in its CONTEXT status line.
 
 Canonical machine-readable meta lives in `workspace.manifest.yaml`. Keep this section and the manifest in sync.
 

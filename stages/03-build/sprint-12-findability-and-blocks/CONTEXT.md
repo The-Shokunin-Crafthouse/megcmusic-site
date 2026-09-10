@@ -20,7 +20,7 @@
 >
 > **Resume pointer:** `SESSION-RESUME.md` at repo root (hook-owned). **Turn ceilings:** Phase A 40 turns, Phase B 30, Phase C 15. On hitting one: park with a resume note, open the PR as draft with what exists, stop.
 >
-> **Phase status (2026-09-10):** A — merged (#108, #112) and live, whole list showing; A.2 save-and-check still Levi's to run · B — merged (#110): eleven pages trashed, four menu items removed, re-verified; Levi's checkout hand-off check still open · C — Option 2 picked by Levi (superseding entry logged); Home blocks audit written as the gate artifact for the next sprint.
+> **Phase status (2026-09-10):** A — merged (#108, #112) and live, whole list showing; A.2 save-and-check still Levi's to run · B — merged (#110): eleven pages trashed, four menu items removed, re-verified; Levi's checkout hand-off check still open · C — Option 2 picked by Levi (superseding entry logged); Home blocks audit written as the gate artifact for the next sprint. **Close-out pending on Levi:** A.2 save-and-check (`output/phase-a-save-and-check.md`) and the Woo checkout hand-off from his browser (B.3); then `sc-learn`, contract summary line. Sprint 13 filed 2026-09-10 and holds the pointer meanwhile.
 
 ---
 
