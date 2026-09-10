@@ -8,11 +8,10 @@ import { channelUrl } from "@/config/videos";
 import { fetchVideosSourceBrowser } from "@/lib/api/wordpress-browser";
 import type { VideosSource } from "@/lib/media-videos";
 import type { Video } from "@/lib/api/youtube";
+import { VideoFacade } from "../VideoFacade/VideoFacade";
 import styles from "./Videos.module.css";
 
 const thumb = (id: string) => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
-const embed = (id: string) =>
-  `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&rel=0`;
 
 const CACHE_KEY = "mc-videos-source";
 
@@ -55,8 +54,9 @@ function reconcile(current: Video[], src: VideosSource): Video[] {
   );
 }
 
-// Featured player + playlist. The featured tile is a facade until played;
-// picking a playlist item swaps it in and plays. One iframe at most.
+// Featured player + playlist. The featured tile is a facade until played
+// (VideoFacade, shared with Meg's video Home block); picking a playlist item
+// swaps it in and plays. One iframe at most.
 export function VideosGallery({ videos: initial }: { videos: Video[] }) {
   const [videos, setVideos] = useState<Video[]>(initial);
   const [activeId, setActiveId] = useState(initial[0].id);
@@ -99,34 +99,13 @@ export function VideosGallery({ videos: initial }: { videos: Video[] }) {
 
   return (
     <div className={styles.gallery}>
-      <div className={styles.featured}>
-        {playing ? (
-          <iframe
-            className={styles.frame}
-            src={embed(active.id)}
-            title={active.title || "Meghan Clarisse video"}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-          />
-        ) : (
-          <button
-            type="button"
-            className={styles.facade}
-            onClick={() => setPlaying(true)}
-            aria-label={`Play ${active.title || "featured video"}`}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              className={styles.facadeImg}
-              src={thumb(active.id)}
-              alt=""
-              loading="lazy"
-              decoding="async"
-            />
-            <PlayCircle className={styles.play} weight="fill" aria-hidden="true" />
-          </button>
-        )}
-      </div>
+      <VideoFacade
+        id={active.id}
+        title={active.title}
+        playing={playing}
+        onPlay={() => setPlaying(true)}
+        className={styles.featured}
+      />
 
       <div className={styles.rail}>
         <ul className={styles.playlist} aria-label="More videos">
