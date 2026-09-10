@@ -1,0 +1,29 @@
+/* Meg's Home blocks zone (Sprint 13) — sits after Instagram, on the page
+   ground, in the same rhythm as the sections around it. */
+.section {
+  position: relative;
+  z-index: var(--mc-z-content);
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-4);
+  background: var(--mc-bg);
+}
+
+.inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+}
+
+/* One block after another, in her order. */
+.blocks {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-5);
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: var(--mc-space-9) var(--mc-space-6);
+  }
+}

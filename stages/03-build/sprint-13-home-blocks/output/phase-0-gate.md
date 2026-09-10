@@ -21,10 +21,12 @@ Expected: the existing 18 keys plus `home_blocks`, with `home_blocks: false` (em
 
 | Field | Value |
 |---|---|
-| Re-upload done (local time) | |
-| Plugin version shown | |
-| `acf` keys after | |
-| `home_blocks` value | |
-| Existing 18 values unchanged (diff against `src/generated/wp-content/home.json`) | |
+| Re-upload done (local time) | 2026-09-10, before 13:33 MDT — Levi: "uploaded, 1.3.0 showing, blocks tab is there" |
+| Plugin version shown | 1.3.0 (Levi, Plugins list) |
+| `acf` keys after | the 18 existing + `home_blocks` + `page_photo` (19 content keys; `page_photo` comes from the shared page-photo group and was already present in the live read) |
+| `home_blocks` value | `false` (empty), `home_blocks_source.label` "Blocks", type `flexible_content` |
+| Existing values unchanged | **18 of 18** identical to the 2026-09-09 live read (not the committed snapshot, which is older than Meg's 2026-09-08 Recognition edit); `modified_gmt` unchanged at 2026-09-09T15:58:00 — the upload touched no content |
+
+**Gate cleared 2026-09-10 13:33 MDT.** Runner for the read: the building session.
 
 If wp-admin white-screens after activation (the 2026-08-27 class): Bluehost File Manager → `public_html/wp-content/plugins/` → rename `megc-site-content` to `megc-site-content.off` → wp-admin returns → tell the session which log line `public_html/wp-admin/error_log` shows. The change is JSON only and registers no admin hooks, so this is a precaution, not an expectation.

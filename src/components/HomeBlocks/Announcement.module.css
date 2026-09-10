@@ -1,0 +1,114 @@
+/* Announcement block — the pull-quote's plum panel (LinerNotes comp 39:114)
+   carrying a headline instead of a quote: pink left rule, rounded
+   bottom-right, the same padding. Type from the existing scale only. */
+.block {
+  margin: 0;
+  padding: var(--mc-space-4) var(--mc-space-5);
+  background: var(--mc-bg-quote);
+  border-left: 3px solid var(--mc-accent-pink);
+  border-bottom-right-radius: var(--mc-radius-quote);
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-2);
+}
+
+/* Small line above — the attribution's voice, in the label's uppercase. */
+.eyebrow {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-detail);
+  line-height: 1.5;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mc-teal-light);
+}
+
+.headline {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-weight: 700;
+  font-size: var(--mc-text-lead);
+  line-height: 1.2;
+  color: var(--mc-text-primary);
+}
+
+.body {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-size: var(--mc-text-prose);
+  line-height: 1.5;
+  color: var(--mc-text-liner);
+}
+
+/* The site's text-link pattern (Videos rail's channel link): pill hit area,
+   teal, brighten-and-nudge on hover, tokened ring on focus. */
+.link {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: var(--mc-space-2);
+  min-height: var(--mc-touch-target);
+  margin-top: var(--mc-space-1);
+  padding: var(--mc-space-2) var(--mc-space-3);
+  border-radius: var(--mc-radius-pill);
+  font-family: var(--mc-font-ui);
+  font-weight: 600;
+  font-size: var(--mc-text-base);
+  color: var(--mc-teal-light);
+  text-decoration: none;
+  transition:
+    color var(--mc-motion-hover) var(--mc-ease-out-strong),
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  /* Brighten on hover, never darken. */
+  .link:hover {
+    color: var(--mc-teal-bright);
+    transform: translateX(3px);
+  }
+}
+
+.link:active {
+  color: var(--mc-teal-bright);
+  transform: translateX(3px);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+}
+
+.arrow {
+  flex-shrink: 0;
+  width: 15px;
+  height: 15px;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+@media (min-width: 768px) {
+  .headline {
+    font-size: var(--mc-text-title);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
+  .link:hover,
+  .link:active {
+    transform: none;
+  }
+}
