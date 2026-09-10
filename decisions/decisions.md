@@ -1586,3 +1586,25 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **Consequences.** Easier: what Meg orders is what a visitor sees; her page list reads cleanly; future authenticated WP operations have a recorded, dry-run-by-default path. Harder: the channel's newest upload no longer surfaces by itself when her list is four or more long — the list is now the editorial control, which is the point; the guide says so.
 
 **Still open (A.2).** The save-to-live proof with a real entry in her list is Levi's to run (contract §3 A.2, runner: Levi): `output/phase-a-save-and-check.md` holds the steps and the fields to fill.
+
+## 2026-09-09 — Outreach: `cc_email` is persisted on insert, and sends are MX-checked before Gmail
+
+**Stage:** 03-build (outreach, Phase 2 operations)
+**Type:** Bug fix · Deliverability
+**Status:** accepted
+
+**Context.** Two defects surfaced during the 2026-09-09 weekly outreach runs. First, `POST /api/outreach/prospects` declares `cc_email` on its `IncomingProspect` type and documents it in the weekly run prompt, but never copies it into the insert payload, so every second booking contact was silently dropped. Only one row in `prospects` carries a `cc_email` (Lost Lake Lounge, created 2026-07-12, predating the bulk route); every prospect added since has lost it. Lost Lake's own booking page asks that mail reach both `haylee@` and `jackson@`, so the omission means the run quietly disobeys a venue's stated instructions while the prompt claims it honours them. Second, three of roughly eighteen outreach sends have bounced (Jives Coffee Lounge, Swallow Hill, Stargazers Theatre) — around 17%, which is high enough to matter for a personal Gmail's sending reputation.
+
+**Decisions.**
+1. **`cc_email` is written on insert** (`src/app/api/outreach/prospects/route.ts`), passed through `asCleanString` like every other optional field. The send route already reads `prospect.cc_email` and CCs it on every message in the thread, so no change was needed there.
+2. **A pre-send MX check guards the send route** (`src/lib/outreach/deliverability.ts`, called from `send/route.ts` before `sendEmail`). It resolves MX, falls back to A/AAAA as an RFC 5321 implicit mail exchanger, and returns 409 with a stated reason when a domain has neither. It **fails open** on any non-fatal resolver error (timeout, SERVFAIL): blocking a legitimate send because DNS hiccuped is worse than the bounce it prevents.
+3. **No SMTP `RCPT TO` probe.** Rejected deliberately — see Rationale.
+4. **`scripts/check-deliverability.mjs` is kept as a manual spot-check only**, with a header saying so. It cannot run from the agent sandbox, where outbound DNS is refused for every domain including `google.com`, so there it marks every address dead.
+
+**Rationale.** The MX check catches exactly one of the three observed bounces: `jivescoffeelounge.com` published no MX records at all. It cannot catch the other two — Swallow Hill returned `550 5.2.1 DisabledUser` and Stargazers a Microsoft 365 "address not found", both on domains with healthy MX. Catching a dead mailbox on a live domain needs an SMTP `RCPT TO` probe, which Google and Microsoft variously block, rate-limit, or answer with a catch-all accept, and which reads as address harvesting from the receiving end. That trades more sending reputation than it protects, so the guard stays a cheap filter rather than a guarantee, and bounce classification in the weekly run's Step 1 remains the real backstop. This is recorded so the 1-of-3 hit rate is not mistaken later for a solved problem.
+
+**Verification.** `npx tsc --noEmit` clean (excluding pre-existing stale `.next/**/validator.ts` artifacts unrelated to this change). The MX logic could not be exercised in the sandbox for the reason in decision 4; it needs a live check against a known-good and a known-dead domain after deploy.
+
+**Consequences.** Easier: venues that ask for two recipients now get two; dead domains are refused before they cost a bounce, with the reason surfaced in the run's Step 6 report. Harder: the send route now makes a DNS call per send, and a misconfigured-but-live domain could in principle be refused — mitigated by failing open on everything except a definitive `ENOTFOUND`/`ENODATA`/`NXDOMAIN`.
+
+**Still open.** Post-deploy verification of the MX path against a live domain pair. The existing `prospects` rows that lost their `cc_email` are not backfilled; only Lost Lake is known to need one and it already has it.

@@ -15,6 +15,7 @@
 
 import { appDb } from "@/lib/api/appDb";
 import { sendEmail } from "@/lib/api/gmail";
+import { checkDeliverability } from "@/lib/outreach/deliverability";
 import { fail, hasMachineSecret, ok, unauthorized } from "@/lib/outreach/http";
 import type {
   MessageKind,
@@ -153,6 +154,17 @@ export async function POST(req: Request): Promise<Response> {
     if ((dupRes.data ?? []).length > 0) {
       return fail(
         `Refusing to send: "${kind}" already sent this cycle (${cycle}).`,
+        409,
+      );
+    }
+
+    // Deliverability guard. Cheap MX check; fails open on resolver trouble.
+    // Catches dead domains only, not dead mailboxes on live domains — see
+    // src/lib/outreach/deliverability.ts for why the SMTP probe isn't worth it.
+    const deliverable = await checkDeliverability(prospect.email);
+    if (deliverable.verdict === "dead") {
+      return fail(
+        `Refusing to send: ${prospect.email} looks undeliverable (${deliverable.reason}).`,
         409,
       );
     }
