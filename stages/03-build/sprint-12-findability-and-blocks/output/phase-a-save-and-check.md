@@ -32,3 +32,9 @@ The merge fix reaches production when the Phase A PR merges (push → Production
 | Result | pass / fail |
 
 If it does not appear after three minutes: re-save the page once (the debounce may have swallowed a save inside the window), then tell the session which step failed. Nothing you do in the dashboard can break the site's design.
+
+## Run 1 — 2026-09-10, Levi: FAIL, and the reason
+
+Levi added `https://youtube.com/shorts/9L1cSL9u-U0?si=…` as row 2 of the list (page 5560 modified 12:29:38 local). The plugin dispatched (Production Deploy 34514666883, `repository_dispatch`, success, 18:29:38Z) — the loop worked end to end. The tile did not appear because `videos-content.ts` carried a private YouTube-id regex that did not know `/shorts/`; the row parsed to nothing and was filtered out. The FYC reader had the same copy; `media-videos.ts`'s shared parser already handled Shorts. Fixed in PR #117 (one parser, unit tests for every link shape). A fail that found a real bug is the point of running this check at the destination.
+
+**Run 2** — after #117 deploys, the Shorts tile should show second on `/media` and `/` without any further save; the timing measurement still needs a fresh save (steps 1–4 above).

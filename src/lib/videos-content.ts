@@ -14,16 +14,13 @@
  */
 
 import acf from "@/generated/wp-content/videos.json";
+import { youTubeId } from "@/lib/media-videos";
 
-/** youtube.com/watch?v=…, youtu.be/…, /embed/…, or a bare id → the video id. */
-function youtubeId(url: string): string {
-  const m =
-    url.match(/[?&]v=([\w-]{6,})/) ??
-    url.match(/youtu\.be\/([\w-]{6,})/) ??
-    url.match(/\/embed\/([\w-]{6,})/) ??
-    url.match(/^([\w-]{6,})$/);
-  return m?.[1] ?? "";
-}
+/** Any YouTube link Meg might paste — watch, youtu.be, embed, Shorts, or a
+ *  bare id — to its id, or "" when it is not one. One parser for the site:
+ *  a private copy here missed `/shorts/` and silently dropped the first
+ *  Shorts link she added (2026-09-10). */
+const youtubeId = (url: string): string => youTubeId(url) ?? "";
 
 const text = (v: unknown): string => (typeof v === "string" ? v : "");
 const rows = (v: unknown): Record<string, unknown>[] =>
