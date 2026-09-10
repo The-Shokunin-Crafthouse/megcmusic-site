@@ -12,9 +12,9 @@ on:
         description: "Operation"
         type: choice
         required: true
-        options: [read-config, set-titles, trash-pages]
+        options: [read-config, set-titles, trash-pages, remove-menu-items]
       args:
-        description: "set-titles: \"id=Title;id=Title\" · trash-pages: \"id,id\""
+        description: "set-titles: \"id=Title;id=Title\" · trash-pages / remove-menu-items: \"id,id\""
         type: string
         default: ""
       confirm:
