@@ -17,6 +17,7 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { WP_API } from "@/lib/api/wordpress";
+import { youTubeId } from "@/lib/media-videos";
 
 interface FycQuote {
   quote: string;
@@ -59,13 +60,9 @@ const FYC_PAGE_IDS: Record<string, number> = {
 const ARTIST = "Meghan Clarisse";
 
 /** youtube.com/watch?v=…, youtu.be/…, or bare id → video id. */
-function youtubeId(url: string): string {
-  const m =
-    url.match(/[?&]v=([\w-]{6,})/) ??
-    url.match(/youtu\.be\/([\w-]{6,})/) ??
-    url.match(/^([\w-]{6,})$/);
-  return m?.[1] ?? "";
-}
+/** Any YouTube link — watch, youtu.be, embed, Shorts, bare id — to its id, or
+ *  "" when it is not one. Shared with the Videos reader (src/lib/media-videos.ts). */
+const youtubeId = (url: string): string => youTubeId(url) ?? "";
 
 /** Absolute megcmusic.com URLs become site-relative hrefs; relative pass through. */
 function siteHref(url: string): string {
