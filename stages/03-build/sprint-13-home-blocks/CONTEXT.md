@@ -22,7 +22,7 @@
 >
 > **Resume pointer:** `SESSION-RESUME.md` at repo root (hook-owned). **Turn ceilings:** Phase 0 30 turns, Phases 1–3 20 each, Phase 4 15. On hitting one: park with a resume note, open the PR as draft with what exists, stop.
 >
-> **Phase status (2026-09-10):** 0 not started · 1 not started · 2 not started · 3 not started · 4 not started.
+> **Phase status (2026-09-10):** 0 — built, PR open; **waiting on the human gate** (plugin 1.3.0 re-upload, `output/phase-0-gate.md`) · 1 not started · 2 not started · 3 not started · 4 not started.
 
 ---
 

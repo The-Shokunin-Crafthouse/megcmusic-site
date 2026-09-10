@@ -24,3 +24,8 @@ Registers the megcmusic.com site-content field groups (from `acf-json/`) and pin
 ## Verifying the ping
 
 Save any tracked page in wp-admin, then check the repo's Actions tab for a run triggered by `repository_dispatch` (the trigger lands in `deploy.yml` in Phase 4 — until then a dispatch is accepted by GitHub with HTTP 204 and simply matches no workflow). Failures are logged to the PHP error log with the `megc-site-content:` prefix, never surfaced as admin errors.
+
+## Version history
+
+- **1.3.0** (Sprint 13, 2026-09-10) — Home field group gains a "Blocks" tab: the `home_blocks` Flexible Content field with three layouts (announcement, pull quote, video). JSON only; no new hooks. Re-upload per step 2 (Replace current with uploaded); verify per step 6 — `acf` on page 4 gains `home_blocks: false`.
+- **1.2.0** (Sprint 11) — field groups for every editing surface; rebuild dispatch on save.
