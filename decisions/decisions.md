@@ -1643,3 +1643,18 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **Consequences.** Easier: Meg can put an announcement on Home without a studio ticket. Harder: one more plugin re-upload through the wp-admin gate; three components to build to Gate-3 standard (five states, reduced motion, a11y spec); `home-content.ts` gains an optional `blocks` array (extend, never swap — learning #60); the parity baseline is Home with an empty zone rendering byte-identically to today.
 
 **Alternatives considered.** Option 1 (Home + release-page zones, five block types) — deferred until the Home zone has carried a real announcement. Option 3 (Elementor/WPBakery) — rejected: breaks parity, token control, the guide's promise and the Bluehost plugin-outage history.
+
+## 2026-09-10 — Sprint 12 Phase A follow-up: the playlist scrolls within the player's height
+
+**Stage:** 03-build (sprint-12-findability-and-blocks, Phase A)
+**Type:** UX / design tradeoff
+**Status:** accepted — Levi, 2026-09-10: "scroll with player height"
+**amends:** the consequence surfaced in the 2026-09-10 "gallery shows Meg's whole list" entry
+
+**Decision.** At 768 px and up, `Videos.module.css` lays the gallery out as a grid whose row height is the player's 16:9; the rail is `height: 0; min-height: 100%` so it fills that height and the playlist scrolls inside it (`overflow-y: auto`, thin scrollbar coloured from the gold accent token, the existing gold hairlines as the affordance). Below 768 px the list stays full-length under the player. Guide row notes that the list scrolls.
+
+**Rationale.** Her whole list stays reachable, the section's height is the player's again, and no new token or component was needed.
+
+**Verification.** `output/phase-a-rail-scroll-parity/README.md`: text, metadata and refs identical on 10 of 10 pairs; section Δ equals page Δ everywhere; the Home below-region residue traced to Chromium's 16,384 px capture ceiling, with a section map proving a uniform shift.
+
+**Surfaced, not decided.** At 768 px the player is 146 px tall, so the rail shows one tile at a time. If that reads too tight: a narrower rail at 768–1023, or stacking the list beneath the player at that width. Levi's call.
