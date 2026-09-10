@@ -31,8 +31,9 @@ async function fetchChannelOrder(): Promise<string[]> {
   }
 }
 
-/** oEmbed title + author for one video. */
-async function fetchMeta(id: string): Promise<{ title: string; author: string }> {
+/** oEmbed title + author for one video. Exported for the Home video block
+ *  (Sprint 13 Phase 3), which names its play button after the video. */
+export async function getVideoMeta(id: string): Promise<{ title: string; author: string }> {
   try {
     const res = await fetch(
       `https://www.youtube.com/oembed?url=https://www.youtube.com/watch?v=${id}&format=json`,
@@ -63,7 +64,7 @@ export async function getVideos(): Promise<Video[]> {
     extras: extraVideoIds,
   });
 
-  const meta = await Promise.all(ids.map((id) => fetchMeta(id)));
+  const meta = await Promise.all(ids.map((id) => getVideoMeta(id)));
   return ids.map((id, i) => ({
     id,
     title: meta[i].title,

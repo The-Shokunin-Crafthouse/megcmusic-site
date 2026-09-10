@@ -57,6 +57,12 @@
   outline-offset: -3px;
 }
 
+/* Pressed: the glyph gives a little (Sprint 13 Phase 3 — the facade's fifth
+   state, shared with the gallery; logged as a cascade). */
+.facade:active .play {
+  transform: translate(-50%, -50%) scale(0.96);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .facadeImg,
   .play {
