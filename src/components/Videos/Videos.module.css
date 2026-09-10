@@ -223,22 +223,42 @@
   .section {
     padding: var(--mc-space-9) var(--mc-space-6);
   }
+  /* Player beside the rail. The row's height is the player's 16:9 — the
+     rail contributes nothing to it (height: 0) and then fills it
+     (min-height: 100%), so however long Meg's list grows, the playlist
+     scrolls inside the player's height instead of running past it
+     (Levi, 2026-09-10: "scroll with player height"). */
   .gallery {
-    flex-direction: row;
-    align-items: flex-start;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 344px;
+    align-items: stretch;
   }
   .featured {
-    flex: 1 1 0;
     min-width: 0;
   }
   .rail {
-    flex-shrink: 0;
-    width: 344px;
+    height: 0;
+    min-height: 100%;
   }
   .playlist {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
     border-top: 1px solid var(--mc-accent-gold);
     border-bottom: 1px solid var(--mc-accent-gold);
-    padding: var(--mc-space-4) 0;
+    padding: var(--mc-space-4) var(--mc-space-2) var(--mc-space-4) 0;
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--mc-accent-gold-rgb) / 0.5) transparent;
+  }
+  .playlist::-webkit-scrollbar {
+    width: var(--mc-space-1);
+  }
+  .playlist::-webkit-scrollbar-thumb {
+    background: rgb(var(--mc-accent-gold-rgb) / 0.5);
+    border-radius: var(--mc-space-1);
+  }
+  .playlist::-webkit-scrollbar-track {
+    background: transparent;
   }
 }
 

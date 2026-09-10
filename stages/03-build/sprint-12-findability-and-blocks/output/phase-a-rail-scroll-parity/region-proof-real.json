@@ -1,0 +1,19 @@
+[
+  {
+    "route": "/",
+    "width": 1440,
+    "sameTop": true,
+    "sectionHeightBefore": 1785.40625,
+    "sectionHeightAfter": 823.5625,
+    "pageHeightBefore": 9166,
+    "pageHeightAfter": 8204,
+    "deltaPage": -962,
+    "deltaSection": -961.84375,
+    "pxAboveDiffering": 0,
+    "pxBelowDiffering": 1385280,
+    "pxBelowDifferingAllowing1pxShift": 1383840,
+    "pxInsideDiffering": 13578,
+    "pxAboveCompared": 19031040,
+    "pxBelowCompared": 3497760
+  }
+]

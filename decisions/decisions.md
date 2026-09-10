@@ -1656,3 +1656,18 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **Decisions (from the contract §1).** (1) One SCF Flexible Content zone `home_blocks` on Home, in a "Blocks" tab of the existing Home field group; no other page. (2) Slot: after Instagram, before the EPK teaser. (3) Exactly three block types with the audit's fields: `announcement`, `pull_quote`, `video`. (4) Empty state: a block missing its required field renders nothing, an unknown layout renders nothing and is logged, an empty zone leaves Home byte-identical. (5) Every block derives from an existing component, tokens only, `sc-a11y-spec` before build.
 
 **Consequences.** Easier: one plugin re-upload (the only human gate), the fetcher untouched, the reader extended not swapped, Home's parity baseline is "identical until she adds a block". Harder: Sprint 12's close-out (Levi's two runs) is still open while Sprint 13 holds the pointer; the `pull_quote` extraction must prove `LinerNotes` parity on its own before the block reuses it.
+
+## 2026-09-10 — Sprint 12 Phase A follow-up: the playlist scrolls within the player's height
+
+**Stage:** 03-build (sprint-12-findability-and-blocks, Phase A)
+**Type:** UX / design tradeoff
+**Status:** accepted — Levi, 2026-09-10: "scroll with player height"
+**amends:** the consequence surfaced in the 2026-09-10 "gallery shows Meg's whole list" entry
+
+**Decision.** At 768 px and up, `Videos.module.css` lays the gallery out as a grid whose row height is the player's 16:9; the rail is `height: 0; min-height: 100%` so it fills that height and the playlist scrolls inside it (`overflow-y: auto`, thin scrollbar coloured from the gold accent token, the existing gold hairlines as the affordance). Below 768 px the list stays full-length under the player. Guide row notes that the list scrolls.
+
+**Rationale.** Her whole list stays reachable, the section's height is the player's again, and no new token or component was needed.
+
+**Verification.** `output/phase-a-rail-scroll-parity/README.md`: text, metadata and refs identical on 10 of 10 pairs; section Δ equals page Δ everywhere; the Home below-region residue traced to Chromium's 16,384 px capture ceiling, with a section map proving a uniform shift.
+
+**Surfaced, not decided.** At 768 px the player is 146 px tall, so the rail shows one tile at a time. If that reads too tight: a narrower rail at 768–1023, or stacking the list beneath the player at that width. Levi's call.
