@@ -5,12 +5,11 @@
  * (admin → Pages → "Videos"): the ACF "Featured video" field and her video
  * list, read at build by src/lib/videos-content.ts. What is left here is
  * plumbing she has no reason to edit:
- * - CHANNEL_ID / channelUrl: her YouTube channel, for the RSS feed and the
- *   right-rail link.
+ * - CHANNEL_ID / channelUrl: her YouTube channel, for the right-rail link and
+ *   the RSS feed that fills the list only when hers is empty.
  * - extraVideoIds: cross-channel videos (e.g. a venue's live set) the channel
  *   RSS omits and that are not hers to list — a studio task, not an edit.
- *   They come last in the merge (src/lib/video-merge.ts), after her list and
- *   the channel's newest uploads.
+ *   They come last in the merge (src/lib/video-merge.ts), after her list.
  *
  * VideosGallery still reconciles against her Videos page from the visitor's
  * browser, so a YouTube block pasted into the page body also appears.

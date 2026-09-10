@@ -87,10 +87,10 @@ export function VideosGallery({ videos: initial }: { videos: Video[] }) {
   }, []);
 
   const active = videos.find((v) => v.id === activeId) ?? videos[0];
-  // Five tiles: the active video plus four. The server list already leads with
-  // Meg's featured pick and her curated order (src/lib/video-merge.ts), so the
-  // four here are hers unless her list is shorter than that.
-  const rest = videos.filter((v) => v.id !== active.id).slice(0, 4);
+  // Every video but the active one, in her order — the whole list, not a
+  // capped slice (Levi, 2026-09-10). The server list already leads with her
+  // featured pick and her curated order (src/lib/video-merge.ts).
+  const rest = videos.filter((v) => v.id !== active.id);
 
   function select(id: string) {
     setActiveId(id);
