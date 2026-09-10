@@ -1643,3 +1643,16 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **Consequences.** Easier: Meg can put an announcement on Home without a studio ticket. Harder: one more plugin re-upload through the wp-admin gate; three components to build to Gate-3 standard (five states, reduced motion, a11y spec); `home-content.ts` gains an optional `blocks` array (extend, never swap — learning #60); the parity baseline is Home with an empty zone rendering byte-identically to today.
 
 **Alternatives considered.** Option 1 (Home + release-page zones, five block types) — deferred until the Home zone has carried a real announcement. Option 3 (Elementor/WPBakery) — rejected: breaks parity, token control, the guide's promise and the Bluehost plugin-outage history.
+
+## 2026-09-10 — Sprint 13 kickoff: Home content blocks — the audit approved, the zone after Instagram, three block types
+
+**Stage:** 03-build (sprint-13-home-blocks)
+**Type:** Product · Architecture · Process
+**Status:** accepted — Levi, 2026-09-10: "after instagram, file sprint 13"; logged at kickoff per the contract's §1. Do not reopen.
+**builds on:** 2026-09-10 "SUPERSEDES Sprint 11 decision 1.4 for Home only"
+
+**Context.** Sprint 12 Phase C's audit (`stages/03-build/sprint-12-findability-and-blocks/output/phase-c-home-blocks-audit.md`) listed every Home section with a stays-fixed or becomes-a-block verdict, three block types with their fields, per-layer changes and a five-PR plan, and left one question to Levi: where the zone sits.
+
+**Decisions (from the contract §1).** (1) One SCF Flexible Content zone `home_blocks` on Home, in a "Blocks" tab of the existing Home field group; no other page. (2) Slot: after Instagram, before the EPK teaser. (3) Exactly three block types with the audit's fields: `announcement`, `pull_quote`, `video`. (4) Empty state: a block missing its required field renders nothing, an unknown layout renders nothing and is logged, an empty zone leaves Home byte-identical. (5) Every block derives from an existing component, tokens only, `sc-a11y-spec` before build.
+
+**Consequences.** Easier: one plugin re-upload (the only human gate), the fetcher untouched, the reader extended not swapped, Home's parity baseline is "identical until she adds a block". Harder: Sprint 12's close-out (Levi's two runs) is still open while Sprint 13 holds the pointer; the `pull_quote` extraction must prove `LinerNotes` parity on its own before the block reuses it.
