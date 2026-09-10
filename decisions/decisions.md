@@ -1745,3 +1745,16 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **Result** (`output/phase-3-parity/README.md`). Extraction: text, meta, refs identical on Home and Media at five widths each; pixels 1,068 @Home 390 against a 2,502 px floor, 0 on the other nine pairs; the document differs by the four facade lines' class names. Block: above the zone 0 px at every width; below it 0 / 19 / 8 / 0 / 0; the page taller by exactly the zone's height; invalid link dropped; five states and the swap to the iframe measured.
 
 **Alternatives considered.** A separate, simpler embed for the block (a bare iframe) — rejected: the contract reuses the facade, and a second player pattern on one page loads YouTube on scroll for nothing. Naming the play button from Meg's caption — rejected: a caption is optional and is not the video's name. Tokenising the two literals in passing — rejected by the identical-output standard and §2's rule that a new token needs a logged decision.
+
+## 2026-09-10 — Sprint 13 Phase 4: the guide teaches the Blocks area in Meg's own dashboard words, and the one live write of the sprint is Levi's timed save-and-check
+
+**Stage:** 03-build (sprint-13-home-blocks, Phase 4)
+**Type:** Product / scope call · Process
+**Status:** accepted — builds on the 2026-09-10 Sprint 13 Phase 3 entry
+
+**Decisions.**
+1. **Guide, section 02:** the Home row gains "and the Blocks area, the What's New section (see 05)". **New section 05, "The Blocks area on Home — what's new, in your words":** what the tab is and where it lands, then a definition list in the dashboard's own labels — Add a block, Announcement, Pull quote, Video, Move one, Remove one — and a note that a block missing its one required field simply doesn't show. Sections 05–07 renumber to 06–08; the guide has no cross-references or contents to break. PDF re-rendered (4 pages).
+2. **The destination proof is one live write, Levi's, timed** (`output/phase-4-save-and-check.md`): a real announcement saved in Meg's dashboard, T0 to live T1 in a real browser, screenshots, an optional second block type (a Shorts link — Sprint 12's breaker), then removed or deliberately kept. Phases 1–3 wrote nothing to WordPress, so there are no test blocks to clean up; the sheet records that.
+3. **Close-out waits for the measured time.** `sc-learn`, the WORKSPACE pointer, and the CONTEXT summary line land after the sheet is filled, in their own PR.
+
+**Alternatives considered.** Documenting the blocks inside section 02's Home row alone — rejected: three block types with their own rules need a definition list, in the same shape section 04 gives the release list. The session saving the test block through `wp-ops` and timing it — rejected for the same reason as Phase 1 (visitor-visible), and because the contract names Levi as this line's runner.
