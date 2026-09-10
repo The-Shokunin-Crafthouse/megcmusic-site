@@ -1,0 +1,40 @@
+[
+  {
+    "width": 390,
+    "zoneRendered": {
+      "before": false,
+      "after": true
+    },
+    "seamTopBefore": 9370.84375,
+    "zoneTopAfter": 9370.84375,
+    "sameTop": true,
+    "zoneHeightAfter": 523.5,
+    "pageHeightBefore": 10702,
+    "pageHeightAfter": 11226,
+    "deltaPage": 524,
+    "pxAboveDiffering": 0,
+    "pxBelowDiffering": 28864,
+    "pxBelowDifferingAllowing1pxShift": 0,
+    "pxAboveCompared": 3654300,
+    "pxBelowCompared": 2118090
+  },
+  {
+    "width": 1440,
+    "zoneRendered": {
+      "before": false,
+      "after": true
+    },
+    "seamTopBefore": 8091.828125,
+    "zoneTopAfter": 8091.828125,
+    "sameTop": true,
+    "zoneHeightAfter": 555.5,
+    "pageHeightBefore": 8204,
+    "pageHeightAfter": 8759,
+    "deltaPage": 555,
+    "pxAboveDiffering": 0,
+    "pxBelowDiffering": 23722,
+    "pxBelowDifferingAllowing1pxShift": 0,
+    "pxAboveCompared": 11651040,
+    "pxBelowCompared": 6063840
+  }
+]
