@@ -8,6 +8,7 @@
  *   node scripts/wp-ops/wp-ops.mjs --op read-config
  *   node scripts/wp-ops/wp-ops.mjs --op set-titles  --args "4=Home;6073=Subscribe"
  *   node scripts/wp-ops/wp-ops.mjs --op trash-pages --args "47,2946"
+ *   node scripts/wp-ops/wp-ops.mjs --op remove-menu-items --args "4479,49"
  *
  * Writes run only when CONFIRM=write; otherwise they dry-run and report what
  * they would do. trash-pages never passes `force` — pages go to Trash, never
@@ -132,7 +133,38 @@ async function trashPages() {
   return { ran_at: new Date().toISOString(), mode: CONFIRM ? "write" : "dry-run", results };
 }
 
-const ops = { "read-config": readConfig, "set-titles": setTitles, "trash-pages": trashPages };
+/**
+ * Remove nav menu items. Menu items have no Trash (the REST route needs
+ * `force=true`), so this is the one hard delete here — of a menu ROW, never a
+ * page. Any child items are reparented to top level first, so removing a
+ * parent never orphans what sat under it.
+ */
+async function removeMenuItems() {
+  const ids = ARGS.split(",").map((s) => Number(s.trim())).filter((n) => Number.isInteger(n) && n > 0);
+  if (!ids.length) throw new Error("remove-menu-items needs --args \"id,id,…\"");
+  const all = await call(`${WP}/menu-items?per_page=100&_fields=id,title,menus,parent,object,object_id,url`);
+  const items = Array.isArray(all.body) ? all.body : [];
+  const results = [];
+  for (const id of ids) {
+    const item = items.find((i) => i.id === id);
+    const children = items.filter((i) => i.parent === id);
+    const row = { id, item: item ?? null, children: children.map((c) => ({ id: c.id, title: c.title?.rendered })), mode: CONFIRM ? "write" : "dry-run" };
+    if (!item) { row.error = "no such menu item"; results.push(row); continue; }
+    if (CONFIRM) {
+      row.reparented = [];
+      for (const c of children) {
+        const r = await call(`${WP}/menu-items/${c.id}`, { method: "POST", body: JSON.stringify({ parent: 0 }) });
+        row.reparented.push({ id: c.id, status: r.status, parent_after: r.body?.parent });
+      }
+      row.delete = await call(`${WP}/menu-items/${id}?force=true`, { method: "DELETE" });
+      row.deleted = row.delete.body?.deleted === true;
+    }
+    results.push(row);
+  }
+  return { ran_at: new Date().toISOString(), mode: CONFIRM ? "write" : "dry-run", results };
+}
+
+const ops = { "read-config": readConfig, "set-titles": setTitles, "trash-pages": trashPages, "remove-menu-items": removeMenuItems };
 if (!ops[OP]) {
   console.error(`unknown --op "${OP}" (want ${Object.keys(ops).join(" | ")})`);
   process.exit(2);
