@@ -47,9 +47,10 @@ async function fetchMeta(id: string): Promise<{ title: string; author: string }>
 }
 
 /**
- * The merged video list: Meg's featured video first, then her curated list in
- * her order, then the channel's newest uploads, then any cross-channel extras —
- * deduped (the order itself lives in src/lib/video-merge.ts). Title and author
+ * The merged video list: Meg's featured video first, then her whole curated
+ * list in her order, then any cross-channel extras — deduped; the channel's
+ * newest uploads fill in only when her list is empty (the rule lives in
+ * src/lib/video-merge.ts). Title and author
  * come from oEmbed (per-video, so cross-channel uploads carry their real
  * uploader).
  */

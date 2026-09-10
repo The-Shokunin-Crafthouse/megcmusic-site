@@ -1587,6 +1587,26 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 
 **Still open (A.2).** The save-to-live proof with a real entry in her list is Levi's to run (contract §3 A.2, runner: Levi): `output/phase-a-save-and-check.md` holds the steps and the fields to fill.
 
+## 2026-09-10 — Sprint 12 Phase A follow-up: the gallery shows Meg's whole list, and the channel feed becomes a fallback
+
+**Stage:** 03-build (sprint-12-findability-and-blocks, Phase A)
+**Type:** UX / design tradeoff · Architecture
+**Status:** accepted — amends decision 1 of the 2026-09-09 Phase A entry (the five-tile cap, left there as Levi's call)
+**amends:** 2026-09-09 Sprint 12 Phase A, decision 1
+
+**Context.** The 2026-09-09 fix put Meg's list ahead of the channel feed but kept the gallery's five-tile cap, surfacing the cap as a design decision. Levi answered on 2026-09-10: "show her whole list."
+
+**Decisions.**
+1. **Every video in her list renders**, in her order, after the featured tile — `VideosGallery` no longer slices the playlist.
+2. **The channel's newest uploads are a fallback, not a filler:** `mergeVideoIds()` appends them only when her curated list is empty. With the cap gone, appending the feed would have shown up to fifteen videos she did not pick after the ones she did, which contradicts the field's promise that her list is the playlist. Cross-channel extras (a studio-maintained list, empty today) still come last.
+3. **The guide row says so:** "every video in your Video list appears beside it, in your order — the list is the site's playlist, so what you leave out stays off."
+
+**Verification.** Parity on `/` and `/media` at five widths (`output/phase-a-whole-list-parity/`): purely additive — four titles and four thumbnails added, nothing removed, links and metadata identical, page taller by the four rail items. Unit tests updated (five, green).
+
+**Consequence surfaced, not decided.** At 768 px and up the rail is now taller than the player; on `/media` @1440 the tiles run about 700 px below it. Two refinements are possible — a rail that scrolls within the player's height, or extra tiles wrapping beneath the player — both design changes for Levi.
+
+**Alternatives considered.** (1) Keep appending the channel feed after her list — rejected: it would surface videos she did not choose, now that nothing caps the rail. (2) Cap the rail at her list length but scroll it — not taken without a design decision; noted above.
+
 ## 2026-09-10 — Sprint 12 Phase B: Meg's page list holds only pages the business uses; the classification rule and the protected set
 
 **Stage:** 03-build (sprint-12-findability-and-blocks, Phase B)

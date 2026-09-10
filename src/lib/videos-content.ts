@@ -30,7 +30,7 @@ const rows = (v: unknown): Record<string, unknown>[] =>
   Array.isArray(v) ? (v as Record<string, unknown>[]) : [];
 
 /** Meg's pinned featured tile. Empty when she has not set one — the merge in
- *  src/lib/api/youtube.ts then simply leads with the channel's newest upload. */
+ *  src/lib/video-merge.ts then simply leads with the first video in her list. */
 export const primaryVideoId: string = youtubeId(text(acf.featured_video_url));
 
 /** Her curated list, in her order — it comes right after the featured tile and
