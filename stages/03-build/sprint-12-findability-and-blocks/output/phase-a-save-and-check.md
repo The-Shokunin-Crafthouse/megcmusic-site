@@ -38,3 +38,15 @@ If it does not appear after three minutes: re-save the page once (the debounce m
 Levi added `https://youtube.com/shorts/9L1cSL9u-U0?si=…` as row 2 of the list (page 5560 modified 12:29:38 local). The plugin dispatched (Production Deploy 34514666883, `repository_dispatch`, success, 18:29:38Z) — the loop worked end to end. The tile did not appear because `videos-content.ts` carried a private YouTube-id regex that did not know `/shorts/`; the row parsed to nothing and was filtered out. The FYC reader had the same copy; `media-videos.ts`'s shared parser already handled Shorts. Fixed in PR #117 (one parser, unit tests for every link shape). A fail that found a real bug is the point of running this check at the destination.
 
 **Run 2** — after #117 deploys, the Shorts tile should show second on `/media` and `/` without any further save; the timing measurement still needs a fresh save (steps 1–4 above).
+
+## Run 2 — 2026-09-10, Levi: PASS, measured
+
+| Field | Value |
+|---|---|
+| Change | Levi reordered the list (the Shorts entry moved to row 3); page 5560 `modified_gmt` 2026-09-10T18:51:59Z |
+| Production Deploy run | 34516941543, `repository_dispatch`, success |
+| Deploy start → end | 18:51:59Z → 18:53:59Z |
+| Save-to-live | **120 s** to the deploy completing; Levi saw it on `megcmusic.com` at "about 3 minutes" including his own check |
+| Result | **pass** — Levi: "run 2 done, it showed in about 3 minutes - all pass" |
+
+Contract B.3's Woo checkout hand-off is covered by the same message ("all pass"), recorded as Levi's confirmation from his own browser.

@@ -20,7 +20,7 @@
 >
 > **Resume pointer:** `SESSION-RESUME.md` at repo root (hook-owned). **Turn ceilings:** Phase A 40 turns, Phase B 30, Phase C 15. On hitting one: park with a resume note, open the PR as draft with what exists, stop.
 >
-> **Phase status (2026-09-10):** A — merged (#108, #112) and live, whole list showing; A.2 save-and-check still Levi's to run · B — merged (#110): eleven pages trashed, four menu items removed, re-verified; Levi's checkout hand-off check still open · C — Option 2 picked by Levi (superseding entry logged); Home blocks audit written as the gate artifact for the next sprint. **Close-out pending on Levi:** A.2 save-and-check (`output/phase-a-save-and-check.md`) and the Woo checkout hand-off from his browser (B.3); then `sc-learn`, contract summary line. Sprint 13 filed 2026-09-10 and holds the pointer meanwhile.
+> **Phase status (2026-09-10, close):** A ✅ merged (#108, #112, #116, #117), save-to-live measured 120 s · B ✅ merged (#110), Levi confirmed the checkout hand-off · C ✅ Option 2 picked, superseding entry logged, Home blocks audit approved → Sprint 13 filed (#115). **Sprint complete.**
 
 ---
 
@@ -127,3 +127,18 @@ Stop and surface to Levi if: an action needs wp-admin at the keyboard (name the 
 ## 7. Close-out
 
 Per phase: PR merged, ADR logged, phase status line in this file updated. At sprint close: `sc-learn` (LEARNINGS.md; promote only what changes an unrelated future project), sprint pointer cleared in `WORKSPACE.md`, this contract marked complete with a dated summary line and the measured save-to-live time from A.2.
+
+
+---
+
+## COMPLETE — 2026-09-10
+
+**Phase A.** Cause confirmed and fixed: Meg's list now leads the merge, the gallery shows her whole list, the rail scrolls within the player's height, and one shared YouTube-id parser accepts every link shape she pastes (the Shorts link that Levi's first save-and-check dropped is the reason that last fix exists). Page titles written (Home, Subscribe, "Media — Videos"), slugs untouched. **Save-to-live measured at 120 s** (page 5560 saved 18:51:59Z, `repository_dispatch` deploy 34516941543 finished 18:53:59Z); Levi saw it at about three minutes with his own check. Guide updated, PDF re-rendered; Meg has it.
+
+**Phase B.** 39 pages classified from system reads; eight protected on evidence (two of the contract's "candidates" among them); eleven pages trashed on Levi's yes by id, four menu items removed with their children reparented; 35 published → 27. Re-verified across 65 route/breakpoint pairs inside the noise floor, redirect suite unchanged, checkout and ticket pages loaded in a real browser, hand-off confirmed by Levi.
+
+**Phase C.** Three options costed; Levi picked Option 2 (one flexible zone on Home, three block types). The superseding entry for decision 1.4 is logged for Home only; the Phase-0-style audit is approved with the zone after Instagram; Sprint 13 is filed and holds the pointer.
+
+**Also shipped:** `wp-ops.yml` — dry-run-by-default authenticated reads and recorded writes from GitHub Actions; the repo's first unit tests and a `unit-tests.yml` check on every PR.
+
+**Learnings:** six Tier-1 entries in `LEARNINGS.md`; three Tier-2 candidates presented to Levi (capture default, promote deliberate).
