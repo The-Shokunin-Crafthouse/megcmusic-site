@@ -94,3 +94,10 @@ The contract's candidate list had ten ids. Two (5134, 5339) moved to protected o
 3. **5590 Amy Speace workshop** — is that April event over and unlinked, or still shared?
 
 Nothing moves before the answer. After B.2 a manual production deploy is needed (untracked pages do not fire the dispatch), and Levi confirms the Woo checkout hand-off from his own browser (B.3).
+
+## B.1 — resolved
+
+- **2026-09-09, Levi:** "Yes, trash 3782, 4386, 2936, 1842, 1851." → trashed (see `phase-b-trashed.md`, first batch).
+- **2026-09-10, Levi:** 47 / 2946 / 3750 — "remove them and trash"; 3750 / 6060 / 6073 — nothing points at them, "remove"; 5590 — "old, you can remove and trash as well." → the four menu items removed (children reparented first), the six pages trashed (second batch).
+
+Final state: 35 published pages → 27. Tracked-live 19, tracked-dormant 1, protected 7 published + 1 draft (privacy page). Every page a visitor can reach is either rendered by the site, a Woo / Event Tickets system page, or a review page the site links to.
