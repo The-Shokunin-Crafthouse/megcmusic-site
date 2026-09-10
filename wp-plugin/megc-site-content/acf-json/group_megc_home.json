@@ -2,36 +2,317 @@
   "key": "group_megc_home",
   "title": "Home Page",
   "fields": [
-    { "key": "field_megc_home_tab_bio", "label": "Your Bio", "name": "", "type": "tab", "placement": "top" },
-    { "key": "field_megc_home_bio_1", "label": "Your bio — first paragraph", "name": "bio_paragraph_1", "type": "textarea", "rows": 4, "new_lines": "", "instructions": "Opens your Liner Notes on the home page and “The Story” on the Press Kit page. The first letter becomes the big decorative capital." },
-    { "key": "field_megc_home_bio_2", "label": "Your bio — second paragraph", "name": "bio_paragraph_2", "type": "textarea", "rows": 4, "new_lines": "", "instructions": "Middle of your bio. Mention releases by name and year — they read like liner notes." },
-    { "key": "field_megc_home_bio_3", "label": "Your bio — third paragraph", "name": "bio_paragraph_3", "type": "textarea", "rows": 4, "new_lines": "", "instructions": "Closes your bio (the volunteering paragraph today)." },
-    { "key": "field_megc_home_pull_quote", "label": "Pull quote", "name": "pull_quote", "type": "text", "instructions": "The short quote in the pink-bordered block. Shown on Home and the Press Kit page. No quote marks needed — the site adds them." },
-    { "key": "field_megc_home_pull_quote_attribution", "label": "Quote credit", "name": "pull_quote_attribution", "type": "text", "instructions": "Who said it — shows as “~ Meghan Clarisse” today." },
-    { "key": "field_megc_home_tab_recognition", "label": "Recognition", "name": "", "type": "tab", "placement": "top" },
-    { "key": "field_megc_home_recognition", "label": "Recognition timeline", "name": "recognition", "type": "repeater", "layout": "block", "button_label": "Add an honor", "instructions": "Awards and memberships in the gold sidebar, newest first. Add a row per honor.",
+    {
+      "key": "field_megc_home_tab_bio",
+      "label": "Your Bio",
+      "name": "",
+      "type": "tab",
+      "placement": "top"
+    },
+    {
+      "key": "field_megc_home_bio_1",
+      "label": "Your bio — first paragraph",
+      "name": "bio_paragraph_1",
+      "type": "textarea",
+      "rows": 4,
+      "new_lines": "",
+      "instructions": "Opens your Liner Notes on the home page and “The Story” on the Press Kit page. The first letter becomes the big decorative capital."
+    },
+    {
+      "key": "field_megc_home_bio_2",
+      "label": "Your bio — second paragraph",
+      "name": "bio_paragraph_2",
+      "type": "textarea",
+      "rows": 4,
+      "new_lines": "",
+      "instructions": "Middle of your bio. Mention releases by name and year — they read like liner notes."
+    },
+    {
+      "key": "field_megc_home_bio_3",
+      "label": "Your bio — third paragraph",
+      "name": "bio_paragraph_3",
+      "type": "textarea",
+      "rows": 4,
+      "new_lines": "",
+      "instructions": "Closes your bio (the volunteering paragraph today)."
+    },
+    {
+      "key": "field_megc_home_pull_quote",
+      "label": "Pull quote",
+      "name": "pull_quote",
+      "type": "text",
+      "instructions": "The short quote in the pink-bordered block. Shown on Home and the Press Kit page. No quote marks needed — the site adds them."
+    },
+    {
+      "key": "field_megc_home_pull_quote_attribution",
+      "label": "Quote credit",
+      "name": "pull_quote_attribution",
+      "type": "text",
+      "instructions": "Who said it — shows as “~ Meghan Clarisse” today."
+    },
+    {
+      "key": "field_megc_home_tab_recognition",
+      "label": "Recognition",
+      "name": "",
+      "type": "tab",
+      "placement": "top"
+    },
+    {
+      "key": "field_megc_home_recognition",
+      "label": "Recognition timeline",
+      "name": "recognition",
+      "type": "repeater",
+      "layout": "block",
+      "button_label": "Add an honor",
+      "instructions": "Awards and memberships in the gold sidebar, newest first. Add a row per honor.",
       "sub_fields": [
-        { "key": "field_megc_home_recognition_years", "label": "Years", "name": "years", "type": "text", "instructions": "e.g. “2026” or “2019 – Present”." },
-        { "key": "field_megc_home_recognition_honor", "label": "Honor", "name": "honor", "type": "text", "instructions": "e.g. “Josie Music Award Nominee”." },
-        { "key": "field_megc_home_recognition_detail", "label": "Detail", "name": "detail", "type": "text", "instructions": "The smaller line, e.g. “Album of the Year (Folk\/Americana)”." }
+        {
+          "key": "field_megc_home_recognition_years",
+          "label": "Years",
+          "name": "years",
+          "type": "text",
+          "instructions": "e.g. “2026” or “2019 – Present”."
+        },
+        {
+          "key": "field_megc_home_recognition_honor",
+          "label": "Honor",
+          "name": "honor",
+          "type": "text",
+          "instructions": "e.g. “Josie Music Award Nominee”."
+        },
+        {
+          "key": "field_megc_home_recognition_detail",
+          "label": "Detail",
+          "name": "detail",
+          "type": "text",
+          "instructions": "The smaller line, e.g. “Album of the Year (Folk/Americana)”."
+        }
       ]
     },
-    { "key": "field_megc_home_tab_instagram", "label": "Instagram", "name": "", "type": "tab", "placement": "top" },
-    { "key": "field_megc_home_instagram_caption", "label": "Instagram caption", "name": "instagram_caption", "type": "text", "instructions": "The line under your Instagram grid (“Follow along between shows —”). Your handle is added after it automatically." },
-    { "key": "field_megc_home_instagram_handle", "label": "Instagram handle", "name": "instagram_handle", "type": "text", "instructions": "Without the @. Changes the link and the @name shown." },
-    { "key": "field_megc_home_tab_newsletter", "label": "Mailing List", "name": "", "type": "tab", "placement": "top" },
-    { "key": "field_megc_home_newsletter_headline", "label": "Mailing-list headline", "name": "newsletter_headline", "type": "text", "instructions": "“Postcards from the road.” today." },
-    { "key": "field_megc_home_newsletter_blurb", "label": "Mailing-list blurb", "name": "newsletter_blurb", "type": "textarea", "rows": 3, "new_lines": "", "instructions": "The sentence under the headline — what people get and how often." },
-    { "key": "field_megc_home_newsletter_birthday_note", "label": "Birthday note", "name": "newsletter_birthday_note", "type": "text", "instructions": "Shown under the birthday box on the signup form." },
-    { "key": "field_megc_home_tab_site", "label": "Site Basics", "name": "", "type": "tab", "placement": "top" },
-    { "key": "field_megc_home_hero_photo", "label": "Site photo", "name": "hero_photo", "type": "image", "return_format": "array", "preview_size": "medium", "library": "all", "instructions": "The big background photo used across the site. Replacing it changes every page — check with Levi before swapping." },
-    { "key": "field_megc_home_facebook_url", "label": "Facebook", "name": "facebook_url", "type": "url", "instructions": "The footer Facebook icon links here." },
-    { "key": "field_megc_home_instagram_url", "label": "Instagram", "name": "instagram_url", "type": "url", "instructions": "The footer Instagram icon links here." },
-    { "key": "field_megc_home_youtube_url", "label": "YouTube", "name": "youtube_url", "type": "url", "instructions": "The footer YouTube icon links here." },
-    { "key": "field_megc_home_meta_title", "label": "Browser-tab title", "name": "meta_title", "type": "text", "instructions": "What Google and the browser tab show for the home page." },
-    { "key": "field_megc_home_meta_description", "label": "Search description", "name": "meta_description", "type": "textarea", "rows": 2, "new_lines": "", "instructions": "The sentence Google shows under your site name. One or two sentences." }
+    {
+      "key": "field_megc_home_tab_instagram",
+      "label": "Instagram",
+      "name": "",
+      "type": "tab",
+      "placement": "top"
+    },
+    {
+      "key": "field_megc_home_instagram_caption",
+      "label": "Instagram caption",
+      "name": "instagram_caption",
+      "type": "text",
+      "instructions": "The line under your Instagram grid (“Follow along between shows —”). Your handle is added after it automatically."
+    },
+    {
+      "key": "field_megc_home_instagram_handle",
+      "label": "Instagram handle",
+      "name": "instagram_handle",
+      "type": "text",
+      "instructions": "Without the @. Changes the link and the @name shown."
+    },
+    {
+      "key": "field_megc_home_tab_newsletter",
+      "label": "Mailing List",
+      "name": "",
+      "type": "tab",
+      "placement": "top"
+    },
+    {
+      "key": "field_megc_home_newsletter_headline",
+      "label": "Mailing-list headline",
+      "name": "newsletter_headline",
+      "type": "text",
+      "instructions": "“Postcards from the road.” today."
+    },
+    {
+      "key": "field_megc_home_newsletter_blurb",
+      "label": "Mailing-list blurb",
+      "name": "newsletter_blurb",
+      "type": "textarea",
+      "rows": 3,
+      "new_lines": "",
+      "instructions": "The sentence under the headline — what people get and how often."
+    },
+    {
+      "key": "field_megc_home_newsletter_birthday_note",
+      "label": "Birthday note",
+      "name": "newsletter_birthday_note",
+      "type": "text",
+      "instructions": "Shown under the birthday box on the signup form."
+    },
+    {
+      "key": "field_megc_home_tab_site",
+      "label": "Site Basics",
+      "name": "",
+      "type": "tab",
+      "placement": "top"
+    },
+    {
+      "key": "field_megc_home_hero_photo",
+      "label": "Site photo",
+      "name": "hero_photo",
+      "type": "image",
+      "return_format": "array",
+      "preview_size": "medium",
+      "library": "all",
+      "instructions": "The big background photo used across the site. Replacing it changes every page — check with Levi before swapping."
+    },
+    {
+      "key": "field_megc_home_facebook_url",
+      "label": "Facebook",
+      "name": "facebook_url",
+      "type": "url",
+      "instructions": "The footer Facebook icon links here."
+    },
+    {
+      "key": "field_megc_home_instagram_url",
+      "label": "Instagram",
+      "name": "instagram_url",
+      "type": "url",
+      "instructions": "The footer Instagram icon links here."
+    },
+    {
+      "key": "field_megc_home_youtube_url",
+      "label": "YouTube",
+      "name": "youtube_url",
+      "type": "url",
+      "instructions": "The footer YouTube icon links here."
+    },
+    {
+      "key": "field_megc_home_meta_title",
+      "label": "Browser-tab title",
+      "name": "meta_title",
+      "type": "text",
+      "instructions": "What Google and the browser tab show for the home page."
+    },
+    {
+      "key": "field_megc_home_meta_description",
+      "label": "Search description",
+      "name": "meta_description",
+      "type": "textarea",
+      "rows": 2,
+      "new_lines": "",
+      "instructions": "The sentence Google shows under your site name. One or two sentences."
+    },
+    {
+      "key": "field_megc_home_blocks_tab",
+      "label": "Blocks",
+      "name": "",
+      "type": "tab",
+      "placement": "top"
+    },
+    {
+      "key": "field_megc_home_blocks",
+      "label": "Blocks",
+      "name": "home_blocks",
+      "type": "flexible_content",
+      "button_label": "Add a block",
+      "instructions": "Extra pieces for the Home page — an announcement, a quote, or a video. Add as many as you like, drag to reorder, remove them when they are old. They appear between the Instagram section and the press-kit teaser. Leave this empty and Home looks exactly as it does today.",
+      "layouts": {
+        "layout_megc_announcement": {
+          "key": "layout_megc_announcement",
+          "name": "announcement",
+          "label": "Announcement",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_megc_blk_ann_eyebrow",
+              "label": "Small line above",
+              "name": "eyebrow",
+              "type": "text",
+              "instructions": "Optional. e.g. “New single” or “Award season”."
+            },
+            {
+              "key": "field_megc_blk_ann_headline",
+              "label": "Headline",
+              "name": "headline",
+              "type": "text",
+              "instructions": "What people read first. Required — a block without a headline does not show.",
+              "required": 1
+            },
+            {
+              "key": "field_megc_blk_ann_body",
+              "label": "Text",
+              "name": "body",
+              "type": "textarea",
+              "instructions": "Optional. A sentence or two.",
+              "rows": 3
+            },
+            {
+              "key": "field_megc_blk_ann_link_label",
+              "label": "Link text",
+              "name": "link_label",
+              "type": "text",
+              "instructions": "Optional. e.g. “Listen now”. Needs a link address too."
+            },
+            {
+              "key": "field_megc_blk_ann_link_url",
+              "label": "Link address",
+              "name": "link_url",
+              "type": "url",
+              "instructions": "Optional. Where the link goes."
+            }
+          ]
+        },
+        "layout_megc_pull_quote": {
+          "key": "layout_megc_pull_quote",
+          "name": "pull_quote",
+          "label": "Pull quote",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_megc_blk_quote_text",
+              "label": "Quote",
+              "name": "quote",
+              "type": "textarea",
+              "instructions": "The quote itself, without quotation marks. Required.",
+              "required": 1,
+              "rows": 3
+            },
+            {
+              "key": "field_megc_blk_quote_attribution",
+              "label": "Who said it",
+              "name": "attribution",
+              "type": "text",
+              "instructions": "e.g. “Americana Highways”."
+            }
+          ]
+        },
+        "layout_megc_video": {
+          "key": "layout_megc_video",
+          "name": "video",
+          "label": "Video",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_megc_blk_video_url",
+              "label": "YouTube link",
+              "name": "youtube_url",
+              "type": "url",
+              "instructions": "Any YouTube link — watch, Shorts, or share. Required.",
+              "required": 1
+            },
+            {
+              "key": "field_megc_blk_video_caption",
+              "label": "Caption",
+              "name": "caption",
+              "type": "text",
+              "instructions": "Optional. One line under the video."
+            }
+          ]
+        }
+      }
+    }
   ],
-  "location": [ [ { "param": "page", "operator": "==", "value": "4" } ] ],
+  "location": [
+    [
+      {
+        "param": "page",
+        "operator": "==",
+        "value": "4"
+      }
+    ]
+  ],
   "menu_order": 0,
   "position": "normal",
   "style": "default",

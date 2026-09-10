@@ -1,6 +1,7 @@
 import { HomeScene } from "@/components/HomeScene/HomeScene";
 import { LinerNotes } from "@/components/LinerNotes/LinerNotes";
 import { Instagram } from "@/components/Instagram/Instagram";
+import { HomeBlocks } from "@/components/HomeBlocks/HomeBlocks";
 import { EPK } from "@/components/EPK/EPK";
 import { Videos } from "@/components/Videos/Videos";
 import { Newsletter } from "@/components/Newsletter/Newsletter";
@@ -47,6 +48,7 @@ export default async function Home() {
       <HomeScene upcoming={upcoming} justAdded={justAdded} past={past} />
       <LinerNotes />
       <Instagram />
+      <HomeBlocks />
       <div className={styles.bootWrap}>
         <EPK />
         <BootScene />
