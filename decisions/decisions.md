@@ -1626,3 +1626,20 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **Alternatives considered.** (1) Trash from the candidate list as written — rejected: it would have removed the pages `/epk` links to. (2) Leave the menu items and trash the pages — rejected: WP menu items pointing at trashed pages render as dead links in the old theme. (3) Delete past Trash — never on the table.
 
 **Consequences.** Easier: 27 pages, each of them something Meg edits, a system page, or a page the site links to. Harder: WP's 30-day trash purge runs on this install's unreliable cron (2026-08-27 learnings), so restore-if-wanted has no fixed deadline; `admin.megcmusic.com/subscribe/` and `/mail` are gone — Levi confirmed nothing points at them, and the site's own newsletter section is on Home.
+
+## 2026-09-10 — SUPERSEDES Sprint 11 decision 1.4 for Home only: Meg gets one flexible content zone on Home (Sprint 12 Phase C, Option 2)
+
+**Stage:** 03-build (sprint-12-findability-and-blocks, Phase C → next sprint)
+**Type:** Product / scope · Architecture
+**Status:** accepted — Levi, 2026-09-10: "go with option 2"
+**supersedes:** 2026-08-29 Sprint 11 kickoff, decision 4 ("Edit existing surfaces only… no generic page-builder template") — **for the Home page only**; it stays in force for every other surface
+
+**Context.** Sprint 11 made every existing word and photo editable but left *which sections a page has* a studio task. Sprint 12 Phase C (`output/phase-c-blocks-recommendation.md`) weighed three ways to give Meg blocks. The install runs Secure Custom Fields 6.9.5, which ships Flexible Content, so no purchase is needed. The one recurring need with evidence is a timely announcement on Home — awards, a release, a tour date — which today gets pushed into the Recognition list.
+
+**Decision.** Build **Option 2**: one SCF Flexible Content zone on Home with three hand-built block types — announcement, pull quote, video embed — behind a Phase-0-style audit Levi approves before any field is drawn (`output/phase-c-home-blocks-audit.md`). Release pages, Media, EPK and every other surface keep decision 1.4: fixed fields, new sections are a studio task.
+
+**Rationale.** It answers the only need with evidence, stays inside the token system (every block is a designed component), keeps the guide's "nothing you type can break how the site looks" true, and costs one plugin re-upload and about four PRs. A page builder was rejected outright; the wider Option 1 waits for evidence that the Home zone is used.
+
+**Consequences.** Easier: Meg can put an announcement on Home without a studio ticket. Harder: one more plugin re-upload through the wp-admin gate; three components to build to Gate-3 standard (five states, reduced motion, a11y spec); `home-content.ts` gains an optional `blocks` array (extend, never swap — learning #60); the parity baseline is Home with an empty zone rendering byte-identically to today.
+
+**Alternatives considered.** Option 1 (Home + release-page zones, five block types) — deferred until the Home zone has carried a real announcement. Option 3 (Elementor/WPBakery) — rejected: breaks parity, token control, the guide's promise and the Bluehost plugin-outage history.

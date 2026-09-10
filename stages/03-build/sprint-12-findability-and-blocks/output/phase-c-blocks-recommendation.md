@@ -1,6 +1,6 @@
 # Phase C — Should Meg get her own content blocks? (recommendation only)
 
-Date: 2026-09-09 · Status: **recommendation — no code, no plugin change**. Sprint 11 decision 1.4 ("edit existing surfaces only… no generic page-builder template") stays in force until Levi writes the superseding entry.
+Date: 2026-09-09 · Status: **Option 2 picked by Levi, 2026-09-10** ("go with option 2"). Logged in `decisions/decisions.md` 2026-09-10 as the entry superseding Sprint 11 decision 1.4 for Home only. The audit that must precede any field is `phase-c-home-blocks-audit.md`; the build is its own sprint.
 
 ## Precondition, verified
 

@@ -20,7 +20,7 @@
 >
 > **Resume pointer:** `SESSION-RESUME.md` at repo root (hook-owned). **Turn ceilings:** Phase A 40 turns, Phase B 30, Phase C 15. On hitting one: park with a resume note, open the PR as draft with what exists, stop.
 >
-> **Phase status (2026-09-10):** A — merged (#108) and live; whole-list follow-up (Levi: "show her whole list") in its own PR; A.2 save-and-check still Levi's to run · B — gate cleared 2026-09-09/10, eleven pages trashed and four menu items removed, re-verified, PR #110 · C — recommendation merged (#109), waiting on Levi's pick; decision 1.4 still in force.
+> **Phase status (2026-09-10):** A — merged (#108, #112) and live, whole list showing; A.2 save-and-check still Levi's to run · B — merged (#110): eleven pages trashed, four menu items removed, re-verified; Levi's checkout hand-off check still open · C — Option 2 picked by Levi (superseding entry logged); Home blocks audit written as the gate artifact for the next sprint.
 
 ---
 
