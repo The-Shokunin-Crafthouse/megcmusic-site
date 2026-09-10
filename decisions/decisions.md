@@ -1606,3 +1606,23 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 **Consequence surfaced, not decided.** At 768 px and up the rail is now taller than the player; on `/media` @1440 the tiles run about 700 px below it. Two refinements are possible — a rail that scrolls within the player's height, or extra tiles wrapping beneath the player — both design changes for Levi.
 
 **Alternatives considered.** (1) Keep appending the channel feed after her list — rejected: it would surface videos she did not choose, now that nothing caps the rail. (2) Cap the rail at her list length but scroll it — not taken without a design decision; noted above.
+
+## 2026-09-10 — Sprint 12 Phase B: Meg's page list holds only pages the business uses; the classification rule and the protected set
+
+**Stage:** 03-build (sprint-12-findability-and-blocks, Phase B)
+**Type:** Product / scope · Process
+**Status:** accepted
+
+**Context.** Meg's WordPress page list carried 39 pages (35 published, 4 drafts) for a site that renders 19 of them; the rest were pre-rebuild leftovers, WooCommerce and Event Tickets system pages, and a few pages the site still links to. The contract asked for a four-class rule, evidence per page, a one-line gate from Levi by id, trash only (never `force`), and re-verification.
+
+**Decisions.**
+1. **Classification rule (`output/phase-b-page-classification.md`).** *Tracked-live*: in the plugin's tracked list and rendered. *Tracked-dormant*: tracked, not in nav (4566, left alone). *Protected*: not tracked but live-critical, membership only from a system read — `page_on_front`, `wc/v3/settings/advanced` page ids, wp-admin post-state labels for Event Tickets and the privacy page, a live-site link, or a tracked page's field. *Orphan candidate*: passes all five tests (not linked from the live site, not a redirect target, not referenced by a tracked field, not in a WP menu, no known inbound link); failing any test makes a page *ambiguous*, which is surfaced, never resolved by inclusion.
+2. **The protected set:** 1848 cart, 1849 checkout, 1850 my-account (WooCommerce); 3547 tickets-checkout, 3548 tickets-order (Event Tickets); 3 privacy-policy (draft, WP's designated privacy page); 5134 and 5339 (review pages the live `/epk`, `/music/shadows-of-a-ghost-town` and `/music/kindred-spirits` link to — two of the contract's ten "candidates" turned out to be in use).
+3. **Trashed, on Levi's explicit yes by id:** first batch (2026-09-09) 3782, 4386, 2936, 1842, 1851; second batch (2026-09-10, after he resolved the six ambiguous pages) 47, 2946, 3750, 5590, 6060, 6073. The four nav-menu items for About, Band and Connect were removed first, with Photos and Videos reparented to top level so the old theme's menu lost nothing it still needed. All via `wp-ops.yml`, dry-run before every write; runs recorded in `output/phase-b-trashed.md`. 35 published pages → 27.
+4. **Re-verification (`output/phase-b-parity/README.md`):** 65 route/breakpoint pairs, before vs after, every difference inside the noise floor's classes; metadata identical on 65 of 65; redirect suite unchanged; checkout, tickets checkout and cart load in a real browser. Two manual production deploys, because untracked pages fire no dispatch.
+
+**Rationale.** "Untracked" is not "orphaned": the store's checkout and two review pages the site links to were on the candidate list, which is why membership of the protected class had to come from reads, not from the plugin's list. Trash rather than delete keeps every move reversible from wp-admin.
+
+**Alternatives considered.** (1) Trash from the candidate list as written — rejected: it would have removed the pages `/epk` links to. (2) Leave the menu items and trash the pages — rejected: WP menu items pointing at trashed pages render as dead links in the old theme. (3) Delete past Trash — never on the table.
+
+**Consequences.** Easier: 27 pages, each of them something Meg edits, a system page, or a page the site links to. Harder: WP's 30-day trash purge runs on this install's unreliable cron (2026-08-27 learnings), so restore-if-wanted has no fixed deadline; `admin.megcmusic.com/subscribe/` and `/mail` are gone — Levi confirmed nothing points at them, and the site's own newsletter section is on Home.
