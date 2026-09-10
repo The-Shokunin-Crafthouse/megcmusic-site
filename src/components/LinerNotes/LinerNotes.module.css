@@ -65,44 +65,7 @@
   margin: 0;
 }
 
-/* Pull-quote (comp 39:114): plum panel, pink left rule, rounded bottom-right. */
-.quote {
-  margin: 0;
-  padding: var(--mc-space-4) var(--mc-space-5);
-  background: var(--mc-bg-quote);
-  border-left: 3px solid var(--mc-accent-pink);
-  border-bottom-right-radius: var(--mc-radius-quote);
-  display: flex;
-  flex-direction: column;
-  gap: var(--mc-space-2);
-}
-
-.quoteText {
-  margin: 0;
-  font-family: var(--mc-font-display);
-  font-style: italic;
-  /* Down from 28px (--mc-text-title) so it breaks at 2 lines on mobile, not
-     3 (2026-07-10, verified against the rendered column width); still one
-     line at the desktop nowrap override below. */
-  font-size: var(--mc-text-md);
-  line-height: 1.2;
-  color: var(--mc-text-primary);
-}
-
-/* One line on desktop (Levi's call) — the main column is wide enough. */
-@media (min-width: 768px) {
-  .quoteText {
-    white-space: nowrap;
-  }
-}
-
-.quoteAttr {
-  font-family: var(--mc-font-ui);
-  font-style: normal;
-  font-size: var(--mc-text-detail);
-  line-height: 1.5;
-  color: var(--mc-teal-light);
-}
+/* Pull-quote: src/components/PullQuote (extracted Sprint 13 Phase 2). */
 
 /* Recognition sidebar (comp 39:120): gold top rule, dated entries. */
 .recognition {

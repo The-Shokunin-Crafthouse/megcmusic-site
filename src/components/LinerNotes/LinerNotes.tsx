@@ -1,5 +1,6 @@
 import { HOME_CONTENT } from "@/lib/home-content";
 import { SectionLabel } from "../SectionLabel/SectionLabel";
+import { PullQuote } from "../PullQuote/PullQuote";
 import styles from "./LinerNotes.module.css";
 
 // Liner Notes (Figma 39:106): Meg's homepage bio (comp copy) with a Praise
@@ -30,10 +31,7 @@ export function LinerNotes() {
               </span>
             </p>
 
-            <blockquote className={styles.quote}>
-              <p className={styles.quoteText}>{`“${pullQuote}”`}</p>
-              <cite className={styles.quoteAttr}>{pullQuoteAttribution}</cite>
-            </blockquote>
+            <PullQuote quote={pullQuote} attribution={pullQuoteAttribution} oneLineFromTablet />
 
             {rest.map((para, i) => (
               <p key={i} className={styles.para}>
