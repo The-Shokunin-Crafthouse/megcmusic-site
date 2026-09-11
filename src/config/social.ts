@@ -1,14 +1,22 @@
 /**
  * Behold feed plumbing. Behold (behold.so) serves Meg's recent Instagram posts
- * as public JSON; it is NOT the WP host, so it isn't datacenter-blocked. The
- * account isn't connected yet: leave BEHOLD_FEED_ID unset and the section
- * renders its intentional unconfigured state (handle + follow link, no broken
- * grid). It lights up the moment the id is set in NEXT_PUBLIC_BEHOLD_FEED_ID.
+ * as public JSON; it is NOT the WP host, so it isn't datacenter-blocked. With
+ * no feed id the section renders its intentional unconfigured state (handle +
+ * follow link, no broken grid) rather than an empty grid.
+ *
+ * Both env names are accepted. The id lived in `BEHOLD_FEED_ID` until the
+ * 2026-07-05 rename to `NEXT_PUBLIC_BEHOLD_FEED_ID` (decisions.md), and only
+ * the code and `.env.local.example` were renamed — an id set in a deploy
+ * environment under the old name would read as unset and leave the feed dark
+ * with no error anywhere. Reading both makes that unrecoverable-looking state
+ * impossible; neither name needs `NEXT_PUBLIC_` (this is read in a server
+ * component only), so the plain one is the better name to set going forward.
  *
  * Her handle and the footer's Facebook/Instagram/YouTube links moved to the WP
  * Home page in Sprint 11 — see src/lib/home-content.ts.
  */
-export const BEHOLD_FEED_ID = process.env.NEXT_PUBLIC_BEHOLD_FEED_ID ?? "";
+export const BEHOLD_FEED_ID =
+  process.env.NEXT_PUBLIC_BEHOLD_FEED_ID || process.env.BEHOLD_FEED_ID || "";
 
 export interface BeholdPost {
   id: string;

@@ -9,19 +9,58 @@ import { HOME_CONTENT } from "@/lib/home-content";
 import styles from "./Instagram.module.css";
 
 // Instagram strip (Figma 39:147). Recent posts via Behold's public feed JSON
-// (behold.so — not the WP host, so not datacenter-blocked). Until the account is
-// connected (BEHOLD_FEED_ID unset), it renders an intentional follow state — no
-// broken grid — and lights up when the id is set.
+// (behold.so — not the WP host, so not datacenter-blocked). With no posts it
+// renders an intentional follow state — no broken grid.
+//
+// Every failure here renders as that same follow state, which is correct for a
+// visitor and useless for anyone asking why the feed went dark: "no id set",
+// "Behold answered 404", "the shape changed" and "the account has no posts" are
+// four different problems wearing one face. So each one says which it is, once,
+// at build (studio learning #175). The section never throws — a dead feed must
+// not fail the build — but it is never silent either.
 async function getPosts(): Promise<BeholdPost[]> {
-  if (!BEHOLD_FEED_ID) return [];
+  const where = "[instagram]";
+
+  if (!BEHOLD_FEED_ID) {
+    console.warn(
+      `${where} no feed id: set BEHOLD_FEED_ID (or NEXT_PUBLIC_BEHOLD_FEED_ID) ` +
+        `in this build's environment. Rendering the follow state.`,
+    );
+    return [];
+  }
+
   try {
     const res = await fetch(`https://feeds.behold.so/${BEHOLD_FEED_ID}`, {
       next: { revalidate: 3600 },
       signal: AbortSignal.timeout(8000),
     });
-    if (!res.ok) return [];
-    return parseBeholdPosts(await res.json()).slice(0, 4);
-  } catch {
+
+    if (!res.ok) {
+      console.warn(
+        `${where} Behold answered ${res.status} ${res.statusText} for feed ` +
+          `${BEHOLD_FEED_ID}. Rendering the follow state.`,
+      );
+      return [];
+    }
+
+    const parsed = parseBeholdPosts(await res.json());
+    if (parsed.length === 0) {
+      console.warn(
+        `${where} Behold answered 200 for feed ${BEHOLD_FEED_ID} but no post ` +
+          `survived parsing — the feed is empty, or its shape changed and ` +
+          `parseBeholdPosts needs updating. Rendering the follow state.`,
+      );
+      return [];
+    }
+
+    console.log(`${where} ${parsed.length} posts from Behold; rendering 4.`);
+    return parsed.slice(0, 4);
+  } catch (err) {
+    const reason = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
+    console.warn(
+      `${where} could not reach https://feeds.behold.so/${BEHOLD_FEED_ID} — ` +
+        `${reason}. Rendering the follow state.`,
+    );
     return [];
   }
 }
