@@ -62,8 +62,51 @@ async function getPosts(): Promise<BeholdPost[]> {
       return [];
     }
 
-    console.log(`${where} ${parsed.length} posts from Behold; rendering 4.`);
-    return parsed.slice(0, 4);
+    // A feed entry is not a picture. Behold's image proxy answers 502 for a
+    // post it can no longer render, and a tile whose image 404s or 502s is
+    // worse than no tile — the visitor sees alt text in an empty box. So each
+    // candidate thumbnail is checked once, here at build, and only the ones
+    // that actually load are rendered.
+    const checked = await Promise.all(
+      parsed.map(async (post) => {
+        try {
+          const head = await fetch(post.thumbUrl, {
+            method: "HEAD",
+            next: { revalidate: 3600 },
+            signal: AbortSignal.timeout(8000),
+          });
+          return head.ok ? post : { post, status: head.status };
+        } catch {
+          return { post, status: 0 };
+        }
+      }),
+    );
+
+    const live = checked.filter((r): r is BeholdPost => "id" in r);
+    const dead = checked.length - live.length;
+
+    if (live.length === 0) {
+      console.warn(
+        `${where} all ${parsed.length} thumbnails failed to load — Behold's ` +
+          `image proxy is not serving this account's media. Rendering the ` +
+          `follow state.`,
+      );
+      return [];
+    }
+
+    if (dead > 0) {
+      console.warn(
+        `${where} ${dead} of ${parsed.length} thumbnails failed to load and ` +
+          `were dropped — Behold's image proxy is not serving them. Check the ` +
+          `Instagram connection in Behold if this persists.`,
+      );
+    }
+
+    console.log(
+      `${where} ${parsed.length} posts from Behold, ${live.length} with a ` +
+        `working thumbnail; rendering ${Math.min(live.length, 4)}.`,
+    );
+    return live.slice(0, 4);
   } catch (err) {
     const reason = err instanceof Error ? `${err.name}: ${err.message}` : String(err);
     console.warn(

@@ -45,9 +45,16 @@ export function parseBeholdPosts(data: unknown): BeholdPost[] {
   for (const item of raw) {
     const p = item as Record<string, unknown>;
     const sizes = p.sizes as { small?: { mediaUrl?: string } } | undefined;
+    // Behold's own CDN first, deliberately. `thumbnailUrl` is set on video
+    // posts only and points straight at `*.cdninstagram.com`, whose URLs are
+    // signed, expire, and are hotlink-blocked — they load for whoever fetched
+    // the feed and are broken images for everyone else. `sizes.small.mediaUrl`
+    // is a behold.pictures URL, present on every post and meant to be embedded.
+    // `mediaUrl` is last because on a video post it is the video file, not a
+    // poster frame.
     const thumbUrl =
-      (p.thumbnailUrl as string) ??
       sizes?.small?.mediaUrl ??
+      (p.thumbnailUrl as string) ??
       (p.mediaUrl as string) ??
       "";
     const permalink = (p.permalink as string) ?? "";
