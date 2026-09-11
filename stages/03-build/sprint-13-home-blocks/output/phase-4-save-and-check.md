@@ -21,18 +21,18 @@ The destination proof for the whole sprint: a block Meg would add in her dashboa
 | Test blocks removed | | or "left in place: {headline}" |
 | Anything odd | | |
 
-**Result:** **PASS** — see the run record below. The measured save-to-live time for the CONTEXT close-out line was not captured on this run.
+**Result:** **PASS** — measured save-to-live **~2 min (~120 s)**. See the run record below.
 
 ---
 
 ## Run — 2026-09-11 (runner: Levi, as Meg)
 
-T0 PASS, T1 PASS. Block left in place (a real announcement, not a test block), so step 5 is "left in place".
+T0 PASS, T1 PASS. Save-to-live **~2 min**, reported by the runner to the minute. The block is left in place (a real announcement, not a test block), so step 5 is "left in place".
 
 | step | time | note |
 |---|---|---|
-| Update clicked (T0) | (not recorded) | |
-| Live on megcmusic.com (T1) | (not recorded) | save-to-live = T1 − T0 — **not measured this run** |
+| Update clicked (T0) | — | clock times not written down; the runner reported the interval |
+| Live on megcmusic.com (T1) | — | **save-to-live ≈ 2 min (~120 s)** — matches the Sprint 12 A.2 figure of 120 s |
 | Screenshots | live URL is the record | verified in-session at 1440×900 and 390×844, https://megcmusic.com |
 | Second block type | not run | Video block deferred; Phase 3 proved the render locally |
 | Test blocks removed | left in place: "CMHOF" | Phases 1–3 rows were never saved to WordPress, so nothing to remove |

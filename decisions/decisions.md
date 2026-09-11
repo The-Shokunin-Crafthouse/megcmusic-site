@@ -1758,3 +1758,22 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 3. **Close-out waits for the measured time.** `sc-learn`, the WORKSPACE pointer, and the CONTEXT summary line land after the sheet is filled, in their own PR.
 
 **Alternatives considered.** Documenting the blocks inside section 02's Home row alone — rejected: three block types with their own rules need a definition list, in the same shape section 04 gives the release list. The session saving the test block through `wp-ops` and timing it — rejected for the same reason as Phase 1 (visitor-visible), and because the contract names Levi as this line's runner.
+
+## 2026-09-11 — Sprint 13 close-out: the save path is proven at ~2 min, the sprint is complete, and three content items in the live block are Meg's to fix
+
+**Stage:** 03-build (sprint-13-home-blocks, close-out)
+**Type:** Process · Product / scope call
+**Status:** accepted — closes the 2026-09-10 Sprint 13 Phase 4 entry (decision 3: close-out waits for the measured time)
+
+**Context.** Phase 4's save-and-check ran on 2026-09-11 with Levi as the runner. A real announcement added in Meg's dashboard reached `megcmusic.com`; the session then read the live page directly to verify what landed.
+
+**Decisions.**
+1. **Measured save-to-live: ~2 min (~120 s), recorded to the minute rather than to the second.** The runner reported the interval; T0 and T1 clock times were not written down. The figure matches the Sprint 12 A.2 measurement of 120 s, so the sprint closes on it rather than re-running the write for a second decimal. It is recorded as an interval, not as a pair of timestamps, and `output/phase-4-save-and-check.md` says so.
+2. **The test block is left in place, not removed** — step 5's "left in place" branch. What Meg saved is a real announcement she wants up, not a test panel, so the sprint leaves something live behind instead of needing cleanup. Phases 1–3 wrote nothing to WordPress (Phase 1 decision 4), so there was nothing else to remove.
+3. **The second block type was not run.** One live write proves the save path for all three types — the path does not vary by layout — and Phase 3 proved the video render, including the Shorts link that broke in Sprint 12, by local injection. The optional step is recorded as not run rather than quietly dropped.
+4. **The live URL is the visual record; no screenshots are committed** (studio learning #28). Verification at 1440×900 and 390×844 is described in the sheet: the markup matches the Phase 1 spec — `aria-labelledby` on section and block, `rel="noopener noreferrer"` and a visually-hidden ", opens in a new tab" on the external link, `aria-hidden` on the arrow — and there is no horizontal overflow at 390.
+5. **Three content items in the live block are named as Meg's copy, not build defects, and are not fixed by this session.** The eyebrow reads "Nominations are oen"; the **Nominate** link points at `https://gemini.google.com/app` instead of the CMHOF nomination form; the headline and small line read swapped. All three are wp-admin edits on the same save-to-live path, and the wrong link is visitor-visible now. The session does not edit Meg's published copy on her behalf — that is hers and Levi's call, and `wp-ops` exists for auth-only reads and title/trash writes, not block content.
+6. **Sprint marked complete.** Five Tier-1 entries in `LEARNINGS.md`, the Sprint 13 entry in `build-log.md`, the contract's status line dated and carrying the measured time, and the `WORKSPACE.md` sprint pointer cleared to none.
+
+**Alternatives considered.** Re-running the write to capture exact T0/T1 timestamps — rejected: a second visitor-visible write to measure a number that already agrees with the prior sprint's. Closing the sprint on Sprint 12's 120 s figure labelled as prior-sprint rather than measured — unnecessary once the runner reported the interval. Fixing the typo and the link through `wp-ops` — rejected: the op set does not cover block content, and editing a client's published words without being asked is outside what decide-and-log authorises.
+

@@ -93,3 +93,21 @@
 **Key decisions:** see `decisions/decisions.md` — the Sprint-10 architecture ADR (2026-07-12), the LaunchDaemon → LaunchAgent correction (2026-07-24), model/effort pinning (2026-07-24), the three deferred daemon fixes taken (2026-07-26), the chosen-title read loop (2026-07-26), and the two 2026-07-28 go-live entries above.
 
 **Open at close (each needs something this session could not reach):** the LCP scope call (Levi); the installed-PWA walk on a physical iPhone (Meghan's phone); a real VoiceOver spot-check (interactive session); daemon reboot survival (access to Meghan's Mac); and — surfaced, not fixed — production deploys still send no failure notification, which is what turned a one-line lockfile problem into a five-day outage.
+
+---
+
+## Sprint 13 — Home content blocks: one flexible zone, three block types
+**Build merged:** 2026-09-10 → 2026-09-11 (PRs #119, #120, #121, #122, #123, #124)
+**Status at close: complete. Save-to-live measured at ~2 min (~120 s), matching Sprint 12's figure.**
+
+**What shipped:** a "Blocks" tab at the end of the Home field group (`home_blocks`, ACF Flexible Content, plugin 1.3.0) giving Meg one flexible content zone on Home, mounted after Instagram as the **What's New** section. Three block types, each designed from parts already on the page rather than invented: `announcement` (the Liner Notes pull-quote panel carrying an eyebrow, headline, body and the Videos rail's text-link pattern), `pull_quote` (the Liner Notes panel itself, extracted to `src/components/PullQuote` and re-mounted there), and `video` (the gallery's featured tile, extracted to `src/components/VideoFacade` and shared with `VideosGallery`). The parser (`src/lib/home-blocks.ts`, unit-tested) drops a block missing its required field, drops an unknown layout with a logged row, and treats a link as a link only with both label and address. The editing guide gained section 05 on the Blocks area in the dashboard's own labels, and the PDF was re-rendered to 4 pages.
+
+**Key decisions:** see `decisions/decisions.md` — the kickoff entry and the one superseding Sprint 11 decision 1.4 for Home (both 2026-09-10), then Phases 0 through 4. Three are worth naming here.
+
+1. **Extract first, prove unchanged, then build the block on it.** Phases 2 and 3 each moved an existing component out of its host and proved Home (and Media) identical before the new block used it. The video extraction carried a cascade (studio learning #19): sharing the facade gave the gallery's tile the `:active` state it never had.
+2. **Parity by local injection rather than a live test block** (Phase 1, decision 4 — a deliberate deviation from the contract's §4). Test rows were written into the after build's `home.json` snapshot and the build re-run; nothing was saved to WordPress across Phases 1–3, so a visitor never saw a test panel and the sprint had no cleanup.
+3. **One live write, at the end, run by Levi as Meg** (`output/phase-4-save-and-check.md`). A real announcement saved in the dashboard reached `megcmusic.com` in about two minutes and rendered to spec at 1440 and 390. Reading the live block found three content items in Meg's copy — a typo, a **Nominate** link pointing at `gemini.google.com` instead of the CMHOF form, and an eyebrow/headline that read swapped — none of them build defects, all of them wp-admin edits.
+
+**Tier-1 learnings added** (`LEARNINGS.md`, five entries dated 2026-09-11): the worktree `.env.local` pollution; this repo's parity build recipe (fetch fresh → inject → `npx next build`); local injection as the render proof with one live write at close; a timed save-and-check grading the pipeline and not the copy; and `useId` renumbering on any node added before the newsletter form.
+
+**Note on this log:** Sprints 6–9, 11 and 12 have no entry here. The gap predates this sprint and is not backfilled by it.
