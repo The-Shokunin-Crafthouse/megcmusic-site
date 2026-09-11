@@ -22,7 +22,9 @@
 >
 > **Resume pointer:** `SESSION-RESUME.md` at repo root (hook-owned). **Turn ceilings:** Phase 0 30 turns, Phases 1–3 20 each, Phase 4 15. On hitting one: park with a resume note, open the PR as draft with what exists, stop.
 >
-> **Phase status (2026-09-10):** 0 ✅ merged (#119), human gate cleared 13:33 MDT (`output/phase-0-gate.md`) · 1 ✅ merged (#120) · 2 ✅ merged (#121) · 3 ✅ merged (#122) · 4 in progress (guide updated; Levi's save-and-check pending).
+> **Phase status (2026-09-11):** 0 ✅ merged (#119), human gate cleared 13:33 MDT (`output/phase-0-gate.md`) · 1 ✅ merged (#120) · 2 ✅ merged (#121) · 3 ✅ merged (#122) · 4 ✅ merged (#123 guide; #124 save-and-check run + close-out).
+>
+> **Status: COMPLETE — 2026-09-11.** Meg has one flexible content zone on Home, mounted after Instagram as **What's New**, with three block types she can add, reorder and remove from the Blocks tab of the Home page. The destination proof ran on 2026-09-11: a real announcement saved in her dashboard reached `megcmusic.com` and rendered to spec at 1440 and 390. **Measured save-to-live: ~2 min (~120 s)**, matching the Sprint 12 A.2 figure. Close-out per §9 done in #124 — five Tier-1 entries in `LEARNINGS.md`, the Sprint 13 entry in `build-log.md`, and the sprint pointer cleared in `WORKSPACE.md`.
 
 ---
 
