@@ -2,6 +2,7 @@ import { InstagramLogo } from "@phosphor-icons/react/dist/ssr/InstagramLogo";
 import { SectionLabel } from "../SectionLabel/SectionLabel";
 import {
   BEHOLD_FEED_ID,
+  BEHOLD_FEED_ID_WAS_PADDED,
   parseBeholdPosts,
   type BeholdPost,
 } from "@/config/social";
@@ -36,9 +37,17 @@ async function getPosts(): Promise<BeholdPost[]> {
     });
 
     if (!res.ok) {
+      // The id itself is masked in CI logs, so describe it instead: a 404 with
+      // a 20-character id is a wrong or deleted feed, and a 404 with anything
+      // else is a malformed one. Behold answers 404 for `<valid id>%0A` exactly
+      // as it does for an id that never existed.
       console.warn(
-        `${where} Behold answered ${res.status} ${res.statusText} for feed ` +
-          `${BEHOLD_FEED_ID}. Rendering the follow state.`,
+        `${where} Behold answered ${res.status} ${res.statusText} for a feed id ` +
+          `of ${BEHOLD_FEED_ID.length} characters` +
+          (BEHOLD_FEED_ID_WAS_PADDED
+            ? " (whitespace was trimmed off it — fix the stored value)"
+            : " (no surrounding whitespace)") +
+          `. Rendering the follow state.`,
       );
       return [];
     }

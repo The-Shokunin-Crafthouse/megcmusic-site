@@ -15,8 +15,19 @@
  * Her handle and the footer's Facebook/Instagram/YouTube links moved to the WP
  * Home page in Sprint 11 — see src/lib/home-content.ts.
  */
-export const BEHOLD_FEED_ID =
+const RAW_BEHOLD_FEED_ID =
   process.env.NEXT_PUBLIC_BEHOLD_FEED_ID || process.env.BEHOLD_FEED_ID || "";
+
+/**
+ * Trimmed, because a dashboard textarea will happily store a trailing newline
+ * and Behold answers 404 for `<id>%0A` exactly as it does for an id that does
+ * not exist — an invisible character that reads as a deleted account.
+ */
+export const BEHOLD_FEED_ID = RAW_BEHOLD_FEED_ID.trim();
+
+/** Whether the configured id carried surrounding whitespace. Diagnostic only. */
+export const BEHOLD_FEED_ID_WAS_PADDED =
+  RAW_BEHOLD_FEED_ID.length !== BEHOLD_FEED_ID.length;
 
 export interface BeholdPost {
   id: string;
