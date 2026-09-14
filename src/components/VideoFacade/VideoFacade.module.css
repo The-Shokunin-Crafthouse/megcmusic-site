@@ -6,7 +6,7 @@
   border-radius: var(--mc-radius-quote);
   overflow: hidden;
   background: var(--mc-bg-quote);
-  border: 3px solid #000;
+  border: var(--mc-video-frame-width) solid var(--mc-video-frame);
 }
 
 .frame,
@@ -39,7 +39,7 @@
   width: 88px;
   height: 88px;
   color: var(--mc-text-primary);
-  filter: drop-shadow(0 4px 12px rgb(0 0 0 / 0.5));
+  filter: drop-shadow(var(--mc-shadow-play));
   transition: transform var(--mc-motion-micro) var(--mc-ease-out);
 }
 
