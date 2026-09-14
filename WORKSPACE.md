@@ -41,7 +41,7 @@ This file is a directive, not documentation. Read it. Follow it.
 - **Name:** MegCMusic
 - **Client:** Meghan Clarisse Cave
 - **Kind:** site
-- **Current stage:** 01-brief
+- **Current stage:** 03-build
 - **Lead:** Levi Bahn
 - **Start date:** 2026-06-16
 - **Target launch:** TBD (set at Gate 1)
