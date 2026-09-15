@@ -56,11 +56,7 @@ jobs:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
       - name: Build
-        # TEMPORARY — Sprint 14 Phase 0 forced-failure proof. Reverted in the
-        # next commit. Breaking Build (not Deploy) means "Deploy to production"
-        # is skipped, so this run touches nothing live.
-        run: |
-          vercel build --prod --token="$VERCEL_TOKEN" --deliberately-broken-flag-phase-0
+        run: vercel build --prod --token="$VERCEL_TOKEN"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
 
