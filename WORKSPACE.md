@@ -46,7 +46,7 @@ This file is a directive, not documentation. Read it. Follow it.
 - **Start date:** 2026-06-16
 - **Target launch:** TBD (set at Gate 1)
 - **Production domain:** megcmusic.com
-- **Current sprint:** none. Last closed: `stages/03-build/sprint-13-home-blocks/` (Home content blocks — one flexible zone after Instagram, three block types; complete 2026-09-11; save-to-live measured at ~2 min / ~120 s)
+- **Current sprint:** `stages/03-build/sprint-14-launch-readiness/` (filed 2026-09-14 — the deploy alarm, the shop's launch gate, and the four Gate-3 checks that were never run). Last closed: `stages/03-build/sprint-13-home-blocks/` (Home content blocks — one flexible zone after Instagram, three block types; complete 2026-09-11; save-to-live measured at ~2 min / ~120 s)
 
 Canonical machine-readable meta lives in `workspace.manifest.yaml`. Keep this section and the manifest in sync.
 
