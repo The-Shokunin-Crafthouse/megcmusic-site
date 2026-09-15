@@ -1799,3 +1799,21 @@ Runner-up gaps worth naming even though they didn't make the top 3: billing/paym
 
 **Alternatives considered.** Re-running the write to capture exact T0/T1 timestamps — rejected: a second visitor-visible write to measure a number that already agrees with the prior sprint's. Closing the sprint on Sprint 12's 120 s figure labelled as prior-sprint rather than measured — unnecessary once the runner reported the interval. Fixing the typo and the link through `wp-ops` — rejected: the op set does not cover block content, and editing a client's published words without being asked is outside what decide-and-log authorises.
 
+
+## 2026-09-14 — Sprint 13 follow-up: the video facade's three literals become tokens at their existing values, and the stage pointers are corrected
+
+**Stage:** 03-build (post-sprint-13 follow-up)
+**Type:** Design system · Process
+**Status:** accepted — takes the follow-up filed in the 2026-09-10 Sprint 13 Phase 3 entry (decision 4)
+
+**Context.** Phase 3 extracted `VideoFacade` out of `VideosGallery` under an identical-output standard, which meant carrying three raw values across untouched: the tile's `border: 3px solid #000`, the 88 px facade glyph's `drop-shadow`, and — in the gallery it left behind — the 28 px rail glyph's `drop-shadow`. That entry filed them as a follow-up rather than tokenising in passing, because §2 of WORKSPACE.md requires a logged decision for a new token and the parity proof required byte-identical output. Separately, `WORKSPACE.md` §1 and `workspace.manifest.yaml` both still read `01-brief` — the value they were seeded with in June and never moved through thirteen build sprints — and the manifest still named sprint 13 as active after WORKSPACE.md cleared it at the 2026-09-11 close.
+
+**Decisions.**
+1. **Four tokens, all at their existing values.** `--mc-video-frame` (`#000000`), `--mc-video-frame-width` (`3px`), `--mc-shadow-play` (`0 4px 12px rgb(0 0 0 / 0.5)`), `--mc-shadow-play-sm` (`0 2px 6px rgb(0 0 0 / 0.6)`). They sit in the homepage-body-sections group beside `--mc-radius-quote`, which the same component already uses. Nothing is retuned; this is a rename, not a redesign.
+2. **The frame width is a token too, not left inline.** It is a comp value and not a step on the 8pt grid, and tokenising the colour while leaving the width bare would leave half a declaration in the component. The comment says it is off-grid by design, the way `--mc-card-pad-y` does.
+3. **The two glyph shadows stay two tokens, not one.** They differ in blur, offset and alpha because they sit on a 88 px glyph and a 28 px one; collapsing them would retune one of the two, which this change is not for.
+4. **The stage pointers are corrected to match reality:** `stage: 03-build` in both files, and the manifest's `current_sprint` emptied. Both files say they mirror each other, so a drift between them is a defect in one of them, not a state.
+
+**Verification.** Computed styles read in a browser on `/media` after the change: the tile resolves `3px solid rgb(0, 0, 0)`; the facade glyph `drop-shadow(rgba(0, 0, 0, 0.5) 0px 4px 12px)`; all six rail glyphs `drop-shadow(rgba(0, 0, 0, 0.6) 0px 2px 6px)` — each identical to the literal it replaced. `grep` finds no raw colour left in either component's CSS.
+
+**Alternatives considered.** Leaving the literals until a sprint touches the video surface for its own reasons — rejected: a filed follow-up with no date is how a two-line cleanup becomes permanent. Introducing a general `--mc-shadow-glyph` scale for future glyphs — rejected: two users is not a scale, and inventing ramp steps nothing consumes is the debt this is clearing.
