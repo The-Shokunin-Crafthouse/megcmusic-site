@@ -19,9 +19,9 @@
 >
 > **Resume pointer:** `SESSION-RESUME.md` at repo root (hook-owned, studio learning #164). It is **absent as of 2026-09-14** — Sprint 13's contract named it and no file exists, so either the SessionEnd hook never fired for this repo or it was cleaned. Confirm the hook writes it before relying on it to survive a crash; until then a parked phase writes its resume note into this file's phase-status line. **Turn ceilings:** Phase 0 15 turns, Phase 1 20, Phase 2 30, Phase 3 15. On hitting one: park with a resume note, open the PR as draft with what exists, stop.
 >
->  **Phase status (2026-09-14):** 0 not started · **1.1 ✅ complete** (#128, `output/phase-1-visitor-walk.md`) · **1.2 PARKED — needs a decision from Levi before it can run** · 1.3 blocked on 1.2 · 2 not started · 3 not started.
+>  **Phase status (2026-09-14):** 0 not started — **channel decided (iMessage sentinel)**, ready to build · **1.1 ✅ complete** (#128, `output/phase-1-visitor-walk.md`) · **1.2 unparked** — Levi chose option (b): **1.2a fix cart carry-over, then 1.2b place the order** · 1.3 blocked on 1.2b · 2 not started · 3 not started.
 >
-> **Status: IN PROGRESS. Phase 1 is parked, not stalled.** The walk found that the shop browses but does not buy: the cart never reaches WooCommerce across the origin split, so a visitor lands on an empty cart on the old theme. Phase 1.2 as written — "one real cart → Woo → PayPal order placed from `megcmusic.com`" — therefore cannot be run, because an order placed after the notice is placed on the WordPress store and tests no hand-off. The three options (gateway-proof-only, fix carry-over first, one origin) are in §5 of the walk sheet, awaiting Levi. **Phase 0 is not blocked by this and can start at any time**, pending only its channel choice.
+> **Status: IN PROGRESS.** The walk found that the shop browses but does not buy: the cart never reaches WooCommerce across the origin split, so a visitor lands on an empty cart on the old theme. Levi's calls of 2026-09-14 (logged in `decisions/decisions.md`) settle both open questions — the alarm rides the iMessage sentinel, and cart carry-over is fixed **before** the live order, which supersedes the 2026-08-29 ADR's framing of carry-over as a post-launch enhancement rather than a launch blocker. Nothing in the sprint is now waiting on a decision.
 
 ---
 
@@ -54,7 +54,7 @@ Read the Inputs table in order. The Gate-4 sign-off is binding as a scope docume
 
 Sprint 10 closed with this open: "production deploys still send no failure notification, which is what turned a one-line lockfile problem into a five-day outage." It is still true — no workflow in `.github/workflows/` contains a `failure()` condition or any notification step. Ten consecutive red production deploys were invisible for five days once; nothing prevents a second time.
 
-**0.1** Add a failure-only notification step to `deploy.yml`, gated `if: failure()`, naming the run URL, the trigger (`push` / `wp-content-updated` / `schedule` / `workflow_dispatch`) and the failing step. Channel is Levi's call — one line, asked before building, not improvised: GitHub's own notification settings, an iMessage sentinel (studio learning #90's two-file contract), or email.
+**0.1** Add a failure-only notification step to `deploy.yml`, gated `if: failure()`, naming the run URL, the trigger (`push` / `wp-content-updated` / `schedule` / `workflow_dispatch`) and the failing step. **Channel decided 2026-09-14: the iMessage sentinel** (studio learning #90's two-file contract — body written to `<base>.msg` first, then the empty trigger; a trigger with no `.msg` sends the fallback). Chosen over GitHub's own notification settings and a dedicated email address because the failure being insured against is *nobody noticed*, and both alternatives land where things already go unnoticed.
 
 **0.2** Cover the nightly schedule run too: a scheduled deploy that fails at 3am is exactly the invisible case.
 
@@ -66,7 +66,9 @@ Sprint 10 closed with this open: "production deploys still send no failure notif
 
 **1.1 Verify the hand-off as a visitor, on the live apex** (runner: session). In a real browser on `megcmusic.com`: add two different products, confirm the drawer's line items, quantities and subtotal, click Checkout, and record exactly what a visitor sees. Expected per decision 1.2: the honest cross-origin notice, not an error. Screenshot at 1440 and 390. This writes a cart to her live WP session and nothing else — no order, no money.
 
-**1.2 The live transaction** (runner: Levi). One real cart → Woo → PayPal order placed from `megcmusic.com`. The session prepares `output/phase-1-live-order.md` with the steps and the fields to fill — product, total, order number, timestamps, and what the confirmation screen and the confirmation email each said. Log the order number in `decisions/decisions.md`, which the 2026-07-05 ADR explicitly asks for.
+**1.2a Fix cart carry-over first** (decided 2026-09-14 — the walk sheet's option (b); ADR logged). The Phase 1.1 walk established that the Store API write is never reached across the apex/subdomain split, so a visitor's cart never reaches WooCommerce and they land on an empty cart in the old theme. The mechanism is the WP `Access-Control-Expose-Headers: Nonce` filter the 2026-08-29 ADR already names as the escape hatch. **This is a live-service edit to her WordPress configuration** — it gets its own care, and it is verified by watching a real cart survive the hand-off, never by the filter's presence in config (learning #45). Until this clears, 1.2 does not run.
+
+**1.2b The live transaction** (runner: Levi). One real cart → Woo → PayPal order placed from `megcmusic.com`. The session prepares `output/phase-1-live-order.md` with the steps and the fields to fill — product, total, order number, timestamps, and what the confirmation screen and the confirmation email each said. Log the order number in `decisions/decisions.md`, which the 2026-07-05 ADR explicitly asks for.
 
 **1.3 Re-run Gate 4 on the shop** against the standing sign-off's checklist, and write the promotion: CONDITIONAL PASS → PASS, or a named, dated miss. The sign-off is not edited in place — a new dated sign-off supersedes it and says so (learning #184: supersession is a typed link, never prose alone).
 
