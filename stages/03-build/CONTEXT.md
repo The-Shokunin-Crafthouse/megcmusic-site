@@ -44,8 +44,13 @@ Implement the design without drift. The build should be a faithful materializati
 1. Confirm Gate 2 has closed before writing implementation.
 2. Materialize the stage-02 spec without reinterpretation — values from the token map, rules from `ui-rules.md`, standards from the code-standards playbook.
 3. If a design value is missing, return to stage 02 — never invent it.
-4. Self-verify against Gate 3 (`sc-verify`) before presenting any build.
-5. Build artifacts (notes, reports, pointers) → `./output/`; reference material → `./references/`.
+4. After the last build commit, run `sc-simplify` on the sprint diff (studio ADR-086).
+   Check commands: `npx tsc --noEmit` and `npm test` (the `unit-tests.yml` PR check).
+   `npm run build` fetches live WordPress content, so it is not a per-batch check. The
+   PR's Vercel preview build (`preview-deploy.yml`) is the artifact check on the result.
+   Frozen: none.
+5. Self-verify against Gate 3 (`sc-verify`) before presenting any build.
+6. Build artifacts (notes, reports, pointers) → `./output/`; reference material → `./references/`.
 
 ## Outputs
 
