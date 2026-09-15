@@ -19,9 +19,9 @@
 >
 > **Resume pointer:** `SESSION-RESUME.md` at repo root (hook-owned, studio learning #164). It is **absent as of 2026-09-14** — Sprint 13's contract named it and no file exists, so either the SessionEnd hook never fired for this repo or it was cleaned. Confirm the hook writes it before relying on it to survive a crash; until then a parked phase writes its resume note into this file's phase-status line. **Turn ceilings:** Phase 0 15 turns, Phase 1 20, Phase 2 30, Phase 3 15. On hitting one: park with a resume note, open the PR as draft with what exists, stop.
 >
-> **Phase status (2026-09-14):** 0 not started · 1 not started · 2 not started · 3 not started.
+>  **Phase status (2026-09-14):** 0 not started · **1.1 ✅ complete** (#128, `output/phase-1-visitor-walk.md`) · **1.2 PARKED — needs a decision from Levi before it can run** · 1.3 blocked on 1.2 · 2 not started · 3 not started.
 >
-> **Status: FILED — awaiting execution.**
+> **Status: IN PROGRESS. Phase 1 is parked, not stalled.** The walk found that the shop browses but does not buy: the cart never reaches WooCommerce across the origin split, so a visitor lands on an empty cart on the old theme. Phase 1.2 as written — "one real cart → Woo → PayPal order placed from `megcmusic.com`" — therefore cannot be run, because an order placed after the notice is placed on the WordPress store and tests no hand-off. The three options (gateway-proof-only, fix carry-over first, one origin) are in §5 of the walk sheet, awaiting Levi. **Phase 0 is not blocked by this and can start at any time**, pending only its channel choice.
 
 ---
 
