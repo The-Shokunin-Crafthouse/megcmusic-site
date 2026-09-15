@@ -27,6 +27,13 @@ concurrency:
   group: production-deploy
   cancel-in-progress: false
 
+# The alarm below opens an issue. Spelled out rather than left to the repo
+# default so a tightened org default surfaces as a failed step, not a silent
+# alarm that never fires.
+permissions:
+  contents: read
+  issues: write
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -57,3 +64,81 @@ jobs:
         run: vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+
+      # --- Failure alarm (Sprint 14 Phase 0) -----------------------------
+      # Ten consecutive red production deploys once stayed invisible for five
+      # days (build-log, Sprint 10 close) because no workflow here carried a
+      # `failure()` condition. This step is the PRODUCER half of the alarm: it
+      # opens a labelled issue naming the run URL, the trigger, and the step
+      # that failed.
+      #
+      # It does not text anyone itself, and cannot: the iMessage sentinel is a
+      # Mac-local file drop (`ai-site/_pending/`, polled by send-briefing.sh),
+      # unreachable from a GitHub runner, and osascript does not exist here
+      # (learnings #86, #90). The CONSUMER half is
+      # `studio-memory/automation/deploy-alarm-watch.sh`, which runs on the Mac
+      # every 5 minutes off main-sync, relays the issue over the two-file
+      # sentinel contract, and closes it so a failure is texted exactly once.
+      #
+      # The issue is also the durable record: a 3am scheduled failure that lands
+      # while the Mac is asleep is still open and waiting when it wakes.
+      #
+      # `if: failure()` covers every trigger this workflow has — push,
+      # repository_dispatch wp-content-updated, the nightly schedule, and
+      # workflow_dispatch — because it is a step in the one job they all run.
+      - name: Alarm on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          RUN_ID: ${{ github.run_id }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          EVENT: ${{ github.event_name }}
+          DISPATCH_TYPE: ${{ github.event.action }}
+          SHA: ${{ github.sha }}
+          REF: ${{ github.ref_name }}
+        run: |
+          set -uo pipefail
+
+          # The trigger, in the vocabulary the workflow header uses.
+          case "$EVENT" in
+            repository_dispatch) TRIGGER="repository_dispatch (${DISPATCH_TYPE:-unknown type})" ;;
+            schedule)            TRIGGER="schedule (nightly 09:00 UTC, ~2-3am Denver)" ;;
+            *)                   TRIGGER="$EVENT" ;;
+          esac
+
+          # The failing step, read back off the run. The job's own conclusion is
+          # still null while this step is executing, so select on the STEP
+          # conclusion across every job rather than on the job's.
+          FAILED_STEP="$(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs" \
+            --jq '[.jobs[].steps[]? | select(.conclusion == "failure") | .name] | first // empty' \
+            2>/dev/null)"
+          [ -n "$FAILED_STEP" ] || FAILED_STEP="unknown — no step had reported a failure conclusion yet"
+
+          # printf, not a heredoc: an unindented EOF terminator cannot live inside
+          # an indented `run:` block, and an indented one never terminates.
+          BODY="$(printf '%s\n' \
+            "Production deploy failed. Nothing was deployed; the previous production deploy is still live." \
+            "" \
+            "- **Run:** $RUN_URL" \
+            "- **Trigger:** $TRIGGER" \
+            "- **Failing step:** $FAILED_STEP" \
+            "- **Commit:** \`${SHA:0:7}\` on \`$REF\`" \
+            "" \
+            "Opened by the \`Alarm on failure\` step in \`.github/workflows/deploy.yml\`." \
+            "\`deploy-alarm-watch.sh\` relays this to iMessage and closes it. If this issue is" \
+            "still open and no text arrived, the relay is what broke — not the deploy.")"
+
+          # The label is the consumer's only selector, so create it if absent
+          # rather than letting a missing label drop the issue on the floor.
+          gh label create deploy-failure \
+            --repo "$REPO" \
+            --color B60205 \
+            --description "A production deploy failed — relayed to iMessage by deploy-alarm-watch.sh" \
+            2>/dev/null || true
+
+          gh issue create \
+            --repo "$REPO" \
+            --title "Production deploy failed — run $RUN_ID" \
+            --label deploy-failure \
+            --body "$BODY"
