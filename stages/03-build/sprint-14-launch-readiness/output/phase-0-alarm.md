@@ -268,7 +268,27 @@ agents."). A fallback text is a bug, not a degraded success (learning #90).
 Everything around that step is built and proved. This document and the PR are
 held as drafts until it is answered.
 
-> _(Status line — updated when the stamp lands: see §4.5.)_
+### 4.5 The send path fired — stamp landed 23:02
+
+```
+-rw-r--r--  0 bytes  coo.notify-deploy-failed-megcmusic-site-131-2026-09-14.sent   (23:02)
+```
+
+`send-briefing.sh` saw the trigger and stamped `.sent` 13 minutes after the relay
+armed it — inside one 900s poll interval. End to end, the chain measured:
+
+| | |
+|---|---|
+| 22:48 | run 34930197322 fails at Build; `Alarm on failure` opens issue #131 |
+| 22:49:15 | `deploy-alarm-watch.sh` relays it; sentinel armed; issue closed |
+| 23:02 | `send-briefing.sh` stamps `.sent` |
+
+So: **~14 minutes from a failed production deploy to a sent text**, worst case
+bounded by the 900s send poll rather than by anything in the alarm.
+
+The stamp still only proves `send-briefing` believes it sent. It is the source
+surface — the same surface learning #45 says never to accept. The destination
+read below is unchanged and still open.
 
 ---
 
