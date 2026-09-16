@@ -261,12 +261,23 @@ Issue: https://github.com/The-Shokunin-Crafthouse/megcmusic-site/issues/131
 That stamp is still `send-briefing`'s own claim about itself — the source
 surface. The destination is the phone, and only Levi can read it.
 
-**One blocked step:** Levi confirms the text arrived and shows the FULL body
-above, not the generic fallback ("Shokunin automation: … completed. Check claude
-agents."). A fallback text is a bug, not a degraded success (learning #90).
+**CONFIRMED 2026-09-15 by Levi**, reading his own phone: the text arrived and
+shows the FULL body, including the run URL, the trigger, the failing step and
+the issue link. Not the generic fallback ("Shokunin automation: … completed.
+Check claude agents.").
 
-Everything around that step is built and proved. This document and the PR are
-held as drafts until it is answered.
+That is the destination read the whole proof rests on. Everything between a
+failed production deploy and a phone is now exercised, end to end, by a real
+failure — not inferred from any step's own green checkmark.
+
+One cosmetic defect visible in the delivered text and worth naming rather than
+leaving for someone to notice later: the body is written in Markdown and iMessage
+renders none of it, so the `**Run:**` asterisks and backticks arrive literally.
+The text is entirely legible and every fact reads correctly; it is ugly, not
+broken. Fixing it means the relay strips Markdown on the way into `.msg` — a
+change to `deploy-alarm-watch.sh`, not to `deploy.yml`. Deliberately not done
+here: it is a cosmetic edit to the one path that was just proved working, and it
+belongs in its own change where it can be re-proved by another forced failure.
 
 ### 4.5 The send path fired — stamp landed 23:02
 
