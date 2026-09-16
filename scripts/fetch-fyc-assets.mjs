@@ -7,19 +7,28 @@
  * ({src, alt, width, height}) for src/lib/fyc-content.ts to read.
  *
  * Runs first in `npm run build` (deploy.yml builds on the GHA runner, which
- * reaches admin.megcmusic.com). Downloads the original upload (Jetpack Photon
- * rewrites the named renditions down to 525px, softer than the 1024px files
- * the page shipped before this rewrite — the original is 1400px, same square
- * ratio). Validates image magic bytes and a sane minimum size; ANY failure
- * exits non-zero listing every miss — a build that cannot read WP fails
- * loudly and the previous deploy stays live. An EMPTY gallery is content,
- * not failure: the manifest records [] and the page omits the section.
+ * reaches admin.megcmusic.com). Downloads each sheet at SHEET_WIDTH (Jetpack
+ * Photon rewrites the named renditions down to 525px, softer than the 1024px
+ * files the page shipped before the Sprint 11 rewrite — the upload is 1400px,
+ * same square ratio, and that is what we keep).
  *
- * Zero dependencies (Node 18+ global fetch). Safe to re-run — files are
- * simply overwritten.
+ * The width and quality are asked for explicitly rather than reusing the ACF
+ * gallery URL: that URL carries `fit=1400,1400` and no quality, and Photon
+ * answers it with PNG — 955 KB a sheet, ~11 MB across the section, discarding
+ * the optimised JPEGs Meg uploaded. The same image asked for with a quality
+ * comes back JPEG at ~347 KB. Each file is then named for the format its bytes
+ * actually ARE, never for the extension in the URL — this library is served
+ * through a WebP plugin and Photon transcodes on its own, so the two routinely
+ * disagree. Validates image magic bytes and a sane minimum size; ANY failure exits
+ * non-zero listing every miss — a build that cannot read WP fails loudly and
+ * the previous deploy stays live. An EMPTY gallery is content, not failure:
+ * the manifest records [] and the page omits the section.
+ *
+ * Zero dependencies (Node 18+ global fetch). Safe to re-run — the output
+ * directory is emptied first.
  */
 
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 
@@ -46,15 +55,47 @@ const OUT_DIR = path.join(process.cwd(), "public", "images", "fyc");
 const FYC_PAGE_IDS = [4350, 4566];
 
 const MIN_BYTES = 10_000;
-const MAGIC = {
-  png: [0x89, 0x50, 0x4e, 0x47],
-  jpg: [0xff, 0xd8, 0xff],
-};
 
-function looksLikeImage(buf) {
-  const isPng = MAGIC.png.every((b, i) => buf[i] === b);
-  const isJpg = MAGIC.jpg.every((b, i) => buf[i] === b);
-  return isPng || isJpg;
+/** Long edge of the stored sheet, and the rendition quality — the same 82 the
+ *  photo/liner galleries request (src/lib/media-photos.ts). */
+const SHEET_WIDTH = 1400;
+const SHEET_QUALITY = 82;
+
+/** Ask Jetpack/Photon for a width-and-quality-constrained rendition, dropping
+ *  whatever sizing params the gallery URL carried so ours win. A non-Photon URL
+ *  is returned untouched — it still loads, just at its stored size. */
+function photonSheet(src) {
+  let url;
+  try {
+    url = new URL(src);
+  } catch {
+    return src;
+  }
+  if (!/(^|\.)wp\.com$/i.test(url.hostname)) return src;
+  for (const p of ["fit", "resize", "w", "h", "crop"]) url.searchParams.delete(p);
+  url.searchParams.set("w", String(SHEET_WIDTH));
+  url.searchParams.set("quality", String(SHEET_QUALITY));
+  url.searchParams.set("ssl", "1");
+  return url.toString();
+}
+
+/**
+ * The extension the delivered BYTES deserve, or "" when they are not an image.
+ *
+ * Naming the file from the gallery URL instead is how public/images/fyc/*.jpg
+ * came to hold PNG data: this library is served through a WebP plugin and
+ * Photon transcodes on its own, so a `.jpg` URL answers with PNG or WebP as it
+ * pleases. Vercel then set `Content-Type: image/jpeg` on PNG bytes — a mismatch
+ * browsers happen to sniff past, and nothing downstream should have to.
+ */
+function extensionOf(buf) {
+  const starts = (...bytes) => bytes.every((b, i) => buf[i] === b);
+  if (starts(0x89, 0x50, 0x4e, 0x47)) return "png";
+  if (starts(0xff, 0xd8, 0xff)) return "jpg";
+  if (starts(0x52, 0x49, 0x46, 0x46) && [0x57, 0x45, 0x42, 0x50].every((b, i) => buf[8 + i] === b)) {
+    return "webp";
+  }
+  return "";
 }
 
 async function fetchJson(url) {
@@ -64,6 +105,10 @@ async function fetchJson(url) {
 }
 
 async function main() {
+  // Start from an empty directory: the extension follows the delivered bytes,
+  // so a re-run can rename a sheet, and a stale file under the old name would
+  // still be served while nothing in the manifest pointed at it.
+  await rm(OUT_DIR, { recursive: true, force: true });
   await mkdir(OUT_DIR, { recursive: true });
   const failures = [];
   const manifest = {};
@@ -85,18 +130,19 @@ async function main() {
       const src = item?.url;
       const width = item?.width ?? 1024;
       const height = item?.height ?? 1024;
-      const ext = String(src ?? "").toLowerCase().includes(".jpg") ? "jpg" : "png";
-      const name = `lyric-${pageId}-${String(i + 1).padStart(2, "0")}.${ext}`;
+      const stem = `lyric-${pageId}-${String(i + 1).padStart(2, "0")}`;
       if (!src) {
         failures.push(`page ${pageId} sheet ${i + 1}: gallery item has no url`);
         continue;
       }
       try {
-        const res = await fetch(src, { signal: AbortSignal.timeout(30000) });
+        const res = await fetch(photonSheet(src), { signal: AbortSignal.timeout(30000) });
         if (!res.ok) throw new Error(`HTTP ${res.status}`);
         const buf = Buffer.from(await res.arrayBuffer());
         if (buf.length < MIN_BYTES) throw new Error(`only ${buf.length} bytes`);
-        if (!looksLikeImage(buf)) throw new Error("not a PNG/JPEG (magic bytes)");
+        const ext = extensionOf(buf);
+        if (!ext) throw new Error("not a PNG/JPEG/WebP (magic bytes)");
+        const name = `${stem}.${ext}`;
         await writeFile(path.join(OUT_DIR, name), buf);
         sheets.push({
           src: `/images/fyc/${name}`,
