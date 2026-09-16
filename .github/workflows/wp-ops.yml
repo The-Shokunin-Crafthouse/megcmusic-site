@@ -1,5 +1,6 @@
 # Sprint 12 — authenticated WordPress reads and small recorded writes
-# (page-title fixes, page trashing) that need the application password.
+# (page-title fixes, page trashing, repairing a lyric gallery) that need the
+# application password.
 # Runs here because the runner reaches admin.megcmusic.com and holds
 # WP_APP_USER / WP_APP_PASSWORD (the same secrets wp-migrate.yml uses).
 # Writes happen only when `confirm` is literally "write"; anything else
@@ -12,13 +13,13 @@ on:
         description: "Operation"
         type: choice
         required: true
-        options: [read-config, set-titles, trash-pages, remove-menu-items]
+        options: [read-config, set-titles, trash-pages, remove-menu-items, insert-lyric-sheet]
       args:
-        description: "set-titles: \"id=Title;id=Title\" · trash-pages / remove-menu-items: \"id,id\""
+        description: "set-titles: \"id=Title;id=Title\" · trash-pages / remove-menu-items: \"id,id\" · insert-lyric-sheet: \"page=4350;media=4352;at=1\""
         type: string
         default: ""
       confirm:
-        description: "Type write to perform set-titles / trash-pages (anything else dry-runs)"
+        description: "Type write to perform set-titles / trash-pages / insert-lyric-sheet (anything else dry-runs)"
         type: string
         default: "dry-run"
 
