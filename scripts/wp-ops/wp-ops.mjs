@@ -10,6 +10,7 @@
  *   node scripts/wp-ops/wp-ops.mjs --op trash-pages --args "47,2946"
  *   node scripts/wp-ops/wp-ops.mjs --op remove-menu-items --args "4479,49"
  *   node scripts/wp-ops/wp-ops.mjs --op insert-lyric-sheet --args "page=4350;media=4352;at=1"
+ *   node scripts/wp-ops/wp-ops.mjs --op set-media-alt --args "6374=Bright Lights lyrics"
  *
  * Writes run only when CONFIRM=write; otherwise they dry-run and report what
  * they would do. trash-pages never passes `force` — pages go to Trash, never
@@ -246,7 +247,72 @@ async function insertLyricSheet() {
   return { ran_at: new Date().toISOString(), ...row };
 }
 
-const ops = { "read-config": readConfig, "set-titles": setTitles, "trash-pages": trashPages, "remove-menu-items": removeMenuItems, "insert-lyric-sheet": insertLyricSheet };
+/**
+ * Set the alt text on media items — the accessible name for an image whose
+ * content is its whole point.
+ *
+ * Meg's twelve Shadows sheets went into the gallery with empty alt, so a screen
+ * reader met twelve unlabelled images where a sighted visitor reads a song. Alt
+ * lives on the attachment, not the gallery, which is why the ACF field's help
+ * text sends her to the media library and why this is a media op rather than a
+ * page one.
+ *
+ * Reuses set-titles' "id=value;id=value" argument shape. Reads each item back
+ * afterwards: WordPress returns 200 for a field it declined to change.
+ */
+async function setMediaAlt() {
+  const wanted = ARGS
+    .split(";")
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => {
+      const i = p.indexOf("=");
+      const id = Number(p.slice(0, i).trim());
+      const alt = p.slice(i + 1).trim();
+      if (!Number.isInteger(id) || id <= 0 || !alt) {
+        throw new Error(`set-media-alt: cannot read "${p}" as "id=alt text"`);
+      }
+      return { id, alt };
+    });
+  if (!wanted.length) throw new Error('set-media-alt needs --args "id=alt text;id=alt text"');
+
+  const FIELDS = "id,alt_text,source_url";
+  const results = [];
+  for (const { id, alt } of wanted) {
+    const before = await call(`${WP}/media/${id}?_fields=${FIELDS}`);
+    const row = {
+      id,
+      wanted_alt: alt,
+      before_alt: before.body?.alt_text ?? null,
+      file: before.body?.source_url?.split("/").pop() ?? null,
+      mode: CONFIRM ? "write" : "dry-run",
+    };
+    if (!before.ok) {
+      row.error = `media ${id} is not readable (HTTP ${before.status})`;
+      results.push(row);
+      continue;
+    }
+    if (CONFIRM) {
+      row.write_status = (
+        await call(`${WP}/media/${id}`, {
+          method: "POST",
+          body: JSON.stringify({ alt_text: alt }),
+        })
+      ).status;
+      row.after_alt = (await call(`${WP}/media/${id}?_fields=${FIELDS}`)).body?.alt_text ?? null;
+      row.matches_wanted = row.after_alt === alt;
+    }
+    results.push(row);
+  }
+  return {
+    ran_at: new Date().toISOString(),
+    mode: CONFIRM ? "write" : "dry-run",
+    all_match: CONFIRM ? results.every((r) => r.matches_wanted === true) : null,
+    results,
+  };
+}
+
+const ops = { "read-config": readConfig, "set-titles": setTitles, "trash-pages": trashPages, "remove-menu-items": removeMenuItems, "insert-lyric-sheet": insertLyricSheet, "set-media-alt": setMediaAlt };
 if (!ops[OP]) {
   console.error(`unknown --op "${OP}" (want ${Object.keys(ops).join(" | ")})`);
   process.exit(2);

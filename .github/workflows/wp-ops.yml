@@ -13,13 +13,13 @@ on:
         description: "Operation"
         type: choice
         required: true
-        options: [read-config, set-titles, trash-pages, remove-menu-items, insert-lyric-sheet]
+        options: [read-config, set-titles, trash-pages, remove-menu-items, insert-lyric-sheet, set-media-alt]
       args:
-        description: "set-titles: \"id=Title;id=Title\" · trash-pages / remove-menu-items: \"id,id\" · insert-lyric-sheet: \"page=4350;media=4352;at=1\""
+        description: "set-titles: \"id=Title;id=Title\" · trash-pages / remove-menu-items: \"id,id\" · insert-lyric-sheet: \"page=4350;media=4352;at=1\" · set-media-alt: \"id=Alt text;id=Alt text\""
         type: string
         default: ""
       confirm:
-        description: "Type write to perform set-titles / trash-pages / insert-lyric-sheet (anything else dry-runs)"
+        description: "Type write to perform any write op (anything else dry-runs)"
         type: string
         default: "dry-run"
 
