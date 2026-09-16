@@ -1917,3 +1917,44 @@ That omission matters more here than the version numbers suggest. `vercel build`
 **Consequences.** Easier: nothing in `.github/workflows/` depends on the Node 20 compatibility shim any more, so its withdrawal is a non-event. Harder: nothing new — `@v3` is a tag like `@v2` was, and the mutable-pointer problem underneath both is what the SHA-pinning entry addresses, not this one.
 
 **Alternatives considered.** *Leaving `@v2` until the shim actually breaks* — rejected: the shim's withdrawal is the 3am failure the Phase 0 alarm exists to catch, and this is a one-line change that removes the class. *Folding it back into the v4→v7 PR* — that is what was undone; the split is the point.
+
+## 2026-09-15 — Every action is pinned to a commit SHA, and ships with the checker that keeps the pin honest
+
+**Stage:** 03-build (sprint-14-launch-readiness, maintenance)
+**Type:** Security · Ops
+**Status:** accepted — Levi's call ("if it's needed do it carefully and test"), taken after the blast-radius inventory below
+
+**Context.** The v4→v7 entry deferred SHA-pinning as "a real hardening, its own decision". This is that decision. The question was not whether pinning is good practice in the abstract but whether it is warranted *here*, and the answer is in what a `uses:` line can reach in this repo:
+
+| Workflow | Secrets in reach |
+|---|---|
+| `deploy.yml` | `VERCEL_TOKEN` (deploys to production), `GITHUB_TOKEN` with `issues: write` |
+| `preview-deploy.yml` | `VERCEL_TOKEN` |
+| `show-pipeline.yml` | `WP_APP_PASSWORD`, `PIPELINE_REFRESH_TOKEN` (Google OAuth — sends mail as the pipeline) |
+| `wp-ops.yml`, `wp-migrate.yml` | `WP_APP_PASSWORD` — authenticated writes on Meg's live WordPress |
+
+A version tag is a mutable pointer. Whoever can move `v7` — a compromised maintainer account, a stolen npm/GitHub credential, a repo transfer — runs their code on the next run of every workflow that trusts it, next to a client's live site credentials and a production deploy token. That is the threat this is sized against, and it is why the answer here is yes where on a repo of pure unit tests it might be no.
+
+**Decisions.**
+1. **Every action, first- and third-party, is pinned to a full 40-character commit SHA** with the release tag in a trailing comment — 19 pins across eight workflows. GitHub-owned `actions/*` are pinned too: they are lower risk, not no risk, and an exemption list is a thing to maintain and get wrong.
+2. **The pinned SHAs are the ones that demonstrably ran.** Each was resolved from its release tag and cross-checked against the `Download action repository` lines in real runs — `3d3c42e5…` for `checkout@v7.0.1` and `820762786026…` for `setup-node@v7.0.0` in runs 35050923434 and 35053493943, `5770ad5e…` for `sticky-pull-request-comment@v3.0.5` in run 35051011958. The pins freeze code that has been observed working in this repo, not just code a tag pointed at.
+3. **The pin ships with its verifier** — `scripts/ci/verify-action-pins.mjs`, run as its own `action-pins` job on every PR. Studio learning #131: an unverified pin is a to-do wearing a guarantee's costume. The checker fails on a tag instead of a SHA, a SHA with no comment, a comment that is not an immutable release tag, and a SHA that no longer matches the tag it claims.
+4. **Comments must name an immutable patch tag (`v7.0.1`), never a floating major (`v7`).** This is what makes decision 3 enforceable: against a floating major a SHA mismatch is routine noise, so the check would have to tolerate it; against a patch tag a mismatch means *the tag moved under us*, which is the attack. The `v` prefix is optional because `shivammathur/setup-php` tags as `2.37.2`.
+5. **On a mismatch the checker tells you not to just update the SHA** until you know whether the pin is stale or the tag was moved. The obvious "fix" for a mismatch is the exact action an attacker who moved a tag would want.
+6. **The checker installs nothing.** It is dependency-free and its job runs no `npm ci`, so a broken lockfile cannot take the supply-chain check down with it — the 2026-07-28 outage was a dependency install failing in front of a gate it was not guarding (learning #94).
+7. **`.github/dependabot.yml` is the upkeep clause** (learning #199). Dependabot updates the SHA *and* the comment together, which is exactly the shape the verifier checks, so pins stay current and the check stays green without hand-maintenance. Monthly, grouped into one PR, limit 3. Without it the pins would be frozen rather than pinned, and the verifier would keep cheerfully confirming that an abandoned SHA is indeed that abandoned release.
+
+**Verification.** The checker was tested against its failure modes before being trusted, not just run once green:
+- **All 19 real pins** → pass, exit 0.
+- **Planted: a real-but-wrong SHA** under a correct tag in `deploy.yml` → exit 1, naming the file, line, expected and actual SHA. (Learning #231 — a planted bug proves the test; coverage cannot.)
+- **Planted: reverted to the floating `@v7`** → exit 1, "pinned to a tag, not a commit SHA".
+- **SHA-pinned with no comment** → exit 1, "nothing records which release this SHA is".
+- **Comment is a floating `v7`** → exit 1, "not an immutable release tag".
+- **Commented-out `uses:` line** → correctly ignored, real pin still verified.
+- **Both plants restored** → green again.
+
+Two of those cases initially "failed" for the wrong reason — a flow-style YAML fixture the line parser skips, so it reported "no pins found" instead of the real defect. That is learning #94's shape inside the checker itself, and it is why the fixtures were rewritten in block style and each failure mode confirmed to fire on its own cause rather than merely to exit non-zero.
+
+**Consequences.** Easier: moving a tag upstream no longer changes what runs here, and a stale or doctored pin fails a PR with a specific message instead of passing quietly. Harder: a hand-written action bump now takes a SHA lookup rather than a tag edit, and will fail the `action-pins` job if done carelessly — that is the check working, but it is friction, and Dependabot exists so it is rarely paid by hand. The checker also makes ~19 authenticated GitHub API calls per PR run, which is inside `GITHUB_TOKEN`'s rate limit but is a network dependency the PR gate did not previously have; an upstream API outage will fail this job.
+
+**Alternatives considered.** *Pinning only third-party actions and trusting `actions/*` by tag* — rejected: it requires maintaining an exemption list, and "GitHub-owned" is an argument about likelihood, not about blast radius. *Pinning without a verifier* — rejected as the thing learning #131 names outright. *Using a scheduled job instead of a PR gate* — rejected: a pin problem should block the PR that introduces it, not be discovered later by a job nobody reads (learning #186). *Dependabot without pinning* — it would keep tags current but leave every one of them mutable, which is the actual threat.
