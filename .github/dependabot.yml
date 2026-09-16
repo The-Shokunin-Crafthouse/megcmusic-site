@@ -1,0 +1,27 @@
+# The upkeep clause for the SHA pins in .github/workflows/.
+#
+# A SHA pin is only as good as the thing that moves it forward. Left alone it
+# silently rots: the repo stays on an action release that stops getting security
+# fixes, and "pinned" starts meaning "abandoned". Dependabot updates the SHA
+# *and* the `# vX.Y.Z` comment beside it in the same PR, which is exactly the
+# shape scripts/ci/verify-action-pins.mjs checks — so the pins stay current and
+# the verifier stays green without anyone maintaining either by hand.
+#
+# If this file is ever removed, the pins become frozen rather than pinned, and
+# the verifier will happily keep confirming that a two-year-old SHA is indeed
+# that two-year-old release.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: "/"
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 3
+    commit-message:
+      prefix: "ci"
+    groups:
+      # One PR for the routine bumps rather than five. A grouped PR still runs
+      # unit-tests and a preview build, which is the same gate a hand-written
+      # bump gets.
+      actions:
+        patterns: ["*"]
