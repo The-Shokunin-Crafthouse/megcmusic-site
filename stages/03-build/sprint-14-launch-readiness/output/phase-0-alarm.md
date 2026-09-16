@@ -279,6 +279,23 @@ change to `deploy-alarm-watch.sh`, not to `deploy.yml`. Deliberately not done
 here: it is a cosmetic edit to the one path that was just proved working, and it
 belongs in its own change where it can be re-proved by another forced failure.
 
+**FIXED 2026-09-16** — studio-memory ADR-089 and PR #359. `deploy-alarm-watch.sh`
+now strips Markdown on the way into `.msg`; `deploy.yml` was not touched, because
+the issue body's other reader is github.com, where the Markdown is correct. The
+stripper recognises bold, inline code and link syntax, keeps bare URLs untouched,
+and degrades to passing a line through unchanged rather than dropping it — it is
+never keyed to one body's shape, since the relay is generic across repos
+(studio-memory learning #245).
+
+Re-proved the way this section demands, by a second forced failure: run
+`35118079041`, `workflow_dispatch` on a throwaway `alarm-markdown-strip-reprove`
+branch, commit `67b8365`, again breaking **Build** and never Deploy —
+`failure Build`, `skipped Deploy to production`. `main` never moved and the
+branch was deleted once the relay had run. Issue #143's Markdown body relayed at
+641 bytes against this run's 669; the text reached the phone at 10:05 and **Levi
+read it at 10:33**: plain, no asterisks, no backticks, both the run URL and the
+issue URL bare and tappable, full body rather than the generic fallback.
+
 ### 4.5 The send path fired — stamp landed 23:02
 
 ```
