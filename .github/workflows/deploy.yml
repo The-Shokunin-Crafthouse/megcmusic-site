@@ -110,10 +110,23 @@ jobs:
           # The failing step, read back off the run. The job's own conclusion is
           # still null while this step is executing, so select on the STEP
           # conclusion across every job rather than on the job's.
-          FAILED_STEP="$(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs" \
-            --jq '[.jobs[].steps[]? | select(.conclusion == "failure") | .name] | first // empty' \
-            2>/dev/null)"
-          [ -n "$FAILED_STEP" ] || FAILED_STEP="unknown — no step had reported a failure conclusion yet"
+          #
+          # And poll, rather than read once: the jobs API lags the step it
+          # describes. In run 35053643880 the failing step completed at
+          # 03:57:32 and this alarm started at 03:57:32 -- the same second --
+          # so the single read returned nothing and the text that reached a
+          # phone said "unknown" for the one field that says what broke. The
+          # data was there moments later. A few seconds here cost nothing: the
+          # relay on the Mac polls every 5 minutes anyway.
+          FAILED_STEP=""
+          for attempt in 1 2 3 4 5 6; do
+            FAILED_STEP="$(gh api "repos/$REPO/actions/runs/$RUN_ID/jobs" \
+              --jq '[.jobs[].steps[]? | select(.conclusion == "failure") | .name] | first // empty' \
+              2>/dev/null)"
+            if [ -n "$FAILED_STEP" ]; then break; fi
+            if [ "$attempt" -lt 6 ]; then sleep 3; fi
+          done
+          [ -n "$FAILED_STEP" ] || FAILED_STEP="unknown — the jobs API still reported no failed step after ~15s"
 
           # printf, not a heredoc: an unindented EOF terminator cannot live inside
           # an indented `run:` block, and an indented one never terminates.

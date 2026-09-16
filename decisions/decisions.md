@@ -1989,3 +1989,30 @@ Two facts sat underneath the report and are worth separating from the above. The
 **Consequences.** Easier: the release pages work; `/photos` stops depending on a CDN cache of files its URLs no longer point at; the FYC section is 6.8 MB lighter. Harder: the parser now imports `WP_ORIGIN`, so a wrong `NEXT_PUBLIC_WP_ORIGIN` mis-points gallery images as well as REST calls — a widening of that variable's blast radius, mitigated by the existing fallback-to-a-host-that-answers guard. The fetcher also clears its output directory per run, since a byte-derived extension means a re-run can rename a sheet and a stale file under the old name would still be served while nothing pointed at it.
 
 **Alternatives considered.** *Reading `srcset` instead of `src`* — rejected: it fixes the same URLs by a longer route and still breaks on any image WordPress emits without a `srcset`. *Re-saving the release pages in WordPress so the stored `src` updates* — rejected: it fixes today's four pages and nothing about the next page written before a future move, and it is Meg's content to re-save, not ours. *Pointing the release liner at the ACF gallery so both surfaces read one source* — genuinely better, and deferred: three of the four releases have no gallery, so it is a content-model change for Meg, not a bugfix. Filed rather than smuggled in here.
+
+## 2026-09-15 — The alarm's "failing step" was empty on its first real firing: the jobs API lags the step it describes
+
+**Stage:** 03-build (sprint-14-launch-readiness, Phase 0 follow-up)
+**Type:** Ops · Bug fix
+**Status:** accepted — decide-and-log; found by reading the text that arrived, not the code
+
+**Context.** The deploy alarm fired for real for the first time on run 35053643880 and the relay worked end to end: the full body reached Levi's phone over the two-file sentinel, not the generic fallback. That closes the one step `output/phase-0-alarm.md` §4.4 recorded as blocked — the destination read the session could not take (learning #45).
+
+Reading the message that actually arrived showed a defect the code review had not: the line that says what broke said
+
+> **Failing step:** unknown — no step had reported a failure conclusion yet
+
+when the failing step was plainly `Deploy to production`. The query is correct — run the identical `gh api ... --jq` against the identical run now and it returns `Deploy to production`. It is a race. Step 7 completed at `03:57:32` and the alarm step started at `03:57:32`, the same second, and the jobs API had not yet flushed that step's `conclusion`. The 2026-09-14 ADR anticipated the job's conclusion being null and selected on the STEP conclusion instead; it did not anticipate the step's own conclusion being null for a moment too.
+
+The fallback string made it worse by sounding authoritative: "no step had reported a failure conclusion yet" reads as a finding about the run rather than as "we asked too early".
+
+**Decisions.**
+1. **Poll the jobs API instead of reading it once** — up to six attempts, 3s apart, breaking on the first failed step found. ~15s worst case, which costs nothing: the relay on the Mac polls every five minutes, so the alarm's latency is bounded by that, not by this.
+2. **The exhausted-fallback text names the cause honestly** — "the jobs API still reported no failed step after ~15s" — rather than asserting that no step failed.
+3. **Written as `if ... fi`, not `[ test ] && cmd`.** GitHub's default shell is `bash -e` and `set -uo pipefail` does not turn that off. The `&&` form was verified safe under `bash -e` (a failing non-final command in an AND-OR list does not trigger `-e`), but this is the production alarm and the explicit form removes the need for anyone to know that rule to read it.
+
+**Verification.** The polling loop was run against real API data, both branches, under `bash -e`: against the failed run 35053643880 it resolves `Deploy to production` on attempt 1; against the successful run 35055301986 it exhausts its attempts, returns the fallback, and exits 0 rather than aborting the alarm mid-step. The live path cannot be exercised without failing a production deploy on purpose, which is not worth doing for a string — the query and the loop are each proved against real runs, and the alarm's other halves already have their proof from run 35053643880.
+
+**Consequences.** Easier: the next alarm text names the step that broke, which is the field that decides whether Levi gets up. Harder: the alarm step now takes up to ~15s longer on the path where it learns nothing, and it makes up to six API calls instead of one — both irrelevant against a five-minute relay, and both only on the failure path.
+
+**Alternatives considered.** *Leaving it* — rejected: an alarm whose most actionable field is usually empty trains you to ignore it. *Recording each step's outcome into a file as the job runs and reading that instead* — no API race at all, and genuinely better, but it means touching every step in the job to serve one line of a notification. *Waiting on the job's own conclusion* — rejected for the reason the original ADR gives: it is null while the alarm is still executing inside that job.
