@@ -16,6 +16,9 @@ jobs:
           node-version: 22
       - run: npm ci
       - run: npm test
+      # Dependency-free and fully stubbed; runs here rather than in its own job
+      # because it needs nothing the test job has not already set up.
+      - run: bash scripts/ci/test/vercel-deploy.test.sh
 
   # Every action in .github/workflows/ must be pinned to a commit SHA carrying
   # the release tag it belongs to. A pin nothing verifies is a to-do wearing a

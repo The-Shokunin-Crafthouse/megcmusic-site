@@ -50,7 +50,7 @@ jobs:
       - name: Deploy preview
         id: deploy
         run: |
-          URL=$(vercel deploy --prebuilt --token="$VERCEL_TOKEN")
+          URL=$(./scripts/ci/vercel-deploy.sh --prebuilt)
           echo "url=$URL" >> "$GITHUB_OUTPUT"
         env:
           VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}

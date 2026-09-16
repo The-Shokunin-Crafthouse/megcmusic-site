@@ -1990,6 +1990,41 @@ Two facts sat underneath the report and are worth separating from the above. The
 
 **Alternatives considered.** *Reading `srcset` instead of `src`* — rejected: it fixes the same URLs by a longer route and still breaks on any image WordPress emits without a `srcset`. *Re-saving the release pages in WordPress so the stored `src` updates* — rejected: it fixes today's four pages and nothing about the next page written before a future move, and it is Meg's content to re-save, not ours. *Pointing the release liner at the ACF gallery so both surfaces read one source* — genuinely better, and deferred: three of the four releases have no gallery, so it is a content-model change for Meg, not a bugfix. Filed rather than smuggled in here.
 
+## 2026-09-15 — The deploy step survives a lost connection without deploying twice
+
+**Stage:** 03-build (sprint-14-launch-readiness, maintenance)
+**Type:** Ops · Bug fix
+**Status:** accepted — Levi's call, taken after run 35053643880 failed in production
+
+**Context.** The first production deploy after the v4→v7 merge failed. Every step up to and including `Build` passed on the bumped actions; `Deploy to production` died with:
+
+```
+Uploading [====================] (1.3MB/1.3MB)
+Deploying outputs...
+Error: An unexpected error occurred!
+TypeError: fetch failed
+    at async fetchApi (.../vercel/dist/chunks/chunk-72ZDPBW5.js:18:892)
+```
+
+`fetch failed` is undici's transport error: the runner lost its connection to Vercel's API. The upload had already completed and the CLI had already printed a deployment URL, so the deployment may well have gone on to succeed — the CLI simply could not hear the answer. The next deploy went green with no code change, which is what a transient fault looks like. The alarm built in Phase 0 fired correctly (issue #138); this was its first non-staged firing.
+
+The obvious fix is studio learning #27's retry wrapper. It is the wrong fix here, for two reasons this failure demonstrates: `vercel deploy --prebuilt` re-uploads, which spends against the 5000-uploads/24h cap that also gates production; and retrying a deploy that actually succeeded publishes a second deployment of the same commit. A wrapper cannot tell those apart because it only sees the exit code.
+
+**Decisions.**
+1. **`scripts/ci/vercel-deploy.sh` replaces the bare `vercel deploy` in both `deploy.yml` and `preview-deploy.yml`.** On failure it does not retry blindly: it reads the deployment URL the CLI printed and asks Vercel what became of it.
+2. **Terminal states are handled differently, on purpose.** `READY` → the deployment landed, succeed and do not re-upload. `ERROR` / `CANCELED` → a real failure; fail fast, because a retry would upload again and fail identically. No URL, or no terminal answer inside the timeout → we never learned anything, so retry. Three attempts, linear backoff.
+3. **State comes from the REST API (`readyState`), not from parsing CLI output.** The JSON field is documented and stable; the CLI's human text is neither, and this code path only runs when something has already gone wrong — the worst time to be guessing at a string format.
+4. **stdout is only ever the deployment URL**, everything else to stderr, so `preview-deploy.yml`'s `URL=$(...)` keeps working unchanged. If the URL pattern does not match on a successful deploy, the last non-empty stdout line is returned rather than nothing — an empty string here would post a preview comment with no link instead of failing visibly.
+5. **`preview-deploy.yml` gets the same script, not just `deploy.yml`.** That is where it actually runs — every PR — so the production path is exercised by its twin before it matters, which is the same argument that governed the v4→v7 proof order.
+
+**Verification.** The script is tested against a stubbed CLI and a stubbed API, asserting on the **number of CLI invocations** and not only the exit code — the property at stake is "does not deploy twice", which an exit code cannot express. 8 cases, all passing: clean success deploys once; fetch-fail with `READY` succeeds on **one** invocation; `ERROR` and `CANCELED` each fail fast on one invocation; no URL printed retries to the limit; transient-then-success takes two; a URL whose state never resolves falls through to a retry; a success with an unrecognised URL shape still returns it.
+
+**The tests were then proved by planting the regression they exist to catch** (learning #231): deleting the `READY` short-circuit turned exactly one case red — `expected exit=0 calls=1, got exit=1 calls=2` — naming the double-deploy as the defect. Restored, 8/8 green. `scripts/ci/test/vercel-deploy.test.sh` runs on every PR in `unit-tests.yml`; it stubs both the CLI and the API, so it needs no secrets and no network.
+
+**Consequences.** Easier: a lost connection after a successful deploy no longer reports a red production deploy, no longer opens an alarm issue, and no longer texts a phone at 3am for something that worked; a genuine build error still fails immediately instead of being retried three times. Harder: the deploy step is now a script rather than one legible line, so a future reader has to open a file to know what runs — the comment at the call site names why. The script also depends on the Vercel REST API being reachable on the failure path; if it is not, the behaviour degrades to the old retry-and-hope, which is stated in the code rather than assumed.
+
+**Alternatives considered.** *`nick-fields/retry` around the existing command* — rejected per Context: it cannot distinguish a lost connection from a failed deploy, so it re-uploads in both cases. *Retrying only on a matched `fetch failed` string* — rejected: it keys the safety property on an error message from a dependency's dependency, which will change. *Doing nothing and letting the alarm cover it* — rejected: the alarm is for failures worth waking up for, and spending its credibility on a class that self-heals is how a real one gets ignored.
+
 ## 2026-09-15 — The alarm's "failing step" was empty on its first real firing: the jobs API lags the step it describes
 
 **Stage:** 03-build (sprint-14-launch-readiness, Phase 0 follow-up)
