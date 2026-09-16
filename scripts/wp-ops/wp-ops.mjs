@@ -9,6 +9,8 @@
  *   node scripts/wp-ops/wp-ops.mjs --op set-titles  --args "4=Home;6073=Subscribe"
  *   node scripts/wp-ops/wp-ops.mjs --op trash-pages --args "47,2946"
  *   node scripts/wp-ops/wp-ops.mjs --op remove-menu-items --args "4479,49"
+ *   node scripts/wp-ops/wp-ops.mjs --op insert-lyric-sheet --args "page=4350;media=4352;at=1"
+ *   node scripts/wp-ops/wp-ops.mjs --op set-media-alt --args "6374=Bright Lights lyrics"
  *
  * Writes run only when CONFIRM=write; otherwise they dry-run and report what
  * they would do. trash-pages never passes `force` — pages go to Trash, never
@@ -164,7 +166,153 @@ async function removeMenuItems() {
   return { ran_at: new Date().toISOString(), mode: CONFIRM ? "write" : "dry-run", results };
 }
 
-const ops = { "read-config": readConfig, "set-titles": setTitles, "trash-pages": trashPages, "remove-menu-items": removeMenuItems };
+/** "page=4350;media=4352;at=1" → { page, media, at }. `at` is 1-based and
+ *  clamps to the ends; omit it to append. */
+function parseInsert(s) {
+  const kv = Object.fromEntries(
+    s.split(";").map((p) => p.trim()).filter(Boolean).map((p) => {
+      const i = p.indexOf("=");
+      return [p.slice(0, i).trim(), p.slice(i + 1).trim()];
+    }),
+  );
+  const num = (k) => {
+    const n = Number(kv[k]);
+    return Number.isInteger(n) && n > 0 ? n : 0;
+  };
+  const page = num("page");
+  const media = num("media");
+  if (!page || !media) {
+    throw new Error('insert-lyric-sheet needs --args "page=<id>;media=<id>[;at=<1-based>]"');
+  }
+  return { page, media, at: kv.at === undefined ? 0 : num("at") };
+}
+
+/**
+ * Put one media item into a campaign page's ACF `lyric_sheets` gallery.
+ *
+ * The gallery is Meg's content, so this exists to repair a specific gap rather
+ * than to own the field: the Shadows credits sheet was left out when the
+ * optimised sheets were uploaded, which is why the FYC page listed eleven
+ * lyric sheets and no credits while the release page showed both.
+ *
+ * Writes the whole list back by id — ACF's gallery takes an id array — after
+ * splicing the new one in. Idempotent: a media id already in the gallery is
+ * reported and nothing is written, so a re-run can never double it.
+ */
+async function insertLyricSheet() {
+  const { page, media, at } = parseInsert(ARGS);
+  const row = { page, media, at: at || "append", mode: CONFIRM ? "write" : "dry-run" };
+
+  const asset = await call(`${WP}/media/${media}?_fields=id,source_url,mime_type,alt_text`);
+  if (!asset.ok) {
+    row.error = `media ${media} is not readable (HTTP ${asset.status})`;
+    return { ran_at: new Date().toISOString(), ...row };
+  }
+  row.asset = asset.body;
+
+  const read = await call(`${WP}/pages/${page}?acf_format=standard&_fields=acf.lyric_sheets`);
+  if (!read.ok) {
+    row.error = `page ${page} is not readable (HTTP ${read.status})`;
+    return { ran_at: new Date().toISOString(), ...row };
+  }
+  // ACF returns `false`, not [], for an empty gallery.
+  const current = Array.isArray(read.body?.acf?.lyric_sheets) ? read.body.acf.lyric_sheets : [];
+  const before = current.map((item) => Number(item.ID ?? item.id));
+  row.before = before;
+
+  if (before.includes(media)) {
+    row.already_present = true;
+    row.after = before;
+    return { ran_at: new Date().toISOString(), ...row };
+  }
+
+  const index = at ? Math.min(Math.max(at - 1, 0), before.length) : before.length;
+  const wanted = [...before.slice(0, index), media, ...before.slice(index)];
+  row.wanted = wanted;
+
+  if (CONFIRM) {
+    row.write = await call(`${WP}/pages/${page}`, {
+      method: "POST",
+      body: JSON.stringify({ acf: { lyric_sheets: wanted } }),
+    });
+    const back = await call(`${WP}/pages/${page}?acf_format=standard&_fields=acf.lyric_sheets`);
+    const after = Array.isArray(back.body?.acf?.lyric_sheets)
+      ? back.body.acf.lyric_sheets.map((item) => Number(item.ID ?? item.id))
+      : [];
+    row.after = after;
+    // Read back rather than trusting the write's 200 — a field that silently
+    // refused the update returns the old list, which is a failure, not a no-op.
+    row.matches_wanted = after.length === wanted.length && after.every((id, i) => id === wanted[i]);
+  }
+  return { ran_at: new Date().toISOString(), ...row };
+}
+
+/**
+ * Set the alt text on media items — the accessible name for an image whose
+ * content is its whole point.
+ *
+ * Meg's twelve Shadows sheets went into the gallery with empty alt, so a screen
+ * reader met twelve unlabelled images where a sighted visitor reads a song. Alt
+ * lives on the attachment, not the gallery, which is why the ACF field's help
+ * text sends her to the media library and why this is a media op rather than a
+ * page one.
+ *
+ * Reuses set-titles' "id=value;id=value" argument shape. Reads each item back
+ * afterwards: WordPress returns 200 for a field it declined to change.
+ */
+async function setMediaAlt() {
+  const wanted = ARGS
+    .split(";")
+    .map((p) => p.trim())
+    .filter(Boolean)
+    .map((p) => {
+      const i = p.indexOf("=");
+      const id = Number(p.slice(0, i).trim());
+      const alt = p.slice(i + 1).trim();
+      if (!Number.isInteger(id) || id <= 0 || !alt) {
+        throw new Error(`set-media-alt: cannot read "${p}" as "id=alt text"`);
+      }
+      return { id, alt };
+    });
+  if (!wanted.length) throw new Error('set-media-alt needs --args "id=alt text;id=alt text"');
+
+  const FIELDS = "id,alt_text,source_url";
+  const results = [];
+  for (const { id, alt } of wanted) {
+    const before = await call(`${WP}/media/${id}?_fields=${FIELDS}`);
+    const row = {
+      id,
+      wanted_alt: alt,
+      before_alt: before.body?.alt_text ?? null,
+      file: before.body?.source_url?.split("/").pop() ?? null,
+      mode: CONFIRM ? "write" : "dry-run",
+    };
+    if (!before.ok) {
+      row.error = `media ${id} is not readable (HTTP ${before.status})`;
+      results.push(row);
+      continue;
+    }
+    if (CONFIRM) {
+      row.write_status = (
+        await call(`${WP}/media/${id}`, {
+          method: "POST",
+          body: JSON.stringify({ alt_text: alt }),
+        })
+      ).status;
+      row.after_alt = (await call(`${WP}/media/${id}?_fields=${FIELDS}`)).body?.alt_text ?? null;
+      row.matches_wanted = row.after_alt === alt;
+    }
+    results.push(row);
+  }
+  return {
+    ran_at: new Date().toISOString(),
+    mode: CONFIRM ? "write" : "dry-run",
+    all_match: CONFIRM ? results.every((r) => r.matches_wanted === true) : null,
+    results,
+  };
+}
+
+const ops = { "read-config": readConfig, "set-titles": setTitles, "trash-pages": trashPages, "remove-menu-items": removeMenuItems, "insert-lyric-sheet": insertLyricSheet, "set-media-alt": setMediaAlt };
 if (!ops[OP]) {
   console.error(`unknown --op "${OP}" (want ${Object.keys(ops).join(" | ")})`);
   process.exit(2);
