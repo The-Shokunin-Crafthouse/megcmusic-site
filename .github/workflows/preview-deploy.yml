@@ -24,11 +24,15 @@ jobs:
       VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
 
-      - uses: actions/setup-node@v4
+      # Must match deploy.yml. This build is what gates a PR; that one is what
+      # ships it, and a gate that runs a different Node than the thing it gates
+      # can pass while production fails. It read 20 from the June scaffold until
+      # 2026-09-15 only because b22ffe7 bumped deploy.yml alone (decisions.md).
+      - uses: actions/setup-node@v7
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
