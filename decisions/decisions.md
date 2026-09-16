@@ -1959,6 +1959,37 @@ Two of those cases initially "failed" for the wrong reason — a flow-style YAML
 
 **Alternatives considered.** *Pinning only third-party actions and trusting `actions/*` by tag* — rejected: it requires maintaining an exemption list, and "GitHub-owned" is an argument about likelihood, not about blast radius. *Pinning without a verifier* — rejected as the thing learning #131 names outright. *Using a scheduled job instead of a PR gate* — rejected: a pin problem should block the PR that introduces it, not be discovered later by a job nobody reads (learning #186). *Dependabot without pinning* — it would keep tags current but leave every one of them mutable, which is the actual threat.
 
+## 2026-09-15 — Liner and lyric images are re-pointed at the host WordPress serves from, not the host they were saved with
+
+**Stage:** 03-build (sprint-14-launch-readiness, maintenance)
+**Type:** Architecture · Bugfix
+**Status:** accepted — Levi's report ("the lyrics aren't loading; a credits image is missing"), diagnosed against live WordPress
+
+**Context.** Every liner sheet on every release page was broken in production — twelve images on `/music/shadows-of-a-ghost-town` alone, all with `naturalWidth === 0`. The cause is a cutover leftover, not a media problem.
+
+A WordPress post body stores the `src` it was saved with. Meg's release pages were written before the cutover, so their `src` attributes still read `i0.wp.com/www.megcmusic.com/wp-content/uploads/…`. The apex is now the Next front-end on Vercel, which 403s every `/wp-content/` path, so Photon is handed an origin it cannot fetch and answers `403 — remote data could not be fetched` for every sheet.
+
+What made this hard to see from the markup is that Jetpack rewrites `srcset` live — those attributes already read `admin.megcmusic.com` — while the stored `src` is frozen. `parsePhotos` reads `src`. The `/photos` page shares the parser and has the same stale URLs; it still renders only because Photon's cache is still warm for those files, which is luck with an expiry date, not health.
+
+Two facts sat underneath the report and are worth separating from the above. The optimised JPEGs Meg uploaded on 2026-09-10 *are* in the FYC `lyric_sheets` gallery and *do* render; that page was never broken. And the credits sheet (media 4352) was left out of that gallery, which is why the FYC page listed eleven lyric sheets and no credits while the release page showed both.
+
+**Decisions.**
+1. **Any `/wp-content/` URL on a host other than WordPress's own is rewritten to `WP_ORIGIN`'s host** in `src/lib/media-photos.ts`, covering both shapes: Photon carries the origin host as its first path segment, a direct upload as its hostname. This fixes every release page's liner and future-proofs `/photos` against the cache expiring.
+2. **The rule is "not the WordPress host", not a list of dead hosts.** A deny-list of `www.megcmusic.com` would need a second edit the next time an origin moves; this needs none, and the one host it must not touch — WordPress's own — is the one it compares against.
+3. **The FYC fetcher names each file for the format its bytes ARE**, not for the extension in the gallery URL. `public/images/fyc/*.jpg` held PNG data: this library is served through a WebP plugin and Photon transcodes independently, so the URL's extension and the delivered bytes routinely disagree, and Vercel was setting `Content-Type: image/jpeg` on PNG. Browsers sniff past it; nothing downstream should have to.
+4. **The fetcher asks Photon for a width AND a quality** rather than reusing the ACF gallery URL. That URL carries `fit=1400,1400` and no quality, and Photon answers it with PNG — 955 KB a sheet, 11.1 MB across the section, discarding the optimisation Meg did upstream. The same images requested with `quality=82` (the number the photo galleries already use) come back as JPEG: **4.3 MB total, a 61% reduction**, same 1400px. Resolution is unchanged, so the Sprint 11 decision to keep the 1400px upload stands.
+5. **The credits sheet is added to the gallery in WordPress, not special-cased in code.** The gallery is Meg's content; a code-side "and also append the credits image" would be a second source of truth for a field she owns. `wp-ops` gains an `insert-lyric-sheet` op for it — read-modify-write by id, idempotent on a media id already present, and it reads the list back rather than trusting the write's 200, because a field that silently refuses an update also returns 200 (learning #46).
+
+**Verification.** Against live WordPress, not fixtures:
+- **Before:** 12/12 liner images on `/music/shadows-of-a-ghost-town` broken in a real browser; Photon returning 403 for each.
+- **After:** every URL the parser produces for all four releases with liner content, plus `/photos`, returns `200 image/jpeg` — 30/30. Photon now serves ~110 KB JPEGs where the page had been asking for 1–2 MB PNGs.
+- **Rendered:** all 12 sheets (credits + 11 lyrics) paint on the release page; all 11 paint on FYC.
+- **Planted bug** (learning #231): `rehost` removed from `normalize` → 3 of the 7 new tests go red, naming the stale host. Restored → 20/20 green.
+
+**Consequences.** Easier: the release pages work; `/photos` stops depending on a CDN cache of files its URLs no longer point at; the FYC section is 6.8 MB lighter. Harder: the parser now imports `WP_ORIGIN`, so a wrong `NEXT_PUBLIC_WP_ORIGIN` mis-points gallery images as well as REST calls — a widening of that variable's blast radius, mitigated by the existing fallback-to-a-host-that-answers guard. The fetcher also clears its output directory per run, since a byte-derived extension means a re-run can rename a sheet and a stale file under the old name would still be served while nothing pointed at it.
+
+**Alternatives considered.** *Reading `srcset` instead of `src`* — rejected: it fixes the same URLs by a longer route and still breaks on any image WordPress emits without a `srcset`. *Re-saving the release pages in WordPress so the stored `src` updates* — rejected: it fixes today's four pages and nothing about the next page written before a future move, and it is Meg's content to re-save, not ours. *Pointing the release liner at the ACF gallery so both surfaces read one source* — genuinely better, and deferred: three of the four releases have no gallery, so it is a content-model change for Meg, not a bugfix. Filed rather than smuggled in here.
+
 ## 2026-09-15 — The deploy step survives a lost connection without deploying twice
 
 **Stage:** 03-build (sprint-14-launch-readiness, maintenance)
