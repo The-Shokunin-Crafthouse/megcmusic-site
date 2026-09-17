@@ -4,11 +4,9 @@ import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { Discography } from "@/components/Discography/Discography";
 import { Singles } from "@/components/Singles/Singles";
-import { getPage } from "@/lib/api/wordpress";
-import { paragraphsFromHtml } from "@/lib/wp-content";
-import { MUSIC_PAGE } from "@/lib/releases-content";
-import { LIVE_FORMATS } from "@/config/formats";
-import { COLLAB_GROUPS, CAVE_CREW_URL } from "@/config/collaborate";
+import { MUSIC_PAGE, MUSIC_INTRO } from "@/lib/releases-content";
+import { LIVE_FORMATS } from "@/lib/formats-content";
+import { COLLAB } from "@/lib/collab-content";
 import { FormatCard } from "./FormatCard";
 import styles from "./music.module.css";
 import { heroImage } from "@/lib/hero-images";
@@ -17,38 +15,15 @@ import { heroImage } from "@/lib/hero-images";
 // intro copy appears without a redeploy. Same ISR window as /media and /epk.
 export const revalidate = 3600;
 
-// Meg's WordPress Music page — the source for the optional intro prose. The old
-// duplicate was retired and the maintained page took the clean `music` slug
-// (2026-07-13). We read intro copy from here; everything else on /music is
-// config, so this page only feeds the top paragraph when she writes one.
-const MUSIC_SLUG = "music";
-
 export const metadata: Metadata = {
   title: MUSIC_PAGE.metaTitle,
   description: MUSIC_PAGE.metaDescription,
 };
 
-// Server-side parse of the WP Music page for genuine intro prose. That page is
-// structurally a release gallery, so nearly every <p> is empty, a bare cover
-// link, or a <strong> heading — keep only real sentences (several words) so
-// that structural link/heading text never renders as a paragraph. Today this
-// returns nothing (there is no intro copy); the day Meg writes one on the WP
-// Music page, it flows straight through. A datacenter-blocked deploy returns
-// nothing here too, and the page falls back to the release listing.
-async function safeMusicIntro(): Promise<string[]> {
-  try {
-    const page = await getPage(MUSIC_SLUG);
-    if (!page) return [];
-    return paragraphsFromHtml(page.content.rendered).filter(
-      (para) => para.split(/\s+/).length >= 6,
-    );
-  } catch {
-    return [];
-  }
-}
-
-export default async function MusicPage() {
-  const intro = await safeMusicIntro();
+export default function MusicPage() {
+  // Optional intro prose from the WP Music page's body, read at build
+  // (releases-content.ts) — the old request-time read never reached production.
+  const intro = MUSIC_INTRO;
 
   return (
     <div className={styles.page}>
@@ -93,7 +68,8 @@ export default async function MusicPage() {
         {/* Standalone singles, off the album list — shared with Home. */}
         <Singles id="music-singles" surface="page" />
 
-        {/* How she performs — photos from her WP format pages. */}
+        {/* How she performs — name + blurb from her two Live Format pages
+            (WP 2931 / 2939), photos from those pages' bodies. */}
         <section className={styles.section} aria-labelledby="music-formats">
           <div className={styles.inner}>
             <SectionLabel id="music-formats">Live Formats</SectionLabel>
@@ -105,19 +81,20 @@ export default async function MusicPage() {
           </div>
         </section>
 
-        {/* Work with me — community + business, from the WP Collabs page. */}
+        {/* Work with me — community + business, from the WP Collabs page
+            (WP 3742, "Work With Me" fields — Sprint 16 Phase 2). */}
         <section className={styles.section} aria-labelledby="music-collab">
           <div className={styles.inner}>
             <SectionLabel id="music-collab">Work With Me</SectionLabel>
             <div className={styles.collab}>
-              {COLLAB_GROUPS.map((g) => (
+              {COLLAB.groups.map((g) => (
                 <div key={g.heading} className={styles.collabGroup}>
                   <h3 className={styles.collabHeading}>{g.heading}</h3>
                   <p className={styles.collabBlurb}>{g.blurb}</p>
                   <ul className={styles.collabList}>
                     {g.offerings.map((o) => (
-                      <li key={o} className={styles.collabItem}>
-                        {o}
+                      <li key={o.title} className={styles.collabItem}>
+                        {o.detail ? `${o.title} — ${o.detail}` : o.title}
                       </li>
                     ))}
                   </ul>
@@ -131,7 +108,7 @@ export default async function MusicPage() {
               </Link>
               <a
                 className={styles.collabGhost}
-                href={CAVE_CREW_URL}
+                href={COLLAB.caveCrewUrl}
                 target="_blank"
                 rel="noopener noreferrer"
               >

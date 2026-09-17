@@ -16,6 +16,13 @@
  * `songs-from-the-sofa-2` — deriving the route from the page slug would change
  * a live URL, which the contract forbids. Routes stay in src/config/releases.ts.
  *
+ * Sprint 16 Phase 2 adds two reads. Each release page's "Release Reviews"
+ * repeater (the press shown on /music/<slug>) is read with the page's slug and
+ * written as `reviews` on its row. The Music page's own body is written raw as
+ * `introHtml`, so src/lib/releases-content.ts can run the one paragraph parser
+ * (src/lib/wp-content.ts) over it at build instead of a request-time read that
+ * production's runtime could never make.
+ *
  * Fails loudly: an unreadable page, or a release row pointing at a page or
  * product that cannot be resolved, exits non-zero with a named cause.
  */
@@ -60,6 +67,18 @@ const text = (v) => (typeof v === "string" ? v : "");
 /** ACF post_object with return_format "id" gives a number, or false when unset. */
 const refId = (v) => (typeof v === "number" && v > 0 ? v : null);
 
+const pageCache = new Map();
+/** A release page's slug and its ACF fields, read once. */
+async function pageOf(id, what) {
+  if (pageCache.has(id)) return pageCache.get(id);
+  const row = await getJson(`${API}/pages/${id}?acf_format=standard&_fields=slug,acf`, what);
+  const slug = text(row?.slug);
+  if (!slug) throw new Error(`${what} (id ${id}) has no slug`);
+  const page = { slug, acf: row?.acf && typeof row.acf === "object" ? row.acf : {} };
+  pageCache.set(id, page);
+  return page;
+}
+
 const slugCache = new Map();
 async function slugOf(kind, id, what) {
   const key = `${kind}:${id}`;
@@ -71,12 +90,26 @@ async function slugOf(kind, id, what) {
   return slug;
 }
 
+/** The raw repeater rows, kept as ACF returns them; parsing (and the
+ *  quote/accolade rule) lives in src/lib/release-reviews.ts with its tests. */
+const reviewRows = (acf) =>
+  Array.isArray(acf?.reviews)
+    ? acf.reviews.map((r) => ({
+        kind: text(r?.kind),
+        quote_or_accolade: text(r?.quote_or_accolade),
+        source: text(r?.source),
+        link: text(r?.link),
+      }))
+    : [];
+
 let acf;
+let introHtml = "";
 try {
   const json = await getJson(
-    `${API}/pages/${MUSIC_PAGE}?acf_format=standard&_fields=acf`,
+    `${API}/pages/${MUSIC_PAGE}?acf_format=standard&_fields=acf,content`,
     `the Music page (${MUSIC_PAGE})`,
   );
+  introHtml = text(json?.content?.rendered);
   acf = json?.acf;
   if (!acf || typeof acf !== "object") {
     throw new Error("response carries no acf object — is the megc-site-content plugin active?");
@@ -98,8 +131,13 @@ for (const row of rawRows) {
   const productId = refId(row.product);
   let pageSlug = null;
   let productSlug = null;
+  let reviews = [];
   try {
-    if (pageId) pageSlug = await slugOf("pages", pageId, `the page for "${title}"`);
+    if (pageId) {
+      const page = await pageOf(pageId, `the page for "${title}"`);
+      pageSlug = page.slug;
+      reviews = reviewRows(page.acf);
+    }
     if (productId) productSlug = await slugOf("product", productId, `the shop item for "${title}"`);
   } catch (e) {
     fail(`could not resolve a reference on the "${title}" release row — ${e.message}`);
@@ -112,6 +150,7 @@ for (const row of rawRows) {
     productSlug,
     spotifyUrl: text(row.spotify_url),
     appleUrl: text(row.apple_url),
+    reviews,
   });
 }
 
@@ -124,6 +163,7 @@ const out = {
     apple: text(acf.artist_apple),
     amazon: text(acf.artist_amazon),
   },
+  introHtml,
   releases,
 };
 

@@ -2,27 +2,20 @@ import type { Metadata } from "next";
 import { BookingForm } from "@/components/BookingForm/BookingForm";
 import styles from "./booking.module.css";
 import { heroImage } from "@/lib/hero-images";
+import { BOOKING_CONTENT } from "@/lib/booking-content";
 
+// Every word outside the form comes from the Booking page in Meg's dashboard
+// (WP page 5, "Booking Page" field group) — Sprint 16 Phase 2.
 export const metadata: Metadata = {
-  title: "Booking — MegCMusic",
-  description:
-    "Book Meghan Clarisse Cave for your venue, festival, or private event — solo acoustic or full band across the Colorado Front Range and beyond.",
+  title: BOOKING_CONTENT.metaTitle,
+  description: BOOKING_CONTENT.metaDescription,
 };
 
 // What a promoter should include, so the first message is useful.
-const INCLUDE = [
-  "The date (or a few options) and the city",
-  "Venue name and rough set length",
-  "Solo acoustic or full band",
-  "Anything else — budget, ticketing, a private event",
-];
+const INCLUDE = BOOKING_CONTENT.includeItems;
 
-// Booking-at-a-glance, drawn from her bio — no invention.
-const FACTS: { label: string; value: string }[] = [
-  { label: "Formats", value: "Solo Acoustic · Duo · Full Band" },
-  { label: "Based", value: "Front Range, Colorado" },
-  { label: "Plays", value: "Bars · Venues · Festivals · Private events" },
-];
+// Booking-at-a-glance: fixed row labels, Meg's values.
+const FACTS = BOOKING_CONTENT.facts;
 
 export default function BookingPage() {
   return (
@@ -43,10 +36,7 @@ export default function BookingPage() {
               ★★★
             </p>
             <h1 className={styles.title}>Request a Gig</h1>
-            <p className={styles.lede}>
-              Tell Meghan about your show and she’ll get back to you directly.
-              Bars, venues, festivals, and private events — solo or full band.
-            </p>
+            <p className={styles.lede}>{BOOKING_CONTENT.lede}</p>
           </div>
         </header>
 
@@ -56,11 +46,7 @@ export default function BookingPage() {
               <h2 className={styles.srOnly} id="booking-intro">
                 About booking
               </h2>
-              <p className={styles.introText}>
-                Every show is booked personally — no agency in between. Send a
-                few details and Meghan will follow up from her own inbox to work
-                out the rest.
-              </p>
+              <p className={styles.introText}>{BOOKING_CONTENT.intro}</p>
 
               <div>
                 <p className={styles.includeTitle}>What to include</p>
