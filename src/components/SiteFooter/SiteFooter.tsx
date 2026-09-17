@@ -8,9 +8,10 @@ import { HOME_CONTENT } from "@/lib/home-content";
 import styles from "./SiteFooter.module.css";
 
 // Footer (Figma 39:286) — oversized "BOOK ME" watermark behind the connect
-// icons + booking CTA and copyright. The gig CTA points at Meg's live contact
-// page until the native /booking route ships (Phase 3), then it repoints.
-const BOOKING_HREF = `${WP_ORIGIN}/contact-me/`;
+// icons + booking CTA and copyright. The gig CTA points at the native
+// /booking route (it pointed at the WordPress contact page until that route
+// shipped; the repoint was missed until 2026-09-17).
+const BOOKING_HREF = "/booking";
 
 // Connect row (from her WP Connect page). The Envelope points at /booking rather
 // than her personal address, so her email stays off a public repo — the booking

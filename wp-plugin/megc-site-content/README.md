@@ -25,7 +25,19 @@ Registers the megcmusic.com site-content field groups (from `acf-json/`) and pin
 
 Save any tracked page in wp-admin, then check the repo's Actions tab for a run triggered by `repository_dispatch` (the trigger lands in `deploy.yml` in Phase 4 — until then a dispatch is accepted by GitHub with HTTP 204 and simply matches no workflow). Failures are logged to the PHP error log with the `megc-site-content:` prefix, never surfaced as admin errors.
 
+## The front door (1.4.0)
+
+WordPress's `home` option stays on this host, so on its own it sends "Visit Site", every page's "View" link, and the editor's "Preview" button to the old Storefront theme here — which renders none of Meg's fields. Three hooks fix that without touching `home`/`siteurl` (moving `home` would also move the block editor's REST root, WooCommerce's cart/checkout and Event Tickets' pages onto a host that does not serve them):
+
+- **`page_link` / `preview_post_link`** — a page with a live route (`megc_live_route_for()`, or a release page found through the Music page's *Your releases* rows) links there. Preview shows the *published* page: click Update, wait ~3 minutes, then look.
+- **`admin_bar_menu`** — the site name and "Visit Site" open `https://megcmusic.com/`.
+- **`template_redirect`** — a visitor who reaches this host's front end is sent (302) to the live page. WooCommerce (shop, product, cart, checkout, account), The Events Calendar and Event Tickets pages, feeds, and any page mapped to `null` keep serving here. `?megc_wp=1` shows the WordPress theme anyway.
+
+Override the live origin with `define( 'MEGC_LIVE_ORIGIN', 'https://…' )` in wp-config for a staging host. The route map is unit-tested (`tests/live-routes.test.php`, run by `wp-plugin-lint.yml` and by hand with `php`).
+
 ## Version history
+
+- **1.4.0** (2026-09-17) — the front door: `page_link`, `preview_post_link`, admin-bar and `template_redirect` hooks point WordPress at the live site (see above). Re-upload per step 2; verify by opening any page's "View" link from the Pages list — it opens `megcmusic.com`.
 
 - **1.3.0** (Sprint 13, 2026-09-10) — Home field group gains a "Blocks" tab: the `home_blocks` Flexible Content field with three layouts (announcement, pull quote, video). JSON only; no new hooks. Re-upload per step 2 (Replace current with uploaded); verify per step 6 — `acf` on page 4 gains `home_blocks: false`.
 - **1.2.0** (Sprint 11) — field groups for every editing surface; rebuild dispatch on save.

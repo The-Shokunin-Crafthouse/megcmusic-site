@@ -18,6 +18,8 @@ jobs:
         run: |
           set -e
           find wp-plugin -name '*.php' -print0 | xargs -0 -n1 php -l
+      - name: Route-map unit tests
+        run: php wp-plugin/megc-site-content/tests/live-routes.test.php
       - name: Field-group JSON validity
         run: |
           set -e
