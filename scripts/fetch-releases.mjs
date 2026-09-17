@@ -22,6 +22,7 @@
 
 import { writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
+import { withRetry } from "./lib/retry.mjs";
 
 const DEFAULT_ORIGIN = "https://admin.megcmusic.com";
 function validOrigin(value) {
@@ -48,9 +49,11 @@ const fail = (message) => {
 };
 
 async function getJson(url, what) {
-  const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} reading ${what}`);
-  return res.json();
+  return withRetry(async () => {
+    const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} reading ${what}`);
+    return res.json();
+  });
 }
 
 const text = (v) => (typeof v === "string" ? v : "");

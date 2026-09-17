@@ -33,6 +33,7 @@
 import { writeFileSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
+import { withRetry } from "./lib/retry.mjs";
 
 const DEFAULT_ORIGIN = "https://admin.megcmusic.com";
 function validOrigin(value) {
@@ -85,9 +86,11 @@ const fail = (message) => {
 };
 
 async function getJson(url, what) {
-  const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} reading ${what}`);
-  return res.json();
+  return withRetry(async () => {
+    const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} reading ${what}`);
+    return res.json();
+  });
 }
 
 async function resolvePageId(target) {
@@ -135,9 +138,11 @@ async function originalUrl(image) {
 }
 
 async function download(url, what) {
-  const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} downloading ${what}`);
-  const bytes = Buffer.from(await res.arrayBuffer());
+  const bytes = await withRetry(async () => {
+    const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} downloading ${what}`);
+    return Buffer.from(await res.arrayBuffer());
+  });
   if (bytes.length < MIN_BYTES) {
     throw new Error(`${what} downloaded only ${bytes.length} bytes — too small to be the photo`);
   }
