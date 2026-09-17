@@ -29,8 +29,13 @@ function expect( string $name, $actual, $expected ): void {
 	echo "not ok - {$name}\n    expected: " . var_export( $expected, true ) . "\n    actual:   " . var_export( $actual, true ) . "\n";
 }
 
-// Every tracked editing surface has a live route.
+// Every tracked editing surface has a live route — except Photos (5520), which
+// is tracked because the media gallery reads its body, but is still served by
+// WordPress because /epk and the gallery's empty state link to it there.
 foreach ( megc_site_content_page_ids() as $id ) {
+	if ( 5520 === $id ) {
+		continue;
+	}
 	expect( "tracked page {$id} has a live route", is_string( megc_live_route_for( $id, '' ) ), true );
 }
 
