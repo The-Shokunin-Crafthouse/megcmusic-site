@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: MegC Site Content
- * Description: Registers the megcmusic.com site-content field groups (Secure Custom Fields / ACF) from bundled JSON and pings GitHub to rebuild the site when a site-content page is saved.
- * Version: 1.3.0
+ * Description: Registers the megcmusic.com site-content field groups (Secure Custom Fields / ACF) from bundled JSON, pings GitHub to rebuild the site when a site-content page is saved, and points every "View", "Preview" and "Visit Site" link — and every visitor who lands on this host's front end — at the live site on megcmusic.com.
+ * Version: 1.4.0
  * Requires PHP: 8.1
  * Author: The Shokunin Crafthouse
  * License: GPL-2.0-or-later
@@ -20,6 +20,7 @@
  * Configuration — define in wp-config.php (never in this file, never in the DB):
  *   define( 'MEGC_GH_PAT',  '...' );  // fine-grained PAT, this repo only
  *   define( 'MEGC_GH_REPO', 'The-Shokunin-Crafthouse/megcmusic-site' );
+ *   define( 'MEGC_LIVE_ORIGIN', 'https://megcmusic.com' ); // optional; this is the default
  */
 
 if ( ! defined( 'ABSPATH' ) ) {
@@ -134,7 +135,7 @@ add_action( 'save_post_page', function ( $post_id, $post, $update ) {
 					'Accept'               => 'application/vnd.github+json',
 					'Authorization'        => 'Bearer ' . MEGC_GH_PAT,
 					'X-GitHub-Api-Version' => '2022-11-28',
-					'User-Agent'           => 'megc-site-content/1.3.0',
+					'User-Agent'           => 'megc-site-content/1.4.0',
 				),
 				'body'    => wp_json_encode(
 					array(
@@ -161,3 +162,187 @@ add_action( 'save_post_page', function ( $post_id, $post, $update ) {
 		error_log( 'megc-site-content: suppressed exception — ' . $e->getMessage() );
 	}
 }, 20, 3 );
+
+/* -------------------------------------------------------------------------
+ * The front door (1.4.0).
+ *
+ * WordPress on this host is Meg's editing surface; the site visitors see is
+ * the Next.js front-end on megcmusic.com, rebuilt from her fields. WordPress
+ * does not know that: its `home` option is this host, so "Visit Site", every
+ * page's "View" link and the editor's "Preview" button all open the old
+ * Storefront theme here, which renders none of her fields. The three hooks
+ * below give WordPress the live address for every page it has one for.
+ *
+ * `home`/`siteurl` are deliberately left alone: moving `home` to the apex
+ * would also move `rest_url()` (the block editor's API root), WooCommerce's
+ * cart/checkout permalinks and The Events Calendar's ticket pages onto a host
+ * that does not serve them.
+ * ---------------------------------------------------------------------- */
+
+/** Origin of the live site. Overridable from wp-config for a staging host. */
+function megc_live_origin(): string {
+	$origin = defined( 'MEGC_LIVE_ORIGIN' ) ? (string) MEGC_LIVE_ORIGIN : 'https://megcmusic.com';
+	return rtrim( $origin, '/' );
+}
+
+/**
+ * The live route for a WordPress page, or null when the page has no home on
+ * the live site and must keep being served here (WooCommerce cart, checkout
+ * and account; Event Tickets checkout; pages the live site still links to on
+ * this host). Pure: no WordPress calls, so it is unit-tested in
+ * tests/live-routes.test.php. Keep the ids in step with
+ * megc_site_content_page_ids() and with src/app/**\/page.tsx.
+ *
+ * A route may carry a fragment: the section of the live page that the
+ * WordPress page feeds (the ids in src/app/**\/page.tsx).
+ */
+function megc_live_route_for( int $post_id, string $slug ): ?string {
+	$by_id = array(
+		4    => '/',                                   // home
+		5    => '/booking',                            // contact-me
+		10   => '/media',                              // media
+		20   => '/shows',                              // events (Shows lede)
+		608  => '/epk',                                // press-kit
+		1847 => '/shop',                               // shop (lede)
+		2931 => '/music#music-formats',                // solo-acoustic (Live Format card)
+		2939 => '/music#music-formats',                // full-band (Live Format card)
+		3742 => '/music#music-collab',                 // collabs (Work With Me)
+		3666 => '/epk#epk-setlist',                    // sample-set-list
+		4350 => '/fyc/shadows-of-a-ghost-town',        // FYC campaign + release page
+		4566 => '/fyc/kindred-spirits',                // archived FYC campaign
+		4378 => '/music/kindred-spirits',              // release
+		4395 => '/music/songs-from-the-sofa',          // release (WP slug carries a "-2")
+		4403 => '/music/breaker-breaker',              // release
+		4411 => '/music/aint-going-back',              // release
+		5560 => '/media#media-watch',                  // videos
+		5562 => '/music',                              // music
+	);
+	if ( isset( $by_id[ $post_id ] ) ) {
+		return $by_id[ $post_id ];
+	}
+	if ( 'site-poetry' === $slug ) {
+		return '/poetry';
+	}
+	return null;
+}
+
+/**
+ * A release page Meg adds later has no id above; it is found through the
+ * Music page's "Your releases" rows, exactly as the site finds it. Null when
+ * the page is not a release or the field API is unavailable.
+ */
+function megc_release_route_for( int $post_id ): ?string {
+	try {
+		if ( ! function_exists( 'get_field' ) ) {
+			return null;
+		}
+		$rows = get_field( 'releases', 5562 );
+		if ( ! is_array( $rows ) ) {
+			return null;
+		}
+		foreach ( $rows as $row ) {
+			$page = is_array( $row ) ? ( $row['release_page'] ?? null ) : null;
+			$id   = $page instanceof WP_Post ? $page->ID : ( is_array( $page ) ? (int) ( $page['ID'] ?? 0 ) : (int) $page );
+			if ( $id === $post_id ) {
+				$post = get_post( $post_id );
+				return $post instanceof WP_Post && '' !== $post->post_name ? '/music/' . $post->post_name : null;
+			}
+		}
+	} catch ( Throwable $e ) {
+		error_log( 'megc-site-content: release route lookup suppressed — ' . $e->getMessage() );
+	}
+	return null;
+}
+
+/** Absolute live URL for a page, or null when it stays on this host. */
+function megc_live_url_for_post( $post ): ?string {
+	try {
+		$post = get_post( $post );
+		if ( ! $post instanceof WP_Post || 'page' !== $post->post_type ) {
+			return null;
+		}
+		$route = megc_live_route_for( (int) $post->ID, (string) $post->post_name );
+		if ( null === $route ) {
+			$route = megc_release_route_for( (int) $post->ID );
+		}
+		return null === $route ? null : megc_live_origin() . $route;
+	} catch ( Throwable $e ) {
+		error_log( 'megc-site-content: live url suppressed — ' . $e->getMessage() );
+		return null;
+	}
+}
+
+/** "View" links everywhere WordPress builds a page permalink (list table,
+ *  editor, admin bar, REST `link`). WooCommerce and Event Tickets pages map
+ *  to null and keep their own permalinks. */
+add_filter( 'page_link', function ( $link, $post_id ) {
+	$live = megc_live_url_for_post( $post_id );
+	return null === $live ? $link : $live;
+}, 10, 2 );
+
+/** The editor's "Preview" button. The live site renders what is published,
+ *  so the preview is the published page; the guide says to Update, wait,
+ *  then look. */
+add_filter( 'preview_post_link', function ( $link, $post ) {
+	$live = megc_live_url_for_post( $post );
+	return null === $live ? $link : $live;
+}, 10, 2 );
+
+/** The admin bar's site name and "Visit Site" open the live site. */
+add_action( 'admin_bar_menu', function ( $bar ) {
+	try {
+		if ( ! $bar instanceof WP_Admin_Bar ) {
+			return;
+		}
+		foreach ( array( 'site-name', 'view-site' ) as $id ) {
+			$node = $bar->get_node( $id );
+			if ( $node ) {
+				$bar->add_node( array( 'id' => $id, 'href' => megc_live_origin() . '/' ) );
+			}
+		}
+	} catch ( Throwable $e ) {
+		error_log( 'megc-site-content: admin bar suppressed — ' . $e->getMessage() );
+	}
+}, 100 );
+
+/**
+ * A visitor (Meg included) who reaches this host's front end is sent to the
+ * live page. Only requests the live site has a home for are redirected;
+ * WooCommerce, Event Tickets and The Events Calendar keep serving here, as
+ * do feeds, previews of nothing, and any page mapped to null. `?megc_wp=1`
+ * shows the WordPress theme anyway, for debugging.
+ */
+add_action( 'template_redirect', function () {
+	try {
+		if ( is_admin() || wp_doing_ajax() || wp_doing_cron() || ( defined( 'REST_REQUEST' ) && REST_REQUEST ) ) {
+			return;
+		}
+		if ( isset( $_GET['megc_wp'] ) || is_feed() || is_robots() || is_trackback() ) { // phpcs:ignore WordPress.Security.NonceVerification.Recommended
+			return;
+		}
+		if ( function_exists( 'is_woocommerce' ) && ( is_woocommerce() || is_cart() || is_checkout() || is_account_page() ) ) {
+			return;
+		}
+		if ( is_singular( 'tribe_events' ) || is_post_type_archive( 'tribe_events' ) || is_tax( 'tribe_events_cat' ) ) {
+			return;
+		}
+
+		$target = null;
+		if ( is_front_page() ) {
+			$target = megc_live_origin() . '/';
+		} elseif ( is_page() ) {
+			$target = megc_live_url_for_post( get_queried_object() );
+		}
+		if ( null === $target ) {
+			return;
+		}
+		// 302, not 301: browsers cache a 301 forever, and this map will change
+		// as pages are added; the live site is where the page is shown, not
+		// where it lives.
+		wp_redirect( $target, 302 ); // phpcs:ignore WordPress.Security.SafeRedirect.wp_redirect_wp_redirect -- fixed origin from megc_live_origin(), never user input
+		exit;
+	} catch ( Throwable $e ) {
+		error_log( 'megc-site-content: front-door redirect suppressed — ' . $e->getMessage() );
+	}
+}, 1 );
+
