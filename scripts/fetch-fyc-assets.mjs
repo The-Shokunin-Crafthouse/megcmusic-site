@@ -31,6 +31,7 @@
 import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
+import { withRetry } from "./lib/retry.mjs";
 
 // Env overrides are used only when they parse as absolute URLs — the Vercel
 // env delivers these set-but-invalid (runs 33989616503, 34045385710: fetch
@@ -99,9 +100,19 @@ function extensionOf(buf) {
 }
 
 async function fetchJson(url) {
-  const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
-  if (!res.ok) throw new Error(`GET ${url} → HTTP ${res.status}`);
-  return res.json();
+  return withRetry(async () => {
+    const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
+    if (!res.ok) throw new Error(`GET ${url} → HTTP ${res.status}`);
+    return res.json();
+  });
+}
+
+async function fetchSheet(url) {
+  return withRetry(async () => {
+    const res = await fetch(url, { signal: AbortSignal.timeout(30000) });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return Buffer.from(await res.arrayBuffer());
+  });
 }
 
 async function main() {
@@ -136,9 +147,7 @@ async function main() {
         continue;
       }
       try {
-        const res = await fetch(photonSheet(src), { signal: AbortSignal.timeout(30000) });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
-        const buf = Buffer.from(await res.arrayBuffer());
+        const buf = await fetchSheet(photonSheet(src));
         if (buf.length < MIN_BYTES) throw new Error(`only ${buf.length} bytes`);
         const ext = extensionOf(buf);
         if (!ext) throw new Error("not a PNG/JPEG/WebP (magic bytes)");

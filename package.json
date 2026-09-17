@@ -10,7 +10,7 @@
     "verify:apis": "node --env-file=.env.local --import tsx scripts/verify-apis.ts",
     "playbook:backfill": "node --env-file=.env.local --import tsx scripts/playbook-backfill.ts",
     "playbook:seed-tips": "node --env-file=.env.local --import tsx scripts/seed-tips.ts",
-    "test": "node --import tsx --test \"src/**/*.test.ts\""
+    "test": "node --import tsx --test \"src/**/*.test.ts\" \"scripts/**/*.test.mjs\""
   },
   "dependencies": {
     "@phosphor-icons/react": "^2.1.10",

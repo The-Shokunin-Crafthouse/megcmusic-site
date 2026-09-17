@@ -23,6 +23,7 @@
 
 import { writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
+import { withRetry } from "./lib/retry.mjs";
 
 // `??` is not enough: the Vercel env delivers NEXT_PUBLIC_WP_ORIGIN set-but-empty,
 // which `??` passes through, and fetch then throws "Failed to parse URL" before
@@ -58,9 +59,11 @@ const SURFACES = {
 async function resolvePageId(target) {
   if (typeof target === "number") return target;
   const url = `${API}/pages?slug=${encodeURIComponent(target.slug)}&_fields=id`;
-  const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
-  if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} resolving slug "${target.slug}"`);
-  const rows = await res.json();
+  const rows = await withRetry(async () => {
+    const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} resolving slug "${target.slug}"`);
+    return res.json();
+  });
   if (!Array.isArray(rows) || !rows.length) {
     throw new Error(`no published page with slug "${target.slug}"`);
   }
@@ -69,24 +72,18 @@ async function resolvePageId(target) {
 
 async function readAcf(pageId) {
   const url = `${API}/pages/${pageId}?acf_format=standard&_fields=acf`;
-  let lastError;
-  for (let attempt = 0; attempt < 3; attempt++) {
-    try {
-      const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
-      if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
-      const json = await res.json();
-      if (!json.acf || typeof json.acf !== "object" || Array.isArray(json.acf)) {
-        throw new Error("response carries no acf object — is the megc-site-content plugin active?");
-      }
-      if (!Object.keys(json.acf).length) {
-        throw new Error("acf object is empty — the field group is not attached to this page");
-      }
-      return json.acf;
-    } catch (e) {
-      lastError = e;
+  return withRetry(async () => {
+    const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+    if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText}`);
+    const json = await res.json();
+    if (!json.acf || typeof json.acf !== "object" || Array.isArray(json.acf)) {
+      throw new Error("response carries no acf object — is the megc-site-content plugin active?");
     }
-  }
-  throw new Error(String(lastError));
+    if (!Object.keys(json.acf).length) {
+      throw new Error("acf object is empty — the field group is not attached to this page");
+    }
+    return json.acf;
+  });
 }
 
 /** ACF echoes a `<field>_source` sibling for every field; it is editor
