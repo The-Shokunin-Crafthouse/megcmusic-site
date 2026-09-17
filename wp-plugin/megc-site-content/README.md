@@ -37,6 +37,7 @@ Override the live origin with `define( 'MEGC_LIVE_ORIGIN', 'https://…' )` in w
 
 ## Version history
 
+- **1.4.1** (Sprint 16 Phase 2, 2026-09-17) — JSON only: the Release Reviews repeater gains a *Kind* select (Quote / Accolade); the Music group gains a message saying the editor body is not shown; the Work With Me offering *Detail* says where it renders. Re-upload per step 2 (once, with 1.4.0).
 - **1.4.0** (2026-09-17) — the front door: `page_link`, `preview_post_link`, admin-bar and `template_redirect` hooks point WordPress at the live site (see above). Re-upload per step 2; verify by opening any page's "View" link from the Pages list — it opens `megcmusic.com`.
 
 - **1.3.0** (Sprint 13, 2026-09-10) — Home field group gains a "Blocks" tab: the `home_blocks` Flexible Content field with three layouts (announcement, pull quote, video). JSON only; no new hooks. Re-upload per step 2 (Replace current with uploaded); verify per step 6 — `acf` on page 4 gains `home_blocks: false`.

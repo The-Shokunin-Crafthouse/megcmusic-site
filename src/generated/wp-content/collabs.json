@@ -1,0 +1,41 @@
+{
+  "collab_groups": [
+    {
+      "heading": "For fans & community",
+      "blurb": "Come closer than the back row.",
+      "offerings": [
+        {
+          "title": "The Cave Crew — her Facebook group for friends and fans",
+          "detail": ""
+        },
+        {
+          "title": "House concerts, weddings, and private events",
+          "detail": ""
+        },
+        {
+          "title": "Postcards from the road — the mailing list",
+          "detail": ""
+        }
+      ]
+    },
+    {
+      "heading": "For business & brands",
+      "blurb": "Original music, made for the moment.",
+      "offerings": [
+        {
+          "title": "Custom songs and jingles for branding, ads, and events",
+          "detail": ""
+        },
+        {
+          "title": "Concerts for corporate events, retreats, and client appreciation",
+          "detail": ""
+        },
+        {
+          "title": "Brand partnerships across performances and social",
+          "detail": ""
+        }
+      ]
+    }
+  ],
+  "cave_crew_url": "https://www.facebook.com/groups/1636196277191028/"
+}

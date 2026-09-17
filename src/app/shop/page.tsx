@@ -3,15 +3,17 @@ import { getProducts } from "@/lib/api/woocommerce";
 import { ProductGrid } from "@/components/Shop/ProductGrid";
 import styles from "./shop.module.css";
 import { heroImage } from "@/lib/hero-images";
+import { SHOP_PAGE } from "@/lib/page-basics";
 
 // Products are low-churn — refresh daily. A new item Meg adds in WooCommerce
 // appears on the next ISR cycle (brief: products ISR 24h).
 export const revalidate = 86400;
 
+// Lede and metadata from the Shop page in Meg's dashboard (WP page 1847,
+// "Page Basics" field group) — Sprint 16 Phase 2.
 export const metadata: Metadata = {
-  title: "Shop — MegCMusic",
-  description:
-    "Records, books, and merch from Meghan Clarisse Cave — CDs, koozies, hats, and more. Ships from her own WooCommerce store.",
+  title: SHOP_PAGE.metaTitle,
+  description: SHOP_PAGE.metaDescription,
 };
 
 // The WP host blocks datacenter IPs, so the build/serverless fetch is usually
@@ -46,10 +48,7 @@ export default async function ShopPage() {
               ★★★
             </p>
             <h1 className={styles.title}>Merch &amp; Music</h1>
-            <p className={styles.lede}>
-              Records, books, and road-worn favorites — packed and shipped by
-              Meghan herself.
-            </p>
+            <p className={styles.lede}>{SHOP_PAGE.lede}</p>
           </div>
         </header>
 

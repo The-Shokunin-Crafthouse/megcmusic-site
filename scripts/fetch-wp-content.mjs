@@ -53,6 +53,13 @@ const SURFACES = {
   // Created by the Phase-2 migration rather than pre-existing, and the plugin
   // locates its field group by slug — so resolve it the same way.
   poetry: { slug: "site-poetry" }, // "Site: Poetry"
+  // Sprint 16 Phase 2 — the groups the 2026-09-05 migration wrote and nothing read.
+  booking: 5, // "Booking" (contact-me) — lede, intro, checklist, facts, metadata
+  shows: 20, // "Shows" (events) — lede + metadata
+  shop: 1847, // "Shop" — lede + metadata
+  "solo-acoustic": 2931, // Live Format card
+  "full-band": 2939, // Live Format card
+  collabs: 3742, // "Collabs" — Work With Me groups + Cave Crew link
 };
 
 /** Resolve a `{ slug }` surface to its page id. */

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { fetchPageContentBrowser } from "@/lib/api/wordpress-browser";
 import { parsePhotos } from "@/lib/media-photos";
-import type { LiveFormat } from "@/config/formats";
+import type { LiveFormat } from "@/lib/formats-content";
 import styles from "./music.module.css";
 
 /**

@@ -22,6 +22,8 @@
 import data from "@/generated/releases.json";
 import { RELEASE_ROUTES, type ReleaseRoute } from "@/config/releases";
 import { WP_ORIGIN } from "@/lib/wp-origin";
+import { paragraphsFromHtml } from "@/lib/wp-content";
+import { parseReviews, type Review } from "@/lib/release-reviews";
 
 interface Release {
   year: string;
@@ -87,6 +89,25 @@ export const MUSIC_PAGE = {
   metaTitle: data.metaTitle,
   metaDescription: data.metaDescription,
 };
+
+/**
+ * Optional intro prose from the WP Music page's own body, shown as "Liner
+ * Notes" above the discography. That body is structurally a release gallery —
+ * nearly every <p> is empty, a bare cover link, or a <strong> heading — so
+ * only real sentences (six-plus words) count. Read at build (Sprint 16 Phase
+ * 2): the request-time read it replaces could never succeed on production,
+ * whose runtime cannot reach WordPress, so this prose never rendered.
+ */
+export const MUSIC_INTRO: string[] = paragraphsFromHtml(data.introHtml ?? "").filter(
+  (para) => para.split(/\s+/).length >= 6,
+);
+
+/** Press for a release by its ROUTE slug — the "Release Reviews" repeater on
+ *  that release's WP page (Sprint 16 Phase 2; supersedes src/config/reviews.ts). */
+export function getReviews(slug: string): Review[] {
+  const row = data.releases.find((r) => routeFor(r)?.slug === slug);
+  return parseReviews(row?.reviews);
+}
 
 /**
  * Newest first, both listings. Before this the order was whatever order Meg's

@@ -1,0 +1,24 @@
+{
+  "page_photo": false,
+  "page_lede": "Tell Meghan about your show and she’ll get back to you directly. Bars, venues, festivals, and private events — solo or full band.",
+  "intro": "Every show is booked personally — no agency in between. Send a few details and Meghan will follow up from her own inbox to work out the rest.",
+  "include_items": [
+    {
+      "item": "The date (or a few options) and the city"
+    },
+    {
+      "item": "Venue name and rough set length"
+    },
+    {
+      "item": "Solo acoustic or full band"
+    },
+    {
+      "item": "Anything else — budget, ticketing, a private event"
+    }
+  ],
+  "fact_formats": "Solo Acoustic · Duo · Full Band",
+  "fact_based": "Front Range, Colorado",
+  "fact_plays": "Bars · Venues · Festivals · Private events",
+  "meta_title": "Booking — MegCMusic",
+  "meta_description": "Book Meghan Clarisse Cave for your venue, festival, or private event — solo acoustic or full band across the Colorado Front Range and beyond."
+}

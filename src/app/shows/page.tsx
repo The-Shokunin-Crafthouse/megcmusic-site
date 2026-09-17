@@ -3,14 +3,16 @@ import { ShowsSection } from "@/components/ShowsSection/ShowsSection";
 import { getAllEvents, type TribeEvent } from "@/lib/api/events";
 import styles from "./shows.module.css";
 import { heroImage } from "@/lib/hero-images";
+import { SHOWS_PAGE } from "@/lib/page-basics";
 
 // Shows refresh hourly, same cadence as the home section.
 export const revalidate = 3600;
 
+// Lede and metadata from the Shows page in Meg's dashboard (WP page 20,
+// "Page Basics" field group) — Sprint 16 Phase 2.
 export const metadata: Metadata = {
-  title: "Shows — MegCMusic",
-  description:
-    "Meghan Clarisse Cave's full show calendar — every upcoming date and the archive of shows already played.",
+  title: SHOWS_PAGE.metaTitle,
+  description: SHOWS_PAGE.metaDescription,
 };
 
 // String comparison sorts these "YYYY-MM-DD HH:MM:SS" stamps chronologically
@@ -63,9 +65,7 @@ export default async function ShowsPage() {
               ★★★
             </p>
             <h1 className={styles.title}>Shows</h1>
-            <p className={styles.lede}>
-              Every date on the calendar — and every one already played.
-            </p>
+            <p className={styles.lede}>{SHOWS_PAGE.lede}</p>
           </div>
         </header>
 

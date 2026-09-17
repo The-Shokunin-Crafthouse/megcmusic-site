@@ -20,9 +20,6 @@
 import { readFileSync } from "node:fs";
 import path from "node:path";
 
-import { REVIEWS } from "../../src/config/reviews";
-import { LIVE_FORMATS } from "../../src/config/formats";
-import { COLLAB_GROUPS, CAVE_CREW_URL } from "../../src/config/collaborate";
 
 const DRY_RUN = process.argv.includes("--dry-run");
 const ORIGIN = process.env.NEXT_PUBLIC_WP_ORIGIN || "https://admin.megcmusic.com";
@@ -139,40 +136,16 @@ async function main() {
   // Phase 3 made WordPress their source of truth (migrated + verified in run
   // 33978411393) — a re-run must never overwrite Meg's edits with stale data.
 
-  const reviewsFor = (slug: string) =>
-    (REVIEWS[slug] ?? []).map((r) => ({
-      quote_or_accolade: r.quote ?? r.accolade ?? "",
-      source: r.source,
-      link: r.href ?? "",
-    }));
-
   const writes: Array<{ page: number; label: string; acf: Record<string, unknown> }> = [
     // NOTE: the home and music payloads (the latter including the release
     // registry) were removed as Phase 3 made WordPress the source of truth for
     // those surfaces — migrated and verified in run 33978411393. A re-run must
     // never overwrite Meg's edits with stale data.
-    { page: ids.fycShadows, label: "reviews:shadows", acf: { reviews: reviewsFor("shadows-of-a-ghost-town") } },
-    { page: ids.kindred, label: "reviews:kindred", acf: { reviews: reviewsFor("kindred-spirits") } },
-    {
-      page: ids.solo, label: "format:solo",
-      acf: { format_label: LIVE_FORMATS[0].label, format_blurb: LIVE_FORMATS[0].blurb },
-    },
-    {
-      page: ids.band, label: "format:band",
-      acf: { format_label: LIVE_FORMATS[1].label, format_blurb: LIVE_FORMATS[1].blurb },
-    },
-    {
-      page: ids.collabs, label: "work-with-me",
-      acf: {
-        collab_groups: COLLAB_GROUPS.map((g) => ({
-          heading: g.heading,
-          blurb: g.blurb,
-          // Config offerings are single strings — stored whole in `title`, detail empty.
-          offerings: g.offerings.map((o) => ({ title: o, detail: "" })),
-        })),
-        cave_crew_url: CAVE_CREW_URL,
-      },
-    },
+    // NOTE: the release-reviews, live-format and work-with-me payloads were
+    // removed as Sprint 16 Phase 2 made WordPress the source of truth for those
+    // surfaces (migrated 2026-09-05; read by the site from 2026-09-17). A re-run
+    // must never overwrite Meg's edits with stale data — page 4350 already
+    // carries a review row she added after the migration.
     // NOTE: the press-kit, media and videos payloads were removed as Phase 3
     // made WordPress the source of truth for those surfaces (migrated +
     // verified in run 33978411393) — a re-run must never overwrite Meg's edits
