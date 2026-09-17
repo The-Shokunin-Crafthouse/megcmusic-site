@@ -17,7 +17,7 @@
 >
 > **Turn ceiling:** 20 turns. On hitting it: open the PR as draft with what exists, park with a resume note in this file's status line, stop.
 >
-> **Phase status (2026-09-17):** 0 diagnosis ✅ · 1 fix — in progress · 2 close-out — not started.
+> **Phase status (2026-09-17):** 0 diagnosis ✅ · 1 fix ✅ (branch `fix/prebuild-fetch-retry`; tests red→green→planted-red→green; four scripts green against live WP) · 2 close-out — ADR + LEARNINGS logged; awaiting PR merge. Destination proof of a retried read in production: open, recorded when it first happens.
 
 ---
 
