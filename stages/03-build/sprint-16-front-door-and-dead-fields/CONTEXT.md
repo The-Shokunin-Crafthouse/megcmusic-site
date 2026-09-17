@@ -21,7 +21,7 @@
 >
 > **Turn ceiling:** 40 turns across Phases 1–2 in one session. On hitting it: open what exists as a draft PR, park with a resume note here, stop.
 >
-> **Phase status (2026-09-17):** 0 audit ✅ (`output/parity-audit.md`) · 1 front door — PR #148 open, awaiting merge + plugin upload · 2 dead fields — PR open (stacked on #148), tests 47/47, oracle green, one named content difference (4350 row 3) · 3 blocks everywhere — designed in §4, filed as Sprint 17 on Levi's block-count answer.
+> **Phase status (2026-09-17):** 0 audit ✅ · 1 front door ✅ (#148 merged) · 2 dead fields ✅ (#149 merged, production deployed 22:20 UTC; the Shadows review row Meg added is live) · plugin 1.4.1 uploaded by Levi the same day (its `kind` default flipped old rows — corrected in Sprint 17, plugin 1.5.0) · 3 → Sprint 17 filed on Levi's "5".
 
 ---
 

@@ -20,11 +20,11 @@
             "quote": "Quote — a review line, shown in quotation marks",
             "accolade": "Accolade — a chart placement or award, shown plain"
           },
-          "default_value": "quote",
-          "allow_null": 0,
+          "allow_null": 1,
           "return_format": "value",
           "ui": 0,
-          "instructions": "Pick how it looks on the site. Rows saved before this box existed are sorted by their shape — a sourced sentence reads as a quote, a placement like “Top 10” or an unsourced line as an accolade."
+          "instructions": "Optional. Leave it on Automatic and a sourced sentence reads as a quote, a placement like “Top 10” or an unsourced line as an accolade. Pick one to override. A placement that starts with “#”, a number or “Top” always shows as an accolade.",
+          "placeholder": "Automatic — decided by its shape"
         },
         {
           "key": "field_megc_reviews_quote",

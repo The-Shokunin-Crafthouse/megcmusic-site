@@ -1,7 +1,8 @@
 import { HomeScene } from "@/components/HomeScene/HomeScene";
 import { LinerNotes } from "@/components/LinerNotes/LinerNotes";
 import { Instagram } from "@/components/Instagram/Instagram";
-import { HomeBlocks } from "@/components/HomeBlocks/HomeBlocks";
+import { WhatsNew } from "@/components/Blocks/WhatsNew";
+import { PageLayout } from "@/components/Blocks/PageLayout";
 import { EPK } from "@/components/EPK/EPK";
 import { Videos } from "@/components/Videos/Videos";
 import { Newsletter } from "@/components/Newsletter/Newsletter";
@@ -33,6 +34,28 @@ const byStart = (dir: 1 | -1) => (a: TribeEvent, b: TribeEvent) =>
 const byPublished = (a: TribeEvent, b: TribeEvent) =>
   (b.date ?? "").localeCompare(a.date ?? "");
 
+const SECTIONS = {
+  "liner-notes": () => <LinerNotes />,
+  instagram: () => <Instagram />,
+  "whats-new": () => <WhatsNew />,
+  "press-kit": () => (
+    <div className={styles.bootWrap}>
+      <EPK />
+      <BootScene />
+    </div>
+  ),
+  videos: () => <Videos />,
+  "mailing-list": () => (
+    <Newsletter
+      headline={HOME_CONTENT.newsletterHeadline}
+      blurb={HOME_CONTENT.newsletterBlurb}
+      birthdayNote={HOME_CONTENT.newsletterBirthdayNote}
+    />
+  ),
+  discography: () => <Discography />,
+  singles: () => <Singles />,
+};
+
 export default async function Home() {
   const [upcomingRaw, pastRaw] = await Promise.all([
     safeEvents("upcoming"),
@@ -46,21 +69,9 @@ export default async function Home() {
   return (
     <div className={styles.page}>
       <HomeScene upcoming={upcoming} justAdded={justAdded} past={past} />
-      <LinerNotes />
-      <Instagram />
-      <HomeBlocks />
-      <div className={styles.bootWrap}>
-        <EPK />
-        <BootScene />
-      </div>
-      <Videos />
-      <Newsletter
-        headline={HOME_CONTENT.newsletterHeadline}
-        blurb={HOME_CONTENT.newsletterBlurb}
-        birthdayNote={HOME_CONTENT.newsletterBirthdayNote}
-      />
-      <Discography />
-      <Singles />
+      {/* Sprint 17: Meg's order, from Home's "Page layout" list; the map
+          below names every section in src/lib/page-layouts.ts (home). */}
+      <PageLayout items={HOME_CONTENT.layout} render={SECTIONS} />
       <SiteFooter />
     </div>
   );

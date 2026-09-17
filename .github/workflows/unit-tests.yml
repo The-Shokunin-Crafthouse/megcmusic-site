@@ -16,6 +16,8 @@ jobs:
           node-version: 22
       - run: npm ci
       - run: npm test
+      - name: Page-layout field groups match the registry
+        run: npm run layout:check
       # Dependency-free and fully stubbed; runs here rather than in its own job
       # because it needs nothing the test job has not already set up.
       - run: bash scripts/ci/test/vercel-deploy.test.sh

@@ -6,6 +6,8 @@ import { getVideos, type Video } from "@/lib/api/youtube";
 import { getPage } from "@/lib/api/wordpress";
 import { parsePhotos, type Photo } from "@/lib/media-photos";
 import { getMediaContent } from "@/lib/media-content";
+import { PageLayout } from "@/components/Blocks/PageLayout";
+
 import styles from "./media.module.css";
 import { heroImage } from "@/lib/hero-images";
 
@@ -44,6 +46,26 @@ export default async function MediaPage() {
     safePhotos(),
   ]);
 
+  const sections = {
+    watch: () =>
+      videos.length > 0 ? (
+        <section className={styles.section} aria-labelledby="media-watch">
+          <div className={styles.inner}>
+            <SectionLabel id="media-watch">Watch</SectionLabel>
+            <VideosGallery videos={videos} />
+          </div>
+        </section>
+      ) : null,
+    photos: () => (
+      <section className={styles.section} aria-labelledby="media-photos">
+        <div className={styles.inner}>
+          <SectionLabel id="media-photos">Photos</SectionLabel>
+          <PhotoGrid serverPhotos={photos} />
+        </div>
+      </section>
+    ),
+  };
+
   return (
     <div className={styles.page}>
       <img
@@ -66,21 +88,8 @@ export default async function MediaPage() {
           </div>
         </header>
 
-        {videos.length > 0 && (
-          <section className={styles.section} aria-labelledby="media-watch">
-            <div className={styles.inner}>
-              <SectionLabel id="media-watch">Watch</SectionLabel>
-              <VideosGallery videos={videos} />
-            </div>
-          </section>
-        )}
-
-        <section className={styles.section} aria-labelledby="media-photos">
-          <div className={styles.inner}>
-            <SectionLabel id="media-photos">Photos</SectionLabel>
-            <PhotoGrid serverPhotos={photos} />
-          </div>
-        </section>
+        {/* Sprint 17: Meg's order from the Media page's "Page layout" list. */}
+        <PageLayout items={media.layout} render={sections} />
       </main>
     </div>
   );

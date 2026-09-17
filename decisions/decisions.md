@@ -2116,3 +2116,24 @@ The fallback string made it worse by sounding authoritative: "no step had report
 **Consequences.** Easier: every field in Meg's dashboard now changes something on the site — the guide is true. Harder: `releases.json` carries ~41 KB of the Music page's raw body so the one paragraph parser can run at build; a future reader of that file should ignore `introHtml`. Two more pages (2931, 2939, 3742, 5, 20, 1847 were already tracked) fire rebuilds on save — no change to the dispatch list.
 
 **Alternatives considered.** *Parse the intro in the fetch script* — rejected: a second copy of the paragraph parser (learning #234). *Keep the config files as fallbacks* — rejected: the fallback is how these fields went dead for twelve days. *A `kind` select only, no shape rule* — rejected: it would flip every existing row to Quote (the default) and break parity on `/music/shadows-of-a-ghost-town`.
+
+## 2026-09-17 — Sprint 17: one "Page layout" control on every page, five block types
+
+**Stage:** 03-build (Sprint 17 kickoff)
+**Type:** Product · Architecture
+**Status:** accepted — Levi's pick ("5", 2026-09-17) on the Sprint 16 §4 question
+
+**Context.** Levi's third ask of 2026-09-17: Meg adds new content blocks and reorders the content on every page, with no dev work. Sprint 11 decision 1.4 (edit existing surfaces only; no page builder) was already superseded for one zone on Home (2026-09-10). This extends the same mechanism, not a page builder, to every page.
+
+**Decisions.**
+1. **One SCF Flexible Content field per route, `layout_<route>`,** in its own "Page layout" field group placed after the page's content groups. Its rows are (a) that route's **sections** as zero-content layouts (one row per section at most, with a "Hide this section" toggle) and (b) **five block types**: announcement, pull quote, video (Sprint 13, unchanged), plus **text** (a ★★★-labelled heading with paragraphs — the site's Liner Notes prose) and **photo** (an image with a caption, served through Jetpack Photon like the media gallery). Hero, page header, chrome and footer are outside the list.
+2. **Empty field = today's page, byte-identical.** Rows Meg lists render first in her order; sections she has not listed follow in today's order; a hidden section is dropped. So adding one block never empties a page, and hiding is explicit. Duplicate or unknown section rows are dropped and logged at build.
+3. **Route, not page, keys the field.** Page 4350 feeds two routes (the FYC campaign and the release page), so it carries `layout_fyc` and `layout_release`. Release pages share `layout_release`; each release page orders its own route.
+4. **The registry is the single source.** `src/lib/page-layouts.ts` names every route's sections (id, label, help text). `scripts/wp-plugin/build-layout-groups.ts` generates the field-group JSON from it, and `--check` in `unit-tests.yml` fails any PR where the JSON and the registry disagree (learning #178).
+5. **Home's existing `home_blocks` zone stays** as the "What's New" section; `layout_home` orders it like any other section. Nothing Meg has already added moves.
+6. **New blocks get their a11y spec before their component** (`_config/design-system/a11y-spec.md`), tokens only, five states on anything interactive, reduced-motion path — Sprint 13 decision 5.
+7. **Photo blocks hotlink through Photon**, not the build-time download pattern the hero and FYC sheets use: the media gallery already serves every WP photo this way (`media-photos.ts`), a download step would add a fetch surface to every save-triggered build, and an image field's URL is Meg's own upload on her own host.
+
+**Consequences.** Easier: every page composes from one list Meg drags; a block is the same five things everywhere. Harder: eleven field groups and ~40 layouts of JSON, generated; a page's render tree becomes a registry lookup rather than plain JSX, so a new section is added in two places (registry + render map) and the check step exists to catch the third (the JSON). Plugin re-upload (1.5.0) is the human gate.
+
+**Alternatives considered.** *Sections must all be listed once Meg touches the list* — rejected: one added block would hide the whole page. *One global field with every section as a layout* — rejected: Meg would see other pages' sections on every page. *Download block photos at build* — rejected per decision 7.

@@ -5,6 +5,8 @@ import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { ARTIST_LINKS } from "@/lib/releases-content";
 import { getFycCampaign } from "@/lib/fyc-content";
+import { PageLayout } from "@/components/Blocks/PageLayout";
+
 import styles from "./fyc.module.css";
 import { heroImage } from "@/lib/hero-images";
 
@@ -30,6 +32,89 @@ const LISTEN = [
 export default async function FycPage() {
   const FYC = await getFycCampaign(SLUG);
   const VIDEO = FYC.videos[0];
+  const sections = {
+    press: () => null,
+    about: () => (
+      <section className={styles.section} aria-labelledby="fyc-about">
+        <div className={styles.inner}>
+          <SectionLabel id="fyc-about">About the Album</SectionLabel>
+          {FYC.about.map((paragraph) => (
+            <p key={paragraph} className={styles.about}>
+              {paragraph}
+            </p>
+          ))}
+        </div>
+      </section>
+    ),
+    watch: () =>
+      VIDEO ? (
+        <section className={styles.section} aria-labelledby="fyc-watch">
+          <div className={styles.inner}>
+            <SectionLabel id="fyc-watch">Watch — {VIDEO.title}</SectionLabel>
+            <a
+              className={styles.video}
+              href={`https://www.youtube.com/watch?v=${VIDEO.id}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={`Watch ${VIDEO.title} on YouTube`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                className={styles.videoThumb}
+                src={`https://i.ytimg.com/vi/${VIDEO.id}/hqdefault.jpg`}
+                alt=""
+                loading="lazy"
+                decoding="async"
+              />
+              <PlayCircle className={styles.videoPlay} weight="fill" aria-hidden="true" />
+            </a>
+          </div>
+        </section>
+      ) : null,
+    lyrics: () => null,
+    listen: () => (
+      <section className={styles.section} aria-labelledby="fyc-listen">
+        <div className={styles.inner}>
+          <SectionLabel id="fyc-listen">Listen</SectionLabel>
+          <div className={styles.links}>
+            {LISTEN.map((l) => (
+              <a
+                key={l.label}
+                className={styles.link}
+                href={l.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {l.label}
+                <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+              </a>
+            ))}
+          </div>
+        </div>
+      </section>
+    ),
+    more: () => (
+      <section className={styles.section} aria-labelledby="fyc-more">
+        <div className={styles.inner}>
+          <SectionLabel id="fyc-more">More</SectionLabel>
+          <div className={styles.links}>
+            <Link className={styles.link} href={FYC.albumHref}>
+              The album
+              <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+            </Link>
+            <Link className={styles.link} href="/epk">
+              Press kit
+              <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+            </Link>
+            <Link className={styles.link} href="/booking">
+              Contact
+              <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+            </Link>
+          </div>
+        </div>
+      </section>
+    ),
+  };
 
   return (
     <div className={styles.page}>
@@ -52,81 +137,10 @@ export default async function FycPage() {
           </div>
         </header>
 
-        <section className={styles.section} aria-labelledby="fyc-about">
-          <div className={styles.inner}>
-            <SectionLabel id="fyc-about">About the Album</SectionLabel>
-            {FYC.about.map((paragraph) => (
-              <p key={paragraph} className={styles.about}>
-                {paragraph}
-              </p>
-            ))}
-          </div>
-        </section>
-
-        {VIDEO ? (
-          <section className={styles.section} aria-labelledby="fyc-watch">
-            <div className={styles.inner}>
-              <SectionLabel id="fyc-watch">Watch — {VIDEO.title}</SectionLabel>
-              <a
-                className={styles.video}
-                href={`https://www.youtube.com/watch?v=${VIDEO.id}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label={`Watch ${VIDEO.title} on YouTube`}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className={styles.videoThumb}
-                  src={`https://i.ytimg.com/vi/${VIDEO.id}/hqdefault.jpg`}
-                  alt=""
-                  loading="lazy"
-                  decoding="async"
-                />
-                <PlayCircle className={styles.videoPlay} weight="fill" aria-hidden="true" />
-              </a>
-            </div>
-          </section>
-        ) : null}
-
-        <section className={styles.section} aria-labelledby="fyc-listen">
-          <div className={styles.inner}>
-            <SectionLabel id="fyc-listen">Listen</SectionLabel>
-            <div className={styles.links}>
-              {LISTEN.map((l) => (
-                <a
-                  key={l.label}
-                  className={styles.link}
-                  href={l.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  {l.label}
-                  <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <section className={styles.section} aria-labelledby="fyc-more">
-          <div className={styles.inner}>
-            <SectionLabel id="fyc-more">More</SectionLabel>
-            <div className={styles.links}>
-              <Link className={styles.link} href={FYC.albumHref}>
-                The album
-                <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-              </Link>
-              <Link className={styles.link} href="/epk">
-                Press kit
-                <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-              </Link>
-              <Link className={styles.link} href="/booking">
-                Contact
-                <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-              </Link>
-            </div>
-          </div>
-        </section>
+        {/* Sprint 17: Meg's order from this page's "Page layout" list. The
+            archived page has no press or lyrics sections; those ids render
+            nothing here. */}
+        <PageLayout items={FYC.layout} render={sections} />
       </main>
     </div>
   );

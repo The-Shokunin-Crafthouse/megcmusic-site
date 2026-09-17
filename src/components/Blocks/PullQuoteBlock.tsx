@@ -1,4 +1,4 @@
-import type { HomeBlock } from "@/lib/home-blocks";
+import type { Block } from "@/lib/blocks";
 import { PullQuote } from "../PullQuote/PullQuote";
 
 /**
@@ -7,6 +7,6 @@ import { PullQuote } from "../PullQuote/PullQuote";
  * quote marks are the panel's own, so she types neither. Nothing interactive:
  * no states, no motion. Spec: _config/design-system/a11y-spec.md.
  */
-export function PullQuoteBlock({ block }: { block: Extract<HomeBlock, { layout: "pull_quote" }> }) {
+export function PullQuoteBlock({ block }: { block: Extract<Block, { layout: "pull_quote" }> }) {
   return <PullQuote quote={block.quote} attribution={block.attribution || undefined} />;
 }

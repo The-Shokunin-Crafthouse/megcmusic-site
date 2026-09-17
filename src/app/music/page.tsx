@@ -4,7 +4,9 @@ import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { Discography } from "@/components/Discography/Discography";
 import { Singles } from "@/components/Singles/Singles";
-import { MUSIC_PAGE, MUSIC_INTRO } from "@/lib/releases-content";
+import { MUSIC_PAGE, MUSIC_INTRO, MUSIC_LAYOUT } from "@/lib/releases-content";
+import { PageLayout } from "@/components/Blocks/PageLayout";
+
 import { LIVE_FORMATS } from "@/lib/formats-content";
 import { COLLAB } from "@/lib/collab-content";
 import { FormatCard } from "./FormatCard";
@@ -20,11 +22,76 @@ export const metadata: Metadata = {
   description: MUSIC_PAGE.metaDescription,
 };
 
-export default function MusicPage() {
-  // Optional intro prose from the WP Music page's body, read at build
-  // (releases-content.ts) — the old request-time read never reached production.
-  const intro = MUSIC_INTRO;
+const SECTIONS = {
+  "liner-notes": () =>
+    MUSIC_INTRO.length > 0 ? (
+      <section className={styles.section} aria-labelledby="music-liner">
+        <div className={styles.inner}>
+          <SectionLabel id="music-liner">Liner Notes</SectionLabel>
+          <div className={styles.prose}>
+            {MUSIC_INTRO.map((para, i) => (
+              <p key={i} className={styles.para}>
+                {para}
+              </p>
+            ))}
+          </div>
+        </div>
+      </section>
+    ) : null,
+  discography: () => <Discography />,
+  singles: () => <Singles id="music-singles" surface="page" />,
+  "live-formats": () => (
+    <section className={styles.section} aria-labelledby="music-formats">
+      <div className={styles.inner}>
+        <SectionLabel id="music-formats">Live Formats</SectionLabel>
+        <div className={styles.formats}>
+          {LIVE_FORMATS.map((f) => (
+            <FormatCard key={f.slug} format={f} />
+          ))}
+        </div>
+      </div>
+    </section>
+  ),
+  "work-with-me": () => (
+    <section className={styles.section} aria-labelledby="music-collab">
+      <div className={styles.inner}>
+        <SectionLabel id="music-collab">Work With Me</SectionLabel>
+        <div className={styles.collab}>
+          {COLLAB.groups.map((g) => (
+            <div key={g.heading} className={styles.collabGroup}>
+              <h3 className={styles.collabHeading}>{g.heading}</h3>
+              <p className={styles.collabBlurb}>{g.blurb}</p>
+              <ul className={styles.collabList}>
+                {g.offerings.map((o) => (
+                  <li key={o.title} className={styles.collabItem}>
+                    {o.detail ? `${o.title} — ${o.detail}` : o.title}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+        <div className={styles.collabActions}>
+          <Link className={styles.collabCta} href="/booking">
+            Book or collaborate
+            <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
+          </Link>
+          <a
+            className={styles.collabGhost}
+            href={COLLAB.caveCrewUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Join the Cave Crew
+            <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+          </a>
+        </div>
+      </div>
+    </section>
+  ),
+};
 
+export default function MusicPage() {
   return (
     <div className={styles.page}>
       <img
@@ -47,77 +114,9 @@ export default function MusicPage() {
           </div>
         </header>
 
-        {intro.length > 0 && (
-          <section className={styles.section} aria-labelledby="music-liner">
-            <div className={styles.inner}>
-              <SectionLabel id="music-liner">Liner Notes</SectionLabel>
-              <div className={styles.prose}>
-                {intro.map((para, i) => (
-                  <p key={i} className={styles.para}>
-                    {para}
-                  </p>
-                ))}
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Release + track listings — the shared discography (home, /epk). */}
-        <Discography />
-
-        {/* Standalone singles, off the album list — shared with Home. */}
-        <Singles id="music-singles" surface="page" />
-
-        {/* How she performs — name + blurb from her two Live Format pages
-            (WP 2931 / 2939), photos from those pages' bodies. */}
-        <section className={styles.section} aria-labelledby="music-formats">
-          <div className={styles.inner}>
-            <SectionLabel id="music-formats">Live Formats</SectionLabel>
-            <div className={styles.formats}>
-              {LIVE_FORMATS.map((f) => (
-                <FormatCard key={f.slug} format={f} />
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* Work with me — community + business, from the WP Collabs page
-            (WP 3742, "Work With Me" fields — Sprint 16 Phase 2). */}
-        <section className={styles.section} aria-labelledby="music-collab">
-          <div className={styles.inner}>
-            <SectionLabel id="music-collab">Work With Me</SectionLabel>
-            <div className={styles.collab}>
-              {COLLAB.groups.map((g) => (
-                <div key={g.heading} className={styles.collabGroup}>
-                  <h3 className={styles.collabHeading}>{g.heading}</h3>
-                  <p className={styles.collabBlurb}>{g.blurb}</p>
-                  <ul className={styles.collabList}>
-                    {g.offerings.map((o) => (
-                      <li key={o.title} className={styles.collabItem}>
-                        {o.detail ? `${o.title} — ${o.detail}` : o.title}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              ))}
-            </div>
-            <div className={styles.collabActions}>
-              <Link className={styles.collabCta} href="/booking">
-                Book or collaborate
-                <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
-              </Link>
-              <a
-                className={styles.collabGhost}
-                href={COLLAB.caveCrewUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Join the Cave Crew
-                <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-              </a>
-            </div>
-          </div>
-        </section>
+        {/* Sprint 17: Meg's order from the Music page's "Page layout" list;
+            SECTIONS names every id in src/lib/page-layouts.ts (music). */}
+        <PageLayout items={MUSIC_LAYOUT} render={SECTIONS} />
       </main>
     </div>
   );

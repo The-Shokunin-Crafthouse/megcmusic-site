@@ -3,7 +3,8 @@ import { getProducts } from "@/lib/api/woocommerce";
 import { ProductGrid } from "@/components/Shop/ProductGrid";
 import styles from "./shop.module.css";
 import { heroImage } from "@/lib/hero-images";
-import { SHOP_PAGE } from "@/lib/page-basics";
+import { SHOP_PAGE, SHOP_LAYOUT } from "@/lib/page-basics";
+import { PageLayout } from "@/components/Blocks/PageLayout";
 
 // Products are low-churn — refresh daily. A new item Meg adds in WooCommerce
 // appears on the next ISR cycle (brief: products ISR 24h).
@@ -29,6 +30,18 @@ async function serverProducts() {
 
 export default async function ShopPage() {
   const products = await serverProducts();
+  const sections = {
+    catalog: () => (
+      <section className={styles.section} aria-labelledby="shop-catalog">
+        <div className={styles.inner}>
+          <h2 id="shop-catalog" className={styles.srOnly}>
+            Products
+          </h2>
+          <ProductGrid initial={products} />
+        </div>
+      </section>
+    ),
+  };
 
   return (
     <div className={styles.page}>
@@ -52,14 +65,8 @@ export default async function ShopPage() {
           </div>
         </header>
 
-        <section className={styles.section} aria-labelledby="shop-catalog">
-          <div className={styles.inner}>
-            <h2 id="shop-catalog" className={styles.srOnly}>
-              Products
-            </h2>
-            <ProductGrid initial={products} />
-          </div>
-        </section>
+        {/* Sprint 17: the Shop page's "Page layout" list. */}
+        <PageLayout items={SHOP_LAYOUT} render={sections} />
       </main>
     </div>
   );

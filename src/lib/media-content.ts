@@ -14,16 +14,20 @@
  */
 
 import acf from "@/generated/wp-content/media.json";
+import { layoutFor, type LayoutItem } from "@/lib/page-layout";
 
 interface MediaContent {
   pageLede: string;
   metaTitle: string;
   metaDescription: string;
+  /** Sprint 17: section order and blocks. */
+  layout: LayoutItem[];
 }
 
 const text = (v: unknown): string => (typeof v === "string" ? v : "");
 
 const content: MediaContent = {
+  layout: layoutFor("media", (acf as Record<string, unknown>).layout_media),
   pageLede: text(acf.page_lede),
   metaTitle: text(acf.meta_title),
   metaDescription: text(acf.meta_description),

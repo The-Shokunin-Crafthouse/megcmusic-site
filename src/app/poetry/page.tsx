@@ -4,6 +4,8 @@ import { ArrowRight } from "@phosphor-icons/react/dist/ssr/ArrowRight";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { POETRY } from "@/config/poetry";
 import { POETRY_CONTENT } from "@/lib/poetry-content";
+import { PageLayout } from "@/components/Blocks/PageLayout";
+
 import { PoetryCover } from "./PoetryCover";
 import styles from "./poetry.module.css";
 import { heroImage } from "@/lib/hero-images";
@@ -13,6 +15,28 @@ export const revalidate = 3600;
 export const metadata: Metadata = {
   title: POETRY_CONTENT.metaTitle,
   description: POETRY_CONTENT.metaDescription,
+};
+
+const SECTIONS = {
+  about: () => (
+    <section className={styles.section} aria-labelledby="poetry-about">
+      <div className={styles.inner}>
+        <SectionLabel id="poetry-about">Inside the Pages</SectionLabel>
+        <div className={styles.prose}>
+          {POETRY_CONTENT.paragraphs.map((para, i) => (
+            <p key={i} className={styles.para}>
+              {para}
+            </p>
+          ))}
+        </div>
+
+        <Link className={styles.buyGhost} href={POETRY_CONTENT.buyHref}>
+          Buy the book
+          <ArrowRight size={15} weight="bold" aria-hidden="true" />
+        </Link>
+      </div>
+    </section>
+  ),
 };
 
 export default function PoetryPage() {
@@ -53,23 +77,8 @@ export default function PoetryPage() {
           </div>
         </section>
 
-        <section className={styles.section} aria-labelledby="poetry-about">
-          <div className={styles.inner}>
-            <SectionLabel id="poetry-about">Inside the Pages</SectionLabel>
-            <div className={styles.prose}>
-              {POETRY_CONTENT.paragraphs.map((para, i) => (
-                <p key={i} className={styles.para}>
-                  {para}
-                </p>
-              ))}
-            </div>
-
-            <Link className={styles.buyGhost} href={POETRY_CONTENT.buyHref}>
-              Buy the book
-              <ArrowRight size={15} weight="bold" aria-hidden="true" />
-            </Link>
-          </div>
-        </section>
+        {/* Sprint 17: the Poetry page's "Page layout" list. */}
+        <PageLayout items={POETRY_CONTENT.layout} render={SECTIONS} />
       </main>
     </div>
   );

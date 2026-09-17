@@ -1,4 +1,4 @@
-import type { HomeBlock } from "@/lib/home-blocks";
+import type { Block } from "@/lib/blocks";
 import { getVideoMeta } from "@/lib/api/youtube";
 import { VideoFacade } from "../VideoFacade/VideoFacade";
 import styles from "./VideoBlock.module.css";
@@ -10,7 +10,7 @@ import styles from "./VideoBlock.module.css";
  * the video's name; the caption is hers. An invalid link never reaches here:
  * the parser drops the row.
  */
-export async function VideoBlock({ block }: { block: Extract<HomeBlock, { layout: "video" }> }) {
+export async function VideoBlock({ block }: { block: Extract<Block, { layout: "video" }> }) {
   const { title } = await getVideoMeta(block.id);
   return (
     <figure className={styles.block}>

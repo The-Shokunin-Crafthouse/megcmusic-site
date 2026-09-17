@@ -17,7 +17,8 @@
  */
 
 import acf from "@/generated/wp-content/home.json";
-import { parseHomeBlocks, type HomeBlock } from "@/lib/home-blocks";
+import { parseBlocks, type Block } from "@/lib/blocks";
+import { layoutFor } from "@/lib/page-layout";
 
 interface RecognitionEntry {
   /** Year or span, e.g. "2026" or "2019 – Present". */
@@ -48,11 +49,13 @@ const recognition: RecognitionEntry[] = rows(acf.recognition)
 
 /** Meg's Home blocks (Sprint 13) — `[]` until she adds one, so Home renders
  *  exactly as before. An optional superset of the shape, never a swap. */
-const blocks: HomeBlock[] = parseHomeBlocks((acf as Record<string, unknown>).home_blocks);
+const blocks: Block[] = parseBlocks((acf as Record<string, unknown>).home_blocks);
 
 export const HOME_CONTENT = {
   bioParagraphs,
   blocks,
+  /** Sprint 17: the order of Home's sections and any blocks between them. */
+  layout: layoutFor("home", (acf as Record<string, unknown>).layout_home),
   pullQuote: text(acf.pull_quote),
   pullQuoteAttribution: text(acf.pull_quote_attribution),
   recognition,

@@ -1,0 +1,37 @@
+/* Text section block — the page's section rhythm (LinerNotes' section and
+   inner) with the prose measure of /music's Liner Notes. Tokens only. */
+.section {
+  position: relative;
+  z-index: var(--mc-z-content);
+  padding: var(--mc-space-9) var(--mc-space-4) var(--mc-space-4);
+  background: var(--mc-bg);
+}
+
+.inner {
+  max-width: 1000px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-6);
+}
+
+.prose {
+  max-width: 68ch;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-4);
+}
+
+.para {
+  margin: 0;
+  font-family: var(--mc-font-display);
+  font-size: var(--mc-text-prose);
+  line-height: 1.5;
+  color: var(--mc-text-liner);
+}
+
+@media (min-width: 768px) {
+  .section {
+    padding: var(--mc-space-9) var(--mc-space-6);
+  }
+}

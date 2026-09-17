@@ -10,6 +10,8 @@ import { parseDownloadableAssets, type EpkAsset } from "@/lib/epk-assets";
 import { parseSetList, type SetGroup } from "@/lib/set-list";
 import { SetList } from "./SetList";
 import { getEpkContent } from "@/lib/epk-content";
+import { PageLayout } from "@/components/Blocks/PageLayout";
+
 import { HOME_CONTENT } from "@/lib/home-content";
 import { WP_ORIGIN } from "@/lib/wp-origin";
 import styles from "./epk.module.css";
@@ -59,6 +61,128 @@ export default async function EpkPage() {
     serverSetList(),
   ]);
 
+  const sections = {
+    story: () => (
+      <section className={styles.section} aria-labelledby="epk-bio">
+        <div className={styles.inner}>
+          <SectionLabel id="epk-bio">The Story</SectionLabel>
+          <div className={styles.bioGrid}>
+            <div className={styles.bioProse}>
+              {HOME_CONTENT.bioParagraphs.map((para, i) => (
+                <p key={i} className={styles.bioPara}>
+                  {para}
+                </p>
+              ))}
+              <blockquote className={styles.bioQuote}>
+                <p className={styles.bioQuoteText}>
+                  {`“${HOME_CONTENT.pullQuote}”`}
+                </p>
+                <cite className={styles.bioQuoteAttr}>
+                  {HOME_CONTENT.pullQuoteAttribution}
+                </cite>
+              </blockquote>
+            </div>
+
+            <dl className={styles.facts}>
+              {epk.facts.map((f) => (
+                <div key={f.label} className={styles.factRow}>
+                  <dt className={styles.factLabel}>{f.label}</dt>
+                  <dd className={styles.factValue}>{f.value}</dd>
+                </div>
+              ))}
+            </dl>
+          </div>
+        </div>
+      </section>
+    ),
+    kit: () => (
+      <section className={styles.section} aria-labelledby="epk-kit">
+        <div className={styles.inner}>
+          <SectionLabel id="epk-kit">Press Kit</SectionLabel>
+          <EpkPressKit named={epk.kitItems} serverAssets={assets} />
+        </div>
+      </section>
+    ),
+    press: () => (
+      <section className={styles.section} aria-labelledby="epk-press">
+        <div className={styles.inner}>
+          <SectionLabel id="epk-press">What People Are Saying</SectionLabel>
+          <ul className={styles.pressList}>
+            {epk.pressItems.map((item) => (
+              <li key={item.href} className={styles.pressCard}>
+                <div className={styles.pressText}>
+                  <p className={styles.pressOutlet}>{item.outlet}</p>
+                  <h3 className={styles.pressTitle}>
+                    <a
+                      className={styles.pressLink}
+                      href={item.href}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      {item.title}
+                      <span className={styles.srOnly}> (opens in a new tab)</span>
+                    </a>
+                  </h3>
+                </div>
+                <ArrowUpRight
+                  className={styles.pressArrow}
+                  size={22}
+                  weight="bold"
+                  aria-hidden="true"
+                />
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    ),
+    discography: () => <Discography />,
+    "set-list": () => (
+      <section className={styles.section} aria-labelledby="epk-setlist">
+        <div className={styles.inner}>
+          <SectionLabel id="epk-setlist">Sample Set List</SectionLabel>
+          <p className={styles.setIntro}>{epk.setListIntro}</p>
+          <SetList server={setList} />
+        </div>
+      </section>
+    ),
+    resources: () => (
+      <section className={styles.section} aria-labelledby="epk-resources">
+        <div className={styles.inner}>
+          <SectionLabel id="epk-resources">Photos &amp; Booking</SectionLabel>
+          <div className={styles.resources}>
+            <h3 className={styles.resourcesTitle}>Everything else you need</h3>
+            <p className={styles.resourcesText}>{epk.resourcesNote}</p>
+            <div className={styles.resourcesActions}>
+              <Link className={styles.cta} href="/booking">
+                Request a gig
+                <ArrowUpRight
+                  className={styles.ctaArrow}
+                  size={18}
+                  weight="bold"
+                  aria-hidden="true"
+                />
+              </Link>
+              <Link className={styles.ctaGhost} href="/media">
+                Media gallery
+                <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
+              </Link>
+              <a
+                className={styles.ctaGhost}
+                href={PHOTOS_URL}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Hi-res photos
+                <ArrowSquareOut size={16} weight="bold" aria-hidden="true" />
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+    ),
+  };
+
   return (
     <div className={styles.page}>
       <img
@@ -90,126 +214,8 @@ export default async function EpkPage() {
           </div>
         </header>
 
-        {/* ---- Bio -------------------------------------------------------- */}
-        <section className={styles.section} aria-labelledby="epk-bio">
-          <div className={styles.inner}>
-            <SectionLabel id="epk-bio">The Story</SectionLabel>
-            <div className={styles.bioGrid}>
-              <div className={styles.bioProse}>
-                {HOME_CONTENT.bioParagraphs.map((para, i) => (
-                  <p key={i} className={styles.bioPara}>
-                    {para}
-                  </p>
-                ))}
-                <blockquote className={styles.bioQuote}>
-                  <p className={styles.bioQuoteText}>
-                    {`“${HOME_CONTENT.pullQuote}”`}
-                  </p>
-                  <cite className={styles.bioQuoteAttr}>
-                    {HOME_CONTENT.pullQuoteAttribution}
-                  </cite>
-                </blockquote>
-              </div>
-
-              <dl className={styles.facts}>
-                {epk.facts.map((f) => (
-                  <div key={f.label} className={styles.factRow}>
-                    <dt className={styles.factLabel}>{f.label}</dt>
-                    <dd className={styles.factValue}>{f.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </div>
-          </div>
-        </section>
-
-        {/* ---- Press kit downloads --------------------------------------- */}
-        <section className={styles.section} aria-labelledby="epk-kit">
-          <div className={styles.inner}>
-            <SectionLabel id="epk-kit">Press Kit</SectionLabel>
-            <EpkPressKit named={epk.kitItems} serverAssets={assets} />
-          </div>
-        </section>
-
-        {/* ---- Press coverage -------------------------------------------- */}
-        <section className={styles.section} aria-labelledby="epk-press">
-          <div className={styles.inner}>
-            <SectionLabel id="epk-press">What People Are Saying</SectionLabel>
-            <ul className={styles.pressList}>
-              {epk.pressItems.map((item) => (
-                <li key={item.href} className={styles.pressCard}>
-                  <div className={styles.pressText}>
-                    <p className={styles.pressOutlet}>{item.outlet}</p>
-                    <h3 className={styles.pressTitle}>
-                      <a
-                        className={styles.pressLink}
-                        href={item.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        {item.title}
-                        <span className={styles.srOnly}> (opens in a new tab)</span>
-                      </a>
-                    </h3>
-                  </div>
-                  <ArrowUpRight
-                    className={styles.pressArrow}
-                    size={22}
-                    weight="bold"
-                    aria-hidden="true"
-                  />
-                </li>
-              ))}
-            </ul>
-          </div>
-        </section>
-
-        {/* ---- Music (reuse the homepage discography) -------------------- */}
-        <Discography />
-
-        {/* ---- Sample set list ------------------------------------------- */}
-        <section className={styles.section} aria-labelledby="epk-setlist">
-          <div className={styles.inner}>
-            <SectionLabel id="epk-setlist">Sample Set List</SectionLabel>
-            <p className={styles.setIntro}>{epk.setListIntro}</p>
-            <SetList server={setList} />
-          </div>
-        </section>
-
-        {/* ---- Resources + booking CTA ----------------------------------- */}
-        <section className={styles.section} aria-labelledby="epk-resources">
-          <div className={styles.inner}>
-            <SectionLabel id="epk-resources">Photos &amp; Booking</SectionLabel>
-            <div className={styles.resources}>
-              <h3 className={styles.resourcesTitle}>Everything else you need</h3>
-              <p className={styles.resourcesText}>{epk.resourcesNote}</p>
-              <div className={styles.resourcesActions}>
-                <Link className={styles.cta} href="/booking">
-                  Request a gig
-                  <ArrowUpRight
-                    className={styles.ctaArrow}
-                    size={18}
-                    weight="bold"
-                    aria-hidden="true"
-                  />
-                </Link>
-                <Link className={styles.ctaGhost} href="/media">
-                  Media gallery
-                  <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
-                </Link>
-                <a
-                  className={styles.ctaGhost}
-                  href={PHOTOS_URL}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  Hi-res photos
-                  <ArrowSquareOut size={16} weight="bold" aria-hidden="true" />
-                </a>
-              </div>
-            </div>
-          </div>
-        </section>
+        {/* Sprint 17: Meg's order from the EPK page's "Page layout" list. */}
+        <PageLayout items={epk.layout} render={sections} />
       </main>
     </div>
   );

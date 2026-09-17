@@ -3,7 +3,8 @@ import { ShowsSection } from "@/components/ShowsSection/ShowsSection";
 import { getAllEvents, type TribeEvent } from "@/lib/api/events";
 import styles from "./shows.module.css";
 import { heroImage } from "@/lib/hero-images";
-import { SHOWS_PAGE } from "@/lib/page-basics";
+import { SHOWS_PAGE, SHOWS_LAYOUT } from "@/lib/page-basics";
+import { PageLayout } from "@/components/Blocks/PageLayout";
 
 // Shows refresh hourly, same cadence as the home section.
 export const revalidate = 3600;
@@ -44,6 +45,16 @@ export default async function ShowsPage() {
   const upcoming = [...upcomingRaw].sort(byStart(1));
   const justAdded = [...upcomingRaw].sort(byPublished);
   const past = [...pastRaw].sort(byStart(-1));
+  const sections = {
+    shows: () => (
+      <ShowsSection
+        variant="page"
+        upcoming={upcoming}
+        justAdded={justAdded}
+        past={past}
+      />
+    ),
+  };
 
   return (
     <div className={styles.page}>
@@ -69,12 +80,8 @@ export default async function ShowsPage() {
           </div>
         </header>
 
-        <ShowsSection
-          variant="page"
-          upcoming={upcoming}
-          justAdded={justAdded}
-          past={past}
-        />
+        {/* Sprint 17: the Shows page's "Page layout" list. */}
+        <PageLayout items={SHOWS_LAYOUT} render={sections} />
       </main>
     </div>
   );
