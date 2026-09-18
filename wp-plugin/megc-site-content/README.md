@@ -41,6 +41,7 @@ Every page Meg edits carries a **Page layout** field group (`layout_<route>`, a 
 
 ## Version history
 
+- **1.5.1** (2026-09-17) — the three old-theme pages the site still linked to are absorbed: Photos → `/media#media-photos`, the two review pages → `/music/<release>/reviews`; the review pages join the rebuild list. Re-upload per step 2.
 - **1.5.0** (Sprint 17, 2026-09-17) — ten generated Page layout groups (see above); no PHP change. Re-upload per step 2 (once, with 1.4.x); verify: any tracked page shows a *Page layout* box under its fields, and `GET …/pages/608?acf_format=standard&_fields=acf` carries `layout_epk`.
 - **1.4.1** (Sprint 16 Phase 2, 2026-09-17) — JSON only: the Release Reviews repeater gains a *Kind* select (Quote / Accolade); the Music group gains a message saying the editor body is not shown; the Work With Me offering *Detail* says where it renders. Re-upload per step 2 (once, with 1.4.0).
 - **1.4.0** (2026-09-17) — the front door: `page_link`, `preview_post_link`, admin-bar and `template_redirect` hooks point WordPress at the live site (see above). Re-upload per step 2; verify by opening any page's "View" link from the Pages list — it opens `megcmusic.com`.

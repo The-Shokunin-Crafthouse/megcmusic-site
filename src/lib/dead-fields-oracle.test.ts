@@ -12,7 +12,8 @@ import { BOOKING_CONTENT } from "./booking-content";
 import { SHOWS_PAGE, SHOP_PAGE } from "./page-basics";
 import { LIVE_FORMATS } from "./formats-content";
 import { COLLAB } from "./collab-content";
-import { getReviews, MUSIC_INTRO } from "./releases-content";
+import { getReviews, getPressPages, liveHref, MUSIC_INTRO } from "./releases-content";
+import { getEpkContent } from "./epk-content";
 
 test("booking: every field equals the string it replaced", () => {
   assert.equal(BOOKING_CONTENT.metaTitle, migrated.booking.meta.title);
@@ -67,17 +68,26 @@ test("work with me equals the deleted src/config/collaborate.ts", () => {
   assert.ok(COLLAB.groups.every((g) => g.offerings.every((o) => o.detail === "")), "no offering carries a detail yet");
 });
 
-test("release reviews equal the deleted src/config/reviews.ts, plus the one row Meg added (4350, row 3)", () => {
-  const wp = "https://admin.megcmusic.com";
+test("release reviews equal the deleted src/config/reviews.ts, plus the one row Meg added (4350, row 3); links to her own review pages now point at the absorbed route (2026-09-17)", () => {
   assert.deepEqual(getReviews("shadows-of-a-ghost-town"), [
-    { source: "The Alternate Root", accolade: "Top 10 — October 2025", href: `${wp}/reviews-shadows-of-a-ghost-town/` },
-    { source: "Acoustic Music Seen", accolade: "#41 · Top 50 Albums of September 2025", href: `${wp}/reviews-shadows-of-a-ghost-town/` },
+    { source: "The Alternate Root", accolade: "Top 10 — October 2025", href: "/music/shadows-of-a-ghost-town/reviews" },
+    { source: "Acoustic Music Seen", accolade: "#41 · Top 50 Albums of September 2025", href: "/music/shadows-of-a-ghost-town/reviews" },
     // Meg's addition, never rendered until this sprint.
     { source: "", accolade: "Nominated for Album of the Year by the Josie Music Awards and the Mountain West Country Music Association!" },
   ]);
   assert.deepEqual(getReviews("kindred-spirits"), [
-    { source: "Joshua D’Estrada · K4CO Radio", quote: "Strikingly bright and vivid — a true example of beautiful country music.", href: `${wp}/kindred-spirits-review/` },
+    { source: "Joshua D’Estrada · K4CO Radio", quote: "Strikingly bright and vivid — a true example of beautiful country music.", href: "/music/kindred-spirits/reviews" },
   ]);
+  // The absorbed pages themselves: every outlet link on the Shadows page, the K4CO quote on Kindred.
+  const shadows = getPressPages("shadows-of-a-ghost-town");
+  assert.equal(shadows.length, 1);
+  assert.equal(shadows[0].title, "Reviews:  Shadows of a Ghost Town");
+  const hrefs = shadows[0].blocks.flatMap((b) => (b.type === "paragraph" ? b.runs.map((r) => r.href).filter(Boolean) : []));
+  assert.equal(hrefs.length, 8);
+  const kindred = getPressPages("kindred-spirits");
+  assert.equal(kindred.length, 1);
+  assert.ok(kindred[0].blocks.some((b) => b.type === "quote" && b.attribution.includes("D’Estrada")), "the K4CO quote with its cite");
+  assert.ok(kindred[0].blocks.some((b) => b.type === "image"), "the review image");
   assert.deepEqual(getReviews("songs-from-the-sofa"), []);
   assert.deepEqual(getReviews("breaker-breaker"), []);
   assert.deepEqual(getReviews("aint-going-back"), []);
@@ -85,4 +95,13 @@ test("release reviews equal the deleted src/config/reviews.ts, plus the one row 
 
 test("the Music page body yields no intro today — production is unchanged by reading it at build", () => {
   assert.deepEqual(MUSIC_INTRO, []);
+});
+
+test("a link to an absorbed review page reads as its live route everywhere Meg's fields carry one (2026-09-17)", async () => {
+  assert.equal(liveHref("https://admin.megcmusic.com/reviews-shadows-of-a-ghost-town/"), "/music/shadows-of-a-ghost-town/reviews");
+  assert.equal(liveHref("https://www.megcmusic.com/kindred-spirits-review/"), "/music/kindred-spirits/reviews");
+  assert.equal(liveHref("https://americanahighways.org/x"), "https://americanahighways.org/x");
+  assert.equal(liveHref("https://admin.megcmusic.com/photos/"), "https://admin.megcmusic.com/photos/");
+  const epk = await getEpkContent();
+  assert.ok(epk.pressItems.every((p) => !/admin\.megcmusic\.com\/(reviews|kindred)/.test(p.href)), "EPK press coverage never links the old theme");
 });

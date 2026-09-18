@@ -21,7 +21,7 @@
 >
 > **Turn ceiling:** 40 turns across Phases 1–2 in one session. On hitting it: open what exists as a draft PR, park with a resume note here, stop.
 >
-> **Phase status (2026-09-17):** 0 audit ✅ · 1 front door ✅ (#148 merged) · 2 dead fields ✅ (#149 merged, production deployed 22:20 UTC; the Shadows review row Meg added is live) · plugin 1.4.1 uploaded by Levi the same day (its `kind` default flipped old rows — corrected in Sprint 17, plugin 1.5.0) · 3 → Sprint 17 filed on Levi's "5".
+> **Phase status (2026-09-17):** 0 audit ✅ · 1 front door ✅ (#148 merged) · 2 dead fields ✅ (#149 merged, production deployed 22:20 UTC; the Shadows review row Meg added is live) · plugin 1.4.1 uploaded by Levi the same day (its `kind` default flipped old rows — corrected in Sprint 17, plugin 1.5.0) · 3 → Sprint 17 filed on Levi's "5" (#150 merged). **Complete 2026-09-17** — plugin 1.5.0 uploaded, gate recorded in `output/phase-1-gate.md`, guide sent to Meg.
 
 ---
 

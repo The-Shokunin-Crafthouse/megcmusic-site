@@ -29,15 +29,15 @@ function expect( string $name, $actual, $expected ): void {
 	echo "not ok - {$name}\n    expected: " . var_export( $expected, true ) . "\n    actual:   " . var_export( $actual, true ) . "\n";
 }
 
-// Every tracked editing surface has a live route — except Photos (5520), which
-// is tracked because the media gallery reads its body, but is still served by
-// WordPress because /epk and the gallery's empty state link to it there.
+// Every tracked editing surface has a live route.
 foreach ( megc_site_content_page_ids() as $id ) {
-	if ( 5520 === $id ) {
-		continue;
-	}
 	expect( "tracked page {$id} has a live route", is_string( megc_live_route_for( $id, '' ) ), true );
 }
+
+// Absorbed from the old theme (2026-09-17).
+expect( 'photos feeds the media gallery', megc_live_route_for( 5520, 'photos' ), '/media#media-photos' );
+expect( 'Shadows reviews page', megc_live_route_for( 5134, 'reviews-shadows-of-a-ghost-town' ), '/music/shadows-of-a-ghost-town/reviews' );
+expect( 'Kindred review page', megc_live_route_for( 5339, 'kindred-spirits-review' ), '/music/kindred-spirits/reviews' );
 
 // The poetry page is found by slug, because its id was minted after the plugin.
 expect( 'site-poetry by slug', megc_live_route_for( 999999, 'site-poetry' ), '/poetry' );
@@ -55,11 +55,6 @@ expect( 'set list feeds a section of /epk', megc_live_route_for( 3666, 'sample-s
 
 // Commerce and ticketing stay on WordPress.
 foreach ( array( 1848 => 'cart', 1849 => 'checkout', 1850 => 'my-account', 3547 => 'tickets-checkout', 3548 => 'tickets-order' ) as $id => $slug ) {
-	expect( "{$slug} stays on WordPress", megc_live_route_for( $id, $slug ), null );
-}
-
-// Pages the live site still links to on this host stay until they have a home.
-foreach ( array( 5520 => 'photos', 5339 => 'kindred-spirits-review', 5134 => 'reviews-shadows-of-a-ghost-town' ) as $id => $slug ) {
 	expect( "{$slug} stays on WordPress", megc_live_route_for( $id, $slug ), null );
 }
 

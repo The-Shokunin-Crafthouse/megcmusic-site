@@ -2137,3 +2137,21 @@ The fallback string made it worse by sounding authoritative: "no step had report
 **Consequences.** Easier: every page composes from one list Meg drags; a block is the same five things everywhere. Harder: eleven field groups and ~40 layouts of JSON, generated; a page's render tree becomes a registry lookup rather than plain JSX, so a new section is added in two places (registry + render map) and the check step exists to catch the third (the JSON). Plugin re-upload (1.5.0) is the human gate.
 
 **Alternatives considered.** *Sections must all be listed once Meg touches the list* — rejected: one added block would hide the whole page. *One global field with every section as a layout* — rejected: Meg would see other pages' sections on every page. *Download block photos at build* — rejected per decision 7.
+
+## 2026-09-17 — The last three old-theme pages are absorbed; the footer is on every page
+
+**Stage:** 03-build (Sprint 18, filed beside Sprint 14)
+**Type:** Architecture · Product
+**Status:** accepted — Levi's instruction ("absorb into the site with the new theme"; "add the footer to all pages")
+
+**Context.** After Sprints 16–17 the live site still sent visitors to three pages on the old Storefront theme: Photos (5520, from `/epk` "Hi-res photos" and the gallery's empty state) and the two review pages (5134 "Reviews: Shadows of a Ghost Town", 5339 "Kindred Spirits Review", from the release pages' review rows). The footer rendered only on Home.
+
+**Decisions.**
+1. **Review pages become `/music/<release>/reviews`, chosen by Meg's links.** `fetch-releases.mjs` reads every review row's link; one that points at a page on any host the site has lived on is fetched at build (title + body) and stored on the release row as `pressPages`. The reader rewrites that row's link to the live route; the route renders each page's body as typed blocks — paragraphs with their outlet links, a blockquote as the site's pull-quote panel, images through the gallery's Photon rules — never raw HTML (`src/lib/press-page.ts`, tested). A new review page needs no code: Meg links it from a review row. A linked page that cannot be read is skipped with a warning and the link stays as typed.
+2. **Photos is already the gallery.** `/media#media-photos` renders every image on the page; the EPK button and the gallery empty state pointed at the old theme out of habit. Repointed; the empty state now says "reload the page".
+3. **Plugin 1.5.1 maps the three pages** (View/Preview/redirect) and adds the two review pages to the rebuild list. Hardcoded ids, tested; the site side is link-driven.
+4. **Footer moves to the root layout**, gated with the chrome (the playbook shell keeps its own frame). Home's DOM changes by the footer leaving the page wrapper; it renders the same.
+
+**Consequences.** Easier: no visitor path leads to the old theme except commerce and tickets. Harder: `releases.json` carries the review pages' HTML (~5 KB); a review page linked from two releases is fetched once and rendered on both. The proof PNGs from Sprint 17 were removed from the repo on Levi's instruction; the PR's preview URL is cited instead (learning #28).
+
+**Verification.** Parser tests red then green (4), 59/59; oracle updated for the rewritten hrefs. Local build: text diff of every route against production reads only the intended changes (footer on every non-Home route, the EPK button's target) plus live data; the two new routes render every block of their WordPress pages.

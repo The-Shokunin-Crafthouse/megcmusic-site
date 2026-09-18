@@ -1,0 +1,207 @@
+/* /music/[slug]/reviews — a release's absorbed review pages (2026-09-17).
+   The release page's shell (photo behind a plum scrim, back link, header)
+   with the EPK's ★★★/lede header voice and the release prose measure. Tokens
+   only. The base rules below are copied from release.module.css and
+   epk.module.css so this route owns its own module (CSS Modules scope). */
+
+/* /music/[slug] — a single release. Same route shell as /music and /media (hero
+   photo behind a plum scrim), with a cover-beside-title hero, the WP-sourced
+   story + lyric sheets, and picked press. Tokens only. */
+
+.page {
+  position: relative;
+  min-height: 100svh;
+  background: var(--mc-bg);
+}
+
+.bg {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  z-index: 0;
+}
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  background: linear-gradient(
+    180deg,
+    rgb(var(--mc-bg-rgb) / 0.95) 0%,
+    rgb(var(--mc-bg-rgb) / 0.9) 28%,
+    rgb(var(--mc-bg-rgb) / 0.82) 52%,
+    rgb(var(--mc-bg-rgb) / 0.82) 100%
+  );
+}
+
+.main {
+  position: relative;
+  z-index: 2;
+}
+
+.header {
+  padding: var(--mc-space-8) var(--mc-space-4) var(--mc-space-6);
+}
+
+.headerInner {
+  max-width: 1080px;
+  margin: 0 auto;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--mc-space-2);
+  margin-bottom: var(--mc-space-6);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--mc-text-body);
+  transition: color var(--mc-motion-micro) var(--mc-ease-out);
+}
+
+.back:hover {
+  color: var(--mc-teal-light);
+}
+
+.back:focus-visible {
+  outline: 2px solid var(--mc-focus-ring);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ---- Sections ------------------------------------------------------- */
+.section {
+  position: relative;
+  z-index: var(--mc-z-content);
+  padding: var(--mc-space-6) var(--mc-space-4) var(--mc-space-7);
+}
+
+.inner {
+  max-width: 1080px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-5);
+}
+
+.prose {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-4);
+  max-width: 66ch;
+}
+
+.para {
+  margin: 0;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-prose);
+  line-height: 1.6;
+  color: var(--mc-text-body);
+}
+
+.stars {
+  margin: 0 0 var(--mc-space-3);
+  font-size: var(--mc-text-2xs);
+  letter-spacing: 0.5em;
+  color: var(--mc-accent-gold);
+}
+
+.lede {
+  margin: var(--mc-space-2) 0 var(--mc-space-5);
+  max-width: 56ch;
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-prose);
+  line-height: 1.5;
+  color: var(--mc-text-body);
+  animation: epk-rise var(--mc-reveal-duration) var(--mc-ease-out-strong)
+    var(--mc-reveal-stagger) both;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Outlet links inside a paragraph — the EPK press link's voice: teal, an
+   arrow that nudges on hover, the tokened ring on focus. */
+.link {
+  color: var(--mc-teal-light);
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+  text-decoration-thickness: 1px;
+  transition: color var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .link:hover {
+    color: var(--mc-teal-bright);
+  }
+}
+
+.link:active {
+  color: var(--mc-teal-bright);
+}
+
+.link:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.link svg {
+  display: inline-block;
+  vertical-align: -0.1em;
+  margin-left: 0.15em;
+}
+
+.figure {
+  margin: 0;
+}
+
+.img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-bottom-right-radius: var(--mc-radius-quote);
+  background: var(--mc-bg-quote);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link {
+    transition: none;
+  }
+}
+
+@media (min-width: 768px) {
+  .header {
+    padding: var(--mc-space-9) var(--mc-space-6) var(--mc-space-6);
+  }
+  .section {
+    padding: var(--mc-space-6) var(--mc-space-6) var(--mc-space-7);
+  }
+  .hero {
+    flex-direction: row;
+    align-items: flex-end;
+    gap: var(--mc-space-7);
+  }
+  .coverArt,
+  .coverPlaceholder {
+    width: 280px;
+    height: 280px;
+  }
+  .heroText {
+    padding-bottom: var(--mc-space-2);
+  }
+}

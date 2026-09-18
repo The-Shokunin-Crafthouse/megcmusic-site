@@ -94,6 +94,43 @@ async function slugOf(kind, id, what) {
  *  raw; src/lib/page-layout.ts resolves it with its tests. */
 const layoutRows = (v) => (Array.isArray(v) ? v : false);
 
+/** A review row's link that points at one of Meg's own WordPress pages
+ *  (on any host the site has lived on) — that page is absorbed into the
+ *  site as /music/<release>/reviews (2026-09-17). Returns its slug. */
+const OWN_HOSTS = new Set(["admin.megcmusic.com", "www.megcmusic.com", "megcmusic.com"]);
+function ownPageSlug(link) {
+  try {
+    const u = new URL(link);
+    if (!OWN_HOSTS.has(u.hostname)) return null;
+    const parts = u.pathname.split("/").filter(Boolean);
+    return parts.length === 1 ? parts[0] : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The body of each own page a release's review rows link to, read once.
+ *  A page that cannot be read is skipped with a warning — the row's link
+ *  then stays as Meg typed it. */
+const pressCache = new Map();
+async function pressPagesFor(reviews, title) {
+  const out = [];
+  for (const slug of new Set(reviews.map((r) => ownPageSlug(r.link)).filter(Boolean))) {
+    if (!pressCache.has(slug)) {
+      try {
+        const rows = await getJson(`${API}/pages?slug=${encodeURIComponent(slug)}&_fields=id,slug,title,content`, `the review page "${slug}"`);
+        const page = Array.isArray(rows) ? rows[0] : null;
+        pressCache.set(slug, page ? { id: page.id, slug, title: text(page.title?.rendered), html: text(page.content?.rendered) } : null);
+      } catch (e) {
+        console.warn(`releases: could not read the review page "${slug}" linked from "${title}" — ${e.message}; leaving the link as is`);
+        pressCache.set(slug, null);
+      }
+    }
+    if (pressCache.get(slug)) out.push(pressCache.get(slug));
+  }
+  return out;
+}
+
 /** The raw repeater rows, kept as ACF returns them; parsing (and the
  *  quote/accolade rule) lives in src/lib/release-reviews.ts with its tests. */
 const reviewRows = (acf) =>
@@ -137,12 +174,14 @@ for (const row of rawRows) {
   let productSlug = null;
   let reviews = [];
   let layout = false;
+  let pressPages = [];
   try {
     if (pageId) {
       const page = await pageOf(pageId, `the page for "${title}"`);
       pageSlug = page.slug;
       reviews = reviewRows(page.acf);
       layout = layoutRows(page.acf?.layout_release);
+      pressPages = await pressPagesFor(reviews, title);
     }
     if (productId) productSlug = await slugOf("product", productId, `the shop item for "${title}"`);
   } catch (e) {
@@ -158,6 +197,7 @@ for (const row of rawRows) {
     appleUrl: text(row.apple_url),
     reviews,
     layout,
+    pressPages,
   });
 }
 

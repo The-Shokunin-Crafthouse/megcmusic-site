@@ -27,7 +27,7 @@ Every difference is live data the local server can reach and production's runtim
 
 Rendered `aria-labelledby` order: `epk-kit` → announcement → `epk-bio` → text section → `epk-press` → `disco-heading` → `epk-setlist`. Photos & Booking absent. All five blocks present with their text. Photo served from the WordPress host through the media gallery's Photon sizing (`?w=1600&quality=82`).
 
-Screenshots: `epk-injected-1440.png`, `epk-injected-390.png` (full page).
+Screenshots at 1440 and 390 were reviewed in the session and posted in the PR; they are not committed (learning #28 — the preview URL is the record). PR #150's preview deploy:  (Vercel-protected; open it signed in).
 
 ## 3. Tests
 

@@ -9,7 +9,6 @@ import { Newsletter } from "@/components/Newsletter/Newsletter";
 import { Discography } from "@/components/Discography/Discography";
 import { Singles } from "@/components/Singles/Singles";
 import { BootScene } from "@/components/BootScene/BootScene";
-import { SiteFooter } from "@/components/SiteFooter/SiteFooter";
 import { getEvents, type TribeEvent } from "@/lib/api/events";
 import { HOME_CONTENT } from "@/lib/home-content";
 import styles from "./page.module.css";
@@ -72,7 +71,6 @@ export default async function Home() {
       {/* Sprint 17: Meg's order, from Home's "Page layout" list; the map
           below names every section in src/lib/page-layouts.ts (home). */}
       <PageLayout items={HOME_CONTENT.layout} render={SECTIONS} />
-      <SiteFooter />
     </div>
   );
 }

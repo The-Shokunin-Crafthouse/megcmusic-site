@@ -6,7 +6,6 @@ import { CaretLeft } from "@phosphor-icons/react/dist/ssr/CaretLeft";
 import { CaretRight } from "@phosphor-icons/react/dist/ssr/CaretRight";
 import { fetchPageContentBrowser } from "@/lib/api/wordpress-browser";
 import { parsePhotos, type Photo } from "@/lib/media-photos";
-import { WP_ORIGIN } from "@/lib/wp-origin";
 import styles from "./PhotoGrid.module.css";
 
 /**
@@ -97,16 +96,7 @@ export function PhotoGrid({ serverPhotos }: { serverPhotos: Photo[] }) {
   if (photos.length === 0) {
     return (
       <p className={styles.empty}>
-        Photos are loading — if they don&apos;t appear,{" "}
-        <a
-          className={styles.emptyLink}
-          href={`${WP_ORIGIN}/photos/`}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          view the full gallery on megcmusic.com
-        </a>
-        .
+        Photos are loading — if they don&apos;t appear, reload the page.
       </p>
     );
   }
