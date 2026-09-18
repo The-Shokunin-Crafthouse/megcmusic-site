@@ -20,6 +20,7 @@
 
 import acf from "@/generated/wp-content/epk.json";
 import { layoutFor, type LayoutItem } from "@/lib/page-layout";
+import { liveHref } from "@/lib/releases-content";
 
 export interface EpkKitItem {
   title: string;
@@ -99,7 +100,7 @@ function pressItems(acf: AcfRecord): EpkPressItem[] {
     .map((r) => ({
       outlet: text(r.outlet),
       title: text(r.title),
-      href: text(r.url),
+      href: liveHref(text(r.url)),
     }))
     .filter((p) => p.href);
 }

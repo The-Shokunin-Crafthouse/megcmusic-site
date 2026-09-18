@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { SiteChrome } from "@/components/SiteChrome/SiteChrome";
 import { HOME_CONTENT } from "@/lib/home-content";
 import { ChromeGate } from "@/components/SiteChrome/ChromeGate";
+import { SiteFooter } from "@/components/SiteFooter/SiteFooter";
 import "./globals.css";
 
 // Tolerate a missing, empty, or malformed NEXT_PUBLIC_SITE_URL — Vercel preview
@@ -49,6 +50,11 @@ export default function RootLayout({
           <SiteChrome />
         </ChromeGate>
         {children}
+        {/* The footer on every page, not only Home (2026-09-17). Gated with
+            the chrome: the playbook shell owns its own frame. */}
+        <ChromeGate>
+          <SiteFooter />
+        </ChromeGate>
       </body>
     </html>
   );

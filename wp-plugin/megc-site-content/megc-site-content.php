@@ -2,7 +2,7 @@
 /**
  * Plugin Name: MegC Site Content
  * Description: Registers the megcmusic.com site-content field groups (Secure Custom Fields / ACF) from bundled JSON, pings GitHub to rebuild the site when a site-content page is saved, and points every "View", "Preview" and "Visit Site" link — and every visitor who lands on this host's front end — at the live site on megcmusic.com.
- * Version: 1.5.0
+ * Version: 1.5.1
  * Requires PHP: 8.1
  * Author: The Shokunin Crafthouse
  * License: GPL-2.0-or-later
@@ -49,6 +49,8 @@ function megc_site_content_page_ids(): array {
 		5560, // videos
 		5562, // music
 		3666, // sample-set-list (EPK set list source)
+		5134, // reviews-shadows-of-a-ghost-town (absorbed as /music/shadows-of-a-ghost-town/reviews)
+		5339, // kindred-spirits-review (absorbed as /music/kindred-spirits/reviews)
 	);
 }
 
@@ -135,7 +137,7 @@ add_action( 'save_post_page', function ( $post_id, $post, $update ) {
 					'Accept'               => 'application/vnd.github+json',
 					'Authorization'        => 'Bearer ' . MEGC_GH_PAT,
 					'X-GitHub-Api-Version' => '2022-11-28',
-					'User-Agent'           => 'megc-site-content/1.5.0',
+					'User-Agent'           => 'megc-site-content/1.5.1',
 				),
 				'body'    => wp_json_encode(
 					array(
@@ -188,8 +190,7 @@ function megc_live_origin(): string {
 /**
  * The live route for a WordPress page, or null when the page has no home on
  * the live site and must keep being served here (WooCommerce cart, checkout
- * and account; Event Tickets checkout; pages the live site still links to on
- * this host). Pure: no WordPress calls, so it is unit-tested in
+ * and account; Event Tickets checkout). Pure: no WordPress calls, so it is unit-tested in
  * tests/live-routes.test.php. Keep the ids in step with
  * megc_site_content_page_ids() and with src/app/**\/page.tsx.
  *
@@ -216,6 +217,11 @@ function megc_live_route_for( int $post_id, string $slug ): ?string {
 		4411 => '/music/aint-going-back',              // release
 		5560 => '/media#media-watch',                  // videos
 		5562 => '/music',                              // music
+		// Absorbed from the old theme, 2026-09-17: the gallery page and the
+		// two review pages now render on the live site.
+		5520 => '/media#media-photos',                 // photos (the gallery's source)
+		5134 => '/music/shadows-of-a-ghost-town/reviews', // Reviews: Shadows of a Ghost Town
+		5339 => '/music/kindred-spirits/reviews',      // Kindred Spirits Review
 	);
 	if ( isset( $by_id[ $post_id ] ) ) {
 		return $by_id[ $post_id ];

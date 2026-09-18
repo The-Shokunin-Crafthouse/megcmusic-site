@@ -25,6 +25,7 @@ import { WP_ORIGIN } from "@/lib/wp-origin";
 import { paragraphsFromHtml } from "@/lib/wp-content";
 import { parseReviews, type Review } from "@/lib/release-reviews";
 import { layoutFor, type LayoutItem } from "@/lib/page-layout";
+import { parsePressPage, type PressBlock } from "@/lib/press-page";
 
 interface Release {
   year: string;
@@ -116,8 +117,66 @@ export function getReleaseLayout(slug: string): LayoutItem[] {
  *  that release's WP page (Sprint 16 Phase 2; supersedes src/config/reviews.ts). */
 export function getReviews(slug: string): Review[] {
   const row = data.releases.find((r) => routeFor(r)?.slug === slug);
-  return parseReviews(row?.reviews);
+  const absorbed = new Set(pressPagesOf(row).map((p) => p.slug));
+  return parseReviews(row?.reviews).map((review) => {
+    const own = review.href ? ownPageSlug(review.href) : null;
+    return own && absorbed.has(own) ? { ...review, href: reviewsRoute(slug) } : review;
+  });
 }
+
+export interface PressPage {
+  slug: string;
+  title: string;
+  blocks: PressBlock[];
+}
+
+type RawPressPage = { id: number; slug: string; title: string; html: string };
+const pressPagesOf = (row: Row | undefined): RawPressPage[] => {
+  const raw = (row as unknown as { pressPages?: unknown } | undefined)?.pressPages;
+  return Array.isArray(raw) ? (raw as RawPressPage[]) : [];
+};
+
+const OWN_HOSTS = new Set(["admin.megcmusic.com", "www.megcmusic.com", "megcmusic.com"]);
+function ownPageSlug(link: string): string | null {
+  try {
+    const u = new URL(link);
+    if (!OWN_HOSTS.has(u.hostname)) return null;
+    const parts = u.pathname.split("/").filter(Boolean);
+    return parts.length === 1 ? parts[0] : null;
+  } catch {
+    return null;
+  }
+}
+
+/** The live home of a release's review pages (absorbed 2026-09-17). */
+export const reviewsRoute = (slug: string): string => `/music/${slug}/reviews`;
+
+/** Meg's own review pages linked from a release's review rows, by ROUTE slug —
+ *  their bodies read at build and rendered at /music/<slug>/reviews. */
+export function getPressPages(slug: string): PressPage[] {
+  const row = data.releases.find((r) => routeFor(r)?.slug === slug);
+  return pressPagesOf(row)
+    .map((p) => ({ slug: p.slug, title: p.title, blocks: parsePressPage(p.html) }))
+    .filter((p) => p.blocks.length > 0);
+}
+
+/** The live route for a link to one of Meg's own pages that a release has
+ *  absorbed (2026-09-17), or the link unchanged. Used wherever her fields
+ *  carry a URL — release review rows, the EPK's press coverage. */
+export function liveHref(href: string): string {
+  const own = ownPageSlug(href);
+  if (!own) return href;
+  for (const row of data.releases) {
+    const route = routeFor(row)?.slug;
+    if (route && pressPagesOf(row).some((p) => p.slug === own)) return reviewsRoute(route);
+  }
+  return href;
+}
+
+/** Route slugs that have a reviews page. */
+export const RELEASES_WITH_PRESS: string[] = data.releases
+  .map((r) => routeFor(r)?.slug)
+  .filter((slug): slug is string => !!slug && pressPagesOf(data.releases.find((r) => routeFor(r)?.slug === slug)).length > 0);
 
 /**
  * Newest first, both listings. Before this the order was whatever order Meg's

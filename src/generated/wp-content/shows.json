@@ -2,5 +2,6 @@
   "page_photo": false,
   "page_lede": "Every date on the calendar — and every one already played.",
   "meta_title": "Shows — MegCMusic",
-  "meta_description": "Meghan Clarisse Cave's full show calendar — every upcoming date and the archive of shows already played."
+  "meta_description": "Meghan Clarisse Cave's full show calendar — every upcoming date and the archive of shows already played.",
+  "layout_shows": false
 }

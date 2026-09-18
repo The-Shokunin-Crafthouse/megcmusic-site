@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
-import { ArrowSquareOut } from "@phosphor-icons/react/dist/ssr/ArrowSquareOut";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
 import { Discography } from "@/components/Discography/Discography";
 import { EpkPressKit } from "@/components/EpkPressKit/EpkPressKit";
@@ -13,7 +12,6 @@ import { getEpkContent } from "@/lib/epk-content";
 import { PageLayout } from "@/components/Blocks/PageLayout";
 
 import { HOME_CONTENT } from "@/lib/home-content";
-import { WP_ORIGIN } from "@/lib/wp-origin";
 import styles from "./epk.module.css";
 import { heroImage } from "@/lib/hero-images";
 
@@ -30,7 +28,6 @@ export async function generateMetadata(): Promise<Metadata> {
 
 // Live hi-res photo pool + press-kit source page (residential-IP links; the WP
 // host serves these to visitors even when it blocks the datacenter build).
-const PHOTOS_URL = `${WP_ORIGIN}/photos/`;
 
 // Server-side parse of the press-kit page for downloadable files. A blocked
 // datacenter deploy returns nothing here; EpkPressKit fills it from the browser.
@@ -167,15 +164,10 @@ export default async function EpkPage() {
                 Media gallery
                 <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
               </Link>
-              <a
-                className={styles.ctaGhost}
-                href={PHOTOS_URL}
-                target="_blank"
-                rel="noopener noreferrer"
-              >
+              <Link className={styles.ctaGhost} href="/media#media-photos">
                 Hi-res photos
-                <ArrowSquareOut size={16} weight="bold" aria-hidden="true" />
-              </a>
+                <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
+              </Link>
             </div>
           </div>
         </div>

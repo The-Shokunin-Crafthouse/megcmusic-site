@@ -16,10 +16,11 @@
       "kind": "SINGLE",
       "pageSlug": null,
       "productSlug": null,
-      "spotifyUrl": "",
-      "appleUrl": "",
+      "spotifyUrl": "https://open.spotify.com/track/3pSnTzyKhvtwHRIhhM99PO?si=04cb4b5c1fea4ed4",
+      "appleUrl": "https://music.apple.com/us/song/everything-you-are-to-me/6775120783",
       "reviews": [],
-      "layout": false
+      "layout": false,
+      "pressPages": []
     },
     {
       "title": "Shadows of a Ghost Town",
@@ -27,35 +28,43 @@
       "kind": "LP",
       "pageSlug": "shadows-of-a-ghost-town",
       "productSlug": "shadows-of-a-ghost-town-cd",
-      "spotifyUrl": "",
-      "appleUrl": "",
+      "spotifyUrl": "https://open.spotify.com/album/356SLCaTEZqOPLQpcPjIKI?si=8Cq3HtOxQkCiB1-3jk6Flg",
+      "appleUrl": "https://music.apple.com/us/album/shadows-of-a-ghost-town/1828482988",
       "reviews": [
         {
-          "kind": "quote",
+          "kind": "",
           "quote_or_accolade": "Top 10 — October 2025",
           "source": "The Alternate Root",
           "link": "https://admin.megcmusic.com/reviews-shadows-of-a-ghost-town/"
         },
         {
-          "kind": "quote",
+          "kind": "",
           "quote_or_accolade": "#41 · Top 50 Albums of September 2025",
           "source": "Acoustic Music Seen",
           "link": "https://admin.megcmusic.com/reviews-shadows-of-a-ghost-town/"
         },
         {
-          "kind": "quote",
+          "kind": "",
           "quote_or_accolade": "Nominated for Album of the Year by the Josie Music Awards and the Mountain West Country Music Association!",
           "source": "",
           "link": ""
         },
         {
-          "kind": "quote",
+          "kind": "",
           "quote_or_accolade": "",
           "source": "",
           "link": ""
         }
       ],
-      "layout": false
+      "layout": false,
+      "pressPages": [
+        {
+          "id": 5134,
+          "slug": "reviews-shadows-of-a-ghost-town",
+          "title": "Reviews:  Shadows of a Ghost Town",
+          "html": "\n<figure class=\"wp-block-image size-medium\"><img data-recalc-dims=\"1\" decoding=\"async\" width=\"300\" height=\"300\" loading=\"lazy\" src=\"https://i0.wp.com/www.megcmusic.com/wp-content/uploads/2025/07/Shadows-of-a-Ghost-Town-Cover-1-300x300.png?resize=300%2C300&#038;ssl=1\" alt=\"\" class=\"wp-image-4351\" srcset=\"https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2025/07/Shadows-of-a-Ghost-Town-Cover-1.png?resize=300%2C300&amp;ssl=1 300w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2025/07/Shadows-of-a-Ghost-Town-Cover-1.png?resize=1024%2C1024&amp;ssl=1 1024w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2025/07/Shadows-of-a-Ghost-Town-Cover-1.png?resize=150%2C150&amp;ssl=1 150w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2025/07/Shadows-of-a-Ghost-Town-Cover-1.png?resize=768%2C768&amp;ssl=1 768w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2025/07/Shadows-of-a-Ghost-Town-Cover-1.png?resize=100%2C100&amp;ssl=1 100w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2025/07/Shadows-of-a-Ghost-Town-Cover-1.png?resize=1320%2C1320&amp;ssl=1 1320w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2025/07/Shadows-of-a-Ghost-Town-Cover-1.png?resize=250%2C250&amp;ssl=1 250w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2025/07/Shadows-of-a-Ghost-Town-Cover-1.png?resize=350%2C350&amp;ssl=1 350w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2025/07/Shadows-of-a-Ghost-Town-Cover-1.png?w=1400&amp;ssl=1 1400w\" sizes=\"auto, (max-width: 300px) 100vw, 300px\" /></figure>\n\n\n\n<p class=\"wp-block-paragraph\"><a href=\"https://www.lonesomehighway.com/music-reviews/2025/11/6/new-album-reviews\">Lonesome Highways</a></p>\n\n\n\n<p class=\"wp-block-paragraph\"><a href=\"https://jackmesenbourg.com/2025/09/27/album-review-meghan-clarisse-shadows-of-a-ghost-town/\">Jack Mesenbourg</a></p>\n\n\n\n<p class=\"wp-block-paragraph\"><a href=\"https://americanahighways.org/2025/09/22/review-meghan-clarisse-shadows-of-a-ghost-town/\">Americana Highways</a></p>\n\n\n\n<p class=\"wp-block-paragraph\"><a href=\"https://www.planetcountry.it/meghan-clarisse-shadows-of-a-ghost-town/\">Planet Country (Italy)</a></p>\n\n\n\n<p class=\"wp-block-paragraph\"><a href=\"https://fervorcoulee.wordpress.com/2025/09/25/meghan-clarisse-shadows-of-a-ghost-review/\">Fervor Coulee</a></p>\n\n\n\n<p class=\"wp-block-paragraph\"><a href=\"https://takeeffectreviews.com/may-2026-2/2026/5/13/meghan-clarisse\">Take Effect</a></p>\n\n\n\n<p class=\"wp-block-paragraph\"><a href=\"https://acousticmusicscene.com/2025/10/07/fai-folk-radio-charts-september-2025/\">Top 10 on The Alternate Root October 2025</a></p>\n\n\n\n<p class=\"wp-block-paragraph\"><a href=\"https://acousticmusicscene.com/2025/10/07/fai-folk-radio-charts-september-2025/\">#41 on Acoustic Music Seen Top 50 Albums of September 2025</a></p>\n"
+        }
+      ]
     },
     {
       "title": "Kindred Spirits",
@@ -63,17 +72,25 @@
       "kind": "EP",
       "pageSlug": "kindred-spirits",
       "productSlug": "kindred-spirits-ep",
-      "spotifyUrl": "",
-      "appleUrl": "",
+      "spotifyUrl": "https://open.spotify.com/album/3lkTOg5l8ld075wVudDHxA?si=ALV4XdHXSJC6CLyryrrLMQ",
+      "appleUrl": "https://music.apple.com/us/album/kindred-spirits-ep/1784479950",
       "reviews": [
         {
-          "kind": "quote",
+          "kind": "",
           "quote_or_accolade": "Strikingly bright and vivid — a true example of beautiful country music.",
           "source": "Joshua D’Estrada · K4CO Radio",
           "link": "https://admin.megcmusic.com/kindred-spirits-review/"
         }
       ],
-      "layout": false
+      "layout": false,
+      "pressPages": [
+        {
+          "id": 5339,
+          "slug": "kindred-spirits-review",
+          "title": "Kindred Spirits Review",
+          "html": "\n<blockquote class=\"wp-block-quote is-layout-flow wp-block-quote-is-layout-flow\">\n<p class=\"wp-block-paragraph\">“<em>Meghan’s EP “Kindred Spirits” is an amazing success with a combination of soft, lullaby-like melodies with beautiful vocals. Her songwriting is strikingly bright and vivid, creating a picture you can clearly understand, with one of the best storylines in her song “the end of an error”. The duets she sings with Dan Kamis and Joe Oeser are hauntingly touching and very heartfelt. Meghan is definitely a talented songbird with the wind on her wings and was born to sing. This EP is a true example of beautiful country music</em>.”</p>\n\n\n\n<p class=\"wp-block-paragraph\">Joshua D’Estrada</p>\n\n\n\n<p class=\"wp-block-paragraph\">President of K4CO Radio</p>\n\n\n\n<figure class=\"wp-block-gallery has-nested-images columns-default is-cropped wp-block-gallery-1 is-layout-flex wp-block-gallery-is-layout-flex\">\n<figure class=\"wp-block-image size-large\"><img data-recalc-dims=\"1\" decoding=\"async\" width=\"525\" height=\"525\" loading=\"lazy\" data-id=\"3848\" src=\"https://i0.wp.com/www.megcmusic.com/wp-content/uploads/2024/12/Kindred-Spirits-Cover-1024x1024.png?resize=525%2C525&#038;ssl=1\" alt=\"\" class=\"wp-image-3848\" srcset=\"https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2024/12/Kindred-Spirits-Cover.png?resize=1024%2C1024&amp;ssl=1 1024w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2024/12/Kindred-Spirits-Cover.png?resize=300%2C300&amp;ssl=1 300w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2024/12/Kindred-Spirits-Cover.png?resize=150%2C150&amp;ssl=1 150w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2024/12/Kindred-Spirits-Cover.png?resize=768%2C768&amp;ssl=1 768w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2024/12/Kindred-Spirits-Cover.png?resize=100%2C100&amp;ssl=1 100w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2024/12/Kindred-Spirits-Cover.png?resize=1320%2C1320&amp;ssl=1 1320w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2024/12/Kindred-Spirits-Cover.png?resize=250%2C250&amp;ssl=1 250w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2024/12/Kindred-Spirits-Cover.png?resize=350%2C350&amp;ssl=1 350w, https://i0.wp.com/admin.megcmusic.com/wp-content/uploads/2024/12/Kindred-Spirits-Cover.png?w=1400&amp;ssl=1 1400w\" sizes=\"auto, (max-width: 706px) 89vw, (max-width: 767px) 82vw, 740px\" /></figure>\n</figure>\n</blockquote>\n"
+        }
+      ]
     },
     {
       "title": "Songs from the Sofa",
@@ -81,10 +98,11 @@
       "kind": "EP",
       "pageSlug": "songs-from-the-sofa-2",
       "productSlug": "songs-from-the-sofa-cd",
-      "spotifyUrl": "",
-      "appleUrl": "",
+      "spotifyUrl": "https://open.spotify.com/album/2KZ1enmAcpXiVeyiBkIAjw?si=be0UKk9iQSah6yAKfkIN9w",
+      "appleUrl": "https://music.apple.com/us/album/songs-from-the-sofa-ep/1668093597",
       "reviews": [],
-      "layout": false
+      "layout": false,
+      "pressPages": []
     },
     {
       "title": "Breaker Breaker",
@@ -92,10 +110,11 @@
       "kind": "SINGLE",
       "pageSlug": "breaker-breaker",
       "productSlug": null,
-      "spotifyUrl": "",
-      "appleUrl": "",
+      "spotifyUrl": "https://open.spotify.com/track/72HSQN2SJjsw4C3nEFRT9y?si=ef27bca8028f4b7e",
+      "appleUrl": "https://music.apple.com/us/album/breaker-breaker-radio-edit-single/1773560150",
       "reviews": [],
-      "layout": false
+      "layout": false,
+      "pressPages": []
     },
     {
       "title": "Ain't Going Back",
@@ -103,10 +122,11 @@
       "kind": "SINGLE",
       "pageSlug": "aint-going-back",
       "productSlug": null,
-      "spotifyUrl": "",
-      "appleUrl": "",
+      "spotifyUrl": "https://open.spotify.com/track/0K2kegxAH3dGHlr6b42gay?si=2fc9733444674aa7",
+      "appleUrl": "https://music.apple.com/us/song/aint-going-back-live-feat-sienna-shalhoub/1739286928",
       "reviews": [],
-      "layout": false
+      "layout": false,
+      "pressPages": []
     }
   ]
 }
