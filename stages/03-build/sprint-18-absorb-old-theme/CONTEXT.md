@@ -4,7 +4,7 @@
 >
 > **Inputs table:** `WORKSPACE.md` · `decisions/decisions.md` (2026-09-17 absorb ADR) · Sprint 16 audit §1 (the three pages) · `scripts/fetch-releases.mjs` · `src/lib/press-page.ts` (+ test) · `src/app/music/[slug]/reviews/` · `src/app/layout.tsx` · plugin 1.5.1 · guide §02.
 >
-> **Status (2026-09-17):** (5) done in this branch (PNGs removed, preview URL cited in Sprint 17 `output/proof.md`) · (6) done — studio-memory learnings 255–256, PRs #370/#371 merged · (3)+(4) built; proof below; PR open.
+> **Status (2026-09-17):** (5) done in this branch (PNGs removed, preview URL cited in Sprint 17 `output/proof.md`) · (6) done — studio-memory learnings 255–256, PRs #370/#371 merged · (3)+(4) ✅ #151 merged, deployed 2026-09-18 03:58 UTC, plugin 1.5.1 uploaded by Levi; verified live in a browser (both reviews routes, links, quote, images; EPK repoint; footer on every route). **Sprint 18 complete.**
 
 **Prime directive:** no visitor path from megcmusic.com leads to the old Storefront theme except WooCommerce checkout and Event Tickets. Meg adds a review page by linking it from a release's review rows; nothing else.
 
