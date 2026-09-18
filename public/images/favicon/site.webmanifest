@@ -1,0 +1,21 @@
+{
+  "name": "Meghan Clarisse Cave",
+  "short_name": "Meg C",
+  "description": "Meghan Clarisse Cave — Colorado singer-songwriter.",
+  "start_url": "/",
+  "display": "browser",
+  "background_color": "#241420",
+  "theme_color": "#241420",
+  "icons": [
+    {
+      "src": "/images/favicon/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/images/favicon/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

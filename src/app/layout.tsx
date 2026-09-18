@@ -20,10 +20,42 @@ function resolveSiteUrl(): URL {
   return new URL("https://megcmusic.com");
 }
 
+// Site-wide favicon set + default social preview image (2026-09-17), built
+// from public/images/favicon/m-logo.svg. Any route that needs its own OG
+// image (e.g. src/app/fyc/shadows-of-a-ghost-town/page.tsx) sets its own
+// `openGraph` and takes precedence over this default — Next.js metadata
+// does not deep-merge `openGraph`/`images` across a layout/page pair.
+const OG_IMAGE = {
+  url: "/images/OG/og-image.png",
+  width: 1200,
+  height: 630,
+  alt: "Meghan Clarisse Cave",
+};
+
 export const metadata: Metadata = {
   title: HOME_CONTENT.metaTitle,
   description: HOME_CONTENT.metaDescription,
   metadataBase: resolveSiteUrl(),
+  icons: {
+    icon: [
+      { url: "/images/favicon/favicon.svg", type: "image/svg+xml" },
+      { url: "/images/favicon/favicon.ico", sizes: "any" },
+    ],
+    apple: "/images/favicon/apple-touch-icon.png",
+  },
+  manifest: "/images/favicon/site.webmanifest",
+  openGraph: {
+    title: HOME_CONTENT.metaTitle,
+    description: HOME_CONTENT.metaDescription,
+    type: "website",
+    images: [OG_IMAGE],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: HOME_CONTENT.metaTitle,
+    description: HOME_CONTENT.metaDescription,
+    images: [OG_IMAGE.url],
+  },
 };
 
 export default function RootLayout({

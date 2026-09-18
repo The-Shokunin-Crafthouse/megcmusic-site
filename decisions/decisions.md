@@ -2155,3 +2155,21 @@ The fallback string made it worse by sounding authoritative: "no step had report
 **Consequences.** Easier: no visitor path leads to the old theme except commerce and tickets. Harder: `releases.json` carries the review pages' HTML (~5 KB); a review page linked from two releases is fetched once and rendered on both. The proof PNGs from Sprint 17 were removed from the repo on Levi's instruction; the PR's preview URL is cited instead (learning #28).
 
 **Verification.** Parser tests red then green (4), 59/59; oracle updated for the rewritten hrefs. Local build: text diff of every route against production reads only the intended changes (footer on every non-Home route, the EPK button's target) plus live data; the two new routes render every block of their WordPress pages.
+
+## 2026-09-17 — Site-wide favicon set and default OG image, from the new mark
+
+**Stage:** 03-build
+**Type:** Content · Architecture
+**Status:** accepted — Levi's instruction
+
+**Context.** `public/images/favicon/m-logo.svg` (the "M" monogram, 512×512, `#3B1B34` card) and `public/images/OG/OG-image.png` (1200×630 "Meghan Clarisse" lockup) were dropped into the repo as new brand assets with no site wiring. The site had no favicon beyond Next's default `src/app/favicon.ico` and no default social-preview image; only the FYC campaign page (`src/app/fyc/shadows-of-a-ghost-town/page.tsx`) and the `/megs-playbook` PWA shell had their own `icons`/`openGraph`.
+
+**Decisions.**
+1. **Favicon set generated from the SVG**, all into `public/images/favicon/`: `favicon.svg` (copy of the source mark), `favicon.ico` (16/32/48 multi-res, via sharp + ImageMagick), `apple-touch-icon.png` (180), `icon-192.png`, `icon-512.png`, `site.webmanifest`. `src/app/favicon.ico` (the Next.js file-convention route) is kept in sync with the same `.ico` so a direct `/favicon.ico` request matches the `<link>` tags.
+2. **Manifest name/colors follow the `/megs-playbook` manifest's convention**: `name: "Meghan Clarisse Cave"`, `short_name: "Meg C"`, and `background_color`/`theme_color` set to the site's `--mc-bg` (`#241420`) rather than the icon card's own `#3B1B34` — the manifest describes the *site* chrome, not the icon artwork.
+3. **`OG-image.png` renamed to `og-image.png`** (case-only rename) — the connected macOS folder is case-insensitive, but the deploy target (Vercel/Linux) is not, so the asset must exist under the lowercase path it's referenced by.
+4. **Wired at the root layout** (`src/app/layout.tsx`): `metadata.icons`, `metadata.manifest`, and a default `metadata.openGraph`/`metadata.twitter` using `og-image.png`. Next.js metadata does not deep-merge `openGraph` across a layout/page pair, so this is a **default that every page inherits except where a page already sets its own** — the FYC page's release-specific OG image, and `/megs-playbook`'s own PWA `icons`/`manifest`, are untouched and continue to take precedence on their routes.
+
+**Consequences.** Easier: every route gets a real favicon and a branded social-preview card with no per-page changes. Harder: a future page-specific OG image still has to set `openGraph` in full (title/description/images) since Next won't merge just the image in.
+
+**Verification.** `npx tsc --noEmit` clean. Rendered `icon-512.png`/`apple-touch-icon.png`/`og-image.png` visually — gradient, drop shadow, and text all intact at each size.
