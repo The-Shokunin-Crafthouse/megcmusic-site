@@ -1,6 +1,6 @@
 import { useId } from "react";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
-import type { HomeBlock } from "@/lib/home-blocks";
+import type { Block } from "@/lib/blocks";
 import styles from "./Announcement.module.css";
 
 /** A link that leaves the site opens in a new tab and says so to a screen
@@ -21,7 +21,7 @@ function isExternal(url: string): boolean {
  * pattern when Meg gives it both a label and an address. Spec:
  * _config/design-system/a11y-spec.md.
  */
-export function Announcement({ block }: { block: Extract<HomeBlock, { layout: "announcement" }> }) {
+export function Announcement({ block }: { block: Extract<Block, { layout: "announcement" }> }) {
   const headingId = useId();
   const external = block.linkUrl ? isExternal(block.linkUrl) : false;
   return (

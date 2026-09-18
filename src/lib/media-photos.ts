@@ -71,6 +71,12 @@ function sized(base: string, w: number): string {
   return `${base}?w=${w}&quality=82&ssl=1`;
 }
 
+/** A WordPress upload URL as the site serves images: on the WordPress host,
+ *  original file, resized by Photon to `w`. Used by the photo block. */
+export function photonUrl(src: string, w: number): string {
+  return sized(normalize(src), w);
+}
+
 /**
  * Every gallery image, de-duplicated by its original file (WordPress emits the
  * same photo at several sizes). Data URIs, tracking pixels, and non-content

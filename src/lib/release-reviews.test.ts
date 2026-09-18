@@ -5,12 +5,31 @@ import { parseReviews } from "./release-reviews";
 test("kind, when Meg sets it, decides quote versus accolade", () => {
   assert.deepEqual(
     parseReviews([
-      { kind: "quote", quote_or_accolade: "Top 10", source: "Someone", link: "" },
+      { kind: "quote", quote_or_accolade: "Small but chosen", source: "Someone", link: "" },
       { kind: "accolade", quote_or_accolade: "A long sentence of praise that reads like a review line.", source: "Outlet", link: "https://x" },
     ]),
     [
-      { source: "Someone", quote: "Top 10" },
+      { source: "Someone", quote: "Small but chosen" },
       { source: "Outlet", accolade: "A long sentence of praise that reads like a review line.", href: "https://x" },
+    ],
+  );
+});
+
+test("an explicit quote cannot turn a placement into a quote — ACF's default on old rows must not flip them", () => {
+  assert.deepEqual(
+    parseReviews([
+      { kind: "quote", quote_or_accolade: "Top 10 — October 2025", source: "The Alternate Root", link: "" },
+      { kind: "quote", quote_or_accolade: "#41 · Top 50 Albums of September 2025", source: "Acoustic Music Seen", link: "" },
+      { kind: "quote", quote_or_accolade: "2025's most quietly devastating record", source: "Someone", link: "" },
+      { kind: "quote", quote_or_accolade: "Short but chosen", source: "S", link: "" },
+      { kind: "quote", quote_or_accolade: "Nominated for Album of the Year by the Josie Music Awards!", source: "", link: "" },
+    ]),
+    [
+      { source: "The Alternate Root", accolade: "Top 10 — October 2025" },
+      { source: "Acoustic Music Seen", accolade: "#41 · Top 50 Albums of September 2025" },
+      { source: "Someone", accolade: "2025's most quietly devastating record" },
+      { source: "S", quote: "Short but chosen" },
+      { source: "", accolade: "Nominated for Album of the Year by the Josie Music Awards!" },
     ],
   );
 });

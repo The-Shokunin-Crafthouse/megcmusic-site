@@ -18,6 +18,7 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { WP_API } from "@/lib/api/wordpress";
 import { youTubeId } from "@/lib/media-videos";
+import { layoutFor, type LayoutItem } from "@/lib/page-layout";
 
 interface FycQuote {
   quote: string;
@@ -37,6 +38,8 @@ interface FycLyricSheet {
 }
 
 interface FycCampaign {
+  /** Sprint 17: section order and blocks. */
+  layout: LayoutItem[];
   slug: string;
   album: string;
   artist: string;
@@ -121,6 +124,7 @@ async function fetchAcf(pageId: number): Promise<Record<string, unknown>> {
 }
 
 const rows = (v: unknown): AcfRepeaterRow[] => (Array.isArray(v) ? v : []);
+
 const text = (v: unknown): string => (typeof v === "string" ? v : "");
 
 export async function getFycCampaign(slug: string): Promise<FycCampaign> {
@@ -130,6 +134,7 @@ export async function getFycCampaign(slug: string): Promise<FycCampaign> {
 
   return {
     slug,
+    layout: layoutFor("fyc", acf.layout_fyc),
     album: text(acf.album_title),
     artist: ARTIST,
     category: text(acf.category_line),

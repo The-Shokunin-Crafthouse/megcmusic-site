@@ -51,7 +51,18 @@ export function parseReviews(raw: unknown): Review[] {
     if (!body) continue;
     const source = text(r.source);
     const kind = text(r.kind).toLowerCase();
-    const quote = kind === "quote" ? true : kind === "accolade" ? false : looksLikeQuote(body, source);
+    // An explicit "accolade" always wins. An explicit "quote" wins unless the
+    // line is a placement (#41, 2025…, Top 10) or has no source (a quote needs
+    // a speaker; an unsourced line is an accolade): ACF hands the select's value
+    // to rows saved before the field existed, and 1.4.1 shipped it with a
+    // default of "quote" — the two Shadows placements would have flipped on
+    // the next rebuild. 1.5.0 removes the default; this guard closes the gap.
+    const quote =
+      kind === "accolade"
+        ? false
+        : kind === "quote"
+          ? !PLACEMENT.test(body) && source !== ""
+          : looksLikeQuote(body, source);
     const link = text(r.link);
     out.push({
       source,

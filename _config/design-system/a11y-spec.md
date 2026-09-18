@@ -42,3 +42,34 @@ Empty quote: the parser drops the row, nothing renders. Same markup as the Liner
 | `<figcaption>` | — | visible text, rendered only when Meg gives one | caption | none | not focusable | none | n/a | 1.3.1 |
 
 Same markup as the Videos gallery's featured tile, so a screen reader meets one pattern for both. Thumbnail `alt=""` (decorative — the button carries the name).
+
+## Page layout (Sprint 17)
+
+Every route's sections become a Flexible Content list Meg orders in WordPress; blocks may sit between them. The rendered tree is the same sections, in her order, so nothing below changes an existing section's names, roles or states. What changes is **order**, and the invariants that keep order safe:
+
+| Concern | Rule | WCAG |
+|---|---|---|
+| Heading hierarchy | Every section keeps its own `<h2>` (SectionLabel) whatever its position; a text block is an `<h2>` section too; blocks inside a run keep their `<h3>`/`<figure>` as on Home. No level is skipped by reordering. | 1.3.1, 2.4.6 |
+| Landmarks | Sections stay `<section aria-labelledby>`; a block run is a `<div>` (no landmark, no name — it is not a region of its own). | 1.3.1 |
+| Focus order | Follows DOM order, which follows Meg's order; every section's internal tab order is unchanged. The page's `states.mjs` walk is the proof per route. | 2.4.3 |
+| Hidden section | Not rendered at all — no `hidden` attribute, no `display:none` leftovers, nothing focusable off-screen. | 2.4.3, 4.1.2 |
+
+## Text section block (Sprint 17)
+
+| Element | Accessible name | Name source | Role | States announced | Focus order | Live region | Reduced motion | WCAG |
+|---|---|---|---|---|---|---|---|---|
+| `<section>` | Meg's heading | `aria-labelledby` → its SectionLabel | region | none | contains nothing focusable | none | n/a (no motion) | 1.3.1 |
+| SectionLabel `<h2>` | the heading text | visible text; the ★★★ are `aria-hidden` | heading level 2 | none | not focusable | none | n/a | 1.3.1, 2.4.6 |
+| Paragraph `<p>` (one per blank-line-separated paragraph) | — | visible text | paragraph | none | not focusable | none | n/a | 1.4.3 (`--mc-text-liner` on `--mc-bg`, the Liner Notes pair, ≥ 7:1), 1.4.8 (measure capped at 68ch) |
+
+Findings: none. A block with no heading or no paragraph is dropped by the parser, so an unnamed region cannot occur (#3's cousin: make the illegal state unrepresentable).
+
+## Photo block (Sprint 17)
+
+| Element | Accessible name | Name source | Role | States announced | Focus order | Live region | Reduced motion | WCAG |
+|---|---|---|---|---|---|---|---|---|
+| `<figure>` | the caption when present | native figure/figcaption association | figure | none | contains nothing focusable | none | n/a | 1.3.1 |
+| `<img>` | the media library's alt text; **empty alt = decorative** | `alt` from the WordPress attachment (set in the Media Library, not the block — the field's help text says so) | img, or presentational when alt is empty | none | not focusable | none | n/a; `loading="lazy"` with intrinsic `width`/`height` so nothing shifts (CLS) | 1.1.1, 1.4.5 (a photo, never text as image) |
+| `<figcaption>` | — | visible text | caption | none | not focusable | none | n/a | 1.4.3 (`--mc-teal-light` on `--mc-bg`, 5.9:1) |
+
+Findings: none blocking. Not determinable at spec time: whether Meg writes alt text — the guide names it as the one thing to do when uploading a photo for a block. A missing alt renders the photo decorative rather than announcing a filename, which is the safer failure.

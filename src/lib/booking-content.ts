@@ -9,6 +9,7 @@
  */
 
 import acf from "@/generated/wp-content/booking.json";
+import { layoutFor, type LayoutItem } from "@/lib/page-layout";
 
 export interface BookingFact {
   label: string;
@@ -49,3 +50,5 @@ export function parseBooking(raw: unknown): BookingContent {
 }
 
 export const BOOKING_CONTENT: BookingContent = parseBooking(acf);
+/** Sprint 17: section order and blocks. */
+export const BOOKING_LAYOUT: LayoutItem[] = layoutFor("booking", (acf as Record<string, unknown>).layout_booking);

@@ -16,8 +16,11 @@ import {
   RELEASE_DETAILS,
   getReleaseDetail,
   getReviews,
+  getReleaseLayout,
   type ReleaseDetail,
 } from "@/lib/releases-content";
+import { PageLayout } from "@/components/Blocks/PageLayout";
+
 import { ReleaseBody } from "./ReleaseBody";
 import styles from "./release.module.css";
 import { heroImage } from "@/lib/hero-images";
@@ -75,6 +78,42 @@ export default async function ReleasePage({
 
   const [content, reviews] = [await safeContent(release.wpSlug), getReviews(slug)];
   const links = streamingLinks(release);
+  const sections = {
+    record: () => <ReleaseBody wpSlug={release.wpSlug} server={content} />,
+    press: () =>
+      reviews.length > 0 ? (
+        <section className={styles.section} aria-labelledby="release-press">
+          <div className={styles.inner}>
+            <SectionLabel id="release-press">What People Are Saying</SectionLabel>
+            <ul className={styles.reviews}>
+              {reviews.map((r, i) => (
+                <li key={i} className={styles.review}>
+                  {r.quote && <p className={styles.reviewQuote}>“{r.quote}”</p>}
+                  {r.accolade && (
+                    <p className={styles.reviewAccolade}>{r.accolade}</p>
+                  )}
+                  <p className={styles.reviewSource}>
+                    {r.href ? (
+                      <a
+                        className={styles.reviewLink}
+                        href={r.href}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        {r.source}
+                        <ArrowUpRight size={13} weight="bold" aria-hidden="true" />
+                      </a>
+                    ) : (
+                      r.source
+                    )}
+                  </p>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      ) : null,
+  };
 
   return (
     <div className={styles.page}>
@@ -134,40 +173,8 @@ export default async function ReleasePage({
           </div>
         </header>
 
-        <ReleaseBody wpSlug={release.wpSlug} server={content} />
-
-        {reviews.length > 0 && (
-          <section className={styles.section} aria-labelledby="release-press">
-            <div className={styles.inner}>
-              <SectionLabel id="release-press">What People Are Saying</SectionLabel>
-              <ul className={styles.reviews}>
-                {reviews.map((r, i) => (
-                  <li key={i} className={styles.review}>
-                    {r.quote && <p className={styles.reviewQuote}>“{r.quote}”</p>}
-                    {r.accolade && (
-                      <p className={styles.reviewAccolade}>{r.accolade}</p>
-                    )}
-                    <p className={styles.reviewSource}>
-                      {r.href ? (
-                        <a
-                          className={styles.reviewLink}
-                          href={r.href}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                        >
-                          {r.source}
-                          <ArrowUpRight size={13} weight="bold" aria-hidden="true" />
-                        </a>
-                      ) : (
-                        r.source
-                      )}
-                    </p>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </section>
-        )}
+        {/* Sprint 17: this release page's "Page layout" list. */}
+        <PageLayout items={getReleaseLayout(slug)} render={sections} />
       </main>
     </div>
   );

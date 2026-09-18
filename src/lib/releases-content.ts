@@ -24,6 +24,7 @@ import { RELEASE_ROUTES, type ReleaseRoute } from "@/config/releases";
 import { WP_ORIGIN } from "@/lib/wp-origin";
 import { paragraphsFromHtml } from "@/lib/wp-content";
 import { parseReviews, type Review } from "@/lib/release-reviews";
+import { layoutFor, type LayoutItem } from "@/lib/page-layout";
 
 interface Release {
   year: string;
@@ -101,6 +102,15 @@ export const MUSIC_PAGE = {
 export const MUSIC_INTRO: string[] = paragraphsFromHtml(data.introHtml ?? "").filter(
   (para) => para.split(/\s+/).length >= 6,
 );
+
+/** Sprint 17: the Music page's section order and blocks. */
+export const MUSIC_LAYOUT: LayoutItem[] = layoutFor("music", (data as Record<string, unknown>).layoutMusic);
+
+/** Sprint 17: a release page's section order and blocks, by ROUTE slug. */
+export function getReleaseLayout(slug: string): LayoutItem[] {
+  const row = data.releases.find((r) => routeFor(r)?.slug === slug);
+  return layoutFor("release", (row as Record<string, unknown> | undefined)?.layout);
+}
 
 /** Press for a release by its ROUTE slug — the "Release Reviews" repeater on
  *  that release's WP page (Sprint 16 Phase 2; supersedes src/config/reviews.ts). */

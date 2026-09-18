@@ -22,12 +22,14 @@
 
 import acf from "@/generated/wp-content/poetry.json";
 import { POETRY } from "@/config/poetry";
+import { layoutFor } from "@/lib/page-layout";
 
 const text = (v: unknown): string => (typeof v === "string" ? v : "");
 const rows = (v: unknown): Record<string, unknown>[] =>
   Array.isArray(v) ? (v as Record<string, unknown>[]) : [];
 
 export const POETRY_CONTENT = {
+  layout: layoutFor("poetry", (acf as Record<string, unknown>).layout_poetry),
   title: text(acf.book_title),
   subtitle: text(acf.subtitle),
   lede: text(acf.lede),

@@ -2,7 +2,8 @@ import type { Metadata } from "next";
 import { BookingForm } from "@/components/BookingForm/BookingForm";
 import styles from "./booking.module.css";
 import { heroImage } from "@/lib/hero-images";
-import { BOOKING_CONTENT } from "@/lib/booking-content";
+import { BOOKING_CONTENT, BOOKING_LAYOUT } from "@/lib/booking-content";
+import { PageLayout } from "@/components/Blocks/PageLayout";
 
 // Every word outside the form comes from the Booking page in Meg's dashboard
 // (WP page 5, "Booking Page" field group) — Sprint 16 Phase 2.
@@ -16,6 +17,51 @@ const INCLUDE = BOOKING_CONTENT.includeItems;
 
 // Booking-at-a-glance: fixed row labels, Meg's values.
 const FACTS = BOOKING_CONTENT.facts;
+
+const SECTIONS = {
+  booking: () => (
+    <div className={styles.body}>
+      <div className={styles.layout}>
+        <section className={styles.intro} aria-labelledby="booking-intro">
+          <h2 className={styles.srOnly} id="booking-intro">
+            About booking
+          </h2>
+          <p className={styles.introText}>{BOOKING_CONTENT.intro}</p>
+
+          <div>
+            <p className={styles.includeTitle}>What to include</p>
+            <ul className={styles.includeList}>
+              {INCLUDE.map((item) => (
+                <li key={item} className={styles.includeItem}>
+                  <span className={styles.includeStar} aria-hidden="true">
+                    ★
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <dl className={styles.facts}>
+            {FACTS.map((f) => (
+              <div key={f.label} className={styles.factRow}>
+                <dt className={styles.factLabel}>{f.label}</dt>
+                <dd className={styles.factValue}>{f.value}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+
+        <section className={styles.panel} aria-labelledby="booking-form-title">
+          <h2 className={styles.panelTitle} id="booking-form-title">
+            Send a booking enquiry
+          </h2>
+          <BookingForm />
+        </section>
+      </div>
+    </div>
+  ),
+};
 
 export default function BookingPage() {
   return (
@@ -40,49 +86,8 @@ export default function BookingPage() {
           </div>
         </header>
 
-        <div className={styles.body}>
-          <div className={styles.layout}>
-            <section className={styles.intro} aria-labelledby="booking-intro">
-              <h2 className={styles.srOnly} id="booking-intro">
-                About booking
-              </h2>
-              <p className={styles.introText}>{BOOKING_CONTENT.intro}</p>
-
-              <div>
-                <p className={styles.includeTitle}>What to include</p>
-                <ul className={styles.includeList}>
-                  {INCLUDE.map((item) => (
-                    <li key={item} className={styles.includeItem}>
-                      <span className={styles.includeStar} aria-hidden="true">
-                        ★
-                      </span>
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              <dl className={styles.facts}>
-                {FACTS.map((f) => (
-                  <div key={f.label} className={styles.factRow}>
-                    <dt className={styles.factLabel}>{f.label}</dt>
-                    <dd className={styles.factValue}>{f.value}</dd>
-                  </div>
-                ))}
-              </dl>
-            </section>
-
-            <section
-              className={styles.panel}
-              aria-labelledby="booking-form-title"
-            >
-              <h2 className={styles.panelTitle} id="booking-form-title">
-                Send a booking enquiry
-              </h2>
-              <BookingForm />
-            </section>
-          </div>
-        </div>
+        {/* Sprint 17: the Booking page's "Page layout" list. */}
+        <PageLayout items={BOOKING_LAYOUT} render={SECTIONS} />
       </main>
     </div>
   );

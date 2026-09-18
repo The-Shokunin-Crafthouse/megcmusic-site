@@ -1,11 +1,13 @@
-import type { HomeBlock } from "@/lib/home-blocks";
+import type { Block } from "@/lib/blocks";
 import { Announcement } from "./Announcement";
 import { PullQuoteBlock } from "./PullQuoteBlock";
 import { VideoBlock } from "./VideoBlock";
+import { TextBlock } from "./TextBlock";
+import { PhotoBlock } from "./PhotoBlock";
 
 /** One block → one component. The parser has already dropped anything that
  *  cannot render, so every case here is a block with its required field. */
-export function BlockRenderer({ block }: { block: HomeBlock }) {
+export function BlockRenderer({ block }: { block: Block }) {
   switch (block.layout) {
     case "announcement":
       return <Announcement block={block} />;
@@ -13,5 +15,9 @@ export function BlockRenderer({ block }: { block: HomeBlock }) {
       return <PullQuoteBlock block={block} />;
     case "video":
       return <VideoBlock block={block} />;
+    case "text":
+      return <TextBlock block={block} />;
+    case "photo":
+      return <PhotoBlock block={block} />;
   }
 }

@@ -19,6 +19,7 @@
  */
 
 import acf from "@/generated/wp-content/epk.json";
+import { layoutFor, type LayoutItem } from "@/lib/page-layout";
 
 export interface EpkKitItem {
   title: string;
@@ -40,6 +41,8 @@ interface EpkFact {
 }
 
 interface EpkContent {
+  /** Sprint 17: section order and blocks. */
+  layout: LayoutItem[];
   pageLede: string;
   facts: readonly EpkFact[];
   kitItems: readonly EpkKitItem[];
@@ -102,6 +105,7 @@ function pressItems(acf: AcfRecord): EpkPressItem[] {
 }
 
 const content: EpkContent = {
+  layout: layoutFor("epk", (acf as Record<string, unknown>).layout_epk),
   pageLede: text(acf.page_lede),
   facts: facts(acf),
   kitItems: kitItems(acf),

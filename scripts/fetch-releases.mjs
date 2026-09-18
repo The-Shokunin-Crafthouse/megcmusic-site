@@ -90,6 +90,10 @@ async function slugOf(kind, id, what) {
   return slug;
 }
 
+/** Sprint 17: a "Page layout" field as ACF returns it (rows or false), kept
+ *  raw; src/lib/page-layout.ts resolves it with its tests. */
+const layoutRows = (v) => (Array.isArray(v) ? v : false);
+
 /** The raw repeater rows, kept as ACF returns them; parsing (and the
  *  quote/accolade rule) lives in src/lib/release-reviews.ts with its tests. */
 const reviewRows = (acf) =>
@@ -132,11 +136,13 @@ for (const row of rawRows) {
   let pageSlug = null;
   let productSlug = null;
   let reviews = [];
+  let layout = false;
   try {
     if (pageId) {
       const page = await pageOf(pageId, `the page for "${title}"`);
       pageSlug = page.slug;
       reviews = reviewRows(page.acf);
+      layout = layoutRows(page.acf?.layout_release);
     }
     if (productId) productSlug = await slugOf("product", productId, `the shop item for "${title}"`);
   } catch (e) {
@@ -151,6 +157,7 @@ for (const row of rawRows) {
     spotifyUrl: text(row.spotify_url),
     appleUrl: text(row.apple_url),
     reviews,
+    layout,
   });
 }
 
@@ -164,6 +171,7 @@ const out = {
     amazon: text(acf.artist_amazon),
   },
   introHtml,
+  layoutMusic: layoutRows(acf.layout_music),
   releases,
 };
 

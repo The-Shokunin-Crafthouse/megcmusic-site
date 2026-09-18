@@ -4,7 +4,7 @@ Registers the megcmusic.com site-content field groups (from `acf-json/`) and pin
 
 ## What it does
 
-- **Field groups.** Adds `acf-json/` as a Local JSON load point. Secure Custom Fields (or ACF) loads the 12 groups automatically — nothing is click-configured, every field definition is code-reviewed here.
+- **Field groups.** Adds `acf-json/` as a Local JSON load point. Secure Custom Fields (or ACF) loads the 23 groups automatically — nothing is click-configured, every field definition is code-reviewed here.
 - **Rebuild ping.** On save of a tracked page (`megc_site_content_page_ids()` in the plugin file, plus the `site-poetry` page), sends `repository_dispatch` (`wp-content-updated`) to this repo. Leading-edge 60s debounce via a transient — deliberately **not** wp-cron, because this install's cron option intermittently fails to persist (Bluehost logs, 2026-08-27). Save-bursts beyond the window are collapsed by the receiving workflow's GitHub Actions concurrency group.
 - **Fails safe.** No SCF/ACF → filters never fire. No wp-config constants → no ping, silently. Any exception in the save hook is caught and logged, never fataled — the 2026-08-27 wp-admin outage class (plugins fataling on admin hooks) is designed out.
 
@@ -35,8 +35,13 @@ WordPress's `home` option stays on this host, so on its own it sends "Visit Site
 
 Override the live origin with `define( 'MEGC_LIVE_ORIGIN', 'https://…' )` in wp-config for a staging host. The route map is unit-tested (`tests/live-routes.test.php`, run by `wp-plugin-lint.yml` and by hand with `php`).
 
+## Page layout (1.5.0)
+
+Every page Meg edits carries a **Page layout** field group (`layout_<route>`, a Flexible Content list). Its rows are that page's own sections (drag to reorder, toggle *Hide this section*) and five block types (announcement, pull quote, video, text section, photo). Rows she lists render first in her order, sections she leaves out follow in their usual order, and an empty list is today's page. The ten `acf-json/group_megc_layout_*.json` files are **generated** from `src/lib/page-layouts.ts` by `npm run layout:build`; `npm run layout:check` (run by `unit-tests.yml`) fails when they drift. Never hand-edit them.
+
 ## Version history
 
+- **1.5.0** (Sprint 17, 2026-09-17) — ten generated Page layout groups (see above); no PHP change. Re-upload per step 2 (once, with 1.4.x); verify: any tracked page shows a *Page layout* box under its fields, and `GET …/pages/608?acf_format=standard&_fields=acf` carries `layout_epk`.
 - **1.4.1** (Sprint 16 Phase 2, 2026-09-17) — JSON only: the Release Reviews repeater gains a *Kind* select (Quote / Accolade); the Music group gains a message saying the editor body is not shown; the Work With Me offering *Detail* says where it renders. Re-upload per step 2 (once, with 1.4.0).
 - **1.4.0** (2026-09-17) — the front door: `page_link`, `preview_post_link`, admin-bar and `template_redirect` hooks point WordPress at the live site (see above). Re-upload per step 2; verify by opening any page's "View" link from the Pages list — it opens `megcmusic.com`.
 

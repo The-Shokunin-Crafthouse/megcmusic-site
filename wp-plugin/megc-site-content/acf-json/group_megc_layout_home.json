@@ -1,0 +1,321 @@
+{
+  "key": "group_megc_layout_home",
+  "title": "Page layout — Home",
+  "fields": [
+    {
+      "key": "field_megc_layout_home",
+      "label": "Page layout",
+      "name": "layout_home",
+      "type": "flexible_content",
+      "button_label": "Add a section or a block",
+      "instructions": "The order of this page, top to bottom, under its heading. Add the page's own sections to drag them into a new order or hide one; add a block — an announcement, a quote, a video, a text section, a photo — to put something new between them. Anything you leave out keeps its usual place after what you list. Leave the whole list empty and the page looks exactly as it does today.",
+      "layouts": {
+        "layout_megc_home_section_liner-notes": {
+          "key": "layout_megc_home_section_liner-notes",
+          "name": "section_liner-notes",
+          "label": "Section: Liner Notes",
+          "display": "row",
+          "max": 1,
+          "sub_fields": [
+            {
+              "key": "field_megc_layout_home_section_liner-notes_hidden",
+              "label": "Hide this section",
+              "name": "hidden",
+              "type": "true_false",
+              "ui": 1,
+              "default_value": 0,
+              "instructions": "Your bio, the pull quote and the Recognition list."
+            }
+          ]
+        },
+        "layout_megc_home_section_instagram": {
+          "key": "layout_megc_home_section_instagram",
+          "name": "section_instagram",
+          "label": "Section: Instastar",
+          "display": "row",
+          "max": 1,
+          "sub_fields": [
+            {
+              "key": "field_megc_layout_home_section_instagram_hidden",
+              "label": "Hide this section",
+              "name": "hidden",
+              "type": "true_false",
+              "ui": 1,
+              "default_value": 0,
+              "instructions": "Your latest Instagram posts."
+            }
+          ]
+        },
+        "layout_megc_home_section_whats-new": {
+          "key": "layout_megc_home_section_whats-new",
+          "name": "section_whats-new",
+          "label": "Section: What's New",
+          "display": "row",
+          "max": 1,
+          "sub_fields": [
+            {
+              "key": "field_megc_layout_home_section_whats-new_hidden",
+              "label": "Hide this section",
+              "name": "hidden",
+              "type": "true_false",
+              "ui": 1,
+              "default_value": 0,
+              "instructions": "The Blocks you add on this page's Blocks tab."
+            }
+          ]
+        },
+        "layout_megc_home_section_press-kit": {
+          "key": "layout_megc_home_section_press-kit",
+          "name": "section_press-kit",
+          "label": "Section: Electronic Press Kit",
+          "display": "row",
+          "max": 1,
+          "sub_fields": [
+            {
+              "key": "field_megc_layout_home_section_press-kit_hidden",
+              "label": "Hide this section",
+              "name": "hidden",
+              "type": "true_false",
+              "ui": 1,
+              "default_value": 0,
+              "instructions": "The press-kit teaser with the boot."
+            }
+          ]
+        },
+        "layout_megc_home_section_videos": {
+          "key": "layout_megc_home_section_videos",
+          "name": "section_videos",
+          "label": "Section: Latest Videos",
+          "display": "row",
+          "max": 1,
+          "sub_fields": [
+            {
+              "key": "field_megc_layout_home_section_videos_hidden",
+              "label": "Hide this section",
+              "name": "hidden",
+              "type": "true_false",
+              "ui": 1,
+              "default_value": 0,
+              "instructions": "The featured video and the playlist."
+            }
+          ]
+        },
+        "layout_megc_home_section_mailing-list": {
+          "key": "layout_megc_home_section_mailing-list",
+          "name": "section_mailing-list",
+          "label": "Section: The Mailing List",
+          "display": "row",
+          "max": 1,
+          "sub_fields": [
+            {
+              "key": "field_megc_layout_home_section_mailing-list_hidden",
+              "label": "Hide this section",
+              "name": "hidden",
+              "type": "true_false",
+              "ui": 1,
+              "default_value": 0,
+              "instructions": "The sign-up form."
+            }
+          ]
+        },
+        "layout_megc_home_section_discography": {
+          "key": "layout_megc_home_section_discography",
+          "name": "section_discography",
+          "label": "Section: Discography",
+          "display": "row",
+          "max": 1,
+          "sub_fields": [
+            {
+              "key": "field_megc_layout_home_section_discography_hidden",
+              "label": "Hide this section",
+              "name": "hidden",
+              "type": "true_false",
+              "ui": 1,
+              "default_value": 0,
+              "instructions": "Albums and EPs from your release list."
+            }
+          ]
+        },
+        "layout_megc_home_section_singles": {
+          "key": "layout_megc_home_section_singles",
+          "name": "section_singles",
+          "label": "Section: Singles",
+          "display": "row",
+          "max": 1,
+          "sub_fields": [
+            {
+              "key": "field_megc_layout_home_section_singles_hidden",
+              "label": "Hide this section",
+              "name": "hidden",
+              "type": "true_false",
+              "ui": 1,
+              "default_value": 0,
+              "instructions": "Singles from your release list."
+            }
+          ]
+        },
+        "layout_megc_home_announcement": {
+          "key": "layout_megc_home_announcement",
+          "name": "announcement",
+          "label": "Announcement",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_megc_layout_home_ann_eyebrow",
+              "label": "Small line above",
+              "name": "eyebrow",
+              "type": "text",
+              "instructions": "Optional. e.g. “New single” or “Award season”."
+            },
+            {
+              "key": "field_megc_layout_home_ann_headline",
+              "label": "Headline",
+              "name": "headline",
+              "type": "text",
+              "instructions": "What people read first. Required — a block without a headline does not show.",
+              "required": 1
+            },
+            {
+              "key": "field_megc_layout_home_ann_body",
+              "label": "Text",
+              "name": "body",
+              "type": "textarea",
+              "instructions": "Optional. A sentence or two.",
+              "rows": 3
+            },
+            {
+              "key": "field_megc_layout_home_ann_link_label",
+              "label": "Link text",
+              "name": "link_label",
+              "type": "text",
+              "instructions": "Optional. e.g. “Listen now”. Needs a link address too."
+            },
+            {
+              "key": "field_megc_layout_home_ann_link_url",
+              "label": "Link address",
+              "name": "link_url",
+              "type": "url",
+              "instructions": "Optional. Where the link goes."
+            }
+          ]
+        },
+        "layout_megc_home_pull_quote": {
+          "key": "layout_megc_home_pull_quote",
+          "name": "pull_quote",
+          "label": "Pull quote",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_megc_layout_home_quote_text",
+              "label": "Quote",
+              "name": "quote",
+              "type": "textarea",
+              "instructions": "The quote itself, without quotation marks. Required.",
+              "required": 1,
+              "rows": 3
+            },
+            {
+              "key": "field_megc_layout_home_quote_attribution",
+              "label": "Who said it",
+              "name": "attribution",
+              "type": "text",
+              "instructions": "e.g. “Americana Highways”."
+            }
+          ]
+        },
+        "layout_megc_home_video": {
+          "key": "layout_megc_home_video",
+          "name": "video",
+          "label": "Video",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_megc_layout_home_video_url",
+              "label": "YouTube link",
+              "name": "youtube_url",
+              "type": "url",
+              "instructions": "Any YouTube link — watch, Shorts, or share. Required.",
+              "required": 1
+            },
+            {
+              "key": "field_megc_layout_home_video_caption",
+              "label": "Caption",
+              "name": "caption",
+              "type": "text",
+              "instructions": "Optional. One line under the video."
+            }
+          ]
+        },
+        "layout_megc_home_text": {
+          "key": "layout_megc_home_text",
+          "name": "text",
+          "label": "Text section",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_megc_layout_home_text_heading",
+              "label": "Heading",
+              "name": "heading",
+              "type": "text",
+              "instructions": "Shown between the ★★★ like every section heading. Required.",
+              "required": 1
+            },
+            {
+              "key": "field_megc_layout_home_text_body",
+              "label": "Paragraphs",
+              "name": "body",
+              "type": "textarea",
+              "instructions": "Leave an empty line between paragraphs. Required — a section with no text does not show.",
+              "required": 1,
+              "rows": 8,
+              "new_lines": ""
+            }
+          ]
+        },
+        "layout_megc_home_photo": {
+          "key": "layout_megc_home_photo",
+          "name": "photo",
+          "label": "Photo",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_megc_layout_home_photo_image",
+              "label": "Photo",
+              "name": "image",
+              "type": "image",
+              "return_format": "array",
+              "preview_size": "medium",
+              "library": "all",
+              "instructions": "Required. The photo's own “Alternative Text” in the Media Library is what a screen reader hears — set it there.",
+              "required": 1
+            },
+            {
+              "key": "field_megc_layout_home_photo_caption",
+              "label": "Caption",
+              "name": "caption",
+              "type": "text",
+              "instructions": "Optional. One line under the photo."
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "location": [
+    [
+      {
+        "param": "page",
+        "operator": "==",
+        "value": "4"
+      }
+    ]
+  ],
+  "menu_order": 50,
+  "position": "normal",
+  "style": "default",
+  "label_placement": "top",
+  "instruction_placement": "label",
+  "active": true,
+  "show_in_rest": 1,
+  "description": "Generated from src/lib/page-layouts.ts by scripts/wp-plugin/build-layout-groups.ts — do not edit by hand."
+}

@@ -11,6 +11,7 @@
 
 import shows from "@/generated/wp-content/shows.json";
 import shop from "@/generated/wp-content/shop.json";
+import { layoutFor, type LayoutItem } from "@/lib/page-layout";
 
 export interface PageBasics {
   lede: string;
@@ -31,3 +32,6 @@ export function parsePageBasics(raw: unknown): PageBasics {
 
 export const SHOWS_PAGE: PageBasics = parsePageBasics(shows);
 export const SHOP_PAGE: PageBasics = parsePageBasics(shop);
+/** Sprint 17: section order and blocks. */
+export const SHOWS_LAYOUT: LayoutItem[] = layoutFor("shows", (shows as Record<string, unknown>).layout_shows);
+export const SHOP_LAYOUT: LayoutItem[] = layoutFor("shop", (shop as Record<string, unknown>).layout_shop);
