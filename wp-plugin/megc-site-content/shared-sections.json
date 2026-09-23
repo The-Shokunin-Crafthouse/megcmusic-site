@@ -34,7 +34,8 @@
       ],
       "shownOn": [
         4,
-        608
+        608,
+        5562
       ]
     },
     {
@@ -71,36 +72,6 @@
       "shownOn": [
         4,
         608,
-        5562
-      ]
-    },
-    {
-      "id": "2931-format_label",
-      "source": 2931,
-      "fields": [
-        "field_megc_format_label",
-        "field_megc_format_blurb"
-      ],
-      "names": [
-        "format_label",
-        "format_blurb"
-      ],
-      "shownOn": [
-        5562
-      ]
-    },
-    {
-      "id": "2939-format_label",
-      "source": 2939,
-      "fields": [
-        "field_megc_format_label",
-        "field_megc_format_blurb"
-      ],
-      "names": [
-        "format_label",
-        "format_blurb"
-      ],
-      "shownOn": [
         5562
       ]
     },
@@ -150,21 +121,12 @@
       ]
     },
     {
-      "id": "5562-2931-format_label",
+      "id": "5562-608-kit_items",
       "host": 5562,
-      "group": "2931-format_label",
-      "source": 2931,
+      "group": "608-kit_items",
+      "source": 608,
       "sections": [
-        "Live Formats"
-      ]
-    },
-    {
-      "id": "5562-2939-format_label",
-      "host": 5562,
-      "group": "2939-format_label",
-      "source": 2939,
-      "sections": [
-        "Live Formats"
+        "Electronic Press Kit"
       ]
     },
     {

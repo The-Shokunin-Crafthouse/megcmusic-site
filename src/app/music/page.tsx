@@ -7,9 +7,9 @@ import { Singles } from "@/components/Singles/Singles";
 import { MUSIC_PAGE, MUSIC_INTRO, MUSIC_LAYOUT } from "@/lib/releases-content";
 import { PageLayout } from "@/components/Blocks/PageLayout";
 
-import { LIVE_FORMATS } from "@/lib/formats-content";
+import { EPK } from "@/components/EPK/EPK";
+import { BootScene } from "@/components/BootScene/BootScene";
 import { COLLAB } from "@/lib/collab-content";
-import { FormatCard } from "./FormatCard";
 import styles from "./music.module.css";
 import { heroImage } from "@/lib/hero-images";
 
@@ -40,17 +40,13 @@ const SECTIONS = {
     ) : null,
   discography: () => <Discography />,
   singles: () => <Singles id="music-singles" surface="page" />,
-  "live-formats": () => (
-    <section className={styles.section} aria-labelledby="music-formats">
-      <div className={styles.inner}>
-        <SectionLabel id="music-formats">Live Formats</SectionLabel>
-        <div className={styles.formats}>
-          {LIVE_FORMATS.map((f) => (
-            <FormatCard key={f.slug} format={f} />
-          ))}
-        </div>
-      </div>
-    </section>
+  // The home page's press-kit section, boot and all (2026-09-23): same rows,
+  // edited once on the Press Kit page.
+  "press-kit": () => (
+    <div className={styles.bootWrap}>
+      <EPK />
+      <BootScene />
+    </div>
   ),
   "work-with-me": () => (
     <section className={styles.section} aria-labelledby="music-collab">
