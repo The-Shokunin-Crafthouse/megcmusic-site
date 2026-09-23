@@ -151,25 +151,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 22
       - name: Push the install to admin.megcmusic.com
         env:
           WP_APP_USER: ${{ secrets.WP_APP_USER }}
           WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
           VERSION: ${{ needs.version.outputs.version }}
+        # Node, not curl: a bodiless POST from the runner trips Bluehost's
+        # Mod_Security (406) before WordPress sees it; wp-ops.mjs's shape passes.
         run: |
           set -uo pipefail
-          if [ -z "$WP_APP_USER" ] || [ -z "$WP_APP_PASSWORD" ]; then
-            echo "::error::WP_APP_USER / WP_APP_PASSWORD are not set; the release is published but nothing was installed"
-            exit 1
-          fi
-          # --retry covers a dropped connection or a 5xx from the host; the
-          # route is idempotent (already current → ok, nothing to do).
-          status=$(curl -sS -o body.json -w '%{http_code}' \
-            --max-time 240 --retry 2 --retry-delay 20 \
-            -u "$WP_APP_USER:$WP_APP_PASSWORD" \
-            -H "Accept: application/json" \
-            -H "User-Agent: megc-release-workflow (github.com/The-Shokunin-Crafthouse/megcmusic-site)" \
-            -X POST https://admin.megcmusic.com/wp-json/megc/v1/self-update) || status="curl:$?"
-          echo "HTTP $status"
-          [ -f body.json ] && head -c 2000 body.json && echo
+          node scripts/ci/wp-self-update.mjs
           bash scripts/ci/wp-plugin-release.sh installed body.json "$VERSION" | tee -a "$GITHUB_STEP_SUMMARY"
