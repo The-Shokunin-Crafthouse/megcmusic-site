@@ -1,8 +1,8 @@
 <?php
 /**
  * Plugin Name: MegC Site Content
- * Description: Registers the megcmusic.com site-content field groups (Secure Custom Fields / ACF) from bundled JSON, pings GitHub to rebuild the site when a site-content page is saved, and points every "View", "Preview" and "Visit Site" link — and every visitor who lands on this host's front end — at the live site on megcmusic.com.
- * Version: 1.5.1
+ * Description: Registers the megcmusic.com site-content field groups (Secure Custom Fields / ACF) from bundled JSON, puts an editor for every shared section on each page that shows it, pings GitHub to rebuild the site when a site-content page is saved, and points every "View", "Preview" and "Visit Site" link — and every visitor who lands on this host's front end — at the live site on megcmusic.com.
+ * Version: 1.6.0
  * Requires PHP: 8.1
  * Author: The Shokunin Crafthouse
  * License: GPL-2.0-or-later
@@ -26,6 +26,9 @@
 if ( ! defined( 'ABSPATH' ) ) {
 	exit;
 }
+
+// Shared sections (1.6.0): an editor for shared fields on every page that shows them.
+require_once __DIR__ . '/shared-sections.php';
 
 /** WP page IDs whose saves should trigger a site rebuild (the editing surfaces). */
 function megc_site_content_page_ids(): array {
@@ -137,7 +140,7 @@ add_action( 'save_post_page', function ( $post_id, $post, $update ) {
 					'Accept'               => 'application/vnd.github+json',
 					'Authorization'        => 'Bearer ' . MEGC_GH_PAT,
 					'X-GitHub-Api-Version' => '2022-11-28',
-					'User-Agent'           => 'megc-site-content/1.5.1',
+					'User-Agent'           => 'megc-site-content/1.6.0',
 				),
 				'body'    => wp_json_encode(
 					array(

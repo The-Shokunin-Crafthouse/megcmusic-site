@@ -17,7 +17,40 @@ export interface LayoutSection {
   label: string;
   /** One line under it. */
   help: string;
+  /**
+   * Where the section's content is kept, when some of it is also shown on
+   * another page or kept on another page (ADR 2026-09-23). The plugin puts an
+   * editor for `fields` on every page that lists them and saves each one back
+   * to `pageId`, so there is one copy; `page` and `screen` become a link to
+   * where that content is edited. Omit when the section reads only this
+   * page's own fields and no other page shows them.
+   */
+  source?: SectionSource[];
 }
+
+export type SectionSource =
+  /** Field names on page `pageId` (checked against the plugin's field groups at build). */
+  | { kind: "fields"; pageId: number; fields: string[] }
+  /** Another page's own text, edited in that page's editor. */
+  | { kind: "page"; pageId: number; what: string }
+  /** A wp-admin screen (relative to /wp-admin/) that is not a page, e.g. Events. */
+  | { kind: "screen"; screen: string; what: string };
+
+// Sources named more than once below. One constant per shared set, so every
+// section that shows it names the same fields (the build fails otherwise).
+const BIO: SectionSource = {
+  kind: "fields",
+  pageId: 4,
+  fields: ["bio_paragraph_1", "bio_paragraph_2", "bio_paragraph_3", "pull_quote", "pull_quote_attribution"],
+};
+// Discography falls back to the artist profiles when a release has no link of its own.
+const RELEASES: SectionSource = {
+  kind: "fields",
+  pageId: 5562,
+  fields: ["releases", "artist_spotify", "artist_apple", "artist_amazon"],
+};
+const PRESS_KIT: SectionSource = { kind: "fields", pageId: 608, fields: ["kit_items"] };
+const VIDEOS: SectionSource = { kind: "fields", pageId: 5560, fields: ["featured_video_url", "video_list"] };
 
 export interface RouteLayout {
   /** Field name in WordPress: `layout_<route>`. */
@@ -35,14 +68,14 @@ export const PAGE_LAYOUTS: readonly RouteLayout[] = [
     title: "Page layout — Home",
     pageIds: [4],
     sections: [
-      { id: "liner-notes", label: "Liner Notes", help: "Your bio, the pull quote and the Recognition list." },
+      { id: "liner-notes", label: "Liner Notes", help: "Your bio, the pull quote and the Recognition list.", source: [BIO] },
       { id: "instagram", label: "Instastar", help: "Your latest Instagram posts." },
       { id: "whats-new", label: "What's New", help: "The Blocks you add on this page's Blocks tab." },
-      { id: "press-kit", label: "Electronic Press Kit", help: "The press-kit teaser with the boot." },
-      { id: "videos", label: "Latest Videos", help: "The featured video and the playlist." },
+      { id: "press-kit", label: "Electronic Press Kit", help: "The press-kit teaser with the boot.", source: [PRESS_KIT] },
+      { id: "videos", label: "Latest Videos", help: "The featured video and the playlist.", source: [VIDEOS] },
       { id: "mailing-list", label: "The Mailing List", help: "The sign-up form." },
-      { id: "discography", label: "Discography", help: "Albums and EPs from your release list." },
-      { id: "singles", label: "Singles", help: "Singles from your release list." },
+      { id: "discography", label: "Discography", help: "Albums and EPs from your release list.", source: [RELEASES] },
+      { id: "singles", label: "Singles", help: "Singles from your release list.", source: [RELEASES] },
     ],
   },
   {
@@ -51,10 +84,23 @@ export const PAGE_LAYOUTS: readonly RouteLayout[] = [
     pageIds: [5562],
     sections: [
       { id: "liner-notes", label: "Liner Notes", help: "Full sentences you write in the page text above, if any." },
-      { id: "discography", label: "Discography", help: "Albums and EPs from your release list." },
-      { id: "singles", label: "Singles", help: "Singles from your release list." },
-      { id: "live-formats", label: "Live Formats", help: "The Solo Acoustic and Full Band cards." },
-      { id: "work-with-me", label: "Work With Me", help: "The groups from your Collabs page." },
+      { id: "discography", label: "Discography", help: "Albums and EPs from your release list.", source: [RELEASES] },
+      { id: "singles", label: "Singles", help: "Singles from your release list.", source: [RELEASES] },
+      {
+        id: "live-formats",
+        label: "Live Formats",
+        help: "The Solo Acoustic and Full Band cards.",
+        source: [
+          { kind: "fields", pageId: 2931, fields: ["format_label", "format_blurb"] },
+          { kind: "fields", pageId: 2939, fields: ["format_label", "format_blurb"] },
+        ],
+      },
+      {
+        id: "work-with-me",
+        label: "Work With Me",
+        help: "The groups from your Collabs page.",
+        source: [{ kind: "fields", pageId: 3742, fields: ["collab_groups", "cave_crew_url"] }],
+      },
     ],
   },
   {
@@ -71,11 +117,16 @@ export const PAGE_LAYOUTS: readonly RouteLayout[] = [
     title: "Page layout — EPK",
     pageIds: [608],
     sections: [
-      { id: "story", label: "The Story", help: "Your bio, the pull quote and the quick facts." },
-      { id: "kit", label: "Press Kit", help: "The downloads." },
+      { id: "story", label: "The Story", help: "Your bio, the pull quote and the quick facts.", source: [BIO] },
+      { id: "kit", label: "Press Kit", help: "The downloads.", source: [PRESS_KIT] },
       { id: "press", label: "What People Are Saying", help: "Press coverage links." },
-      { id: "discography", label: "Discography", help: "Albums and EPs from your release list." },
-      { id: "set-list", label: "Sample Set List", help: "From your Sample Set List page." },
+      { id: "discography", label: "Discography", help: "Albums and EPs from your release list.", source: [RELEASES] },
+      {
+        id: "set-list",
+        label: "Sample Set List",
+        help: "From your Sample Set List page.",
+        source: [{ kind: "page", pageId: 3666, what: "the songs in the set list" }],
+      },
       { id: "resources", label: "Photos & Booking", help: "The closing note and its three buttons." },
     ],
   },
@@ -84,8 +135,13 @@ export const PAGE_LAYOUTS: readonly RouteLayout[] = [
     title: "Page layout — Media",
     pageIds: [10],
     sections: [
-      { id: "watch", label: "Watch", help: "The videos from your Media — Videos page." },
-      { id: "photos", label: "Photos", help: "The gallery from your Photos page." },
+      { id: "watch", label: "Watch", help: "The videos from your Media — Videos page.", source: [VIDEOS] },
+      {
+        id: "photos",
+        label: "Photos",
+        help: "The gallery from your Photos page.",
+        source: [{ kind: "page", pageId: 5520, what: "the photos in the gallery" }],
+      },
     ],
   },
   {
@@ -98,13 +154,27 @@ export const PAGE_LAYOUTS: readonly RouteLayout[] = [
     route: "shows",
     title: "Page layout — Shows",
     pageIds: [20],
-    sections: [{ id: "shows", label: "Shows", help: "The show calendar with its three tabs." }],
+    sections: [
+      {
+        id: "shows",
+        label: "Shows",
+        help: "The show calendar with its three tabs.",
+        source: [{ kind: "screen", screen: "edit.php?post_type=tribe_events", what: "your shows (Events)" }],
+      },
+    ],
   },
   {
     route: "shop",
     title: "Page layout — Shop",
     pageIds: [1847],
-    sections: [{ id: "catalog", label: "Products", help: "Everything in your WooCommerce store." }],
+    sections: [
+      {
+        id: "catalog",
+        label: "Products",
+        help: "Everything in your WooCommerce store.",
+        source: [{ kind: "screen", screen: "edit.php?post_type=product", what: "your products" }],
+      },
+    ],
   },
   {
     route: "poetry",

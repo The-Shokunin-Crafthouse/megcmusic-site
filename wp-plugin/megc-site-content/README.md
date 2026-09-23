@@ -39,8 +39,17 @@ Override the live origin with `define( 'MEGC_LIVE_ORIGIN', 'https://…' )` in w
 
 Every page Meg edits carries a **Page layout** field group (`layout_<route>`, a Flexible Content list). Its rows are that page's own sections (drag to reorder, toggle *Hide this section*) and five block types (announcement, pull quote, video, text section, photo). Rows she lists render first in her order, sections she leaves out follow in their usual order, and an empty list is today's page. The ten `acf-json/group_megc_layout_*.json` files are **generated** from `src/lib/page-layouts.ts` by `npm run layout:build`; `npm run layout:check` (run by `unit-tests.yml`) fails when they drift. Never hand-edit them.
 
+## Shared sections (1.6.0)
+
+A section whose fields are kept on one page but shown on others gets an editor on every page that shows it. On Home, for example, **Electronic Press Kit — shared with Press Kit** shows the press-kit downloads kept on the Press Kit page; what Meg changes there is saved to the Press Kit page, so there is still one copy. The page that keeps a set says where else it shows, above its first field. Sections whose content is not a field (the Sample Set List and Photos pages' text, Events, Products) are listed with a link under **Sections edited somewhere else**.
+
+What is shared comes from `shared-sections.json`, generated from each section's `source` in `src/lib/page-layouts.ts` by `npm run layout:build` and checked by `npm run layout:check` (CI). Never hand-edit it.
+
+An editor opened before someone changed the same set from another page does not overwrite that change: the set is left as it is, the editor shows a notice straight after the save, and the section shows a note on reload. See decisions.md 2026-09-23. Pure helpers are unit-tested in `tests/shared-sections.test.php`.
+
 ## Version history
 
+- **1.6.0** (2026-09-23) — shared sections: an editor for every shared set on each page that shows it, saved back to the page that keeps it; a guard against saving from an out-of-date page; a links box for sections edited elsewhere (see above). Re-upload per step 2 (Replace current with uploaded). Verify: open Home — three boxes titled "… — shared with …" sit under the page's own fields; change a press-kit row name there, Save, open Press Kit — the row shows the new name.
 - **1.5.1** (2026-09-17) — the three old-theme pages the site still linked to are absorbed: Photos → `/media#media-photos`, the two review pages → `/music/<release>/reviews`; the review pages join the rebuild list. Re-upload per step 2.
 - **1.5.0** (Sprint 17, 2026-09-17) — ten generated Page layout groups (see above); no PHP change. Re-upload per step 2 (once, with 1.4.x); verify: any tracked page shows a *Page layout* box under its fields, and `GET …/pages/608?acf_format=standard&_fields=acf` carries `layout_epk`.
 - **1.4.1** (Sprint 16 Phase 2, 2026-09-17) — JSON only: the Release Reviews repeater gains a *Kind* select (Quote / Accolade); the Music group gains a message saying the editor body is not shown; the Work With Me offering *Detail* says where it renders. Re-upload per step 2 (once, with 1.4.0).

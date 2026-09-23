@@ -1,0 +1,233 @@
+{
+  "_generated": "From src/lib/page-layouts.ts by scripts/wp-plugin/build-shared-sections.ts — do not edit by hand.",
+  "groups": [
+    {
+      "id": "4-bio_paragraph_1",
+      "source": 4,
+      "fields": [
+        "field_megc_home_bio_1",
+        "field_megc_home_bio_2",
+        "field_megc_home_bio_3",
+        "field_megc_home_pull_quote",
+        "field_megc_home_pull_quote_attribution"
+      ],
+      "names": [
+        "bio_paragraph_1",
+        "bio_paragraph_2",
+        "bio_paragraph_3",
+        "pull_quote",
+        "pull_quote_attribution"
+      ],
+      "shownOn": [
+        4,
+        608
+      ]
+    },
+    {
+      "id": "608-kit_items",
+      "source": 608,
+      "fields": [
+        "field_megc_epk_kit_items"
+      ],
+      "names": [
+        "kit_items"
+      ],
+      "shownOn": [
+        4,
+        608
+      ]
+    },
+    {
+      "id": "5560-featured_video_url",
+      "source": 5560,
+      "fields": [
+        "field_megc_videos_featured",
+        "field_megc_videos_list"
+      ],
+      "names": [
+        "featured_video_url",
+        "video_list"
+      ],
+      "shownOn": [
+        4,
+        10
+      ]
+    },
+    {
+      "id": "5562-releases",
+      "source": 5562,
+      "fields": [
+        "field_megc_music_releases",
+        "field_megc_music_artist_spotify",
+        "field_megc_music_artist_apple",
+        "field_megc_music_artist_amazon"
+      ],
+      "names": [
+        "releases",
+        "artist_spotify",
+        "artist_apple",
+        "artist_amazon"
+      ],
+      "shownOn": [
+        4,
+        608,
+        5562
+      ]
+    },
+    {
+      "id": "2931-format_label",
+      "source": 2931,
+      "fields": [
+        "field_megc_format_label",
+        "field_megc_format_blurb"
+      ],
+      "names": [
+        "format_label",
+        "format_blurb"
+      ],
+      "shownOn": [
+        5562
+      ]
+    },
+    {
+      "id": "2939-format_label",
+      "source": 2939,
+      "fields": [
+        "field_megc_format_label",
+        "field_megc_format_blurb"
+      ],
+      "names": [
+        "format_label",
+        "format_blurb"
+      ],
+      "shownOn": [
+        5562
+      ]
+    },
+    {
+      "id": "3742-collab_groups",
+      "source": 3742,
+      "fields": [
+        "field_megc_collab_groups",
+        "field_megc_cave_crew_url"
+      ],
+      "names": [
+        "collab_groups",
+        "cave_crew_url"
+      ],
+      "shownOn": [
+        5562
+      ]
+    }
+  ],
+  "boxes": [
+    {
+      "id": "4-608-kit_items",
+      "host": 4,
+      "group": "608-kit_items",
+      "source": 608,
+      "sections": [
+        "Electronic Press Kit"
+      ]
+    },
+    {
+      "id": "4-5560-featured_video_url",
+      "host": 4,
+      "group": "5560-featured_video_url",
+      "source": 5560,
+      "sections": [
+        "Latest Videos"
+      ]
+    },
+    {
+      "id": "4-5562-releases",
+      "host": 4,
+      "group": "5562-releases",
+      "source": 5562,
+      "sections": [
+        "Discography",
+        "Singles"
+      ]
+    },
+    {
+      "id": "5562-2931-format_label",
+      "host": 5562,
+      "group": "2931-format_label",
+      "source": 2931,
+      "sections": [
+        "Live Formats"
+      ]
+    },
+    {
+      "id": "5562-2939-format_label",
+      "host": 5562,
+      "group": "2939-format_label",
+      "source": 2939,
+      "sections": [
+        "Live Formats"
+      ]
+    },
+    {
+      "id": "5562-3742-collab_groups",
+      "host": 5562,
+      "group": "3742-collab_groups",
+      "source": 3742,
+      "sections": [
+        "Work With Me"
+      ]
+    },
+    {
+      "id": "608-4-bio_paragraph_1",
+      "host": 608,
+      "group": "4-bio_paragraph_1",
+      "source": 4,
+      "sections": [
+        "The Story"
+      ]
+    },
+    {
+      "id": "608-5562-releases",
+      "host": 608,
+      "group": "5562-releases",
+      "source": 5562,
+      "sections": [
+        "Discography"
+      ]
+    },
+    {
+      "id": "10-5560-featured_video_url",
+      "host": 10,
+      "group": "5560-featured_video_url",
+      "source": 5560,
+      "sections": [
+        "Watch"
+      ]
+    }
+  ],
+  "links": [
+    {
+      "host": 608,
+      "section": "Sample Set List",
+      "page": 3666,
+      "what": "the songs in the set list"
+    },
+    {
+      "host": 10,
+      "section": "Photos",
+      "page": 5520,
+      "what": "the photos in the gallery"
+    },
+    {
+      "host": 20,
+      "section": "Shows",
+      "screen": "edit.php?post_type=tribe_events",
+      "what": "your shows (Events)"
+    },
+    {
+      "host": 1847,
+      "section": "Products",
+      "screen": "edit.php?post_type=product",
+      "what": "your products"
+    }
+  ]
+}
