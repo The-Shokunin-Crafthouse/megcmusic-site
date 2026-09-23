@@ -2173,3 +2173,45 @@ The fallback string made it worse by sounding authoritative: "no step had report
 **Consequences.** Easier: every route gets a real favicon and a branded social-preview card with no per-page changes. Harder: a future page-specific OG image still has to set `openGraph` in full (title/description/images) since Next won't merge just the image in.
 
 **Verification.** `npx tsc --noEmit` clean. Rendered `icon-512.png`/`apple-touch-icon.png`/`og-image.png` visually — gradient, drop shadow, and text all intact at each size.
+
+## 2026-09-23 — Not pursuing a public release of Meg's Playbook; IP-conversation precondition no longer applies
+
+**Stage:** pre-Gate-1 (idea vetting, follow-up to the 2026-09-03 council verdict)
+**Type:** Product / strategic decision
+**Status:** resolved — not proceeding
+**amends:** 2026-09-03 "Council verdict: PARK stands; 'enter your Claude subscription
+credentials' mechanism KILLED; unpark trigger amended and premortem-hardened" — this
+entry closes out that verdict's unpark path rather than advancing it.
+
+**Context.** The 2026-09-03 council verdict PARKed public multi-tenant release of Meg's
+Playbook (taking it to market for other creators/industries) and set an amended unpark
+trigger requiring, among other preconditions, "(0) counsel-drafted IP instrument signed
+with Meghan, target 2026-09-20, hard kill in this log if unsigned by 2026-11-30." Tracked
+as WQ-033 (P0, Levi-owned). The 2026-09-18 resume-runner re-verified at the destination
+that no IP instrument existed in this file as of that date; the 2026-09-20 target passed
+unmet, surfaced as Flag item 15 in the 2026-09-23 COO audit.
+
+**Decision.** Levi is not pursuing a public release. Meg's Playbook (`/megs-playbook`)
+remains Meghan's own tool — visible/viewable by anyone who reaches the unlinked,
+noindexed route, but not shipped, marketed, or monetized as a product for other
+creators or industries. The 2026-09-03 verdict's PARK therefore does not need to be
+unparked: there is no public-release path being pursued, so its entire precondition set
+(0)–(11), including the IP-instrument precondition, no longer applies. This is not a
+KILL of the underlying idea (the council's PARK-not-KILL judgment stands as a historical
+record) — it is Levi choosing not to walk the unpark path at this time.
+
+**Consequences.** Easier: no counsel spend, no IP-instrument conversation with Meghan
+needed on any deadline; the product keeps shipping for Meghan's own use under Sprint
+16–18's ongoing work with no strategic ambiguity hanging over it. Harder: none of the
+2026-09-03 verdict's market research (industries ranked, pilot design, pricing) carries
+forward automatically if a public release is reconsidered later — it would need
+re-verification against however much time has passed.
+
+**Alternatives considered.** *Re-date the 2026-09-20 target and keep pursuing the IP
+conversation* — rejected; Levi's instruction was to close, not extend. *Treat this as a
+KILL of the product idea* — not what Levi said; the product continues to exist and be
+used by Meghan, only the public-release path is not being pursued.
+
+**Reconvene signal.** None set. If a public release is reconsidered in the future, it
+re-enters as a new brief against the 2026-09-03 council's fact base, re-verified for
+currency, not as a resumption of WQ-033's expired precondition.
