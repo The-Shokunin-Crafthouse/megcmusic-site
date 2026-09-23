@@ -50,6 +50,8 @@ expect( 'music', megc_live_route_for( 5562, 'music' ), '/music' );
 expect( 'songs from the sofa drops the -2', megc_live_route_for( 4395, 'songs-from-the-sofa-2' ), '/music/songs-from-the-sofa' );
 expect( 'FYC shadows', megc_live_route_for( 4350, 'shadows-of-a-ghost-town' ), '/fyc/shadows-of-a-ghost-town' );
 expect( 'FYC kindred (slug differs from route)', megc_live_route_for( 4566, 'fyc-kindred-spirits-meghan-clarisse' ), '/fyc/kindred-spirits' );
+expect( 'retired Live Format page lands on Music', megc_live_route_for( 2931, 'solo-acoustic' ), '/music' );
+expect( 'retired Live Format page lands on Music (band)', megc_live_route_for( 2939, 'full-band' ), '/music' );
 expect( 'videos feed a section of /media', megc_live_route_for( 5560, 'videos' ), '/media#media-watch' );
 expect( 'set list feeds a section of /epk', megc_live_route_for( 3666, 'sample-set-list' ), '/epk#epk-setlist' );
 
