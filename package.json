@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "node scripts/fetch-wp-content.mjs && node scripts/fetch-releases.mjs && node scripts/fetch-hero-images.mjs && node scripts/fetch-fyc-assets.mjs && next build",
+    "build": "node scripts/fetch-wp-content.mjs && node scripts/fetch-releases.mjs && node scripts/fetch-hero-images.mjs && node scripts/fetch-epk-thumbs.mjs && node scripts/fetch-fyc-assets.mjs && next build",
     "start": "next start",
     "preview": "npm run build && node --import tsx scripts/preview.ts",
     "verify:apis": "node --env-file=.env.local --import tsx scripts/verify-apis.ts",
@@ -32,12 +32,14 @@
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@napi-rs/canvas": "^1.0.9",
     "@playwright/test": "^1.61.1",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/three": "^0.184.1",
     "esbuild": "^0.28.1",
+    "pdfjs-dist": "^6.3.289",
     "sharp": "^0.35.3",
     "tsx": "^4.22.4",
     "typescript": "^5"
