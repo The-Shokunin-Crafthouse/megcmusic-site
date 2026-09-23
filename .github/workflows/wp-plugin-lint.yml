@@ -22,6 +22,8 @@ jobs:
         run: php wp-plugin/megc-site-content/tests/live-routes.test.php
       - name: Shared-sections unit tests
         run: php wp-plugin/megc-site-content/tests/shared-sections.test.php
+      - name: Self-update unit tests
+        run: php wp-plugin/megc-site-content/tests/self-update.test.php
       - name: Field-group JSON validity
         run: |
           set -e
