@@ -2263,3 +2263,15 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 **Decision.** The Music route's `live-formats` layout section becomes `press-kit`, in the same slot, rendering the same `EPK` + `BootScene` pair as Home inside a local `.bootWrap` (plum ground at content level, so the fixed Music backdrop does not paint over it). The section names the shared `PRESS_KIT` source, so the press-kit rows stay one copy on the Press Kit page (608) and the generated plugin JSON gives Music an editor box for them. Plugin 1.6.1, JSON only. Music's saved layout is empty today, so the registry order applies and nothing Meg saved is dropped.
 
 **Consequences.** The Live Format field group (pages 2931/2939), `src/lib/formats-content.ts`, `src/app/music/FormatCard.tsx` and the `.format*` rules in `music.module.css` no longer feed any page. They are left in place for a separate cleanup: removing the field group hides fields from Meg's dashboard and deleting files is an always-ask call.
+
+## 2026-09-23 — Retire the Live Formats code and the Live Format field group
+
+**Stage:** 03-build (post-Sprint-18 cleanup)
+**Type:** Content / editability
+**Status:** accepted — supersedes the "left in place" consequence of the entry above
+
+**Context.** Since PR #158 the Music page shows the Electronic Press Kit where Live Formats was. The reader, card component, styles, generated snapshots and the *Live Format* field group on pages 2931 (Solo Acoustic) and 2939 (Full Band) fed no page. Studio learning #255: a populated field that renders nothing must not stay editable, or Meg edits text nobody sees. Removing the group hides fields from Meg's dashboard and deleting files is an always-ask call; Levi confirmed both on 2026-09-23, including dropping the two pages from the rebuild list.
+
+**Decision.** Delete `src/lib/formats-content.ts` (+ test), `src/app/music/FormatCard.tsx`, the `.formats`/`.format*` rules and `format-fade` keyframes in `music.module.css`, the `LIVE_FORMATS` oracle assertion, the `solo-acoustic`/`full-band` fetch surfaces and their `src/generated/wp-content/*.json` snapshots, and `acf-json/group_megc_live_format.json`. Plugin 1.6.2: 2931/2939 leave `megc_site_content_page_ids()`, so a save there no longer rebuilds the site. Their live route becomes `/music` (was `/music#music-formats`, an anchor that no longer exists) rather than null: the pages stay published, and null would hand them back to the old theme. `tests/live-routes.test.php` pins both.
+
+**Consequences.** Meg's saved `format_label`/`format_blurb` values stay in postmeta; restoring the JSON file brings the boxes back with them. The WordPress pages themselves are untouched. `scripts/wp-migrate/migrate-content.ts` still names 2931/2939: it is the one-off 2026-09-05 migration record, not a live reader, and is left as history. Plugin zips under `wp-plugin/` are not rebuilt here, as with 1.5.x–1.6.1.
