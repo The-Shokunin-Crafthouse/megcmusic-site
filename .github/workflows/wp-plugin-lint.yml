@@ -1,10 +1,13 @@
 # Lints the WordPress plugin on every PR that touches it: PHP 8.3 syntax
 # (the 2026-08-27 wp-admin outage class was PHP-incompatible plugin code
-# fataling on admin hooks) and field-group JSON validity.
+# fataling on admin hooks), the PHP unit tests, and field-group JSON validity.
+# Also the gate wp-plugin-release.yml runs before it releases the plugin
+# (workflow_call), so a release never ships what a PR would have failed.
 name: WP plugin lint
 on:
   pull_request:
     paths: ["wp-plugin/**"]
+  workflow_call:
 
 jobs:
   lint:
