@@ -20,6 +20,8 @@ jobs:
           find wp-plugin -name '*.php' -print0 | xargs -0 -n1 php -l
       - name: Route-map unit tests
         run: php wp-plugin/megc-site-content/tests/live-routes.test.php
+      - name: Shared-sections unit tests
+        run: php wp-plugin/megc-site-content/tests/shared-sections.test.php
       - name: Field-group JSON validity
         run: |
           set -e
