@@ -2235,3 +2235,19 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 **Alternatives considered.** A — one copy on a Site Content screen, read-only previews elsewhere: rejected by Levi in favour of editing in place. C — signposts only: cheapest, rejected as leaving the "where does this live" question in place. ACF Clone fields: rejected, a second copy the site never reads. Moving storage to an options page under B: rejected, it would change every front-end reader and migrate live data for no gain to Meg.
 
 **Not in scope.** The footer's social links and the site photo stay on Home → Site Basics: the registry does not count chrome or the footer as sections, and every page already has its own photo field. The press-kit row thumbnails (Levi's original question) are a separate change.
+
+## 2026-09-23 — Press-kit thumbnails are drawn from the download itself at build, not kept in a field
+
+**Stage:** 03-build (post-Sprint-18 editability follow-up)
+**Type:** Architecture / content pipeline
+**Status:** accepted
+
+**Context.** The home page's Electronic Press Kit shows a small picture beside each download. It has always been the site photo, the same for every row, so it says nothing about the file. Levi asked for each picture to show the file a visitor downloads, and ruled out a thumbnail field in WordPress: a second thing for Meg to keep in step would drift the first time she replaced a PDF and forgot the picture.
+
+**Decision.** Draw the picture from the file on every build. `scripts/fetch-epk-thumbs.mjs` runs after `fetch-wp-content.mjs` (which writes the press-kit rows to `src/generated/wp-content/epk.json`), downloads each row's file, and renders page 1 of a PDF (pdfjs-dist on @napi-rs/canvas) or the uploaded image, cropped to the 112×145 frame from the top of the page, as WebP at 224 and 336 px wide into `public/images/epk-thumbs/` (gitignored). `src/generated/epk-thumbs.json` maps each file URL to its pictures; `EPK.tsx` reads it through `src/lib/epk-thumbs.ts` with a `srcset`. The file name carries the attachment id and a hash of the file's URL, modified time and size, so a replaced PDF gets a new name and no cache serves the old picture. Every save of the press-kit rows (on the Press Kit page, or the shared box on Home) already rebuilds the site, and the nightly rebuild covers a file replaced in the Media Library without a page save.
+
+**Failure policy.** A file that cannot be downloaded after retries fails the build, like every other build-time WordPress read. A file that downloads but cannot be drawn (a damaged or encrypted PDF, or an error page served in its place — checked by the `%PDF-` header) keeps the site photo for that row and prints a GitHub Actions warning naming the file; the picture is decoration and does not hold back Meg's other saves. A row that links somewhere instead of holding a file (the Sample Set List today) keeps the site photo: there is no file to draw.
+
+**Consequences.** Easier: the picture cannot go stale and Meg has nothing extra to do. Harder: two build dependencies (pdfjs-dist, Apache-2.0; @napi-rs/canvas, MIT, prebuilt for the Linux runner) and one more download per build (the EPK PDF is about 1.1 MB). Tests: `scripts/lib/epk-thumbs.test.mjs` (8), including a real PDF rendered to pixels; planted-bug check — dropping the modified time from the name, or letterboxing instead of filling the frame, each turns a test red.
+
+**Alternatives considered.** A thumbnail image field per row: rejected by Levi, it drifts from the file. WordPress's own PDF previews (Imagick + Ghostscript on the host): depends on the host's image stack and does not appear in the ACF file data this site reads. Rendering in the visitor's browser: ships a PDF renderer and the whole PDF to every home-page visitor for a 112-pixel picture. Rendering with poppler (`pdftoppm`) on the runner: needs a system package installed on every build; the npm route is self-contained.
