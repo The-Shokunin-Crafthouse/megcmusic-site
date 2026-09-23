@@ -1,0 +1,175 @@
+# Releases the WordPress plugin and installs it on the live WordPress, so no
+# plugin zip is ever uploaded by hand again after the one-time 1.7.0 bootstrap
+# (decisions.md 2026-09-23, plugin README "Self-update").
+#
+# On every push to main that touches the plugin:
+#   version  reads the plugin header; the rest runs only when `Version:`
+#            changed against the previous main commit (a JSON-only edit with
+#            no bump releases nothing — bump the version to ship it).
+#   lint     the plugin's own gate (wp-plugin-lint.yml: PHP syntax, the three
+#            PHP unit-test files, field-group JSON) must pass first.
+#   build    zips the folder so the zip holds megc-site-content/
+#            megc-site-content.php at the top level, proves the layout and
+#            the version inside, and writes the notes from the README.
+#   release  publishes the GitHub release plugin-v<version> with the zip.
+#            Idempotent: an existing release is kept, a missing zip added.
+#   install  POSTs /wp-json/megc/v1/self-update on admin.megcmusic.com with
+#            the megc-automation application password (the wp-ops.yml
+#            secrets), then verifies the version the route says is on disk.
+#            wp-cron is not trusted on this host, so nothing waits for
+#            WordPress to notice the release on its own. A failed call fails
+#            the run; wp-admin → Plugins → "Update now" is the fallback.
+#
+# On a pull request that touches the plugin or this path: version, lint and
+# build run as a dry run — the zip is checked and uploaded as an artifact,
+# nothing is released and the live site is never called.
+#
+# workflow_dispatch: dry_run=true (default) is the same dry run on any
+# branch; dry_run=false releases the current version if it is not released
+# yet and pushes the install — the by-hand "install now" for main.
+name: WP plugin release
+on:
+  push:
+    branches: [main]
+    paths: ["wp-plugin/megc-site-content/**"]
+  pull_request:
+    paths:
+      - "wp-plugin/megc-site-content/**"
+      - ".github/workflows/wp-plugin-release.yml"
+      - ".github/workflows/wp-plugin-lint.yml"
+      - "scripts/ci/wp-plugin-release.sh"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: "Build and check the zip, then stop: no release, no install"
+        type: boolean
+        default: true
+
+# One release at a time: two merges minutes apart release in order.
+concurrency:
+  group: wp-plugin-release
+  cancel-in-progress: false
+
+permissions:
+  contents: write # gh release create / upload
+
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.read.outputs.version }}
+      previous: ${{ steps.read.outputs.previous }}
+      tag: ${{ steps.read.outputs.tag }}
+      changed: ${{ steps.read.outputs.changed }}
+      # Only a push to main, or a dispatch that says so, may touch GitHub releases or the live site.
+      live: ${{ (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run == false)) && 'true' || 'false' }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 2 # HEAD~1: the previous main commit, or a PR's base
+      - id: read
+        run: bash scripts/ci/wp-plugin-release.sh version HEAD~1
+      - name: Summary
+        run: |
+          {
+            echo "### Plugin ${{ steps.read.outputs.version }} (was ${{ steps.read.outputs.previous || 'none' }})"
+            echo "- version changed: **${{ steps.read.outputs.changed }}**"
+            echo "- live run (release + install): **${{ (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.dry_run == false)) && 'yes' || 'no, dry run' }}**"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  # The plugin's own gate, the same workflow the PR ran. A dispatch is a
+  # deliberate ask, so it runs on an unchanged version too.
+  lint:
+    needs: version
+    if: needs.version.outputs.changed == 'true' || github.event_name == 'workflow_dispatch'
+    uses: ./.github/workflows/wp-plugin-lint.yml
+
+  build:
+    needs: [version, lint]
+    runs-on: ubuntu-latest
+    outputs:
+      zip_version: ${{ steps.zip.outputs.zip_version }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - id: zip
+        run: bash scripts/ci/wp-plugin-release.sh zip release/megc-site-content.zip
+      - id: notes
+        run: bash scripts/ci/wp-plugin-release.sh notes "${{ needs.version.outputs.version }}" release/notes.md
+      - name: Show the zip
+        run: |
+          {
+            echo "### Zip: ${{ steps.zip.outputs.zip_files }} files, version ${{ steps.zip.outputs.zip_version }} inside"
+            echo '```'
+            unzip -l release/megc-site-content.zip
+            echo '```'
+            echo "### Notes"
+            cat release/notes.md
+          } >> "$GITHUB_STEP_SUMMARY"
+      # The bootstrap zip: on a PR or dry run, this artifact is the exact zip
+      # a merge would release, so it can be inspected (or uploaded by hand).
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: megc-site-content-${{ needs.version.outputs.version }}
+          path: release/
+          if-no-files-found: error
+
+  release:
+    needs: [version, build]
+    if: needs.version.outputs.live == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Rebuild the zip from this commit
+        run: |
+          bash scripts/ci/wp-plugin-release.sh zip release/megc-site-content.zip
+          bash scripts/ci/wp-plugin-release.sh notes "${{ needs.version.outputs.version }}" release/notes.md
+      - name: Publish ${{ needs.version.outputs.tag }}
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.version.outputs.tag }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -euo pipefail
+          if gh release view "$TAG" --json assets --jq '.assets[].name' > assets.txt 2>/dev/null; then
+            echo "::notice::$TAG already exists; not recreated"
+            if grep -qx megc-site-content.zip assets.txt; then
+              echo "zip already attached"
+            else
+              gh release upload "$TAG" release/megc-site-content.zip
+            fi
+          else
+            gh release create "$TAG" release/megc-site-content.zip \
+              --target "$GITHUB_SHA" \
+              --title "megc-site-content $VERSION" \
+              --notes-file release/notes.md
+          fi
+          gh release view "$TAG" --json url,assets --jq '"\(.url) — \(.assets | map(.name) | join(", "))"' | tee -a "$GITHUB_STEP_SUMMARY"
+
+  install:
+    needs: [version, release]
+    if: needs.version.outputs.live == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Push the install to admin.megcmusic.com
+        env:
+          WP_APP_USER: ${{ secrets.WP_APP_USER }}
+          WP_APP_PASSWORD: ${{ secrets.WP_APP_PASSWORD }}
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          set -uo pipefail
+          if [ -z "$WP_APP_USER" ] || [ -z "$WP_APP_PASSWORD" ]; then
+            echo "::error::WP_APP_USER / WP_APP_PASSWORD are not set; the release is published but nothing was installed"
+            exit 1
+          fi
+          # --retry covers a dropped connection or a 5xx from the host; the
+          # route is idempotent (already current → ok, nothing to do).
+          status=$(curl -sS -o body.json -w '%{http_code}' \
+            --max-time 240 --retry 2 --retry-delay 20 \
+            -u "$WP_APP_USER:$WP_APP_PASSWORD" \
+            -H "Accept: application/json" \
+            -H "User-Agent: megc-release-workflow (github.com/The-Shokunin-Crafthouse/megcmusic-site)" \
+            -X POST https://admin.megcmusic.com/wp-json/megc/v1/self-update) || status="curl:$?"
+          echo "HTTP $status"
+          [ -f body.json ] && head -c 2000 body.json && echo
+          bash scripts/ci/wp-plugin-release.sh installed body.json "$VERSION" | tee -a "$GITHUB_STEP_SUMMARY"
