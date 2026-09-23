@@ -68,6 +68,10 @@ check "zip: tests left out" "$(unzip -Z1 "$TMP/out.zip" | grep -c '/tests/')" "0
 check "zip: dotfiles left out" "$(unzip -Z1 "$TMP/out.zip" | grep -c 'DS_Store')" "0"
 check "zip: nothing sits outside the plugin folder" "$(unzip -Z1 "$TMP/out.zip" | grep -vc '^megc-site-content/')" "0"
 check "zip: reports the version inside" "$(grep '^zip_version=' <<<"$z")" "zip_version=1.7.0"
+# The workflow writes into release/, which does not exist on a fresh checkout.
+run zip "$TMP/fresh/dir/out.zip" >/dev/null 2>&1; code=$?
+check "zip: creates the output directory" "$code" "0"
+check "zip: the zip is where it was asked for" "$([ -f "$TMP/fresh/dir/out.zip" ] && echo yes)" "yes"
 # Planted bug: a zip whose tree changed after zipping is caught by the re-read.
 ( cd "$REPO" && write_plugin 1.8.0 )
 run zip "$TMP/out2.zip" >/dev/null 2>&1; code=$?

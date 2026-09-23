@@ -56,6 +56,7 @@ cmd_version() {
 cmd_zip() {
   local target=${1:?out.zip}
   local abs version inside
+  mkdir -p "$(dirname "$target")"
   abs=$(cd "$(dirname "$target")" && pwd)/$(basename "$target")
   rm -f "$abs"
   ( cd "$(dirname "$PLUGIN_DIR")" && zip -q -r -X "$abs" "$SLUG" -x "$SLUG/tests/*" -x '*/.DS_Store' -x '*/.*' )
