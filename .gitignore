@@ -99,3 +99,6 @@ agent/logs/*
 # Per-page hero photos are downloaded from WP at build
 # (scripts/fetch-hero-images.mjs); the manifest in src/generated is committed.
 /public/images/page-hero/
+# Press-kit thumbnails, drawn from each download at build (scripts/fetch-epk-thumbs.mjs);
+# the manifest in src/generated is committed.
+/public/images/epk-thumbs/
