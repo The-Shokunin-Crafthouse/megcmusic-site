@@ -4,7 +4,7 @@ Registers the megcmusic.com site-content field groups (from `acf-json/`) and pin
 
 ## What it does
 
-- **Field groups.** Adds `acf-json/` as a Local JSON load point. Secure Custom Fields (or ACF) loads the 23 groups automatically — nothing is click-configured, every field definition is code-reviewed here.
+- **Field groups.** Adds `acf-json/` as a Local JSON load point. Secure Custom Fields (or ACF) loads the 22 groups automatically — nothing is click-configured, every field definition is code-reviewed here.
 - **Rebuild ping.** On save of a tracked page (`megc_site_content_page_ids()` in the plugin file, plus the `site-poetry` page), sends `repository_dispatch` (`wp-content-updated`) to this repo. Leading-edge 60s debounce via a transient — deliberately **not** wp-cron, because this install's cron option intermittently fails to persist (Bluehost logs, 2026-08-27). Save-bursts beyond the window are collapsed by the receiving workflow's GitHub Actions concurrency group.
 - **Fails safe.** No SCF/ACF → filters never fire. No wp-config constants → no ping, silently. Any exception in the save hook is caught and logged, never fataled — the 2026-08-27 wp-admin outage class (plugins fataling on admin hooks) is designed out.
 
@@ -49,6 +49,7 @@ An editor opened before someone changed the same set from another page does not 
 
 ## Version history
 
+- **1.6.2** (2026-09-23) — the *Live Format* field group is removed: Solo Acoustic (2931) and Full Band (2939) no longer show *Format name* / *One-line description* boxes, because nothing on the site reads them since 1.6.1. Their saved values stay in the database. The two pages leave the rebuild list (a save there no longer rebuilds the site) and their View link now opens `/music`. Re-upload per step 2. Verify: open Solo Acoustic in wp-admin — no *Live Format* box under the editor; its View link opens `megcmusic.com/music`.
 - **1.6.1** (2026-09-23) — JSON only: the Music page layout swaps *Live Formats* for *Electronic Press Kit* (the home page's press-kit section), so Music gains a "… — shared with …" box for the press-kit rows and loses the two Live Format boxes. Re-upload per step 2. Verify: open Music — its *Page layout* list offers *Electronic Press Kit*, not *Live Formats*.
 - **1.6.0** (2026-09-23) — shared sections: an editor for every shared set on each page that shows it, saved back to the page that keeps it; a guard against saving from an out-of-date page; a links box for sections edited elsewhere (see above). Re-upload per step 2 (Replace current with uploaded). Verify: open Home — three boxes titled "… — shared with …" sit under the page's own fields; change a press-kit row name there, Save, open Press Kit — the row shows the new name.
 - **1.5.1** (2026-09-17) — the three old-theme pages the site still linked to are absorbed: Photos → `/media#media-photos`, the two review pages → `/music/<release>/reviews`; the review pages join the rebuild list. Re-upload per step 2.

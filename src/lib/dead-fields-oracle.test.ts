@@ -10,7 +10,6 @@ import assert from "node:assert/strict";
 import migrated from "../../scripts/wp-migrate/hardcoded-strings.json";
 import { BOOKING_CONTENT } from "./booking-content";
 import { SHOWS_PAGE, SHOP_PAGE } from "./page-basics";
-import { LIVE_FORMATS } from "./formats-content";
 import { COLLAB } from "./collab-content";
 import { getReviews, getPressPages, liveHref, MUSIC_INTRO } from "./releases-content";
 import { getEpkContent } from "./epk-content";
@@ -31,13 +30,6 @@ test("booking: every field equals the string it replaced", () => {
 test("shows and shop: lede and metadata equal the strings they replaced", () => {
   assert.deepEqual(SHOWS_PAGE, { lede: migrated.shows.page_lede, metaTitle: migrated.shows.meta.title, metaDescription: migrated.shows.meta.description });
   assert.deepEqual(SHOP_PAGE, { lede: migrated.shop.page_lede, metaTitle: migrated.shop.meta.title, metaDescription: migrated.shop.meta.description });
-});
-
-test("live formats equal the deleted src/config/formats.ts", () => {
-  assert.deepEqual(LIVE_FORMATS, [
-    { slug: "solo-acoustic", label: "Solo Acoustic", blurb: "Just Meghan and a guitar — listening rooms, house concerts, and weddings." },
-    { slug: "full-band", label: "Full Band", blurb: "Meghan and her band — festivals, bars, and big rooms across the Front Range." },
-  ]);
 });
 
 test("work with me equals the deleted src/config/collaborate.ts", () => {

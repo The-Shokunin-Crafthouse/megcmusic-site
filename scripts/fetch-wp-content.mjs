@@ -57,8 +57,6 @@ const SURFACES = {
   booking: 5, // "Booking" (contact-me) — lede, intro, checklist, facts, metadata
   shows: 20, // "Shows" (events) — lede + metadata
   shop: 1847, // "Shop" — lede + metadata
-  "solo-acoustic": 2931, // Live Format card
-  "full-band": 2939, // Live Format card
   collabs: 3742, // "Collabs" — Work With Me groups + Cave Crew link
 };
 
