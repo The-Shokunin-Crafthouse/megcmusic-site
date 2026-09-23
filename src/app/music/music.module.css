@@ -113,6 +113,16 @@
   color: var(--mc-text-body);
 }
 
+/* Press kit — the home page's EPK + boot (src/app/page.module.css .bootWrap):
+   lifted to content level with its own plum ground so the fixed backdrop
+   never paints over it. */
+.bootWrap {
+  position: relative;
+  z-index: var(--mc-z-content);
+  overflow: hidden;
+  background: var(--mc-bg);
+}
+
 /* Live formats — photo cards. */
 .formats {
   display: grid;

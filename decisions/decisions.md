@@ -2251,3 +2251,15 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 **Consequences.** Easier: the picture cannot go stale and Meg has nothing extra to do. Harder: two build dependencies (pdfjs-dist, Apache-2.0; @napi-rs/canvas, MIT, prebuilt for the Linux runner) and one more download per build (the EPK PDF is about 1.1 MB). Tests: `scripts/lib/epk-thumbs.test.mjs` (8), including a real PDF rendered to pixels; planted-bug check — dropping the modified time from the name, or letterboxing instead of filling the frame, each turns a test red.
 
 **Alternatives considered.** A thumbnail image field per row: rejected by Levi, it drifts from the file. WordPress's own PDF previews (Imagick + Ghostscript on the host): depends on the host's image stack and does not appear in the ACF file data this site reads. Rendering in the visitor's browser: ships a PDF renderer and the whole PDF to every home-page visitor for a 112-pixel picture. Rendering with poppler (`pdftoppm`) on the runner: needs a system package installed on every build; the npm route is self-contained.
+
+## 2026-09-23 — Music page shows the home page's Electronic Press Kit in place of Live Formats
+
+**Stage:** 03-build (post-Sprint-18 content change)
+**Type:** Content / scope
+**Status:** accepted
+
+**Context.** Levi asked for the Live Formats section on the Music page (the Solo Acoustic and Full Band cards) to be removed and replaced with the Electronic Press Kit section from the home page.
+
+**Decision.** The Music route's `live-formats` layout section becomes `press-kit`, in the same slot, rendering the same `EPK` + `BootScene` pair as Home inside a local `.bootWrap` (plum ground at content level, so the fixed Music backdrop does not paint over it). The section names the shared `PRESS_KIT` source, so the press-kit rows stay one copy on the Press Kit page (608) and the generated plugin JSON gives Music an editor box for them. Plugin 1.6.1, JSON only. Music's saved layout is empty today, so the registry order applies and nothing Meg saved is dropped.
+
+**Consequences.** The Live Format field group (pages 2931/2939), `src/lib/formats-content.ts`, `src/app/music/FormatCard.tsx` and the `.format*` rules in `music.module.css` no longer feed any page. They are left in place for a separate cleanup: removing the field group hides fields from Meg's dashboard and deleting files is an always-ask call.

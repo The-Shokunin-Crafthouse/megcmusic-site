@@ -86,15 +86,7 @@ export const PAGE_LAYOUTS: readonly RouteLayout[] = [
       { id: "liner-notes", label: "Liner Notes", help: "Full sentences you write in the page text above, if any." },
       { id: "discography", label: "Discography", help: "Albums and EPs from your release list.", source: [RELEASES] },
       { id: "singles", label: "Singles", help: "Singles from your release list.", source: [RELEASES] },
-      {
-        id: "live-formats",
-        label: "Live Formats",
-        help: "The Solo Acoustic and Full Band cards.",
-        source: [
-          { kind: "fields", pageId: 2931, fields: ["format_label", "format_blurb"] },
-          { kind: "fields", pageId: 2939, fields: ["format_label", "format_blurb"] },
-        ],
-      },
+      { id: "press-kit", label: "Electronic Press Kit", help: "The press-kit teaser with the boot.", source: [PRESS_KIT] },
       {
         id: "work-with-me",
         label: "Work With Me",

@@ -151,11 +151,12 @@ test("the real registry builds, and no box points at its own page", () => {
   for (const b of out.boxes) assert.notEqual(b.host, b.source, b.id);
 });
 
-test("the press-kit downloads are one copy, shown on Home and the EPK page, editable from Home", () => {
+test("the press-kit downloads are one copy, shown on Home, the EPK page and Music, editable from Home and Music", () => {
   const out = buildSharedSections(PAGE_LAYOUTS, realGroups());
   const kit = out.groups.find((g) => g.id === "608-kit_items");
-  assert.deepEqual(kit?.shownOn, [4, 608]);
+  assert.deepEqual(kit?.shownOn, [4, 608, 5562]);
   assert.ok(out.boxes.some((b) => b.host === 4 && b.group === "608-kit_items"));
+  assert.ok(out.boxes.some((b) => b.host === 5562 && b.group === "608-kit_items"));
 });
 
 test("Home's bio is editable from the EPK page, where The Story shows it", () => {

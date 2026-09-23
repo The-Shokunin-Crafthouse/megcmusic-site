@@ -64,21 +64,21 @@
             }
           ]
         },
-        "layout_megc_music_section_live-formats": {
-          "key": "layout_megc_music_section_live-formats",
-          "name": "section_live-formats",
-          "label": "Section: Live Formats",
+        "layout_megc_music_section_press-kit": {
+          "key": "layout_megc_music_section_press-kit",
+          "name": "section_press-kit",
+          "label": "Section: Electronic Press Kit",
           "display": "row",
           "max": 1,
           "sub_fields": [
             {
-              "key": "field_megc_layout_music_section_live-formats_hidden",
+              "key": "field_megc_layout_music_section_press-kit_hidden",
               "label": "Hide this section",
               "name": "hidden",
               "type": "true_false",
               "ui": 1,
               "default_value": 0,
-              "instructions": "The Solo Acoustic and Full Band cards."
+              "instructions": "The press-kit teaser with the boot."
             }
           ]
         },
