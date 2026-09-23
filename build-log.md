@@ -111,3 +111,53 @@
 **Tier-1 learnings added** (`LEARNINGS.md`, five entries dated 2026-09-11): the worktree `.env.local` pollution; this repo's parity build recipe (fetch fresh → inject → `npx next build`); local injection as the render proof with one live write at close; a timed save-and-check grading the pipeline and not the copy; and `useId` renumbering on any node added before the newsletter form.
 
 **Note on this log:** Sprints 6–9, 11 and 12 have no entry here. The gap predates this sprint and is not backfilled by it.
+
+---
+
+## Sprint 11 — WordPress editability (SCF plugin, admin.megcmusic.com)
+**Build merged:** through 2026-09-06 (PR #80 Phase 0, PR #81 Phase 1, subsequent phases through Phase 6)
+**Status at close: COMPLETE — 2026-09-06.**
+
+**What shipped:** the prime directive for the contract — every piece of content a visitor sees on megcmusic.com made editable by Meghan from her WordPress dashboard, with her saved edit live within ~3 minutes and zero change to design, layout, motion, URLs or current content. Delivered the SCF plugin, GHA prebuilt-build wiring, the full ACF field-group design per page (names, types, labels, help text, gallery fields for the 11 FYC lyric sheets), and closed with Phase 6: a one-page plain-language guide for Meg (PDF) covering where each page lives in her dashboard, what each field does, how long until it's live, and what to do if it isn't.
+
+**Open at close (deliberately not decided here, logged in `decisions/decisions.md`):** whether "Everything You Are To Me" should be visible on Home now that the Singles list lives only on `/music`; whether the FYC lyric sheets keep their 1400px originals or serve sized derivatives; the `PIPELINE_APP_PASSWORD` secret the unrelated Show pipeline workflow still fails on nightly.
+
+---
+
+## Sprint 12 — Findability and blocks (search/pagination reversal, checkout hand-off, Home blocks recommendation)
+**Build merged:** 2026-09-06 → 2026-09-10 (PRs #108, #110, #112, #115, #116, #117)
+**Status at close: COMPLETE — 2026-09-10. Save-to-live measured at 120s.**
+
+**What shipped:** Phase A (merged #108, #112, #116, #117) — search and numbered pagination reversed per live directive; the full archive now loads at build, retiring the `/api/shows/past` proxy and "Show more" append (scope reversal logged in `decisions/decisions.md`, anti-defaults in Sprint 4). Phase B (merged #110) — the checkout hand-off, confirmed by Levi. Phase C — Option 2 picked as a recommendation only (not executed this sprint), superseding decision logged, Home blocks audit approved and filed forward as Sprint 13 (#115).
+
+---
+
+## Sprint 15 — Save-path resilience: retry every build-time WordPress read
+**Build merged:** 2026-09-17 (PR #147)
+**Status at close: complete — merged, deployed.**
+
+**What shipped:** the fix behind studio learning #260 (a save-triggered rebuild is a one-shot) — every build-time read against WordPress now retries or times out explicitly, so one slow upstream answer can no longer silently strand Meg's save with no retry path. `npm test` green, and red-then-green against a planted failure in the retry helper; each script verified locally against `admin.megcmusic.com`. Meg's already-published copy on the EPK kit-row and Music page body stayed flagged, not edited, per the 2026-09-11 close-out decision.
+
+---
+
+## Sprint 16 — Front door redirects and dead ACF fields wired to their readers
+**Build merged:** 2026-09-17 (PR #148 front door, PR #149 dead fields)
+**Status at close: COMPLETE — 2026-09-17. Plugin 1.5.0 uploaded, Phase-1 gate recorded, guide sent to Meg.**
+
+**What shipped:** filed from Levi's three-part ask after PR #147 — (1) audited every live page against its WordPress page so every field counts for Meg with no dev work; (2) fixed why signing in still showed the old theme (`home`/`siteurl` left untouched, live links pointed with `page_link`/`preview_post_link`/`admin_bar_menu` hooks and an explicit `template_redirect` allowlist — studio learning #256); (3) reconnected five ACF field groups (Booking, Shows/Shop basics, Live Formats, Work With Me, Release Reviews) that had sat populated and editable for 12 days while the site rendered repo strings instead (studio learning #255) — production deployed 22:20 UTC, the Shadows review row Meg had already added went live immediately. Plugin 1.4.1's `kind` default flip on old rows was caught and corrected in Sprint 17 (plugin 1.5.0).
+
+---
+
+## Sprint 17 — Page layouts: reorder, hide, and five block kinds from Meg's dashboard
+**Build merged:** 2026-09-17 (PR #150)
+**Status at close: complete — merged; parity proof (text diff vs. production, identical except live data and `useId`) and an injection proof on `/epk`.**
+
+**What shipped:** a registry, reader, block set (five kinds) and generator giving Meg reorder/hide/block control across ten routes from the dashboard, corrected the plugin 1.4.1 `kind`-default regression on old rows (plugin 1.5.0 uploaded), and proved parity route-by-route against production before merge.
+
+---
+
+## Sprint 18 — Absorb the last old-theme pages; footer on every route
+**Build merged:** 2026-09-17 → 2026-09-18 (PR #151; close-out PR #152)
+**Status at close: COMPLETE — deployed 2026-09-18 03:58 UTC, plugin 1.5.1 uploaded, verified live in a browser.**
+
+**What shipped:** filed from Levi's post-Sprint-17 list — absorbed Photos and the review pages into the new theme, added the footer to every page, deleted the full-page proof PNGs, and promoted two learnings to studio-memory (#255–256, PRs #370/#371). Verified live: both reviews routes, links, quote and images render; the EPK repoint holds; the footer appears on every route.
