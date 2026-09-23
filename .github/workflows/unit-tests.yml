@@ -24,6 +24,8 @@ jobs:
       # The plugin release path (version gate, zip layout, notes, the reply
       # check) against a fixture repo — no GitHub, no WordPress.
       - run: bash scripts/ci/test/wp-plugin-release.test.sh
+      # The push-install caller against a stub server: body, headers, non-2xx handling.
+      - run: bash scripts/ci/test/wp-self-update.test.sh
 
   # Every action in .github/workflows/ must be pinned to a commit SHA carrying
   # the release tag it belongs to. A pin nothing verifies is a to-do wearing a
