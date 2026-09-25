@@ -53,3 +53,9 @@ Project-specific learnings live in `LEARNINGS.md`. Read at session start; append
 ## What this adapter does NOT contain
 
 Studio content — identity, principles, quality criteria, stack defaults, gates, creative defaults — loads globally via the import chain, not here. Project rules live in `WORKSPACE.md` so they bind every model and contributor. Pointers only.
+
+## Learnings index (by surface)
+
+This project's `workspace.manifest.yaml` declares `surface: "web"`. The import below loads the web learnings; the `process` learnings load from the global `~/.claude/CLAUDE.md`. Never import `INDEX-process.md` or `INDEX.md` here (a line would load twice). To look up a learning outside this surface, grep `studio-memory/learnings/INDEX.md`.
+
+@/Users/bahnfiya/Projects/shokunin-crafthouse/studio-memory/learnings/INDEX-web.md
