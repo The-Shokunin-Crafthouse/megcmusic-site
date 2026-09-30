@@ -79,7 +79,10 @@ test("waits between attempts, growing, and never after the last one", async () =
   assert.deepEqual(waits, [100, 200]);
 });
 
-test("defaults to three attempts", async () => {
+test("defaults to five attempts over a ~30s window", async () => {
+  // Run 36739150271: a 503 from Meg's host outlasted the old 3-attempt,
+  // 1s+2s window. The default now rides out a ~30s blip.
+  const waits = [];
   let calls = 0;
   await assert.rejects(
     withRetry(
@@ -87,9 +90,10 @@ test("defaults to three attempts", async () => {
         calls += 1;
         throw new Error("nope");
       },
-      { delayMs: 0 },
+      { sleep: async (ms) => void waits.push(ms) },
     ),
     /nope/,
   );
-  assert.equal(calls, 3);
+  assert.equal(calls, 5);
+  assert.deepEqual(waits, [2_000, 4_000, 8_000, 16_000]);
 });
