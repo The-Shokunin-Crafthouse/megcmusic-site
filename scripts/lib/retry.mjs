@@ -13,6 +13,11 @@
  * retried harmlessly and then surfaces with its original message, so every
  * script's named-cause exit is unchanged. Pure: no fetch inside, so it is
  * tested without a network (`retry.test.mjs`).
+ *
+ * The default window is five attempts with 2s/4s/8s/16s waits (~30s). The
+ * original three attempts over 1s+2s lost nightly run 36739150271 to a 503
+ * that outlasted it (issue #163); the host's blips run longer than 3s. A
+ * deterministic failure now costs ~30s of build time before it surfaces.
  */
 
 const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -26,7 +31,7 @@ const pause = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
  * @param {{ attempts?: number, delayMs?: number, sleep?: (ms: number) => Promise<void> }} [options]
  * @returns {Promise<T>}
  */
-export async function withRetry(fn, { attempts = 3, delayMs = 1_000, sleep = pause } = {}) {
+export async function withRetry(fn, { attempts = 5, delayMs = 2_000, sleep = pause } = {}) {
   let lastError;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
