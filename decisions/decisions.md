@@ -2331,4 +2331,6 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 
 **Consequences.** The lists are in the first paint: local dev /shows serves 265 KB (31 KB gzipped) with every show in the HTML, no skeleton, one 1 s background request. Past shows are as fresh as the last deploy (push, page-save dispatch, nightly 09:00 UTC). A show Meg adds that ends before the next deploy appears in Past only after that deploy. The `EVENTS_API_URL` variable in the Vercel project is dead and can be removed.
 
+**Result on the PR preview (run 37878182925).** The prebuild logged `wrote src/generated/wp-content/events.json (412 shows)`: the runner reads the events endpoint. The empty production build therefore came from the stale `EVENTS_API_URL`, the one input this change stops reading. The soft failure stays as cheap insurance.
+
 **Verification.** `show-split.test.ts` gained the window and merge tests, committed red (e30a541) and then green: added, moved and cancelled shows. Local dev: home and /shows HTML contain the Oct 7 and Oct 10 shows; with the session cache cleared, the browser makes one TEC request (`start_date=2026-10-06`); no console or server errors.
