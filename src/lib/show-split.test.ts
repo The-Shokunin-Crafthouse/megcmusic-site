@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { TribeEvent } from "./api/events";
-import { slimEvent, splitShows } from "./show-split";
+import { mergeRefresh, refreshWindowStart, slimEvent, splitShows } from "./show-split";
 
 function show(
   id: number,
@@ -89,4 +89,19 @@ test("slimEvent keeps the card and calendar fields and drops the body", () => {
   assert.equal(slim.timezone, "America/Denver");
   assert.deepEqual(slim.venue, { venue: "Hall", address: "1 Main", city: "Denver", state_province: "CO" });
   assert.equal("organizer" in slim, false);
+});
+
+test("the refresh window opens three UTC days before now", () => {
+  assert.equal(refreshWindowStart(midSet), "2026-10-05");
+});
+
+test("a refresh replaces every build show from the window start on", () => {
+  const old = show(50, "2026-09-19 11:00:00", "2026-09-19 18:00:00");
+  const cancelled = show(51, "2026-10-21 18:00:00", "2026-10-22 03:00:00");
+  const moved = show(52, "2026-10-10 18:00:00", "2026-10-11 03:00:00");
+  const movedNow = { ...moved, start_date: "2026-10-12 18:00:00" };
+  const added = show(53, "2026-11-01 18:00:00", "2026-11-02 03:00:00");
+  const merged = mergeRefresh([old, cancelled, moved], [movedNow, added], "2026-10-05");
+  assert.deepEqual(merged.map((e) => e.id).sort(), [50, 52, 53]);
+  assert.equal(merged.find((e) => e.id === 52)?.start_date, "2026-10-12 18:00:00");
 });
