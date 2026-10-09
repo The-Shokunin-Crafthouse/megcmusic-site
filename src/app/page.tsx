@@ -9,29 +9,20 @@ import { Newsletter } from "@/components/Newsletter/Newsletter";
 import { Discography } from "@/components/Discography/Discography";
 import { Singles } from "@/components/Singles/Singles";
 import { BootScene } from "@/components/BootScene/BootScene";
-import { getEvents, type TribeEvent } from "@/lib/api/events";
+import { getAllEvents, type TribeEvent } from "@/lib/api/events";
+import { HOME_ROWS, splitShows } from "@/lib/show-split";
 import { HOME_CONTENT } from "@/lib/home-content";
 import styles from "./page.module.css";
 
 // Never let a flaky Events API break the build — fall back to an empty list,
 // which the section renders as its empty state.
-async function safeEvents(status: "upcoming" | "past"): Promise<TribeEvent[]> {
+async function safeEvents(): Promise<TribeEvent[]> {
   try {
-    return await getEvents(status);
+    return await getAllEvents();
   } catch {
     return [];
   }
 }
-
-// String comparison sorts these "YYYY-MM-DD HH:MM:SS" stamps chronologically
-// without constructing a Date (studio learning #48).
-const byStart = (dir: 1 | -1) => (a: TribeEvent, b: TribeEvent) =>
-  dir * a.start_date.localeCompare(b.start_date);
-
-// "Just Added" = upcoming, newest publish date first. When the payload omits
-// `date`, the comparison is a no-op and Up Next order is preserved — no fake data.
-const byPublished = (a: TribeEvent, b: TribeEvent) =>
-  (b.date ?? "").localeCompare(a.date ?? "");
 
 const SECTIONS = {
   "liner-notes": () => <LinerNotes />,
@@ -56,18 +47,15 @@ const SECTIONS = {
 };
 
 export default async function Home() {
-  const [upcomingRaw, pastRaw] = await Promise.all([
-    safeEvents("upcoming"),
-    safeEvents("past"),
-  ]);
-
-  const upcoming = [...upcomingRaw].sort(byStart(1));
-  const past = [...pastRaw].sort(byStart(-1));
-  const justAdded = [...upcomingRaw].sort(byPublished);
+  const splitAt = Date.now();
+  // Home lists at most HOME_ROWS a tab, so ship every upcoming show (the
+  // client re-splits them as they end) plus only the most recent past ones.
+  const { upcoming, past } = splitShows(await safeEvents(), splitAt);
+  const events = [...upcoming, ...past.slice(0, HOME_ROWS)];
 
   return (
     <div className={styles.page}>
-      <HomeScene upcoming={upcoming} justAdded={justAdded} past={past} />
+      <HomeScene events={events} splitAt={splitAt} />
       {/* Sprint 17: Meg's order, from Home's "Page layout" list; the map
           below names every section in src/lib/page-layouts.ts (home). */}
       <PageLayout items={HOME_CONTENT.layout} render={SECTIONS} />
