@@ -11,42 +11,38 @@
  */
 
 import type { TribeEvent } from "./api/events";
+import { slimEvent as slimEventJs } from "./tec-archive.mjs";
 
-/** Query bounds covering every show on record and every one booked. Explicit
- *  dates, because TEC's `now` keyword rounds to the UTC day. */
-export const ARCHIVE_WINDOW = "start_date=2000-01-01&end_date=2100-12-31";
+export { ARCHIVE_WINDOW } from "./tec-archive.mjs";
 
 /** Rows per tab on the home section. Home ships only upcoming plus this many
  *  past shows; a show that ends after render still sorts to the top of Past. */
 export const HOME_ROWS = 7;
 
-/** An event cut to the fields the show cards and calendar button read. The
- *  full TEC payload is ~2.7 KB a show; the archive is 400+ shows. */
-export function slimEvent(event: TribeEvent): TribeEvent {
-  const { venue } = event;
-  return {
-    id: event.id,
-    global_id: event.global_id,
-    status: event.status,
-    title: event.title,
-    description: "",
-    excerpt: "",
-    url: event.url,
-    start_date: event.start_date,
-    end_date: event.end_date,
-    utc_end_date: event.utc_end_date,
-    date: event.date,
-    all_day: event.all_day,
-    timezone: event.timezone,
-    venue: venue
-      ? {
-          venue: venue.venue,
-          address: venue.address,
-          city: venue.city,
-          state_province: venue.state_province,
-        }
-      : undefined,
-  };
+/** An event cut to the fields the show cards and calendar button read. */
+export const slimEvent = slimEventJs as (event: TribeEvent) => TribeEvent;
+
+/** Days before now the browser's upcoming refresh starts. A margin wider than
+ *  any UTC offset, so the partition below never splits a show's day. */
+const REFRESH_DAYS = 3;
+
+/** The refresh window's first day, "YYYY-MM-DD" (UTC). */
+export function refreshWindowStart(nowMs: number): string {
+  return utcStamp(nowMs - REFRESH_DAYS * 86_400_000).slice(0, 10);
+}
+
+/** The build's archive with every show from `windowStart` on replaced by the
+ *  browser's refresh of that window. TEC's `start_date` bound filters on the
+ *  event's own start_date, so comparing the same field against the same day
+ *  partitions the list exactly: a show Meg added appears, a moved one updates,
+ *  a cancelled one drops. */
+export function mergeRefresh(
+  build: TribeEvent[],
+  refreshed: TribeEvent[],
+  windowStart: string,
+): TribeEvent[] {
+  const cut = `${windowStart} 00:00:00`;
+  return [...build.filter((e) => e.start_date < cut), ...refreshed];
 }
 
 export interface SplitShows {

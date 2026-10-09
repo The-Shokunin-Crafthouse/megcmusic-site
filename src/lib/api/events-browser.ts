@@ -3,11 +3,14 @@ import { ARCHIVE_WINDOW, slimEvent } from "@/lib/show-split";
 import { WP_ORIGIN } from "@/lib/wp-origin";
 
 /**
- * Browser-side events fetch — the fallback when the server render came back
- * empty. The WP host blocks datacenter IPs (CI / Vercel serverless), so the
- * build and serverless runtime can't reach it, but the visitor's own
- * (residential) IP can, and WP's REST CORS echoes the request origin. So when
- * the server list is empty we refetch straight from the browser.
+ * Browser-side events fetches. The Vercel runtime can't reach the WP host, but
+ * the visitor's own (residential) IP can, and WP's REST CORS echoes the request
+ * origin. Two uses:
+ * - `fetchUpcomingBrowser`: one request on every page load that refreshes the
+ *   build's archive from a few days back, so a show Meg adds, moves or cancels
+ *   lands without a rebuild.
+ * - `fetchAllEventsBrowser`: the whole archive, only when the server render
+ *   came back empty.
  */
 const API_BASE = `${WP_ORIGIN}/wp-json/tribe/events/v1`;
 const TIMEOUT_MS = 15_000;
@@ -16,13 +19,13 @@ const TIMEOUT_MS = 15_000;
    /shows, and back-navigations — the boot veil then genuinely shows once per
    session instead of on every route that falls back (2026-07-08 ADR). */
 const CACHE_TTL_MS = 30 * 60_000;
-/* The cache holds the raw archive; the upcoming/past split runs on every read
+/* The cache holds raw events; the upcoming/past split runs on every read
    against the current clock, so a cached list never pins a show that ended. */
-const CACHE_KEY = "mc-events-all";
+const ALL_KEY = "mc-events-all";
 
-function readCache(): TribeEvent[] | null {
+function readCache(key: string): TribeEvent[] | null {
   try {
-    const raw = sessionStorage.getItem(CACHE_KEY);
+    const raw = sessionStorage.getItem(key);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as { t: number; events: TribeEvent[] };
     if (!Array.isArray(parsed.events)) return null;
@@ -34,10 +37,10 @@ function readCache(): TribeEvent[] | null {
   }
 }
 
-function writeCache(events: TribeEvent[]): void {
+function writeCache(key: string, events: TribeEvent[]): void {
   try {
     sessionStorage.setItem(
-      CACHE_KEY,
+      key,
       JSON.stringify({ t: Date.now(), events }),
     );
   } catch {
@@ -48,9 +51,10 @@ function writeCache(events: TribeEvent[]): void {
 async function fetchPage(
   page: number,
   perPage: number,
+  bounds = ARCHIVE_WINDOW,
 ): Promise<{ events: TribeEvent[]; totalPages: number }> {
   const res = await fetch(
-    `${API_BASE}/events?per_page=${perPage}&page=${page}&${ARCHIVE_WINDOW}`,
+    `${API_BASE}/events?per_page=${perPage}&page=${page}&${bounds}`,
     { signal: AbortSignal.timeout(TIMEOUT_MS) },
   );
   if (!res.ok) {
@@ -66,7 +70,7 @@ async function fetchPage(
 
 /** Every show, past and upcoming, paginated to exhaustion in the browser. */
 export async function fetchAllEventsBrowser(): Promise<TribeEvent[]> {
-  const cached = readCache();
+  const cached = readCache(ALL_KEY);
   if (cached) return cached;
   const first = await fetchPage(1, 50);
   const events =
@@ -82,6 +86,27 @@ export async function fetchAllEventsBrowser(): Promise<TribeEvent[]> {
             )
           ).map((p) => p.events),
         ].flat();
-  writeCache(events);
+  writeCache(ALL_KEY, events);
+  return events;
+}
+
+/** Every show starting on or after `windowStart` ("YYYY-MM-DD"). One page
+ *  covers it (15 shows today; TEC caps a page at 50), so a later page is read
+ *  only if Meg ever books more than that. */
+export async function fetchUpcomingBrowser(
+  windowStart: string,
+): Promise<TribeEvent[]> {
+  const key = `mc-events-from-${windowStart}`;
+  const cached = readCache(key);
+  if (cached) return cached;
+  const bounds = `start_date=${windowStart}&end_date=2100-12-31`;
+  const first = await fetchPage(1, 50, bounds);
+  const rest = await Promise.all(
+    Array.from({ length: Math.max(0, first.totalPages - 1) }, (_, i) =>
+      fetchPage(i + 2, 50, bounds),
+    ),
+  );
+  const events = [first.events, ...rest.map((p) => p.events)].flat();
+  writeCache(key, events);
   return events;
 }

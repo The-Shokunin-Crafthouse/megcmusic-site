@@ -9,20 +9,11 @@ import { Newsletter } from "@/components/Newsletter/Newsletter";
 import { Discography } from "@/components/Discography/Discography";
 import { Singles } from "@/components/Singles/Singles";
 import { BootScene } from "@/components/BootScene/BootScene";
-import { getAllEvents, type TribeEvent } from "@/lib/api/events";
+import type { TribeEvent } from "@/lib/api/events";
+import archive from "@/generated/wp-content/events.json";
 import { HOME_ROWS, splitShows } from "@/lib/show-split";
 import { HOME_CONTENT } from "@/lib/home-content";
 import styles from "./page.module.css";
-
-// Never let a flaky Events API break the build — fall back to an empty list,
-// which the section renders as its empty state.
-async function safeEvents(): Promise<TribeEvent[]> {
-  try {
-    return await getAllEvents();
-  } catch {
-    return [];
-  }
-}
 
 const SECTIONS = {
   "liner-notes": () => <LinerNotes />,
@@ -46,11 +37,11 @@ const SECTIONS = {
   singles: () => <Singles />,
 };
 
-export default async function Home() {
+export default function Home() {
   const splitAt = Date.now();
   // Home lists at most HOME_ROWS a tab, so ship every upcoming show (the
   // client re-splits them as they end) plus only the most recent past ones.
-  const { upcoming, past } = splitShows(await safeEvents(), splitAt);
+  const { upcoming, past } = splitShows(archive as TribeEvent[], splitAt);
   const events = [...upcoming, ...past.slice(0, HOME_ROWS)];
 
   return (
