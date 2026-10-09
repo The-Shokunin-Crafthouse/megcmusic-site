@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { ShowsSection } from "@/components/ShowsSection/ShowsSection";
-import { getAllEvents, type TribeEvent } from "@/lib/api/events";
+import type { TribeEvent } from "@/lib/api/events";
+import archive from "@/generated/wp-content/events.json";
 import styles from "./shows.module.css";
 import { heroImage } from "@/lib/hero-images";
 import { SHOWS_PAGE, SHOWS_LAYOUT } from "@/lib/page-basics";
 import { PageLayout } from "@/components/Blocks/PageLayout";
 
-// Shows refresh hourly, same cadence as the home section.
+// The archive is a build snapshot; an hourly re-render only re-splits it
+// against the clock for the server HTML (the browser re-splits on mount).
 export const revalidate = 3600;
 
 // Lede and metadata from the Shows page in Meg's dashboard (WP page 20,
@@ -16,18 +18,8 @@ export const metadata: Metadata = {
   description: SHOWS_PAGE.metaDescription,
 };
 
-// Never let a flaky Events API break the build — fall back to an empty list,
-// which the section renders as its empty state.
-async function safeAll(): Promise<TribeEvent[]> {
-  try {
-    return await getAllEvents(50);
-  } catch {
-    return [];
-  }
-}
-
-export default async function ShowsPage() {
-  const events = await safeAll();
+export default function ShowsPage() {
+  const events = archive as TribeEvent[];
   const splitAt = Date.now();
   const sections = {
     shows: () => (

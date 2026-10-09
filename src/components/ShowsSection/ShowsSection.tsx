@@ -11,8 +11,16 @@ import {
   type KeyboardEvent,
 } from "react";
 import type { TribeEvent } from "@/lib/api/events";
-import { fetchAllEventsBrowser } from "@/lib/api/events-browser";
-import { HOME_ROWS, splitShows } from "@/lib/show-split";
+import {
+  fetchAllEventsBrowser,
+  fetchUpcomingBrowser,
+} from "@/lib/api/events-browser";
+import {
+  HOME_ROWS,
+  mergeRefresh,
+  refreshWindowStart,
+  splitShows,
+} from "@/lib/show-split";
 import { ShowCard } from "../ShowCard/ShowCard";
 import styles from "./ShowsSection.module.css";
 
@@ -132,6 +140,23 @@ export function ShowsSection({
       alive = false;
     };
   }, [shouldFallback]);
+
+  // The server rendered the build's archive. Refresh it from a few days back
+  // with one browser request, so a show Meg added, moved or cancelled since the
+  // build shows up. The list is already on screen; a failed refresh keeps it.
+  useEffect(() => {
+    if (shouldFallback) return;
+    let alive = true;
+    const windowStart = refreshWindowStart(Date.now());
+    fetchUpcomingBrowser(windowStart)
+      .then((fresh) => {
+        if (alive) setBrowserEvents(mergeRefresh(serverEvents, fresh, windowStart));
+      })
+      .catch(() => {});
+    return () => {
+      alive = false;
+    };
+  }, [shouldFallback, serverEvents]);
 
   const allEvents = browserEvents ?? serverEvents;
   const data = useMemo(() => splitShows(allEvents, now), [allEvents, now]);
