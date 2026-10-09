@@ -2315,3 +2315,20 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 **Consequences.** /shows and home each make 9 archive requests at build instead of 1 to 2. Next's fetch cache shares identical URLs between the two pages. One local render stalled at 50 s while the host answered slowly, then recovered at about 1 s a page; if build-time stalls recur, cap the page concurrency. A show stays upcoming until its end time, so Up Next lists a show that is in progress.
 
 **Verification.** `src/lib/show-split.test.ts` was committed red before the module existed, then green (7 tests, including the 2026-10-07 mid-set case and the exact end instant). Local dev: /shows Past Shows lists 2026-10-07 first, Up Next lists 15; home lists 7 per tab.
+
+## 2026-10-08 — The shows archive is a prebuild snapshot; the browser refreshes upcoming with one request
+
+**Stage:** 03-build (post-Sprint-18 operations)
+**Type:** Performance / data layer
+**Status:** accepted
+**Amends:** 2026-07-03 "Browser-side events fallback" (the fallback stays, for an empty server render only)
+
+**Context.** After the 2026-10-08 split fix, production /shows and home carried no show in their HTML. Static generation in the deploy took 2.6 s, so the page's own TEC fetch failed fast at build. Two possible causes, not yet told apart: the build reads `EVENTS_API_URL` before `NEXT_PUBLIC_WP_ORIGIN`, and the pre-cutover value of that variable pointed at the apex, which now answers 403; or the runner is refused by the events endpoint. The visitor saw skeleton rows while the browser read the full archive (9 requests of 50, TEC's cap). Levi asked for faster shows.
+
+**Decision.** Read the archive in the prebuild, as `fetch-wp-content.mjs` does for page content. `scripts/fetch-events.mjs` writes `src/generated/wp-content/events.json` (412 slim shows, 165 KB, 3 pages at a time with `withRetry`) from `NEXT_PUBLIC_WP_ORIGIN` only, and home and /shows import it. On load, `ShowsSection` refreshes shows starting 3 UTC days back with one browser request (`fetchUpcomingBrowser`, session-cached) and merges it in with `mergeRefresh`. TEC's `start_date` bound filters on the event's own `start_date`, so build shows before the window stay and every show in the window comes from the refresh: a show added, moved or cancelled since the build lands. `slimEvent` and `ARCHIVE_WINDOW` move to `src/lib/tec-archive.mjs` so the bare-node script and the app share one copy. `src/lib/api/events.ts` keeps only the types; `EVENTS_API_URL` is no longer read.
+
+**Why the prebuild fails soft.** Every other prebuild script fails the build. This one logs a `::warning::` and deploys the committed snapshot, because the browser refresh still delivers current upcoming shows, and it is not yet proved that the runner can read the events endpoint. A hard failure there would block every deploy. Revisit once the deploy log shows the script's "wrote … (N shows)" line.
+
+**Consequences.** The lists are in the first paint: local dev /shows serves 265 KB (31 KB gzipped) with every show in the HTML, no skeleton, one 1 s background request. Past shows are as fresh as the last deploy (push, page-save dispatch, nightly 09:00 UTC). A show Meg adds that ends before the next deploy appears in Past only after that deploy. The `EVENTS_API_URL` variable in the Vercel project is dead and can be removed.
+
+**Verification.** `show-split.test.ts` gained the window and merge tests, committed red (e30a541) and then green: added, moved and cancelled shows. Local dev: home and /shows HTML contain the Oct 7 and Oct 10 shows; with the session cache cleared, the browser makes one TEC request (`start_date=2026-10-06`); no console or server errors.
