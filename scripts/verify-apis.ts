@@ -8,13 +8,14 @@
  */
 import { getPages } from "../src/lib/api/wordpress";
 import { getProducts } from "../src/lib/api/woocommerce";
-import { getEvents } from "../src/lib/api/events";
+import { getAllEvents } from "../src/lib/api/events";
+import { splitShows } from "../src/lib/show-split";
 
 async function main(): Promise<void> {
   const checks: Array<[string, number]> = [
     ["WordPress pages", (await getPages()).length],
     ["WooCommerce products", (await getProducts()).length],
-    ["Upcoming shows", (await getEvents("upcoming")).length],
+    ["Upcoming shows", splitShows(await getAllEvents(), Date.now()).upcoming.length],
   ];
 
   for (const [label, count] of checks) {

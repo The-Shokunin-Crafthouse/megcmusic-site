@@ -12,15 +12,9 @@ import {
 } from "react";
 import type { TribeEvent } from "@/lib/api/events";
 import { fetchAllEventsBrowser } from "@/lib/api/events-browser";
+import { HOME_ROWS, splitShows } from "@/lib/show-split";
 import { ShowCard } from "../ShowCard/ShowCard";
 import styles from "./ShowsSection.module.css";
-
-// "YYYY-MM-DD HH:MM:SS" strings sort chronologically as plain text (no Date;
-// studio learning #48). Mirrors the server page's sort for the browser fallback.
-const byStart = (dir: 1 | -1) => (a: TribeEvent, b: TribeEvent) =>
-  dir * a.start_date.localeCompare(b.start_date);
-const byPublished = (a: TribeEvent, b: TribeEvent) =>
-  (b.date ?? "").localeCompare(a.date ?? "");
 
 const TABS = [
   { id: "up-next", label: "Up Next" },
@@ -29,8 +23,7 @@ const TABS = [
 ] as const;
 type TabId = (typeof TABS)[number]["id"];
 
-/** Home caps each tab at 7 rows; /shows lazy-loads in batches of this size. */
-const MAX_ROWS = 7;
+/** Home caps each tab at HOME_ROWS; /shows lazy-loads in batches of this size. */
 const BATCH = 20;
 
 /** Skeleton rows while the browser fallback fetches — matches the hero's
@@ -62,16 +55,19 @@ function matchesQuery(event: TribeEvent, q: string): boolean {
 }
 
 export function ShowsSection({
-  upcoming,
-  justAdded,
-  past,
+  events: serverEvents,
+  splitAt,
   variant = "home",
   forceFallback = false,
   onFallbackSettled,
 }: {
-  upcoming: TribeEvent[];
-  justAdded: TribeEvent[];
-  past: TribeEvent[];
+  /** Every show the server fetched, past and upcoming, unsplit. */
+  events: TribeEvent[];
+  /** Server render time (epoch ms). The first client render splits against it
+   *  so hydration matches; the mount effect re-splits against the real clock,
+   *  so a cached page never shows an ended show as upcoming (or hides one
+   *  mid-set). */
+  splitAt: number;
   variant?: "home" | "page";
   /** Dev-only (home boot veil preview): run the browser fallback even though
    *  the server render has data. */
@@ -94,15 +90,15 @@ export function ShowsSection({
   // The WP host blocks datacenter IPs, so the server render is empty on Vercel.
   // When that happens, refetch from the visitor's browser (residential IP,
   // CORS-allowed) and use that instead.
-  const serverEmpty =
-    upcoming.length === 0 && justAdded.length === 0 && past.length === 0;
+  const serverEmpty = serverEvents.length === 0;
   const shouldFallback = serverEmpty || forceFallback;
-  const [browserData, setBrowserData] = useState<{
-    upcoming: TribeEvent[];
-    justAdded: TribeEvent[];
-    past: TribeEvent[];
-  } | null>(null);
+  const [browserEvents, setBrowserEvents] = useState<TribeEvent[] | null>(null);
   const [loading, setLoading] = useState(serverEmpty);
+  const [now, setNow] = useState(splitAt);
+
+  useEffect(() => {
+    setNow(Date.now());
+  }, []);
 
   // On the veiled home path the entrance animations (tabs / cards / skeletons)
   // are held at their first frame until the veil's exit flips the body to
@@ -121,16 +117,8 @@ export function ShowsSection({
     let alive = true;
     (async () => {
       try {
-        const [up, pastRaw] = await Promise.all([
-          fetchAllEventsBrowser("upcoming"),
-          fetchAllEventsBrowser("past"),
-        ]);
-        if (!alive) return;
-        setBrowserData({
-          upcoming: [...up].sort(byStart(1)),
-          justAdded: [...up].sort(byPublished),
-          past: [...pastRaw].sort(byStart(-1)),
-        });
+        const all = await fetchAllEventsBrowser();
+        if (alive) setBrowserEvents(all);
       } catch {
         // Leave the empty state; nothing more we can do from here.
       } finally {
@@ -145,7 +133,8 @@ export function ShowsSection({
     };
   }, [shouldFallback]);
 
-  const data = browserData ?? { upcoming, justAdded, past };
+  const allEvents = browserEvents ?? serverEvents;
+  const data = useMemo(() => splitShows(allEvents, now), [allEvents, now]);
   const source: Record<TabId, TribeEvent[]> = {
     "up-next": data.upcoming,
     "just-added": data.justAdded,
@@ -157,7 +146,7 @@ export function ShowsSection({
     const list = source[active];
     return q ? list.filter((e) => matchesQuery(e, q)) : list;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [active, q, data.upcoming, data.justAdded, data.past]);
+  }, [active, q, data]);
 
   // Reset the lazy window whenever the visible set changes at its root.
   useEffect(() => {
@@ -166,7 +155,7 @@ export function ShowsSection({
 
   const events = isPage
     ? filtered.slice(0, visibleCount)
-    : filtered.slice(0, MAX_ROWS);
+    : filtered.slice(0, HOME_ROWS);
   const hasMore = isPage && visibleCount < filtered.length;
 
   // Lazy load: reveal the next batch as the sentinel scrolls into view.

@@ -25,13 +25,13 @@ function tokenMs(name: string, fallback: number): number {
 // the fixed photo; when "See all dates" nears the viewport bottom the backdrop
 // detaches and scrolls away with the page. See decisions.md (2026-07-04).
 export function HomeScene({
-  upcoming,
-  justAdded,
-  past,
+  events,
+  splitAt,
 }: {
-  upcoming: TribeEvent[];
-  justAdded: TribeEvent[];
-  past: TribeEvent[];
+  /** Every show, past and upcoming; ShowsSection splits them by end time. */
+  events: TribeEvent[];
+  /** Server render time (epoch ms) the first client render splits against. */
+  splitAt: number;
 }) {
   const backdropRef = useRef<HTMLDivElement>(null);
   const photoRef = useRef<HTMLImageElement>(null);
@@ -45,8 +45,7 @@ export function HomeScene({
   // a server-populated render never mounts it. Lifecycle: hold (min 1200ms /
   // max 10s) → swell (a hold beat before the lift) → fade (veil lifts WHILE
   // the hero entrance runs beneath it) → done (unmount).
-  const serverEmpty =
-    upcoming.length === 0 && justAdded.length === 0 && past.length === 0;
+  const serverEmpty = events.length === 0;
   const [veilPhase, setVeilPhase] = useState<VeilPhase | "done">(
     serverEmpty ? "hold" : "done",
   );
@@ -339,9 +338,8 @@ export function HomeScene({
       <div className={styles.hero}>
         <div className={styles.heroInner}>
           <ShowsSection
-            upcoming={upcoming}
-            justAdded={justAdded}
-            past={past}
+            events={events}
+            splitAt={splitAt}
             forceFallback={forceFallback}
             onFallbackSettled={onFallbackSettled}
           />

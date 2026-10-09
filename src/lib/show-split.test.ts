@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import type { TribeEvent } from "./api/events";
-import { splitShows } from "./show-split";
+import { slimEvent, splitShows } from "./show-split";
 
 function show(
   id: number,
@@ -73,4 +73,20 @@ test("a payload without utc_end_date falls back to end_date", () => {
 test("an event repeated across archive pages lists once", () => {
   const { upcoming } = splitShows([solo, { ...solo }], midSet);
   assert.equal(upcoming.length, 1);
+});
+
+test("slimEvent keeps the card and calendar fields and drops the body", () => {
+  const full = {
+    ...show(40, "2026-10-10 18:00:00", "2026-10-11 03:00:00"),
+    description: "<p>Long body</p>",
+    timezone: "America/Denver",
+    venue: { venue: "Hall", address: "1 Main", city: "Denver", state_province: "CO", phone: "x" },
+    organizer: [{ id: 9 }],
+  } as TribeEvent;
+  const slim = slimEvent(full);
+  assert.equal(slim.description, "");
+  assert.equal(slim.utc_end_date, "2026-10-11 03:00:00");
+  assert.equal(slim.timezone, "America/Denver");
+  assert.deepEqual(slim.venue, { venue: "Hall", address: "1 Main", city: "Denver", state_province: "CO" });
+  assert.equal("organizer" in slim, false);
 });

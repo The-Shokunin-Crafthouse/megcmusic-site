@@ -1,4 +1,5 @@
 import type { TribeEvent, TribeEventsResponse } from "./events";
+import { ARCHIVE_WINDOW, slimEvent } from "@/lib/show-split";
 import { WP_ORIGIN } from "@/lib/wp-origin";
 
 /**
@@ -15,11 +16,13 @@ const TIMEOUT_MS = 15_000;
    /shows, and back-navigations — the boot veil then genuinely shows once per
    session instead of on every route that falls back (2026-07-08 ADR). */
 const CACHE_TTL_MS = 30 * 60_000;
-const cacheKey = (status: "upcoming" | "past") => `mc-events-${status}`;
+/* The cache holds the raw archive; the upcoming/past split runs on every read
+   against the current clock, so a cached list never pins a show that ended. */
+const CACHE_KEY = "mc-events-all";
 
-function readCache(status: "upcoming" | "past"): TribeEvent[] | null {
+function readCache(): TribeEvent[] | null {
   try {
-    const raw = sessionStorage.getItem(cacheKey(status));
+    const raw = sessionStorage.getItem(CACHE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as { t: number; events: TribeEvent[] };
     if (!Array.isArray(parsed.events)) return null;
@@ -31,10 +34,10 @@ function readCache(status: "upcoming" | "past"): TribeEvent[] | null {
   }
 }
 
-function writeCache(status: "upcoming" | "past", events: TribeEvent[]): void {
+function writeCache(events: TribeEvent[]): void {
   try {
     sessionStorage.setItem(
-      cacheKey(status),
+      CACHE_KEY,
       JSON.stringify({ t: Date.now(), events }),
     );
   } catch {
@@ -43,30 +46,29 @@ function writeCache(status: "upcoming" | "past", events: TribeEvent[]): void {
 }
 
 async function fetchPage(
-  status: "upcoming" | "past",
   page: number,
   perPage: number,
 ): Promise<{ events: TribeEvent[]; totalPages: number }> {
-  const bound = status === "upcoming" ? "start_date=now" : "end_date=now";
   const res = await fetch(
-    `${API_BASE}/events?per_page=${perPage}&page=${page}&${bound}`,
+    `${API_BASE}/events?per_page=${perPage}&page=${page}&${ARCHIVE_WINDOW}`,
     { signal: AbortSignal.timeout(TIMEOUT_MS) },
   );
   if (!res.ok) {
     if (res.status === 404) return { events: [], totalPages: 0 };
-    throw new Error(`Events (${status} p${page}) → ${res.status}`);
+    throw new Error(`Events (p${page}) → ${res.status}`);
   }
   const data = (await res.json()) as TribeEventsResponse;
-  return { events: data.events ?? [], totalPages: data.total_pages ?? 0 };
+  return {
+    events: (data.events ?? []).map(slimEvent),
+    totalPages: data.total_pages ?? 0,
+  };
 }
 
-/** Every event for a status, paginated to exhaustion in the browser. */
-export async function fetchAllEventsBrowser(
-  status: "upcoming" | "past",
-): Promise<TribeEvent[]> {
-  const cached = readCache(status);
+/** Every show, past and upcoming, paginated to exhaustion in the browser. */
+export async function fetchAllEventsBrowser(): Promise<TribeEvent[]> {
+  const cached = readCache();
   if (cached) return cached;
-  const first = await fetchPage(status, 1, 50);
+  const first = await fetchPage(1, 50);
   const events =
     first.totalPages <= 1
       ? first.events
@@ -75,11 +77,11 @@ export async function fetchAllEventsBrowser(
           ...(
             await Promise.all(
               Array.from({ length: first.totalPages - 1 }, (_, i) =>
-                fetchPage(status, i + 2, 50),
+                fetchPage(i + 2, 50),
               ),
             )
           ).map((p) => p.events),
         ].flat();
-  writeCache(status, events);
+  writeCache(events);
   return events;
 }
