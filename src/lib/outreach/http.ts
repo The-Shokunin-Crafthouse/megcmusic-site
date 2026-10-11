@@ -10,6 +10,15 @@ import { NextResponse } from "next/server";
 const SECRET_HEADER = "x-outreach-secret";
 
 /**
+ * Every outreach response is live pipeline state, so nothing between the DB
+ * and the caller may keep a copy: not the browser HTTP cache, not a proxy, not
+ * the Playbook service worker. Without this the default Vercel header is
+ * `public, max-age=0, must-revalidate`, which still lets intermediaries store
+ * the body. See decisions 2026-10-10 (stale first reads in the weekly run).
+ */
+const NO_STORE = { "Cache-Control": "no-store, max-age=0" };
+
+/**
  * True when the request carries a valid machine secret. Machine routes reject
  * with 401 when this is false; the dual-caller prospects PATCH uses it to widen
  * the accepted field set. Returns false (never throws) if the env is unset, so
@@ -23,11 +32,11 @@ export function hasMachineSecret(req: Request): boolean {
 }
 
 export function ok<T>(data: T, status = 200): NextResponse {
-  return NextResponse.json(data, { status });
+  return NextResponse.json(data, { status, headers: NO_STORE });
 }
 
 export function fail(message: string, status: number): NextResponse {
-  return NextResponse.json({ error: message }, { status });
+  return NextResponse.json({ error: message }, { status, headers: NO_STORE });
 }
 
 /** 401 for a machine route reached without a valid secret. */

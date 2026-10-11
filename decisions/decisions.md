@@ -2334,3 +2334,21 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 **Result on the PR preview (run 37878182925).** The prebuild logged `wrote src/generated/wp-content/events.json (412 shows)`: the runner reads the events endpoint. The empty production build therefore came from the stale `EVENTS_API_URL`, the one input this change stops reading. The soft failure stays as cheap insurance.
 
 **Verification.** `show-split.test.ts` gained the window and merge tests, committed red (e30a541) and then green: added, moved and cancelled shows. Local dev: home and /shows HTML contain the Oct 7 and Oct 10 shows; with the session cache cleared, the browser makes one TEC request (`start_date=2026-10-06`); no console or server errors.
+
+## 2026-10-10 — Outreach: API responses are `no-store`, and the Playbook service worker never caches `/api/outreach/*`
+
+**Stage:** 03-build (outreach, Phase 2 operations)
+**Type:** Bug fix · Data freshness
+**Status:** accepted
+
+**Context.** The 2026-10-06 weekly run reported that its first prospect-list and dashboard reads came back missing the 2026-09-24 and 2026-09-29 activity, and that a re-read minutes later was correct. Server-side caching was ruled out: every outreach route is already `force-dynamic`, and live `GET`s of `/api/outreach/summary` and `/run-state` on both hosts return `x-vercel-cache: MISS`, `age: 0`. The remaining store is the Playbook PWA service worker (`src/app/sw.ts`), which served all `/api/*` with `NetworkFirst` and an 8 s `networkTimeoutSeconds`. NetworkFirst falls back to its cache on a slow response, not only an offline one, so a cold function plus a Supabase free-tier wake-up on the run's first call returns whatever that origin cached on its last visit, silently and with a 200. That matches the signature (stale first read, correct retry once warm). Separately, outreach responses carried Vercel's default `public, max-age=0, must-revalidate`, which still permits intermediaries to store them.
+
+**Decisions.**
+1. **`ok()` / `fail()` in `src/lib/outreach/http.ts` set `Cache-Control: no-store, max-age=0`.** Every outreach route responds through these two helpers, so this covers all of them.
+2. **The service worker routes `/api/outreach/*` through `NetworkOnly`**, registered ahead of the general `/api/*` NetworkFirst rule (Serwist takes the first matching rule). Other API routes keep NetworkFirst; their offline-dashboard trade-off is unchanged.
+
+**Rationale.** The weekly run selects follow-up recipients from these reads. A stale list can resend to someone who already replied or skip someone who is due, so a slow or failed read (which the run reports and retries) is strictly better than a fast wrong one. The outreach tab loses its offline fallback, which it never meaningfully had: it is useless without live state. Decision 2 is the load-bearing half: Serwist decides what to cache from the response status alone and ignores `Cache-Control`, so the `no-store` header by itself would not have stopped the worker replaying a stale read. The header is defence in depth for the browser HTTP cache and any proxy.
+
+**Verification.** `tsc --noEmit` clean apart from the pre-existing stale `.next/**/validator.ts` artifacts; `sw.ts` type-checked on its own against the webworker lib. Guarded by `src/lib/outreach/http.test.ts` (every helper returns `no-store`) and `src/app/sw.test.ts` (compiles the real worker, dispatches fetch events against stubbed worker globals, and asserts outreach reads open no Cache Storage bucket while other API reads still open `pb-api`); both fail against the pre-fix code. Post-deploy: confirm `cache-control: no-store` on `/api/outreach/summary`, and that a browser which has visited `/megs-playbook` picks up the new worker (`skipWaiting` + `clientsClaim` are already on, so one page load activates it).
+
+**Still open.** Responses already sitting in a browser's `pb-api` cache are not purged; they simply stop being served for outreach paths once the new worker activates.

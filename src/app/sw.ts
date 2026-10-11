@@ -27,7 +27,7 @@
  */
 
 import { defaultCache } from "@serwist/turbopack/worker";
-import { NetworkFirst, Serwist } from "serwist";
+import { NetworkFirst, NetworkOnly, Serwist } from "serwist";
 import type { PrecacheEntry, RuntimeCaching, SerwistGlobalConfig } from "serwist";
 
 declare global {
@@ -37,6 +37,18 @@ declare global {
 }
 
 declare const self: ServiceWorkerGlobalScope;
+
+// Outreach routes are never cached. NetworkFirst below falls back to its
+// cache when the network is merely slow (8s), and a cold Vercel function plus
+// a Supabase free-tier wake-up can exceed that on the first call of a
+// weekly run, which hands back the previous visit's prospect list as if
+// it were live. The weekly run picks who gets a follow-up from that list, so a
+// stale copy is worse than a slow or failed read. Must stay ahead of
+// apiNetworkFirst: Serwist uses the first matcher that hits.
+const outreachNetworkOnly: RuntimeCaching = {
+  matcher: ({ url }) => url.pathname.startsWith("/api/outreach/"),
+  handler: new NetworkOnly(),
+};
 
 const apiNetworkFirst: RuntimeCaching = {
   matcher: ({ url }) => url.pathname.startsWith("/api/"),
@@ -51,9 +63,10 @@ const serwist = new Serwist({
   skipWaiting: true,
   clientsClaim: true,
   navigationPreload: true,
-  // API routes first (freshness matters for job polling and stats), then
+  // Outreach first (never cached), then the other API routes (freshness
+  // matters for job polling and stats), then
   // Serwist's Next.js-tuned defaults (RSC payloads, static assets, images).
-  runtimeCaching: [apiNetworkFirst, ...defaultCache],
+  runtimeCaching: [outreachNetworkOnly, apiNetworkFirst, ...defaultCache],
   fallbacks: {
     entries: [
       {
