@@ -107,3 +107,30 @@ test("a photo block carries the image sized through Photon, its alt from the med
     },
   ]);
 });
+
+test("a links block (the FYC Listen section with Meg's own buttons) needs a heading and one complete link; half rows are dropped", () => {
+  const blocks = parseBlocks([
+    {
+      acf_fc_layout: "links",
+      heading: " Listen ",
+      links: [
+        { label: "Bandcamp", url: "https://meghanclarisse.bandcamp.com" },
+        { label: "No address", url: "" },
+        { label: "", url: "https://example.com/no-label" },
+        { label: "The album", url: "/music/shadows-of-a-ghost-town" },
+      ],
+    },
+    { acf_fc_layout: "links", heading: "", links: [{ label: "x", url: "https://x.y" }] },
+    { acf_fc_layout: "links", heading: "Nothing under it", links: false },
+  ]);
+  assert.deepEqual(blocks, [
+    {
+      layout: "links",
+      heading: "Listen",
+      links: [
+        { label: "Bandcamp", url: "https://meghanclarisse.bandcamp.com" },
+        { label: "The album", url: "/music/shadows-of-a-ghost-town" },
+      ],
+    },
+  ]);
+});

@@ -51,6 +51,13 @@ interface FycCampaign {
   videos: readonly FycVideo[];
   lyricSheets: readonly FycLyricSheet[];
   albumHref: string;
+  /** The More section's buttons: Meg's `more_links` rows, or the three defaults. */
+  moreLinks: readonly FycLink[];
+}
+
+export interface FycLink {
+  label: string;
+  href: string;
 }
 
 /** Campaign route slug → the WP page Meg edits. Adding a campaign = a WP page
@@ -127,10 +134,34 @@ const rows = (v: unknown): AcfRepeaterRow[] => (Array.isArray(v) ? v : []);
 
 const text = (v: unknown): string => (typeof v === "string" ? v : "");
 
+/** A megcmusic.com address becomes site-relative; any other address is kept whole. */
+function linkHref(url: string): string {
+  try {
+    const host = new URL(url).hostname.replace(/^(www|admin)\./, "");
+    return host === "megcmusic.com" ? siteHref(url) : url;
+  } catch {
+    return url;
+  }
+}
+
+/** Meg's More links, same-site addresses made relative; empty → the three the page always had. */
+export function moreLinks(raw: unknown, albumHref: string): FycLink[] {
+  const own = rows(raw)
+    .map((r) => ({ label: text(r.label).trim(), href: linkHref(text(r.url).trim()) }))
+    .filter((l) => l.label && l.href);
+  if (own.length) return own;
+  return [
+    { label: "The album", href: albumHref },
+    { label: "Press kit", href: "/epk" },
+    { label: "Contact", href: "/booking" },
+  ];
+}
+
 export async function getFycCampaign(slug: string): Promise<FycCampaign> {
   const pageId = FYC_PAGE_IDS[slug];
   if (!pageId) throw new Error(`Unknown FYC campaign slug: ${slug}`);
   const acf = await fetchAcf(pageId);
+  const albumHref = siteHref(text(acf.album_link)) || "/music";
 
   return {
     slug,
@@ -157,6 +188,7 @@ export async function getFycCampaign(slug: string): Promise<FycCampaign> {
       .map((r) => ({ id: youtubeId(text(r.youtube_url)), title: text(r.title) }))
       .filter((v) => v.id),
     lyricSheets: readLyricManifest(pageId),
-    albumHref: siteHref(text(acf.album_link)) || "/music",
+    albumHref,
+    moreLinks: moreLinks(acf.more_links, albumHref),
   };
 }
