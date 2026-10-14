@@ -13,12 +13,12 @@
 
 import { readFileSync, writeFileSync, existsSync, readdirSync } from "node:fs";
 import path from "node:path";
-import { PAGE_LAYOUTS, type RouteLayout } from "../../src/lib/page-layouts";
+import { PAGE_LAYOUTS, type LayoutSection, type RouteLayout } from "../../src/lib/page-layouts";
 
 const OUT_DIR = path.join(process.cwd(), "wp-plugin", "megc-site-content", "acf-json");
 const CHECK = process.argv.includes("--check");
 
-/** The five block layouts, shared by every route. Keys are prefixed per
+/** The six block layouts, shared by every route. Keys are prefixed per
  *  route because ACF requires field keys to be unique across all groups. */
 function blockLayouts(route: string) {
   const k = (s: string) => `field_megc_layout_${route}_${s}`;
@@ -66,6 +66,29 @@ function blockLayouts(route: string) {
         { key: k("text_body"), label: "Paragraphs", name: "body", type: "textarea", instructions: "Leave an empty line between paragraphs. Required — a section with no text does not show.", required: 1, rows: 8, new_lines: "" },
       ],
     },
+    [`layout_megc_${route}_links`]: {
+      key: `layout_megc_${route}_links`,
+      name: "links",
+      label: "Links",
+      display: "block",
+      sub_fields: [
+        { key: k("links_heading"), label: "Heading", name: "heading", type: "text", instructions: "Shown between the ★★★ like every section heading. Required.", required: 1 },
+        {
+          key: k("links_rows"),
+          label: "Links",
+          name: "links",
+          type: "repeater",
+          layout: "table",
+          button_label: "Add a link",
+          min: 1,
+          instructions: "One row per button. A row needs both its text and its address to show.",
+          sub_fields: [
+            { key: k("links_row_label"), label: "Button text", name: "label", type: "text", instructions: "e.g. “Bandcamp”.", required: 1 },
+            { key: k("links_row_url"), label: "Address", name: "url", type: "url", instructions: "Where it goes.", required: 1 },
+          ],
+        },
+      ],
+    },
     [`layout_megc_${route}_photo`]: {
       key: `layout_megc_${route}_photo`,
       name: "photo",
@@ -77,6 +100,13 @@ function blockLayouts(route: string) {
       ],
     },
   };
+}
+
+/** The row's help: what the section is, then where its content is edited.
+ *  A shared `source` says it through the plugin's editor box or link. */
+function whereText(s: LayoutSection): string {
+  const where = s.where ?? (s.source ? "" : "Its content is in this page's own boxes above.");
+  return [s.help, where].filter(Boolean).join(" ");
 }
 
 function sectionLayouts(r: RouteLayout) {
@@ -97,7 +127,7 @@ function sectionLayouts(r: RouteLayout) {
             type: "true_false",
             ui: 1,
             default_value: 0,
-            instructions: s.help,
+            instructions: whereText(s),
           },
         ],
       },
@@ -117,7 +147,7 @@ function group(r: RouteLayout) {
         type: "flexible_content",
         button_label: "Add a section or a block",
         instructions:
-          "The order of this page, top to bottom, under its heading. Add the page's own sections to drag them into a new order or hide one; add a block — an announcement, a quote, a video, a text section, a photo — to put something new between them. Anything you leave out keeps its usual place after what you list. Leave the whole list empty and the page looks exactly as it does today.",
+          "Every section of this page, top to bottom, under its heading. Drag a row to move that section, or switch on Hide this section to take it off the page. Each row says where its words and pictures are edited. Add a block — an announcement, a quote, a video, a text section, a photo, a set of links — to put something new between them, then drag it where it goes. Press Update to publish; the live site follows in a few minutes.",
         layouts: { ...sectionLayouts(r), ...blockLayouts(r.route) },
       },
     ],

@@ -8,7 +8,7 @@
       "name": "layout_media",
       "type": "flexible_content",
       "button_label": "Add a section or a block",
-      "instructions": "The order of this page, top to bottom, under its heading. Add the page's own sections to drag them into a new order or hide one; add a block — an announcement, a quote, a video, a text section, a photo — to put something new between them. Anything you leave out keeps its usual place after what you list. Leave the whole list empty and the page looks exactly as it does today.",
+      "instructions": "Every section of this page, top to bottom, under its heading. Drag a row to move that section, or switch on Hide this section to take it off the page. Each row says where its words and pictures are edited. Add a block — an announcement, a quote, a video, a text section, a photo, a set of links — to put something new between them, then drag it where it goes. Press Update to publish; the live site follows in a few minutes.",
       "layouts": {
         "layout_megc_media_section_watch": {
           "key": "layout_megc_media_section_watch",
@@ -161,6 +161,50 @@
               "required": 1,
               "rows": 8,
               "new_lines": ""
+            }
+          ]
+        },
+        "layout_megc_media_links": {
+          "key": "layout_megc_media_links",
+          "name": "links",
+          "label": "Links",
+          "display": "block",
+          "sub_fields": [
+            {
+              "key": "field_megc_layout_media_links_heading",
+              "label": "Heading",
+              "name": "heading",
+              "type": "text",
+              "instructions": "Shown between the ★★★ like every section heading. Required.",
+              "required": 1
+            },
+            {
+              "key": "field_megc_layout_media_links_rows",
+              "label": "Links",
+              "name": "links",
+              "type": "repeater",
+              "layout": "table",
+              "button_label": "Add a link",
+              "min": 1,
+              "instructions": "One row per button. A row needs both its text and its address to show.",
+              "sub_fields": [
+                {
+                  "key": "field_megc_layout_media_links_row_label",
+                  "label": "Button text",
+                  "name": "label",
+                  "type": "text",
+                  "instructions": "e.g. “Bandcamp”.",
+                  "required": 1
+                },
+                {
+                  "key": "field_megc_layout_media_links_row_url",
+                  "label": "Address",
+                  "name": "url",
+                  "type": "url",
+                  "instructions": "Where it goes.",
+                  "required": 1
+                }
+              ]
             }
           ]
         },

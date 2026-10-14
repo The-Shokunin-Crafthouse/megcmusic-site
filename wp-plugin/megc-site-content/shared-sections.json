@@ -89,6 +89,24 @@
       "shownOn": [
         5562
       ]
+    },
+    {
+      "id": "5562-artist_spotify",
+      "source": 5562,
+      "fields": [
+        "field_megc_music_artist_spotify",
+        "field_megc_music_artist_apple",
+        "field_megc_music_artist_amazon"
+      ],
+      "names": [
+        "artist_spotify",
+        "artist_apple",
+        "artist_amazon"
+      ],
+      "shownOn": [
+        4350,
+        4566
+      ]
     }
   ],
   "boxes": [
@@ -163,6 +181,24 @@
       "source": 5560,
       "sections": [
         "Watch"
+      ]
+    },
+    {
+      "id": "4350-5562-artist_spotify",
+      "host": 4350,
+      "group": "5562-artist_spotify",
+      "source": 5562,
+      "sections": [
+        "Listen"
+      ]
+    },
+    {
+      "id": "4566-5562-artist_spotify",
+      "host": 4566,
+      "group": "5562-artist_spotify",
+      "source": 5562,
+      "sections": [
+        "Listen"
       ]
     }
   ],

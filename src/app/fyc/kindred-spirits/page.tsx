@@ -98,18 +98,25 @@ export default async function FycPage() {
         <div className={styles.inner}>
           <SectionLabel id="fyc-more">More</SectionLabel>
           <div className={styles.links}>
-            <Link className={styles.link} href={FYC.albumHref}>
-              The album
-              <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-            </Link>
-            <Link className={styles.link} href="/epk">
-              Press kit
-              <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-            </Link>
-            <Link className={styles.link} href="/booking">
-              Contact
-              <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
-            </Link>
+            {FYC.moreLinks.map((l) =>
+              l.href.startsWith("/") ? (
+                <Link key={l.label} className={styles.link} href={l.href}>
+                  {l.label}
+                  <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+                </Link>
+              ) : (
+                <a
+                  key={l.label}
+                  className={styles.link}
+                  href={l.href}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  {l.label}
+                  <ArrowUpRight size={14} weight="bold" aria-hidden="true" />
+                </a>
+              ),
+            )}
           </div>
         </div>
       </section>

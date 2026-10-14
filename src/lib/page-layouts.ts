@@ -18,6 +18,13 @@ export interface LayoutSection {
   /** One line under it. */
   help: string;
   /**
+   * Where Meg edits this section's content, in her words, shown under the row
+   * in her dashboard. Omit when `source` says it (the plugin renders a shared
+   * editor or a link for those); a section with neither is told "in this
+   * page's own boxes above" by the generator.
+   */
+  where?: string;
+  /**
    * Where the section's content is kept, when some of it is also shown on
    * another page or kept on another page (ADR 2026-09-23). The plugin puts an
    * editor for `fields` on every page that lists them and saves each one back
@@ -179,12 +186,17 @@ export const PAGE_LAYOUTS: readonly RouteLayout[] = [
     title: "Page layout — FYC campaign",
     pageIds: [4350, 4566],
     sections: [
-      { id: "press", label: "What People Are Saying", help: "Your press quotes." },
-      { id: "about", label: "About the Album", help: "The pitch paragraphs." },
-      { id: "watch", label: "Watch Live", help: "The videos." },
-      { id: "lyrics", label: "The Lyrics", help: "The lyric sheets." },
-      { id: "listen", label: "Listen", help: "Apple Music, Spotify, Amazon." },
-      { id: "more", label: "More", help: "The album, press kit and contact links." },
+      { id: "press", label: "What People Are Saying", help: "Your press quotes.", where: "Edit them in the FYC Campaign box above, under Press quotes." },
+      { id: "about", label: "About the Album", help: "The pitch paragraphs.", where: "Edit them in the FYC Campaign box above, under About the album." },
+      { id: "watch", label: "Watch Live", help: "The videos.", where: "Edit them in the FYC Campaign box above, under Watch-live videos." },
+      { id: "lyrics", label: "The Lyrics", help: "The lyric sheets.", where: "Edit them in the FYC Campaign box above, under Lyric sheets." },
+      {
+        id: "listen",
+        label: "Listen",
+        help: "Your Apple Music, Spotify and Amazon profile links.",
+        source: [{ kind: "fields", pageId: 5562, fields: ["artist_spotify", "artist_apple", "artist_amazon"] }],
+      },
+      { id: "more", label: "More", help: "The closing links.", where: "Edit them in the FYC Campaign box above, under More links. Leave that empty for The album, Press kit and Contact." },
     ],
   },
 ];

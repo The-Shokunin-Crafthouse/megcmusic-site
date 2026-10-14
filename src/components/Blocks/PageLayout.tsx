@@ -3,10 +3,11 @@ import type { Block } from "@/lib/blocks";
 import type { LayoutItem } from "@/lib/page-layout";
 import { BlockRun } from "./BlockRun";
 import { TextBlock } from "./TextBlock";
+import { LinksBlock } from "./LinksBlock";
 
 /**
  * Render a resolved page layout (Sprint 17): each section id through the
- * page's render map, text blocks as sections of their own, every other run
+ * page's render map, text and links blocks as sections of their own, every other run
  * of blocks as one BlockRun. A render map entry may return null (a section
  * that has nothing to show today) — it is simply skipped, as it was before.
  */
@@ -28,12 +29,17 @@ export function PageLayout({
   items.forEach((item, i) => {
     if (item.kind === "block") {
       const { block } = item;
-      if (block.layout !== "text") {
-        run.push(block);
+      if (block.layout === "text") {
+        flush();
+        out.push(<TextBlock key={`text-${i}`} block={block} />);
         return;
       }
-      flush();
-      out.push(<TextBlock key={`text-${i}`} block={block} />);
+      if (block.layout === "links") {
+        flush();
+        out.push(<LinksBlock key={`links-${i}`} block={block} />);
+        return;
+      }
+      run.push(block);
       return;
     }
     flush();

@@ -4,6 +4,7 @@ import { PullQuoteBlock } from "./PullQuoteBlock";
 import { VideoBlock } from "./VideoBlock";
 import { TextBlock } from "./TextBlock";
 import { PhotoBlock } from "./PhotoBlock";
+import { LinksBlock } from "./LinksBlock";
 
 /** One block → one component. The parser has already dropped anything that
  *  cannot render, so every case here is a block with its required field. */
@@ -17,6 +18,8 @@ export function BlockRenderer({ block }: { block: Block }) {
       return <VideoBlock block={block} />;
     case "text":
       return <TextBlock block={block} />;
+    case "links":
+      return <LinksBlock block={block} />;
     case "photo":
       return <PhotoBlock block={block} />;
   }

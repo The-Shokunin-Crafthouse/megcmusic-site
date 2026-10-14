@@ -4,6 +4,8 @@
  * text and photo and puts all five in every page's "Page layout" list.
  * Pure parsing, unit-tested directly; readers call it on build-time snapshots.
  *
+ * The links block (2026-10-14) is the sixth: a heading over link buttons.
+ *
  * Rules (Sprint 13 contract §1.4, kept): a block missing its required field
  * renders nothing; an unknown layout renders nothing and is logged; an empty
  * zone is `[]`.
@@ -28,6 +30,8 @@ export type Block =
   | { layout: "pull_quote"; quote: string; attribution: string }
   | { layout: "video"; id: string; caption: string }
   | { layout: "text"; heading: string; paragraphs: string[] }
+  /** A ★★★ heading over a row of link buttons — the FYC page's Listen section, with Meg's own links. */
+  | { layout: "links"; heading: string; links: { label: string; url: string }[] }
   | {
       layout: "photo";
       /** Sized through Photon, on the WordPress host. */
@@ -40,7 +44,7 @@ export type Block =
       caption: string;
     };
 
-export const BLOCK_LAYOUTS = ["announcement", "pull_quote", "video", "text", "photo"] as const;
+export const BLOCK_LAYOUTS = ["announcement", "pull_quote", "video", "text", "links", "photo"] as const;
 
 const text = (v: unknown): string => (typeof v === "string" ? v.trim() : "");
 const num = (v: unknown): number => (typeof v === "number" && Number.isFinite(v) && v > 0 ? v : 0);
@@ -82,6 +86,17 @@ export function parseBlock(row: unknown): Block | null {
       const paras = paragraphs(text(r.body));
       if (!heading || !paras.length) return null;
       return { layout, heading, paragraphs: paras };
+    }
+    case "links": {
+      const heading = text(r.heading);
+      const links = (Array.isArray(r.links) ? r.links : [])
+        .map((row) => {
+          const l = (row && typeof row === "object" ? row : {}) as Record<string, unknown>;
+          return { label: text(l.label), url: text(l.url) };
+        })
+        .filter((l) => l.label && l.url); // A row missing either is not a link.
+      if (!heading || !links.length) return null;
+      return { layout, heading, links };
     }
     case "photo": {
       const image = (r.image && typeof r.image === "object" ? r.image : {}) as Record<string, unknown>;
