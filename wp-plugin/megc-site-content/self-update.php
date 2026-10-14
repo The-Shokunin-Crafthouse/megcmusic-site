@@ -103,6 +103,20 @@ function megc_update_pick_release( array $releases ): ?array {
 }
 
 /**
+ * An upgrader skin's error messages as a list. WP_Ajax_Upgrader_Skin's
+ * get_error_messages() returns one joined string ('' when clean); older skins
+ * and tests hand over an array. Either way, a list of non-empty strings.
+ * (1.8.1: the 1.8.0 install landed, then this reply crashed on the string.)
+ */
+function megc_update_error_list( $messages ): array {
+	if ( is_array( $messages ) ) {
+		return array_values( array_filter( array_map( 'strval', $messages ), 'strlen' ) );
+	}
+	$text = trim( (string) $messages );
+	return '' === $text ? array() : array( $text );
+}
+
+/**
  * What the update_plugins_github.com filter hands WordPress: the release,
  * shaped as WordPress wants it, when it is strictly newer than what is
  * installed and its package comes from this repo. Null otherwise — WordPress
@@ -323,7 +337,7 @@ function megc_update_rest_self_update( $request ) {
 		$result   = $upgrader->bulk_upgrade( array( MEGC_UPDATE_PLUGIN ) );
 		ob_end_clean();
 
-		$errors = $skin->get_error_messages();
+		$errors = megc_update_error_list( $skin->get_error_messages() );
 		$item   = is_array( $result ) ? ( $result[ MEGC_UPDATE_PLUGIN ] ?? null ) : $result;
 		if ( is_wp_error( $item ) ) {
 			$errors[] = $item->get_error_message();
