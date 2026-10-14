@@ -119,5 +119,11 @@ $foreign = $pick;
 $foreign['package'] = 'https://example.com/megc-site-content.zip';
 expect( 'a package from anywhere else is no offer', megc_update_offer( $foreign, '1.6.1' ), null );
 
+// The skin's messages (1.8.1): WP_Ajax_Upgrader_Skin returns one string, '' when clean.
+expect( 'a clean ajax skin is no errors', megc_update_error_list( '' ), array() );
+expect( 'a joined string is one error', megc_update_error_list( 'Could not copy file.' ), array( 'Could not copy file.' ) );
+expect( 'an array passes through without empties', megc_update_error_list( array( 'a', '', 'b' ) ), array( 'a', 'b' ) );
+expect( 'null is no errors', megc_update_error_list( null ), array() );
+
 echo "\n{$count} assertions, {$failures} failed\n";
 exit( $failures > 0 ? 1 : 0 );
