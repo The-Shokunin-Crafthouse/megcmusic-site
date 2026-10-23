@@ -10,7 +10,7 @@
     "verify:apis": "node --env-file=.env.local --import tsx scripts/verify-apis.ts",
     "playbook:backfill": "node --env-file=.env.local --import tsx scripts/playbook-backfill.ts",
     "playbook:seed-tips": "node --env-file=.env.local --import tsx scripts/seed-tips.ts",
-    "test": "node --import tsx --test \"src/**/*.test.ts\" \"scripts/**/*.test.mjs\"",
+    "test": "node --import tsx --test \"src/**/*.test.ts\" \"scripts/**/*.test.mjs\" \"agent/**/*.test.mjs\"",
     "layout:build": "node --import tsx scripts/wp-plugin/build-layout-groups.ts && node --import tsx scripts/wp-plugin/build-shared-sections.ts",
     "layout:check": "node --import tsx scripts/wp-plugin/build-layout-groups.ts --check && node --import tsx scripts/wp-plugin/build-shared-sections.ts --check"
   },
