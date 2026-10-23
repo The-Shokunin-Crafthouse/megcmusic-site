@@ -36,6 +36,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { createClient } from "@supabase/supabase-js";
 import { TIP_SURFACES, parseJobOutput } from "./contracts.mjs";
+import { claudeArgs, JOB_TIMEOUT_MS, withKillTimer, reclaimStale } from "./harness.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const PROMPTS_DIR = path.join(__dirname, "prompts");
@@ -576,7 +577,8 @@ function runClaudeProcess(db, job, prompt) {
         // `assistant` event at 9.52s — so the progress accumulator stayed
         // empty for 88% of every run and the ~2s sync had nothing to write.
         // prettier-ignore
-        ["-p", "--model", CLAUDE_MODEL, "--effort", effort, "--output-format", "stream-json", "--include-partial-messages", "--verbose"],
+        // No tools, no host settings, a turn ceiling (./harness.mjs).
+        claudeArgs(CLAUDE_MODEL, effort),
         { stdio: ["pipe", "pipe", "pipe"] },
       );
     } catch (err) {
@@ -680,10 +682,18 @@ function runClaudeProcess(db, job, prompt) {
       resolve({ spawnFailed: true, error: err.message });
     });
 
+    let timedOut = false;
+    withKillTimer(child, JOB_TIMEOUT_MS, () => { timedOut = true; });
+
     child.on("close", (code) => {
       if (settled) return;
       settled = true;
       clearInterval(interval);
+      if (timedOut) {
+        resolve({ spawnFailed: true, timedOut: true,
+          error: `claude was killed after ${JOB_TIMEOUT_MS / 60000} minutes with no finished reply.` });
+        return;
+      }
       if (code !== 0 && !sawAnyOutput) {
         resolve({
           spawnFailed: true,
@@ -724,6 +734,7 @@ async function spawnClaudeWithRetries(db, job, prompt) {
     }
     lastError = result.error;
     log(`job ${job.id} spawn failed (attempt ${attempt + 1}): ${lastError}`);
+    if (result.timedOut) break;   // a hung job is not retried: it would hang again
     if (attempt < SPAWN_RETRY_BACKOFFS_MS.length) {
       await sleep(SPAWN_RETRY_BACKOFFS_MS[attempt]);
     }
@@ -1074,6 +1085,10 @@ async function main() {
   );
 
   await preflightSupabase(db);
+
+  // A crash mid-job left its row in `running` or `streaming`; nothing else reclaims it.
+  const reclaimed = await reclaimStale(db, Date.now());
+  if (reclaimed) log(`requeued ${reclaimed} job(s) a previous run left unfinished`);
 
   let shuttingDown = false;
   const requestShutdown = (signal) => {
