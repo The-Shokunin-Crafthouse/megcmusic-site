@@ -156,6 +156,8 @@ function parseTemplate(text, now = Date.now()) {
     time: 'time', tickets: 'tickets', tix: 'tickets', ticket: 'tickets',
     stream: 'stream', link: 'stream', address: 'address', title: 'title',
     notes: 'notes', note: 'notes', region: 'region', state: 'region',
+    location: 'city', town: 'city',
+    type: 'type', format: 'type', lineup: 'type',
   };
   for (const line of lines) {
     const m = line.match(/^\s*([a-zA-Z]+)\s*:\s*(.+)$/);
@@ -169,9 +171,32 @@ function parseTemplate(text, now = Date.now()) {
     if (!show.date) return { error: `I couldn't read the date "${fields.date}". Try "2026-07-24" or "July 24".` };
   }
   if (fields.time) Object.assign(show, parseTime(fields.time));
+  if (fields.type) show.type = normType(fields.type);
   show.online = !!fields.stream || norm(fields.venue ?? '').match(/^(online|livestream|live stream)$/) != null;
   if (show.online) show.venue = 'Online';
   return show;
+}
+
+/** "Solo" / "duo w/ Jeff" / "full band" → solo | duo | band; anything else kept as written. */
+function normType(raw) {
+  const t = raw.toLowerCase();
+  if (/\bsolo\b/.test(t)) return 'solo';
+  if (/\bduo\b/.test(t)) return 'duo';
+  if (/\bband\b|\btrio\b/.test(t)) return 'band';
+  return raw.trim();
+}
+
+const TYPE_LABEL = { solo: 'Solo show', duo: 'Duo show', band: 'Full band show' };
+const typeLabel = (type) => (type ? TYPE_LABEL[type] ?? type : '');
+
+/** Event description: the lineup line, then her notes. */
+const describe = (show) => [typeLabel(show.type), show.notes].filter(Boolean).join(' — ');
+
+/** "18:00" → "6:00pm" for the emails she reads. */
+function to12h(hhmm) {
+  if (!hhmm) return '';
+  const [h, m] = hhmm.split(':').map(Number);
+  return `${h % 12 || 12}:${String(m).padStart(2, '0')}${h < 12 ? 'am' : 'pm'}`;
 }
 
 const missing = (show) =>
@@ -246,8 +271,9 @@ const TEMPLATE_HELP = `Here's the format I understand — one detail per line:
 
 Date: July 24
 Venue: Rock Rest Lodge
-City: Golden
+City: Golden   (or "Location: Golden")
 Time: 7pm-9pm
+Type: solo, duo or band (optional)
 Tickets: https://... (optional)
 Title: (optional — defaults to "Live at <venue>")
 Notes: (optional)
@@ -255,12 +281,13 @@ Notes: (optional)
 For an online show, use "Venue: Online" and add "Stream: <link>".`;
 
 function confirmBody(show, event) {
-  const when = show.start ? ` · ${show.start}${show.end ? `–${show.end}` : ''}` : '';
+  const when = show.start ? ` · ${to12h(show.start)}${show.end ? `–${to12h(show.end)}` : ''} Mountain` : '';
+  const lineup = typeLabel(show.type);
   return `Got it! Here's what I'll put on megcmusic.com:
 
   ${event.title}
   ${show.date}${when}
-  ${show.venue}${show.city ? `, ${show.city}` : ''}${show.online ? ' (online show)' : ''}${show.tickets ? `\n  Tickets: ${show.tickets}` : ''}
+  ${show.venue}${show.city ? `, ${show.city}` : ''}${show.online ? ' (online show)' : ''}${lineup ? `\n  ${lineup}` : ''}${show.tickets ? `\n  Tickets: ${show.tickets}` : ''}
 
 Reply YES to publish it. If anything's wrong, reply with the corrected lines
 (e.g. "Time: 8pm-10pm") and I'll update it and check again.`;
@@ -303,7 +330,7 @@ async function handleNewShow(from, subject, show) {
     start_date: `${show.date} ${show.start ?? '19:00'}:00`,
     end_date: `${show.date} ${show.end ?? (show.start ? addHours(show.start, 2) : '21:00')}:00`,
     venue: venue.id,
-    ...(show.notes && { description: show.notes }),
+    ...(describe(show) && { description: describe(show) }),
     ...(show.tickets && { website: show.tickets }),
   };
   if (DRY) { console.log('[dry-run] would create event:', payload); return 'dry'; }
@@ -342,7 +369,7 @@ async function handleReply(from, subject, text, eventId) {
   }
 
   const updates = parseTemplate(text);
-  if (updates && !updates.error && Object.keys(updates).some((k) => ['date', 'venue', 'start', 'title', 'tickets', 'city', 'notes'].includes(k))) {
+  if (updates && !updates.error && Object.keys(updates).some((k) => ['date', 'venue', 'start', 'title', 'tickets', 'city', 'notes', 'type'].includes(k))) {
     if (DRY) { console.log(`[dry-run] would update ${eventId}:`, updates); return 'dry'; }
     const payload = {
       ...(updates.title && { title: updates.title }),
@@ -350,10 +377,17 @@ async function handleReply(from, subject, text, eventId) {
       ...(!updates.date && updates.start && { start_date: `${event.start_date.slice(0, 10)} ${updates.start}:00` }),
       ...(updates.end && { end_date: `${updates.date ?? event.start_date.slice(0, 10)} ${updates.end}:00` }),
       ...(updates.tickets && { website: updates.tickets }),
-      ...(updates.notes && { description: updates.notes }),
+      ...((updates.notes || updates.type) && { description: describe(updates) }),
       ...(updates.venue && { venue: (await resolveVenue(updates)).id }),
     };
-    await wp(`/events/${eventId}`, { method: 'POST', body: JSON.stringify(payload) });
+    // "City: Colorado Springs" on its own corrects the venue the event already
+    // points at — before this it parsed, passed the gate above, and changed nothing.
+    if (updates.city && !updates.venue && event.venue?.id) {
+      await wp(`/venues/${event.venue.id}`, { method: 'POST', body: JSON.stringify({ city: updates.city }) });
+    }
+    if (Object.keys(payload).length) {
+      await wp(`/events/${eventId}`, { method: 'POST', body: JSON.stringify(payload) });
+    }
     const fresh = await wp(`/events/${eventId}`);
     const show = {
       date: fresh.start_date.slice(0, 10), start: fresh.start_date.slice(11, 16),
@@ -461,6 +495,11 @@ function selftest() {
   eq(parseTemplate('Date: June 1\nVenue: X', NOW).date, '2027-06-01', 'past bare month rolls forward');
   eq(parseTemplate('Date: June 14\nVenue: X', NOW).date, '2026-06-14', 'within the 2-day grace window, no roll');
   eq(parseTemplate('Date: Jan 5, 2024\nVenue: X', NOW).date, '2024-01-05', 'an explicit year is never rolled');
+  const t6 = parseTemplate('Date: Dec 9\nVenue: Carboy Winery\nLocation: Colorado Springs\nTime: 6-9pm\nType: Solo', NOW);
+  eq([t6.city, t6.type, t6.start, t6.end], ['Colorado Springs', 'solo', '18:00', '21:00'], 'Location: + Type: lines');
+  eq(['duo w/ Jeff', 'Full Band', 'trio', 'yoga set'].map(normType), ['duo', 'band', 'band', 'yoga set'], 'type normalization');
+  eq(describe({ type: 'solo', notes: 'Candlelight' }), 'Solo show — Candlelight', 'description = lineup + notes');
+  eq([to12h('18:00'), to12h('12:30'), to12h('09:05'), to12h('00:00')], ['6:00pm', '12:30pm', '9:05am', '12:00am'], '12-hour display');
   console.log('All parser self-tests passed.');
 }
 

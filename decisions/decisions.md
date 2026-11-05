@@ -2369,3 +2369,13 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 **Verification.** `npm run layout:check` clean (10 groups, 6 shared sets, 10 boxes, 4 links). Unit tests: `blocks.test.ts` (links block), `fyc-content.test.ts` (More links), `page-layout.test.ts`, `shared-sections.test.ts` pass; `tests/page-layout.test.php` runs in `wp-plugin-lint.yml`. `tsc --noEmit` clean. Not proven here: the editor render of an appended row with no sub-field values (expected: ACF falls back to the sub-field default, hidden off) — check on 4350 after the plugin self-updates, per README 1.8.0 *Verify*. The three test failures in this VM (`epk-thumbs` → sharp, two `sw.test.ts`) fail identically on main here and are the macOS `node_modules` on Linux (learning #211); CI is the record.
 
 **Still open.** Section headings ("What People Are Saying", "Listen", "More") are still code. Making them fields is a separate decision: each is also an `aria-labelledby` anchor and a SectionLabel, and nothing asked for it today.
+
+## 2026-11-05 — Show Robot reads Location: and Type:, shows 12-hour times, and a City: correction actually lands
+
+**Context.** Meg's first show email of the season used `Location:` for the city and had no way to say solo/duo/band; the parser dropped the city silently, so the draft venue was created without one. She also asked for 6:00pm-style times in the confirm email instead of 18:00. Reading the reply path showed a latent bug: a reply of just `City: X` passed the "has an updatable field" gate and then changed nothing.
+
+**Decisions.** (1) Aliases `location`/`town` → city; `type`/`format`/`lineup` → type, normalized to solo | duo | band (free text kept as written). (2) Type becomes the first line of the TEC event description ("Solo show — <notes>"); no new WP field. (3) Confirm emails render times as 12-hour + "Mountain"; storage stays 24h. (4) A `City:` correction with no `Venue:` POSTs the city onto the event's existing venue (`/venues/<id>`); the event write is skipped when there's nothing else to change.
+
+**Verification.** `SELFTEST=1 node scripts/show-pipeline/pipeline.mjs` — four new assertions (Location/Type parse, type normalization, description, 12-hour display) plus the existing set pass. Not proven here: the venue POST against live TEC (WP blocks datacenter IPs); first real `City:` reply is the check.
+
+**Still open.** A `Type:`-only correction replaces the description rather than prefixing the existing notes.
