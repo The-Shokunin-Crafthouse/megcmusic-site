@@ -2370,6 +2370,21 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 
 **Still open.** Section headings ("What People Are Saying", "Listen", "More") are still code. Making them fields is a separate decision: each is also an `aria-labelledby` anchor and a SectionLabel, and nothing asked for it today.
 
+## 2026-11-05 — A draft WordPress page unbuilds its routes instead of failing the build
+
+**Decided by:** Levi, in chat, 2026-11-05: keep the page "available in wordpress, but not published or showing in the live navigation."
+
+**Context.** Page 4350 (Shadows of a Ghost Town) went to Draft at 2026-11-05 16:46Z, saved by Admin12. WordPress answers anonymous reads of a draft with 401 `rest_forbidden`. `fetch-releases.mjs` treated that as a failure, so every production deploy and preview failed from 17:12Z on. Page 4350 feeds two routes: the FYC campaign and the album's release page.
+
+**Decision.**
+1. A `401 rest_forbidden` on a page read means unpublished (`scripts/lib/wp-unpublished.mjs`). Every other failure, including a 401 with another code, still fails the build.
+2. The release row stays on the discography with no detail page. `/music/shadows-of-a-ghost-town` and its reviews route stop being built.
+3. `/fyc/shadows-of-a-ghost-town` returns 404. `fetch-fyc-assets.mjs` writes a null manifest entry, and `getFycCampaign` returns null.
+4. The FYC nav entry is removed. `/fyc` and `/shadows-of-a-ghost-town` redirect to `/music`, as temporary redirects.
+
+**Reversal.** Publishing page 4350 restores all routes on the next build. The nav entry and the two redirects are code and must be put back by hand.
+
+**Verification.** Unit tests in `scripts/lib/wp-unpublished.test.mjs`, `src/lib/fyc-content.test.ts` and `src/components/Nav/fyc-nav.test.ts`. The full build path can run only on CI, because the Mac is refused by Mod_Security: the PR's `deploy-preview` is the proof.
 ## 2026-11-05 — megcmusicbot joins the author allowlist
 
 **Decided by:** Levi, in chat, 2026-11-05.
