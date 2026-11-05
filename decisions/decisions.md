@@ -2370,6 +2370,15 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 
 **Still open.** Section headings ("What People Are Saying", "Listen", "More") are still code. Making them fields is a separate decision: each is also an `aria-labelledby` anchor and a SectionLabel, and nothing asked for it today.
 
+## 2026-11-05 — Show Robot reads Location: and Type:, shows 12-hour times, and a City: correction actually lands
+
+**Context.** Meg's first show email of the season used `Location:` for the city and had no way to say solo/duo/band; the parser dropped the city silently, so the draft venue was created without one. She also asked for 6:00pm-style times in the confirm email instead of 18:00. Reading the reply path showed a latent bug: a reply of just `City: X` passed the "has an updatable field" gate and then changed nothing.
+
+**Decisions.** (1) Aliases `location`/`town` → city; `type`/`format`/`lineup` → type, normalized to solo | duo | band (free text kept as written). (2) Type becomes the first line of the TEC event description ("Solo show — <notes>"); no new WP field. (3) Confirm emails render times as 12-hour + "Mountain"; storage stays 24h. (4) A `City:` correction with no `Venue:` **never edits a venue**. Venue records are shared by every event at that venue (`resolveVenue` reuses by name), so editing one would rewrite past and published shows past the YES gate. Instead it repoints *this* event at a venue with the same name and that city, reusing one if it exists and creating it otherwise, then re-reads the event and throws unless the new venue stuck. A venue-less event or an online show gets an ask-back email instead of a silent no-op. (5) Notes-only and Type-only corrections merge with the existing description (`splitDescription` ⇄ `describe`) rather than replacing it. (6) The write decision lives in pure `planReplyWrites`, so the selftest pins it; the I/O wrapper only executes the plan.
+
+**Verification.** `SELFTEST=1 node scripts/show-pipeline/pipeline.mjs`: 13 new assertions, covering parse, normalization, description round-trip, 12-hour display, the reply gate, every `planReplyWrites` branch, and `confirmBody` output. Mutations of the City branch, the gate's `type`, the 12-hour email and notes-merge each turn it red (Evaluator M7, M8 and M9 were green before). Revised after the 2026-11-05 Evaluator FAIL on PR #175. Not proven here: `POST /venues` and event repoint against live TEC (WP blocks datacenter IPs). The destination re-read throws loudly if the repoint doesn't land.
+
+**Still open.** A City correction leaves the old name-only venue in TEC (harmless, unused by this event). Pre-existing: `Time: 8-10pm` stores 08:00, because the bare-hour evening rule covers only 1–7. The confirm email now shows that as "8:00am", so it's visible. Separate follow-up.
 ## 2026-11-05 — EPK in the site nav; Meg's one-sheet PDF featured on /epk
 
 **Context.** `/epk` has been live since Phase 3 but was never in `NAV_ITEMS`, so visitors could only reach it from links. Meg asked for it in the menu and for her Canva one-sheet (`Meghan-Clarisse-EPK-1.pdf`, 1 page, Sept 2026) to be on the page.

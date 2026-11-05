@@ -156,6 +156,8 @@ function parseTemplate(text, now = Date.now()) {
     time: 'time', tickets: 'tickets', tix: 'tickets', ticket: 'tickets',
     stream: 'stream', link: 'stream', address: 'address', title: 'title',
     notes: 'notes', note: 'notes', region: 'region', state: 'region',
+    location: 'city', town: 'city',
+    type: 'type', format: 'type', lineup: 'type',
   };
   for (const line of lines) {
     const m = line.match(/^\s*([a-zA-Z]+)\s*:\s*(.+)$/);
@@ -169,9 +171,32 @@ function parseTemplate(text, now = Date.now()) {
     if (!show.date) return { error: `I couldn't read the date "${fields.date}". Try "2026-07-24" or "July 24".` };
   }
   if (fields.time) Object.assign(show, parseTime(fields.time));
+  if (fields.type) show.type = normType(fields.type);
   show.online = !!fields.stream || norm(fields.venue ?? '').match(/^(online|livestream|live stream)$/) != null;
   if (show.online) show.venue = 'Online';
   return show;
+}
+
+/** "Solo" / "duo w/ Jeff" / "full band" → solo | duo | band; anything else kept as written. */
+function normType(raw) {
+  const t = raw.toLowerCase();
+  if (/\bsolo\b/.test(t)) return 'solo';
+  if (/\bduo\b/.test(t)) return 'duo';
+  if (/\bband\b|\btrio\b/.test(t)) return 'band';
+  return raw.trim();
+}
+
+const TYPE_LABEL = { solo: 'Solo show', duo: 'Duo show', band: 'Full band show' };
+const typeLabel = (type) => (type ? TYPE_LABEL[type] ?? type : '');
+
+/** Event description: the lineup line, then her notes. */
+const describe = (show) => [typeLabel(show.type), show.notes].filter(Boolean).join(' — ');
+
+/** "18:00" → "6:00pm" for the emails she reads. */
+function to12h(hhmm) {
+  if (!hhmm) return '';
+  const [h, m] = hhmm.split(':').map(Number);
+  return `${h % 12 || 12}:${String(m).padStart(2, '0')}${h < 12 ? 'am' : 'pm'}`;
 }
 
 const missing = (show) =>
@@ -246,8 +271,9 @@ const TEMPLATE_HELP = `Here's the format I understand — one detail per line:
 
 Date: July 24
 Venue: Rock Rest Lodge
-City: Golden
+City: Golden   (or "Location: Golden")
 Time: 7pm-9pm
+Type: solo, duo or band (optional)
 Tickets: https://... (optional)
 Title: (optional — defaults to "Live at <venue>")
 Notes: (optional)
@@ -255,12 +281,13 @@ Notes: (optional)
 For an online show, use "Venue: Online" and add "Stream: <link>".`;
 
 function confirmBody(show, event) {
-  const when = show.start ? ` · ${show.start}${show.end ? `–${show.end}` : ''}` : '';
+  const when = show.start ? ` · ${to12h(show.start)}${show.end ? `–${to12h(show.end)}` : ''} Mountain` : '';
+  const lineup = typeLabel(show.type);
   return `Got it! Here's what I'll put on megcmusic.com:
 
   ${event.title}
   ${show.date}${when}
-  ${show.venue}${show.city ? `, ${show.city}` : ''}${show.online ? ' (online show)' : ''}${show.tickets ? `\n  Tickets: ${show.tickets}` : ''}
+  ${show.venue}${show.city ? `, ${show.city}` : ''}${show.online ? ' (online show)' : ''}${lineup ? `\n  ${lineup}` : ''}${show.tickets ? `\n  Tickets: ${show.tickets}` : ''}
 
 Reply YES to publish it. If anything's wrong, reply with the corrected lines
 (e.g. "Time: 8pm-10pm") and I'll update it and check again.`;
@@ -303,7 +330,7 @@ async function handleNewShow(from, subject, show) {
     start_date: `${show.date} ${show.start ?? '19:00'}:00`,
     end_date: `${show.date} ${show.end ?? (show.start ? addHours(show.start, 2) : '21:00')}:00`,
     venue: venue.id,
-    ...(show.notes && { description: show.notes }),
+    ...(describe(show) && { description: describe(show) }),
     ...(show.tickets && { website: show.tickets }),
   };
   if (DRY) { console.log('[dry-run] would create event:', payload); return 'dry'; }
@@ -342,24 +369,29 @@ async function handleReply(from, subject, text, eventId) {
   }
 
   const updates = parseTemplate(text);
-  if (updates && !updates.error && Object.keys(updates).some((k) => ['date', 'venue', 'start', 'title', 'tickets', 'city', 'notes'].includes(k))) {
+  if (isUpdate(updates)) {
     if (DRY) { console.log(`[dry-run] would update ${eventId}:`, updates); return 'dry'; }
-    const payload = {
-      ...(updates.title && { title: updates.title }),
-      ...(updates.date && { start_date: `${updates.date} ${updates.start ?? event.start_date.slice(11, 16)}:00` }),
-      ...(!updates.date && updates.start && { start_date: `${event.start_date.slice(0, 10)} ${updates.start}:00` }),
-      ...(updates.end && { end_date: `${updates.date ?? event.start_date.slice(0, 10)} ${updates.end}:00` }),
-      ...(updates.tickets && { website: updates.tickets }),
-      ...(updates.notes && { description: updates.notes }),
-      ...(updates.venue && { venue: (await resolveVenue(updates)).id }),
-    };
-    await wp(`/events/${eventId}`, { method: 'POST', body: JSON.stringify(payload) });
-    const fresh = await wp(`/events/${eventId}`);
+    const plan = planReplyWrites(updates, event);
+    if (plan.ask) {
+      await send(from, `Re: ${subject}`, ASK[plan.ask]);
+      return 'reask';
+    }
+    if (plan.venue) {
+      plan.patch.venue = (await (plan.venue.matchCity ? venueWithCity(plan.venue) : resolveVenue(plan.venue))).id;
+    }
+    if (Object.keys(plan.patch).length) {
+      await wp(`/events/${eventId}`, { method: 'POST', body: JSON.stringify(plan.patch) });
+    }
+    const fresh = await wp(`/events/${eventId}`); // verify at the destination, not the POST echo
+    if (plan.patch.venue && fresh.venue?.id !== plan.patch.venue) {
+      throw new Error(`Venue change on ${eventId} did not stick (wanted venue ${plan.patch.venue}, got ${fresh.venue?.id})`);
+    }
     const show = {
       date: fresh.start_date.slice(0, 10), start: fresh.start_date.slice(11, 16),
       end: fresh.end_date?.slice(11, 16), venue: fresh.venue?.venue ?? '',
       city: fresh.venue?.city ?? '', tickets: fresh.website ?? '',
       online: norm(fresh.venue?.venue ?? '') === 'online',
+      type: splitDescription(fresh.description).type,
     };
     await send(from, `Confirm your show [MC-${eventId}]`, `Updated!\n\n${confirmBody(show, fresh)}`);
     return `updated ${eventId}`;
@@ -367,6 +399,70 @@ async function handleReply(from, subject, text, eventId) {
 
   await send(from, `Re: ${subject}`, `I wasn't sure what to do with that reply. Reply YES to publish, or send corrected lines like "Time: 8pm-10pm".${updates?.error ? `\n\n${updates.error}` : ''}`);
   return 'reask';
+}
+
+// ------------------------------------------------------- correction replies
+
+const UPDATABLE = ['date', 'venue', 'start', 'end', 'title', 'tickets', 'city', 'notes', 'type'];
+const isUpdate = (u) => !!u && !u.error && Object.keys(u).some((k) => UPDATABLE.includes(k));
+
+/** "<p>Solo show — Candlelight</p>" → { type: 'solo', notes: 'Candlelight' }. Inverse of describe(). */
+function splitDescription(desc = '') {
+  const text = String(desc ?? '').replace(/<[^>]*>/g, '').trim();
+  for (const [type, label] of Object.entries(TYPE_LABEL)) {
+    if (text === label) return { type, notes: '' };
+    if (text.startsWith(`${label} — `)) return { type, notes: text.slice(label.length + 3) };
+  }
+  return { type: null, notes: text };
+}
+
+const ASK = {
+  'no-venue': `That show doesn't have a venue yet, so I can't set a city on its own. Reply with both lines, e.g.\n\nVenue: Carboy Winery\nCity: Colorado Springs`,
+  online: `That's an online show, so there's no city to set. Reply YES to publish, or send other corrections.`,
+};
+
+/**
+ * What a correction reply writes — pure, so the selftest pins it.
+ *
+ * A venue record is shared by every event that played there (resolveVenue
+ * reuses by name), so a reply NEVER edits a venue. "City: X" alone repoints
+ * THIS event at a venue with the same name and that city — reusing one if it
+ * exists, else creating it. Other events at the old venue are untouched.
+ * Notes and Type merge with the existing description instead of replacing it.
+ */
+function planReplyWrites(updates, event) {
+  const old = splitDescription(event.description);
+  const day = updates.date ?? event.start_date?.slice(0, 10);
+  const patch = {
+    ...(updates.title && { title: updates.title }),
+    ...(updates.date && { start_date: `${updates.date} ${updates.start ?? event.start_date.slice(11, 16)}:00` }),
+    ...(!updates.date && updates.start && { start_date: `${day} ${updates.start}:00` }),
+    ...(updates.end && { end_date: `${day} ${updates.end}:00` }),
+    ...(updates.tickets && { website: updates.tickets }),
+    ...((updates.notes || updates.type) && {
+      description: describe({ type: updates.type ?? old.type, notes: updates.notes ?? old.notes }),
+    }),
+  };
+  if (updates.venue) return { patch, venue: { ...updates, matchCity: false }, ask: null };
+  if (updates.city) {
+    const name = event.venue?.venue;
+    if (!name) return { patch: {}, venue: null, ask: 'no-venue' };
+    if (norm(name) === 'online') return { patch: {}, venue: null, ask: 'online' };
+    if (norm(event.venue.city ?? '') !== norm(updates.city)) {
+      return { patch, venue: { venue: name, city: updates.city, region: event.venue.stateprovince, matchCity: true }, ask: null };
+    }
+  }
+  return { patch, venue: null, ask: null };
+}
+
+/** Venue with this name AND city — reused if it exists, else created. Never edits one. */
+async function venueWithCity({ venue, city, region }) {
+  const hit = (await allVenues()).find((v) => norm(v.venue) === norm(venue) && norm(v.city ?? '') === norm(city));
+  if (hit) return hit;
+  return wp('/venues', {
+    method: 'POST',
+    body: JSON.stringify({ venue, city, stateprovince: region || 'CO', country: 'United States' }),
+  });
 }
 
 // --------------------------------------------------------------------- main
@@ -461,6 +557,30 @@ function selftest() {
   eq(parseTemplate('Date: June 1\nVenue: X', NOW).date, '2027-06-01', 'past bare month rolls forward');
   eq(parseTemplate('Date: June 14\nVenue: X', NOW).date, '2026-06-14', 'within the 2-day grace window, no roll');
   eq(parseTemplate('Date: Jan 5, 2024\nVenue: X', NOW).date, '2024-01-05', 'an explicit year is never rolled');
+  const t6 = parseTemplate('Date: Dec 9\nVenue: Carboy Winery\nLocation: Colorado Springs\nTime: 6-9pm\nType: Solo', NOW);
+  eq([t6.city, t6.type, t6.start, t6.end], ['Colorado Springs', 'solo', '18:00', '21:00'], 'Location: + Type: lines');
+  eq(['duo w/ Jeff', 'Full Band', 'trio', 'yoga set'].map(normType), ['duo', 'band', 'band', 'yoga set'], 'type normalization');
+  eq(describe({ type: 'solo', notes: 'Candlelight' }), 'Solo show — Candlelight', 'description = lineup + notes');
+  eq([to12h('18:00'), to12h('12:30'), to12h('09:05'), to12h('00:00')], ['6:00pm', '12:30pm', '9:05am', '12:00am'], '12-hour display');
+  // Correction replies (planReplyWrites is the whole write decision; the I/O wrapper only executes it).
+  eq([isUpdate({ type: 'solo' }), isUpdate({ city: 'X' }), isUpdate({ region: 'CO' }), isUpdate({ error: 'x', date: 'y' })],
+    [true, true, false, false], 'reply gate: type/city count, region alone and errors do not');
+  const carboy = { start_date: '2026-12-09 18:00:00', description: '<p>Solo show — Candlelight</p>',
+    venue: { id: 7, venue: 'Carboy winery', city: '', stateprovince: 'CO' } };
+  const pc = planReplyWrites({ city: 'Colorado Springs' }, carboy);
+  eq([pc.ask, pc.patch, pc.venue && [pc.venue.venue, pc.venue.city, pc.venue.matchCity]],
+    [null, {}, ['Carboy winery', 'Colorado Springs', true]], 'City:-only reply repoints this event to a name+city venue, writes nothing else');
+  eq(planReplyWrites({ city: 'colorado springs' }, { ...carboy, venue: { ...carboy.venue, city: 'Colorado Springs' } }).venue,
+    null, 'City: matching the current venue is a no-op');
+  eq(planReplyWrites({ city: 'X' }, { ...carboy, venue: [] }).ask, 'no-venue', 'City: on a venue-less event asks for Venue:');
+  eq(planReplyWrites({ city: 'X' }, { ...carboy, venue: { id: 1, venue: 'Online' } }).ask, 'online', 'City: on an online show asks instead of writing');
+  eq(planReplyWrites({ notes: 'Wine & food' }, carboy).patch.description, 'Solo show — Wine & food', 'Notes-only reply keeps the lineup');
+  eq(planReplyWrites({ type: 'duo' }, carboy).patch.description, 'Duo show — Candlelight', 'Type-only reply keeps the notes');
+  eq(splitDescription('Just a note'), { type: null, notes: 'Just a note' }, 'free-text description has no lineup');
+  const body = confirmBody({ date: '2026-12-09', start: '18:00', end: '21:00', venue: 'Carboy Winery', city: 'Colorado Springs', type: 'solo' },
+    { title: 'Live at Carboy Winery' });
+  eq([body.includes('6:00pm–9:00pm Mountain'), body.includes('Solo show'), body.includes('18:00')], [true, true, false],
+    'confirm email renders 12-hour times and the lineup');
   console.log('All parser self-tests passed.');
 }
 
