@@ -10,6 +10,6 @@ test("EPK is in the site nav, between Poetry and Booking", () => {
   assert.equal(labels.indexOf("Booking"), labels.indexOf("EPK") + 1);
 });
 
-test("nav stays at nine items — the 768–1023 tablet band in Nav.module.css is sized for nine", () => {
-  assert.equal(NAV_ITEMS.length, 9);
+test("nav stays at eight items — the 768–1023 tablet band in Nav.module.css fits eight", () => {
+  assert.equal(NAV_ITEMS.length, 8);
 });

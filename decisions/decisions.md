@@ -2393,3 +2393,29 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 **PDF.** The Info Title is rewritten to "Meghan Clarisse - EPK One-Sheet" and the stale Canva XMP (which carried the template name) is dropped. The page render is byte-identical to the previous preview.
 
 **Tests.** Tests-only commit first. Red run: against `origin/main`, all 3 new tests fail (nav entry, nav count, one-sheet module). After the fix, 103/103 pass. Planted bugs (`/epkx`, `missing.pdf`) both turn the suite red. `ONE_SHEET` moved to `src/lib/epk-one-sheet.ts` so it's importable.
+## 2026-11-05 — A draft WordPress page unbuilds its routes instead of failing the build
+
+**Decided by:** Levi, in chat, 2026-11-05: keep the page "available in wordpress, but not published or showing in the live navigation."
+
+**Context.** Page 4350 (Shadows of a Ghost Town) went to Draft at 2026-11-05 16:46Z, saved by Admin12. WordPress answers anonymous reads of a draft with 401 `rest_forbidden`. `fetch-releases.mjs` treated that as a failure, so every production deploy and preview failed from 17:12Z on. Page 4350 feeds two routes: the FYC campaign and the album's release page.
+
+**Decision.**
+1. A `401 rest_forbidden` on a page read means unpublished (`scripts/lib/wp-unpublished.mjs`). Every other failure, including a 401 with another code, still fails the build.
+2. The release row stays on the discography with no detail page. `/music/shadows-of-a-ghost-town` and its reviews route stop being built.
+3. `/fyc/shadows-of-a-ghost-town` returns 404. `fetch-fyc-assets.mjs` writes a null manifest entry, and `getFycCampaign` returns null.
+4. The FYC nav entry is removed. `/fyc` and `/shadows-of-a-ghost-town` redirect to `/music`, as temporary redirects.
+
+**Reversal.** Publishing page 4350 restores all routes on the next build. The nav entry and the two redirects are code and must be put back by hand.
+
+**Verification.** Unit tests in `scripts/lib/wp-unpublished.test.mjs`, `src/lib/fyc-content.test.ts` and `src/components/Nav/fyc-nav.test.ts`. The full build path can run only on CI, because the Mac is refused by Mod_Security: the PR's `deploy-preview` is the proof.
+## 2026-11-05 — megcmusicbot joins the author allowlist
+
+**Decided by:** Levi, in chat, 2026-11-05.
+
+**Context.** `author-allowlist` is the only required status check on `main`, and the ruleset has no bypass actors. PRs #173 and #175 were opened by `megcmusicbot`, so they could not merge even after Levi's instruction.
+
+**Decision.** Add `megcmusicbot` to the case list in `.github/workflows/author-allowlist.yml`.
+
+**Consequence.** The check no longer stops a bot-authored PR. `megcmusicbot` has write access and has merged its own PR before (#167), so a PR from it can now reach `main` with no human step. Merge authority under ADR-018 is unchanged by this entry; only GitHub's enforcement of it is weaker. Re-running the failed job does not pick up this change, because a re-run keeps the event's original base commit. Close and reopen the PR to get a new run.
+
+**Amendment, 2026-11-05.** The FYC nav entry was removed in #178, so the nav has eight items, not nine. The 768–1023 band stays: it was measured at nine, and eight is narrower. The `previews/pr-173-epk/` snapshots still show the nine-item nav.

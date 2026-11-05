@@ -33,7 +33,7 @@ jobs:
           AUTHOR: ${{ github.event.pull_request.user.login }}
         run: |
           case "$AUTHOR" in
-            "ShokuAdmin"|"github-actions[bot]"|"dependabot[bot]")
+            "ShokuAdmin"|"megcmusicbot"|"github-actions[bot]"|"dependabot[bot]")
               echo "Author $AUTHOR is on the list."
               ;;
             *)

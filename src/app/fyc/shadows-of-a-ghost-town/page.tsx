@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { PlayCircle } from "@phosphor-icons/react/dist/ssr/PlayCircle";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
@@ -17,6 +18,7 @@ const SLUG = "shadows-of-a-ghost-town";
 // renders only once its content exists, so the page grows as she fills it in.
 export async function generateMetadata(): Promise<Metadata> {
   const FYC = await getFycCampaign(SLUG);
+  if (!FYC) notFound();
   return {
     title: `For Your Consideration — ${FYC.album}`,
     description: `${FYC.album} (2025) by ${FYC.artist} — for your consideration. Press, live performances, and lyrics from her full-length album, an evocative exploration of death, nature, and the soul of the West.`,
@@ -39,6 +41,7 @@ const LISTEN = [
 
 export default async function FycLivePage() {
   const FYC = await getFycCampaign(SLUG);
+  if (!FYC) notFound();
   const sections = {
     press: () =>
       FYC.quotes.length > 0 ? (
