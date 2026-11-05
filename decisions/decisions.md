@@ -2418,4 +2418,6 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 
 **Consequence.** The check no longer stops a bot-authored PR. `megcmusicbot` has write access and has merged its own PR before (#167), so a PR from it can now reach `main` with no human step. Merge authority under ADR-018 is unchanged by this entry; only GitHub's enforcement of it is weaker. Re-running the failed job does not pick up this change, because a re-run keeps the event's original base commit. Close and reopen the PR to get a new run.
 
-**Amendment, 2026-11-05.** The FYC nav entry was removed in #178, so the nav has eight items, not nine. The 768–1023 band stays: it was measured at nine, and eight is narrower. The `previews/pr-173-epk/` snapshots still show the nine-item nav.
+## 2026-11-05 — Amends the EPK nav entry: eight items, not nine
+
+The FYC nav entry was removed in #178, so the nav has eight items, not nine. The 768–1023 band stays: it was measured at nine, and eight is narrower. The `previews/pr-173-epk/` snapshots still show the nine-item nav.
