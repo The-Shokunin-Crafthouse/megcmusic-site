@@ -2369,3 +2369,13 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 **Verification.** `npm run layout:check` clean (10 groups, 6 shared sets, 10 boxes, 4 links). Unit tests: `blocks.test.ts` (links block), `fyc-content.test.ts` (More links), `page-layout.test.ts`, `shared-sections.test.ts` pass; `tests/page-layout.test.php` runs in `wp-plugin-lint.yml`. `tsc --noEmit` clean. Not proven here: the editor render of an appended row with no sub-field values (expected: ACF falls back to the sub-field default, hidden off) — check on 4350 after the plugin self-updates, per README 1.8.0 *Verify*. The three test failures in this VM (`epk-thumbs` → sharp, two `sw.test.ts`) fail identically on main here and are the macOS `node_modules` on Linux (learning #211); CI is the record.
 
 **Still open.** Section headings ("What People Are Saying", "Listen", "More") are still code. Making them fields is a separate decision: each is also an `aria-labelledby` anchor and a SectionLabel, and nothing asked for it today.
+
+## 2026-11-05 — megcmusicbot joins the author allowlist
+
+**Decided by:** Levi, in chat, 2026-11-05.
+
+**Context.** `author-allowlist` is the only required status check on `main`, and the ruleset has no bypass actors. PRs #173 and #175 were opened by `megcmusicbot`, so they could not merge even after Levi's instruction.
+
+**Decision.** Add `megcmusicbot` to the case list in `.github/workflows/author-allowlist.yml`.
+
+**Consequence.** The check no longer stops a bot-authored PR. `megcmusicbot` has write access and has merged its own PR before (#167), so a PR from it can now reach `main` with no human step. Merge authority under ADR-018 is unchanged by this entry; only GitHub's enforcement of it is weaker. Re-running the failed job does not pick up this change, because a re-run keeps the event's original base commit. Close and reopen the PR to get a new run.
