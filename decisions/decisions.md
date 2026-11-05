@@ -2369,3 +2369,15 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 **Verification.** `npm run layout:check` clean (10 groups, 6 shared sets, 10 boxes, 4 links). Unit tests: `blocks.test.ts` (links block), `fyc-content.test.ts` (More links), `page-layout.test.ts`, `shared-sections.test.ts` pass; `tests/page-layout.test.php` runs in `wp-plugin-lint.yml`. `tsc --noEmit` clean. Not proven here: the editor render of an appended row with no sub-field values (expected: ACF falls back to the sub-field default, hidden off) — check on 4350 after the plugin self-updates, per README 1.8.0 *Verify*. The three test failures in this VM (`epk-thumbs` → sharp, two `sw.test.ts`) fail identically on main here and are the macOS `node_modules` on Linux (learning #211); CI is the record.
 
 **Still open.** Section headings ("What People Are Saying", "Listen", "More") are still code. Making them fields is a separate decision: each is also an `aria-labelledby` anchor and a SectionLabel, and nothing asked for it today.
+
+## 2026-11-05 — EPK in the site nav; Meg's one-sheet PDF featured on /epk
+
+**Context.** `/epk` has been live since Phase 3 but was never in `NAV_ITEMS`, so visitors could only reach it from links. Meg asked for it in the menu and for her Canva one-sheet (`Meghan-Clarisse-EPK-1.pdf`, 1 page, Sept 2026) to be on the page.
+
+**Decisions.**
+1. **Nav:** `{ label: "EPK", href: "/epk" }` between Poetry and Booking (the EPK → book flow). Shared by desktop nav and mobile menu; verified 9 items fit at 1024px.
+2. **One-sheet:** the PDF and a 110-dpi JPEG preview ship from `public/press/`, rendered as a featured block (preview + *Download PDF* + *View full size*) at the top of the Press Kit section, so it moves with that section in Meg's Page layout order. Served from the front-end, not WP, because the WP host blocks datacenter reads.
+
+**Rationale.** Smallest change that gets the file live today. The WP-native path (attach to a Press Kit `kit_items` row) still works and is how she'd add the Solo/Full Band kits; the one-sheet is a code constant to swap when she updates it.
+
+**Still open.** The page's WP facts (Based: Front Range; Formats: Solo · Full Band) differ from the one-sheet (Denver-based; Solo · Duo · Full Band) — Meg's call in WP.

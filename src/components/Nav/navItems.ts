@@ -13,6 +13,7 @@ export const NAV_ITEMS: NavItem[] = [
   { label: "FYC", href: "/fyc/shadows-of-a-ghost-town", match: "/fyc" },
   { label: "Media", href: "/media" },
   { label: "Poetry", href: "/poetry" },
+  { label: "EPK", href: "/epk" },
   { label: "Booking", href: "/booking" },
   { label: "Shop", href: "/shop" },
 ];

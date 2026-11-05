@@ -236,6 +236,47 @@
   color: var(--mc-text-primary);
 }
 
+/* ---- Featured one-sheet (preview + download) --------------------------- */
+.oneSheet {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mc-space-5);
+  align-items: center;
+  margin-bottom: var(--mc-space-6);
+}
+
+@media (min-width: 720px) {
+  .oneSheet {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: var(--mc-space-6);
+  }
+}
+
+.oneSheetPreview {
+  display: block;
+  max-width: 420px;
+  border-radius: var(--mc-radius-card);
+  overflow: hidden;
+  box-shadow: var(--mc-shadow-card-hover);
+}
+
+.oneSheetPreview img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.oneSheetPreview:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+}
+
+.oneSheetText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+}
+
 /* ---- Press-kit download rows (reuse EPK section register) --------------- */
 .kitList {
   margin: 0;

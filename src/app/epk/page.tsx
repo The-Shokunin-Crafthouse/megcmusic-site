@@ -12,7 +12,15 @@ import { getEpkContent } from "@/lib/epk-content";
 import { PageLayout } from "@/components/Blocks/PageLayout";
 
 import { HOME_CONTENT } from "@/lib/home-content";
+import { FileArrowDown } from "@phosphor-icons/react/dist/ssr/FileArrowDown";
 import styles from "./epk.module.css";
+
+// Meg's Canva one-sheet, served from /public so it never depends on the WP host
+// (which blocks datacenter IPs). Swap the PDF + preview to update it.
+const ONE_SHEET = {
+  pdf: "/press/meghan-clarisse-epk.pdf",
+  preview: "/press/meghan-clarisse-epk-preview.jpg",
+} as const;
 import { heroImage } from "@/lib/hero-images";
 
 // The named kit rows, facts and copy come from Meg's Press Kit page, bundled at
@@ -96,6 +104,50 @@ export default async function EpkPage() {
       <section className={styles.section} aria-labelledby="epk-kit">
         <div className={styles.inner}>
           <SectionLabel id="epk-kit">Press Kit</SectionLabel>
+          <div className={styles.oneSheet}>
+            <a
+              className={styles.oneSheetPreview}
+              href={ONE_SHEET.pdf}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src={ONE_SHEET.preview}
+                alt="Meghan Clarisse EPK one-sheet: bio, nominations and awards, notable performances, and music"
+                width={910}
+                height={1287}
+                loading="lazy"
+                decoding="async"
+              />
+              <span className={styles.srOnly}> (opens the PDF in a new tab)</span>
+            </a>
+            <div className={styles.oneSheetText}>
+              <h3 className={styles.kitTitle}>EPK One-Sheet</h3>
+              <p className={styles.kitDesc}>
+                Bio, nominations &amp; awards, notable performances, and music —
+                one page, ready to print or forward.
+              </p>
+              <div className={styles.resourcesActions}>
+                <a
+                  className={styles.kitAction}
+                  href={ONE_SHEET.pdf}
+                  download
+                >
+                  Download PDF
+                  <FileArrowDown size={16} weight="bold" aria-hidden="true" />
+                </a>
+                <a
+                  className={styles.ctaGhost}
+                  href={ONE_SHEET.pdf}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View full size
+                  <ArrowUpRight size={16} weight="bold" aria-hidden="true" />
+                </a>
+              </div>
+            </div>
+          </div>
           <EpkPressKit named={epk.kitItems} serverAssets={assets} />
         </div>
       </section>
