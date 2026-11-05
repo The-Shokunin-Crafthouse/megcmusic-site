@@ -2370,6 +2370,29 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 
 **Still open.** Section headings ("What People Are Saying", "Listen", "More") are still code. Making them fields is a separate decision: each is also an `aria-labelledby` anchor and a SectionLabel, and nothing asked for it today.
 
+## 2026-11-05 — EPK in the site nav; Meg's one-sheet PDF featured on /epk
+
+**Context.** `/epk` has been live since Phase 3 but was never in `NAV_ITEMS`, so visitors could only reach it from links. Meg asked for it in the menu and for her Canva one-sheet (`Meghan-Clarisse-EPK-1.pdf`, 1 page, Sept 2026) to be on the page.
+
+**Decisions.**
+1. **Nav:** `{ label: "EPK", href: "/epk" }` between Poetry and Booking (the EPK → book flow). Shared by desktop nav and mobile menu; verified 9 items fit at 1024px.
+2. **One-sheet:** the PDF and a 110-dpi JPEG preview ship from `public/press/`, rendered as a featured block (preview + *Download PDF* + *View full size*) at the top of the Press Kit section, so it moves with that section in Meg's Page layout order. Served from the front-end, not WP, because the WP host blocks datacenter reads.
+
+**Rationale.** Smallest change that gets the file live today. The WP-native path (attach to a Press Kit `kit_items` row) still works and is how she'd add the Solo/Full Band kits; the one-sheet is a code constant to swap when she updates it.
+
+**Still open.** The page's WP facts (Based: Front Range; Formats: Solo Acoustic · Full Band) differ from the one-sheet (Denver-based; Solo · Duo · Full Band) — Meg's call in WP.
+
+## 2026-11-05 — EPK nav + one-sheet, revised after the Evaluator FAIL on PR #173
+
+**C-1 nav overlap.** Nine items made the desktop pill 647px wide (Open Sans), but at 768 only 548px clears the pinned logo. Fix: a **768–1023 tablet band** in `Nav.module.css` with gap `--mc-space-1`, inline padding `--mc-space-3` and links at 0.875rem, giving a 485px pill with 71px of clearance at 768. Breakpoints are unchanged: the mobile menu still ends at 767 and the full-size pill starts at 1024. Measured with real Open Sans (fontsource, injected) at 768, 800, 880, 1000, 1023, 1024, 1280, 1440 and 1920. Snapshots are in `previews/pr-173-epk/`. `navItems.test.ts` pins the count at nine, so a tenth item fails a test instead of quietly re-breaking 768.
+
+**Blocklist (outline pills / arrow icons).** *Download PDF* is now the filled `.cta`, with no icon and the file size in the label. *View full size* is a plain underlined text link with a screen-reader new-tab notice. No exception logged; none needed.
+
+**States + tokens.** The preview card has default, hover, active and focus-visible states (disabled is N/A). It rests on `--mc-shadow-card` and lifts to `--mc-shadow-card-hover`. The raw 420px max-width became `min(100%, 26.25rem)`.
+
+**PDF.** The Info Title is rewritten to "Meghan Clarisse - EPK One-Sheet" and the stale Canva XMP (which carried the template name) is dropped. The page render is byte-identical to the previous preview.
+
+**Tests.** Tests-only commit first. Red run: against `origin/main`, all 3 new tests fail (nav entry, nav count, one-sheet module). After the fix, 103/103 pass. Planted bugs (`/epkx`, `missing.pdf`) both turn the suite red. `ONE_SHEET` moved to `src/lib/epk-one-sheet.ts` so it's importable.
 ## 2026-11-05 — A draft WordPress page unbuilds its routes instead of failing the build
 
 **Decided by:** Levi, in chat, 2026-11-05: keep the page "available in wordpress, but not published or showing in the live navigation."
@@ -2394,3 +2417,7 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 **Decision.** Add `megcmusicbot` to the case list in `.github/workflows/author-allowlist.yml`.
 
 **Consequence.** The check no longer stops a bot-authored PR. `megcmusicbot` has write access and has merged its own PR before (#167), so a PR from it can now reach `main` with no human step. Merge authority under ADR-018 is unchanged by this entry; only GitHub's enforcement of it is weaker. Re-running the failed job does not pick up this change, because a re-run keeps the event's original base commit. Close and reopen the PR to get a new run.
+
+## 2026-11-05 — Amends the EPK nav entry: eight items, not nine
+
+The FYC nav entry was removed in #178, so the nav has eight items, not nine. The 768–1023 band stays: it was measured at nine, and eight is narrower. The `previews/pr-173-epk/` snapshots still show the nine-item nav.

@@ -12,6 +12,7 @@ import { getEpkContent } from "@/lib/epk-content";
 import { PageLayout } from "@/components/Blocks/PageLayout";
 
 import { HOME_CONTENT } from "@/lib/home-content";
+import { ONE_SHEET } from "@/lib/epk-one-sheet";
 import styles from "./epk.module.css";
 import { heroImage } from "@/lib/hero-images";
 
@@ -96,6 +97,45 @@ export default async function EpkPage() {
       <section className={styles.section} aria-labelledby="epk-kit">
         <div className={styles.inner}>
           <SectionLabel id="epk-kit">Press Kit</SectionLabel>
+          <div className={styles.oneSheet}>
+            <a
+              className={styles.oneSheetPreview}
+              href={ONE_SHEET.pdf}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <img
+                src={ONE_SHEET.preview}
+                alt="Meghan Clarisse EPK one-sheet: bio, nominations and awards, notable performances, and music"
+                width={910}
+                height={1287}
+                loading="lazy"
+                decoding="async"
+              />
+              <span className={styles.srOnly}> (opens the PDF in a new tab)</span>
+            </a>
+            <div className={styles.oneSheetText}>
+              <h3 className={styles.kitTitle}>EPK One-Sheet</h3>
+              <p className={styles.kitDesc}>
+                Bio, nominations &amp; awards, notable performances, and music —
+                one page, ready to print or forward.
+              </p>
+              <div className={styles.oneSheetActions}>
+                <a className={styles.cta} href={ONE_SHEET.pdf} download>
+                  Download PDF ({ONE_SHEET.sizeLabel})
+                </a>
+                <a
+                  className={styles.oneSheetLink}
+                  href={ONE_SHEET.pdf}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View full size
+                  <span className={styles.srOnly}> (opens in a new tab)</span>
+                </a>
+              </div>
+            </div>
+          </div>
           <EpkPressKit named={epk.kitItems} serverAssets={assets} />
         </div>
       </section>
