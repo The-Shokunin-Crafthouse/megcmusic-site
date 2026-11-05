@@ -185,7 +185,7 @@ async function main() {
 
   await writeFile(path.join(OUT_DIR, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
   const counts = Object.entries(manifest)
-    .map(([id, s]) => `${id}:${s.length}`)
+    .map(([id, s]) => `${id}:${s === null ? "unpublished" : s.length}`)
     .join(", ");
   console.log(`wrote manifest.json (${counts})`);
 }
