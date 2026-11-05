@@ -2380,4 +2380,16 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 
 **Rationale.** Smallest change that gets the file live today. The WP-native path (attach to a Press Kit `kit_items` row) still works and is how she'd add the Solo/Full Band kits; the one-sheet is a code constant to swap when she updates it.
 
-**Still open.** The page's WP facts (Based: Front Range; Formats: Solo · Full Band) differ from the one-sheet (Denver-based; Solo · Duo · Full Band) — Meg's call in WP.
+**Still open.** The page's WP facts (Based: Front Range; Formats: Solo Acoustic · Full Band) differ from the one-sheet (Denver-based; Solo · Duo · Full Band) — Meg's call in WP.
+
+## 2026-11-05 — EPK nav + one-sheet, revised after the Evaluator FAIL on PR #173
+
+**C-1 nav overlap.** Nine items made the desktop pill 647px wide (Open Sans), but at 768 only 548px clears the pinned logo. Fix: a **768–1023 tablet band** in `Nav.module.css` with gap `--mc-space-1`, inline padding `--mc-space-3` and links at 0.875rem, giving a 485px pill with 71px of clearance at 768. Breakpoints are unchanged: the mobile menu still ends at 767 and the full-size pill starts at 1024. Measured with real Open Sans (fontsource, injected) at 768, 800, 880, 1000, 1023, 1024, 1280, 1440 and 1920. Snapshots are in `previews/pr-173-epk/`. `navItems.test.ts` pins the count at nine, so a tenth item fails a test instead of quietly re-breaking 768.
+
+**Blocklist (outline pills / arrow icons).** *Download PDF* is now the filled `.cta`, with no icon and the file size in the label. *View full size* is a plain underlined text link with a screen-reader new-tab notice. No exception logged; none needed.
+
+**States + tokens.** The preview card has default, hover, active and focus-visible states (disabled is N/A). It rests on `--mc-shadow-card` and lifts to `--mc-shadow-card-hover`. The raw 420px max-width became `min(100%, 26.25rem)`.
+
+**PDF.** The Info Title is rewritten to "Meghan Clarisse - EPK One-Sheet" and the stale Canva XMP (which carried the template name) is dropped. The page render is byte-identical to the previous preview.
+
+**Tests.** Tests-only commit first. Red run: against `origin/main`, all 3 new tests fail (nav entry, nav count, one-sheet module). After the fix, 103/103 pass. Planted bugs (`/epkx`, `missing.pdf`) both turn the suite red. `ONE_SHEET` moved to `src/lib/epk-one-sheet.ts` so it's importable.

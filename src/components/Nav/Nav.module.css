@@ -150,6 +150,20 @@
   }
 }
 
+/* Tablet band (768–1023): the pinned logo takes the top-left corner, so the
+   nine-item pill tightens here to clear it (Evaluator C-1 on PR #173,
+   measured with Open Sans: 647px pill vs 548px of room at 768). */
+@media (min-width: 768px) and (max-width: 1023px) {
+  .list {
+    gap: var(--mc-space-1);
+    padding-inline: var(--mc-space-3);
+  }
+
+  .link {
+    font-size: 0.875rem;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .link {
     transition: none;
