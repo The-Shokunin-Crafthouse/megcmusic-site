@@ -2385,3 +2385,12 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 **Reversal.** Publishing page 4350 restores all routes on the next build. The nav entry and the two redirects are code and must be put back by hand.
 
 **Verification.** Unit tests in `scripts/lib/wp-unpublished.test.mjs`, `src/lib/fyc-content.test.ts` and `src/components/Nav/fyc-nav.test.ts`. The full build path can run only on CI, because the Mac is refused by Mod_Security: the PR's `deploy-preview` is the proof.
+## 2026-11-05 — megcmusicbot joins the author allowlist
+
+**Decided by:** Levi, in chat, 2026-11-05.
+
+**Context.** `author-allowlist` is the only required status check on `main`, and the ruleset has no bypass actors. PRs #173 and #175 were opened by `megcmusicbot`, so they could not merge even after Levi's instruction.
+
+**Decision.** Add `megcmusicbot` to the case list in `.github/workflows/author-allowlist.yml`.
+
+**Consequence.** The check no longer stops a bot-authored PR. `megcmusicbot` has write access and has merged its own PR before (#167), so a PR from it can now reach `main` with no human step. Merge authority under ADR-018 is unchanged by this entry; only GitHub's enforcement of it is weaker. Re-running the failed job does not pick up this change, because a re-run keeps the event's original base commit. Close and reopen the PR to get a new run.
