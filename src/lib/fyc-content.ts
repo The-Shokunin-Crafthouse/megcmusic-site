@@ -84,7 +84,20 @@ function siteHref(url: string): string {
   }
 }
 
-function readLyricManifest(pageId: number): FycLyricSheet[] {
+type LyricManifest = Record<string, FycLyricSheet[] | null>;
+
+/** A page's sheets, or null when scripts/fetch-fyc-assets.mjs found it unpublished. */
+export function lyricSheetsFrom(manifest: LyricManifest, pageId: number): FycLyricSheet[] | null {
+  const sheets = manifest[String(pageId)];
+  if (sheets === undefined) {
+    throw new Error(
+      `FYC build failed: manifest.json has no entry for WP page ${pageId} — re-run scripts/fetch-fyc-assets.mjs.`,
+    );
+  }
+  return sheets;
+}
+
+function readLyricManifest(pageId: number): FycLyricSheet[] | null {
   const manifestPath = path.join(process.cwd(), "public", "images", "fyc", "manifest.json");
   let raw: string;
   try {
@@ -94,14 +107,7 @@ function readLyricManifest(pageId: number): FycLyricSheet[] {
       "FYC build failed: public/images/fyc/manifest.json missing — scripts/fetch-fyc-assets.mjs must run before the build (it does in `npm run build`).",
     );
   }
-  const manifest = JSON.parse(raw) as Record<string, FycLyricSheet[]>;
-  const sheets = manifest[String(pageId)];
-  if (!sheets) {
-    throw new Error(
-      `FYC build failed: manifest.json has no entry for WP page ${pageId} — re-run scripts/fetch-fyc-assets.mjs.`,
-    );
-  }
-  return sheets;
+  return lyricSheetsFrom(JSON.parse(raw) as LyricManifest, pageId);
 }
 
 interface AcfRepeaterRow {
@@ -157,9 +163,12 @@ export function moreLinks(raw: unknown, albumHref: string): FycLink[] {
   ];
 }
 
-export async function getFycCampaign(slug: string): Promise<FycCampaign> {
+/** The campaign, or null when its WP page is unpublished. */
+export async function getFycCampaign(slug: string): Promise<FycCampaign | null> {
   const pageId = FYC_PAGE_IDS[slug];
   if (!pageId) throw new Error(`Unknown FYC campaign slug: ${slug}`);
+  const lyricSheets = readLyricManifest(pageId);
+  if (lyricSheets === null) return null;
   const acf = await fetchAcf(pageId);
   const albumHref = siteHref(text(acf.album_link)) || "/music";
 
@@ -187,7 +196,7 @@ export async function getFycCampaign(slug: string): Promise<FycCampaign> {
     videos: rows(acf.videos)
       .map((r) => ({ id: youtubeId(text(r.youtube_url)), title: text(r.title) }))
       .filter((v) => v.id),
-    lyricSheets: readLyricManifest(pageId),
+    lyricSheets,
     albumHref,
     moreLinks: moreLinks(acf.more_links, albumHref),
   };

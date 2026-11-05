@@ -8,21 +8,20 @@ const nextConfig: NextConfig = {
   staticPageGenerationTimeout: 180,
   async redirects() {
     return [
-      // /fyc has no page of its own — it permanently points at the CURRENT
-      // campaign (old /fyc links from the 2024 cycle keep working). Retarget
-      // this when a future campaign ships; keep it in lockstep with the FYC
-      // nav href (navItems.ts) and FYC_PAGE_IDS in src/lib/fyc-content.ts.
+      // /fyc has no page of its own. The Shadows campaign page is a draft in
+      // WordPress (decisions.md 2026-11-05), so both old links land on /music.
+      // These stay temporary: when a campaign returns, retarget them and add
+      // the FYC nav entry back.
       {
         source: "/fyc",
-        destination: "/fyc/shadows-of-a-ghost-town",
-        permanent: true,
+        destination: "/music",
+        permanent: false,
       },
-      // The campaign's old WordPress path, shared before the cutover — those
-      // links now land on the apex, where they 404 without this.
+      // The campaign's old WordPress path, shared before the cutover.
       {
         source: "/shadows-of-a-ghost-town",
-        destination: "/fyc/shadows-of-a-ghost-town",
-        permanent: true,
+        destination: "/music",
+        permanent: false,
       },
     ];
   },

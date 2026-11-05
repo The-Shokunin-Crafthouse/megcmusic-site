@@ -34,6 +34,7 @@ import { writeFileSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { createHash } from "node:crypto";
 import path from "node:path";
 import { withRetry } from "./lib/retry.mjs";
+import { isUnpublishedPage } from "./lib/wp-unpublished.mjs";
 
 const DEFAULT_ORIGIN = "https://admin.megcmusic.com";
 function validOrigin(value) {
@@ -85,9 +86,11 @@ const fail = (message) => {
   process.exit(1);
 };
 
-async function getJson(url, what) {
+/** `allowUnpublished` returns null for a draft page instead of failing. */
+async function getJson(url, what, { allowUnpublished = false } = {}) {
   return withRetry(async () => {
     const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+    if (allowUnpublished && (await isUnpublishedPage(res))) return null;
     if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} reading ${what}`);
     return res.json();
   });
@@ -166,7 +169,13 @@ for (const [key, target] of Object.entries(HERO_PAGES)) {
     const json = await getJson(
       `${API}/pages/${pageId}?acf_format=standard&_fields=acf`,
       `page ${pageId}`,
+      { allowUnpublished: true },
     );
+    if (json === null) {
+      console.warn(`hero-images: ${key} (WP page ${pageId}) is unpublished; using the fallback`);
+      chosen[key] = null;
+      continue;
+    }
     const acf = json?.acf ?? {};
     if (key === "home") {
       const site = imageOf(acf.hero_photo);
