@@ -17,7 +17,10 @@ dispatch with a dry-run flag.
 1. Meg emails the pipeline address. Template (forgiving field names, one per
    line): `Date:` `Venue:` `City:` (or `Location:`) `Time:` and optional
    `Type:` (solo / duo / band — written into the event description as
-   "Solo show", etc.) `Tickets:` `Title:` `Notes:` `Address:`. Online shows: `Venue: Online` + `Stream: <link>`.
+   "Solo show", etc.) `Tickets:` `Title:` `Notes:` `Address:`.
+   Replying `City: X` on its own moves *that* show to a venue with the same
+   name and that city (it reuses one or creates it). It never edits a venue
+   other shows share. Online shows: `Venue: Online` + `Stream: <link>`.
 2. Pipeline parses deterministically (no AI). Missing date/venue or an
    unreadable date → it replies asking, with the template. Never guesses.
 3. Venue matched against existing WP venues by normalized name; created if
