@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { PlayCircle } from "@phosphor-icons/react/dist/ssr/PlayCircle";
 import { ArrowUpRight } from "@phosphor-icons/react/dist/ssr/ArrowUpRight";
 import { SectionLabel } from "@/components/SectionLabel/SectionLabel";
@@ -16,6 +17,7 @@ const SLUG = "kindred-spirits";
 // Content comes from the WP page Meg edits (ACF fields, read at build).
 export async function generateMetadata(): Promise<Metadata> {
   const FYC = await getFycCampaign(SLUG);
+  if (!FYC) notFound();
   return {
     title: `For Your Consideration — ${FYC.album}`,
     description: `An archived awards submission for ${FYC.album} by ${FYC.artist} — ${FYC.category}, ${FYC.cycle}.`,
@@ -31,6 +33,7 @@ const LISTEN = [
 
 export default async function FycPage() {
   const FYC = await getFycCampaign(SLUG);
+  if (!FYC) notFound();
   const VIDEO = FYC.videos[0];
   const sections = {
     press: () => null,

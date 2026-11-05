@@ -32,6 +32,7 @@ import { mkdir, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
 import process from "node:process";
 import { withRetry } from "./lib/retry.mjs";
+import { isUnpublishedPage } from "./lib/wp-unpublished.mjs";
 
 // Env overrides are used only when they parse as absolute URLs — the Vercel
 // env delivers these set-but-invalid (runs 33989616503, 34045385710: fetch
@@ -99,9 +100,11 @@ function extensionOf(buf) {
   return "";
 }
 
+/** Returns null for a draft page. */
 async function fetchJson(url) {
   return withRetry(async () => {
     const res = await fetch(url, { signal: AbortSignal.timeout(20000) });
+    if (await isUnpublishedPage(res)) return null;
     if (!res.ok) throw new Error(`GET ${url} → HTTP ${res.status}`);
     return res.json();
   });
@@ -128,6 +131,13 @@ async function main() {
     let gallery;
     try {
       const page = await fetchJson(`${API}/pages/${pageId}?acf_format=standard&_fields=acf.lyric_sheets`);
+      if (page === null) {
+        // A draft campaign page. The null entry tells fyc-content.ts the
+        // route has nothing to show.
+        console.warn(`FYC page ${pageId} is unpublished; its route renders 404`);
+        manifest[pageId] = null;
+        continue;
+      }
       const raw = page?.acf?.lyric_sheets;
       gallery = Array.isArray(raw) ? raw : []; // ACF returns false for an empty gallery
     } catch (e) {
@@ -175,7 +185,7 @@ async function main() {
 
   await writeFile(path.join(OUT_DIR, "manifest.json"), JSON.stringify(manifest, null, 2) + "\n");
   const counts = Object.entries(manifest)
-    .map(([id, s]) => `${id}:${s.length}`)
+    .map(([id, s]) => `${id}:${s === null ? "unpublished" : s.length}`)
     .join(", ");
   console.log(`wrote manifest.json (${counts})`);
 }

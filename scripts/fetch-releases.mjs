@@ -30,6 +30,7 @@
 import { writeFileSync, mkdirSync } from "node:fs";
 import path from "node:path";
 import { withRetry } from "./lib/retry.mjs";
+import { isUnpublishedPage } from "./lib/wp-unpublished.mjs";
 
 const DEFAULT_ORIGIN = "https://admin.megcmusic.com";
 function validOrigin(value) {
@@ -55,9 +56,11 @@ const fail = (message) => {
   process.exit(1);
 };
 
-async function getJson(url, what) {
+/** `allowUnpublished` returns null for a draft page instead of failing. */
+async function getJson(url, what, { allowUnpublished = false } = {}) {
   return withRetry(async () => {
     const res = await fetch(url, { signal: AbortSignal.timeout(TIMEOUT_MS) });
+    if (allowUnpublished && (await isUnpublishedPage(res))) return null;
     if (!res.ok) throw new Error(`HTTP ${res.status} ${res.statusText} reading ${what}`);
     return res.json();
   });
@@ -71,7 +74,13 @@ const pageCache = new Map();
 /** A release page's slug and its ACF fields, read once. */
 async function pageOf(id, what) {
   if (pageCache.has(id)) return pageCache.get(id);
-  const row = await getJson(`${API}/pages/${id}?acf_format=standard&_fields=slug,acf`, what);
+  const row = await getJson(`${API}/pages/${id}?acf_format=standard&_fields=slug,acf`, what, {
+    allowUnpublished: true,
+  });
+  if (row === null) {
+    pageCache.set(id, null);
+    return null;
+  }
   const slug = text(row?.slug);
   if (!slug) throw new Error(`${what} (id ${id}) has no slug`);
   const page = { slug, acf: row?.acf && typeof row.acf === "object" ? row.acf : {} };
@@ -178,10 +187,16 @@ for (const row of rawRows) {
   try {
     if (pageId) {
       const page = await pageOf(pageId, `the page for "${title}"`);
-      pageSlug = page.slug;
-      reviews = reviewRows(page.acf);
-      layout = layoutRows(page.acf?.layout_release);
-      pressPages = await pressPagesFor(reviews, title);
+      if (page) {
+        pageSlug = page.slug;
+        reviews = reviewRows(page.acf);
+        layout = layoutRows(page.acf?.layout_release);
+        pressPages = await pressPagesFor(reviews, title);
+      } else {
+        // A draft release page: the row stays on the discography with no
+        // detail page. Publishing the page brings it back on the next build.
+        console.warn(`releases: the page for "${title}" (WP page ${pageId}) is unpublished; no detail page`);
+      }
     }
     if (productId) productSlug = await slugOf("product", productId, `the shop item for "${title}"`);
   } catch (e) {

@@ -2379,3 +2379,54 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 **Verification.** `SELFTEST=1 node scripts/show-pipeline/pipeline.mjs`: 13 new assertions, covering parse, normalization, description round-trip, 12-hour display, the reply gate, every `planReplyWrites` branch, and `confirmBody` output. Mutations of the City branch, the gate's `type`, the 12-hour email and notes-merge each turn it red (Evaluator M7, M8 and M9 were green before). Revised after the 2026-11-05 Evaluator FAIL on PR #175. Not proven here: `POST /venues` and event repoint against live TEC (WP blocks datacenter IPs). The destination re-read throws loudly if the repoint doesn't land.
 
 **Still open.** A City correction leaves the old name-only venue in TEC (harmless, unused by this event). Pre-existing: `Time: 8-10pm` stores 08:00, because the bare-hour evening rule covers only 1–7. The confirm email now shows that as "8:00am", so it's visible. Separate follow-up.
+## 2026-11-05 — EPK in the site nav; Meg's one-sheet PDF featured on /epk
+
+**Context.** `/epk` has been live since Phase 3 but was never in `NAV_ITEMS`, so visitors could only reach it from links. Meg asked for it in the menu and for her Canva one-sheet (`Meghan-Clarisse-EPK-1.pdf`, 1 page, Sept 2026) to be on the page.
+
+**Decisions.**
+1. **Nav:** `{ label: "EPK", href: "/epk" }` between Poetry and Booking (the EPK → book flow). Shared by desktop nav and mobile menu; verified 9 items fit at 1024px.
+2. **One-sheet:** the PDF and a 110-dpi JPEG preview ship from `public/press/`, rendered as a featured block (preview + *Download PDF* + *View full size*) at the top of the Press Kit section, so it moves with that section in Meg's Page layout order. Served from the front-end, not WP, because the WP host blocks datacenter reads.
+
+**Rationale.** Smallest change that gets the file live today. The WP-native path (attach to a Press Kit `kit_items` row) still works and is how she'd add the Solo/Full Band kits; the one-sheet is a code constant to swap when she updates it.
+
+**Still open.** The page's WP facts (Based: Front Range; Formats: Solo Acoustic · Full Band) differ from the one-sheet (Denver-based; Solo · Duo · Full Band) — Meg's call in WP.
+
+## 2026-11-05 — EPK nav + one-sheet, revised after the Evaluator FAIL on PR #173
+
+**C-1 nav overlap.** Nine items made the desktop pill 647px wide (Open Sans), but at 768 only 548px clears the pinned logo. Fix: a **768–1023 tablet band** in `Nav.module.css` with gap `--mc-space-1`, inline padding `--mc-space-3` and links at 0.875rem, giving a 485px pill with 71px of clearance at 768. Breakpoints are unchanged: the mobile menu still ends at 767 and the full-size pill starts at 1024. Measured with real Open Sans (fontsource, injected) at 768, 800, 880, 1000, 1023, 1024, 1280, 1440 and 1920. Snapshots are in `previews/pr-173-epk/`. `navItems.test.ts` pins the count at nine, so a tenth item fails a test instead of quietly re-breaking 768.
+
+**Blocklist (outline pills / arrow icons).** *Download PDF* is now the filled `.cta`, with no icon and the file size in the label. *View full size* is a plain underlined text link with a screen-reader new-tab notice. No exception logged; none needed.
+
+**States + tokens.** The preview card has default, hover, active and focus-visible states (disabled is N/A). It rests on `--mc-shadow-card` and lifts to `--mc-shadow-card-hover`. The raw 420px max-width became `min(100%, 26.25rem)`.
+
+**PDF.** The Info Title is rewritten to "Meghan Clarisse - EPK One-Sheet" and the stale Canva XMP (which carried the template name) is dropped. The page render is byte-identical to the previous preview.
+
+**Tests.** Tests-only commit first. Red run: against `origin/main`, all 3 new tests fail (nav entry, nav count, one-sheet module). After the fix, 103/103 pass. Planted bugs (`/epkx`, `missing.pdf`) both turn the suite red. `ONE_SHEET` moved to `src/lib/epk-one-sheet.ts` so it's importable.
+## 2026-11-05 — A draft WordPress page unbuilds its routes instead of failing the build
+
+**Decided by:** Levi, in chat, 2026-11-05: keep the page "available in wordpress, but not published or showing in the live navigation."
+
+**Context.** Page 4350 (Shadows of a Ghost Town) went to Draft at 2026-11-05 16:46Z, saved by Admin12. WordPress answers anonymous reads of a draft with 401 `rest_forbidden`. `fetch-releases.mjs` treated that as a failure, so every production deploy and preview failed from 17:12Z on. Page 4350 feeds two routes: the FYC campaign and the album's release page.
+
+**Decision.**
+1. A `401 rest_forbidden` on a page read means unpublished (`scripts/lib/wp-unpublished.mjs`). Every other failure, including a 401 with another code, still fails the build.
+2. The release row stays on the discography with no detail page. `/music/shadows-of-a-ghost-town` and its reviews route stop being built.
+3. `/fyc/shadows-of-a-ghost-town` returns 404. `fetch-fyc-assets.mjs` writes a null manifest entry, and `getFycCampaign` returns null.
+4. The FYC nav entry is removed. `/fyc` and `/shadows-of-a-ghost-town` redirect to `/music`, as temporary redirects.
+
+**Reversal.** Publishing page 4350 restores all routes on the next build. The nav entry and the two redirects are code and must be put back by hand.
+
+**Verification.** Unit tests in `scripts/lib/wp-unpublished.test.mjs`, `src/lib/fyc-content.test.ts` and `src/components/Nav/fyc-nav.test.ts`. The full build path can run only on CI, because the Mac is refused by Mod_Security: the PR's `deploy-preview` is the proof.
+## 2026-11-05 — megcmusicbot joins the author allowlist
+
+**Decided by:** Levi, in chat, 2026-11-05.
+
+**Context.** `author-allowlist` is the only required status check on `main`, and the ruleset has no bypass actors. PRs #173 and #175 were opened by `megcmusicbot`, so they could not merge even after Levi's instruction.
+
+**Decision.** Add `megcmusicbot` to the case list in `.github/workflows/author-allowlist.yml`.
+
+**Consequence.** The check no longer stops a bot-authored PR. `megcmusicbot` has write access and has merged its own PR before (#167), so a PR from it can now reach `main` with no human step. Merge authority under ADR-018 is unchanged by this entry; only GitHub's enforcement of it is weaker. Re-running the failed job does not pick up this change, because a re-run keeps the event's original base commit. Close and reopen the PR to get a new run.
+
+## 2026-11-05 — Amends the EPK nav entry: eight items, not nine
+
+The FYC nav entry was removed in #178, so the nav has eight items, not nine. The 768–1023 band stays: it was measured at nine, and eight is narrower. The `previews/pr-173-epk/` snapshots still show the nine-item nav.

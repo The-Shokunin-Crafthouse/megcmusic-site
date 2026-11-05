@@ -236,6 +236,115 @@
   color: var(--mc-text-primary);
 }
 
+/* ---- Featured one-sheet (preview + download) --------------------------- */
+.oneSheet {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--mc-space-5);
+  align-items: center;
+  margin-bottom: var(--mc-space-6);
+}
+
+@media (min-width: 720px) {
+  .oneSheet {
+    grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+    gap: var(--mc-space-6);
+  }
+}
+
+/* Five states: default (resting card shadow), hover (lift + hover shadow),
+   active (press back down), focus-visible (teal ring). Disabled is N/A. */
+.oneSheetPreview {
+  display: block;
+  max-width: min(100%, 26.25rem); /* ≈ the preview's 1:1.41 page at a readable size */
+  border-radius: var(--mc-radius-card);
+  overflow: hidden;
+  box-shadow: var(--mc-shadow-card);
+  transition:
+    transform var(--mc-motion-hover) var(--mc-ease-out-strong),
+    box-shadow var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+.oneSheetPreview img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+@media (hover: hover) {
+  .oneSheetPreview:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--mc-shadow-card-hover);
+  }
+}
+
+.oneSheetPreview:active {
+  transform: translateY(0) scale(0.99);
+  box-shadow: var(--mc-shadow-card);
+  transition-duration: var(--mc-motion-micro);
+}
+
+.oneSheetPreview:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+}
+
+.oneSheetActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--mc-space-3) var(--mc-space-5);
+}
+
+/* Secondary action as a plain text link, not a second pill. */
+.oneSheetLink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--mc-touch-target);
+  font-family: var(--mc-font-ui);
+  font-size: var(--mc-text-base);
+  font-weight: 600;
+  color: var(--mc-teal-light);
+  text-decoration: underline;
+  text-underline-offset: 0.25em;
+  text-decoration-thickness: 1px;
+  transition: color var(--mc-motion-hover) var(--mc-ease-out-strong);
+}
+
+@media (hover: hover) {
+  .oneSheetLink:hover {
+    color: var(--mc-text-primary);
+    text-decoration-thickness: 2px;
+  }
+}
+
+.oneSheetLink:active {
+  color: var(--mc-text-primary);
+}
+
+.oneSheetLink:focus-visible {
+  outline: 2px solid var(--mc-teal-light);
+  outline-offset: 3px;
+  border-radius: var(--mc-radius-pill);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oneSheetPreview,
+  .oneSheetLink {
+    transition: none;
+  }
+  .oneSheetPreview:hover,
+  .oneSheetPreview:active {
+    transform: none;
+  }
+}
+
+.oneSheetText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--mc-space-3);
+}
+
 /* ---- Press-kit download rows (reuse EPK section register) --------------- */
 .kitList {
   margin: 0;
