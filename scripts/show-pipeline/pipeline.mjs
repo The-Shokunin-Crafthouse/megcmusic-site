@@ -81,9 +81,19 @@ async function allVenues() {
 
 const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
+/**
+ * The venue a show means. A record is reused by name, and by city too when the
+ * show names one: otherwise the confirm email promises a city the event does
+ * not have. Online shows share the one Online venue. Null means create it.
+ */
+function pickVenue(venues, { venue, city, online }) {
+  const named = venues.filter((v) => norm(v.venue) === norm(venue));
+  if (!city || online) return named[0] ?? null;
+  return named.find((v) => norm(v.city ?? '') === norm(city)) ?? null;
+}
+
 async function resolveVenue(show) {
-  const venues = await allVenues();
-  const hit = venues.find((v) => norm(v.venue) === norm(show.venue));
+  const hit = pickVenue(await allVenues(), show);
   if (hit) return hit;
   if (DRY) return { id: 0, venue: show.venue, city: show.city ?? '' };
   return wp('/venues', {
@@ -376,16 +386,11 @@ async function handleReply(from, subject, text, eventId) {
       await send(from, `Re: ${subject}`, ASK[plan.ask]);
       return 'reask';
     }
-    if (plan.venue) {
-      plan.patch.venue = (await (plan.venue.matchCity ? venueWithCity(plan.venue) : resolveVenue(plan.venue))).id;
-    }
-    if (Object.keys(plan.patch).length) {
-      await wp(`/events/${eventId}`, { method: 'POST', body: JSON.stringify(plan.patch) });
-    }
-    const fresh = await wp(`/events/${eventId}`); // verify at the destination, not the POST echo
-    if (plan.patch.venue && fresh.venue?.id !== plan.patch.venue) {
-      throw new Error(`Venue change on ${eventId} did not stick (wanted venue ${plan.patch.venue}, got ${fresh.venue?.id})`);
-    }
+    const fresh = await applyReplyPlan(eventId, plan, {
+      resolve: resolveVenue,
+      post: (patch) => wp(`/events/${eventId}`, { method: 'POST', body: JSON.stringify(patch) }),
+      read: () => wp(`/events/${eventId}`),
+    });
     const show = {
       date: fresh.start_date.slice(0, 10), start: fresh.start_date.slice(11, 16),
       end: fresh.end_date?.slice(11, 16), venue: fresh.venue?.venue ?? '',
@@ -417,15 +422,14 @@ function splitDescription(desc = '') {
 }
 
 const ASK = {
-  'no-venue': `That show doesn't have a venue yet, so I can't set a city on its own. Reply with both lines, e.g.\n\nVenue: Carboy Winery\nCity: Colorado Springs`,
-  online: `That's an online show, so there's no city to set. Reply YES to publish, or send other corrections.`,
+  'no-venue': `That show doesn't have a venue yet, so I can't set a city on its own, and I didn't change anything from your reply. Send the whole correction again with both lines, e.g.\n\nVenue: Carboy Winery\nCity: Colorado Springs`,
+  online: `That's an online show, so there's no city to set, and I didn't change anything from your reply. Send any other corrections again without the City: line, or reply YES to publish.`,
 };
 
 /**
  * What a correction reply writes — pure, so the selftest pins it.
  *
- * A venue record is shared by every event that played there (resolveVenue
- * reuses by name), so a reply NEVER edits a venue. "City: X" alone repoints
+ * A venue record is shared by every event that played there, so a reply NEVER edits a venue. "City: X" alone repoints
  * THIS event at a venue with the same name and that city — reusing one if it
  * exists, else creating it. Other events at the old venue are untouched.
  * Notes and Type merge with the existing description instead of replacing it.
@@ -443,26 +447,35 @@ function planReplyWrites(updates, event) {
       description: describe({ type: updates.type ?? old.type, notes: updates.notes ?? old.notes }),
     }),
   };
-  if (updates.venue) return { patch, venue: { ...updates, matchCity: false }, ask: null };
+  if (updates.venue) return { patch, venue: { ...updates }, ask: null };
   if (updates.city) {
     const name = event.venue?.venue;
     if (!name) return { patch: {}, venue: null, ask: 'no-venue' };
     if (norm(name) === 'online') return { patch: {}, venue: null, ask: 'online' };
     if (norm(event.venue.city ?? '') !== norm(updates.city)) {
-      return { patch, venue: { venue: name, city: updates.city, region: event.venue.stateprovince, matchCity: true }, ask: null };
+      return { patch, venue: { venue: name, city: updates.city, region: event.venue.stateprovince }, ask: null };
     }
   }
   return { patch, venue: null, ask: null };
 }
 
-/** Venue with this name AND city — reused if it exists, else created. Never edits one. */
-async function venueWithCity({ venue, city, region }) {
-  const hit = (await allVenues()).find((v) => norm(v.venue) === norm(venue) && norm(v.city ?? '') === norm(city));
-  if (hit) return hit;
-  return wp('/venues', {
-    method: 'POST',
-    body: JSON.stringify({ venue, city, stateprovince: region || 'CO', country: 'United States' }),
-  });
+/** What is wrong with the event as re-read after a venue write, or null. */
+function venueWriteProblem(fresh, venueId, city) {
+  if (!venueId) return null;
+  if (fresh.venue?.id !== venueId) return `wanted venue ${venueId}, got ${fresh.venue?.id}`;
+  if (city && norm(fresh.venue?.city ?? '') !== norm(city)) return `wanted city ${city}, got ${fresh.venue?.city}`;
+  return null;
+}
+
+/** Runs a reply plan and verifies at the destination, not the POST echo. */
+async function applyReplyPlan(eventId, plan, { resolve, post, read }) {
+  const patch = { ...plan.patch };
+  if (plan.venue) patch.venue = (await resolve(plan.venue)).id;
+  if (Object.keys(patch).length) await post(patch);
+  const fresh = await read();
+  const problem = venueWriteProblem(fresh, patch.venue, plan.venue?.city);
+  if (problem) throw new Error(`Venue change on ${eventId} did not stick (${problem})`);
+  return fresh;
 }
 
 // --------------------------------------------------------------------- main
@@ -526,7 +539,7 @@ async function main() {
 // ------------------------------------------------------------- self-test
 // SELFTEST=1 exercises the parser with no network or credentials needed.
 
-function selftest() {
+async function selftest() {
   const eq = (got, want, label) => {
     const g = JSON.stringify(got); const w = JSON.stringify(want);
     if (g !== w) throw new Error(`${label}\n  got  ${g}\n  want ${w}`);
@@ -568,8 +581,9 @@ function selftest() {
   const carboy = { start_date: '2026-12-09 18:00:00', description: '<p>Solo show — Candlelight</p>',
     venue: { id: 7, venue: 'Carboy winery', city: '', stateprovince: 'CO' } };
   const pc = planReplyWrites({ city: 'Colorado Springs' }, carboy);
-  eq([pc.ask, pc.patch, pc.venue && [pc.venue.venue, pc.venue.city, pc.venue.matchCity]],
-    [null, {}, ['Carboy winery', 'Colorado Springs', true]], 'City:-only reply repoints this event to a name+city venue, writes nothing else');
+  eq([pc.ask, pc.patch, pc.venue && [pc.venue.venue, pc.venue.city]],
+    [null, {}, ['Carboy winery', 'Colorado Springs']], 'City:-only reply repoints this event to a name+city venue, writes nothing else');
+  eq(planReplyWrites({ venue: 'Carboy Winery', city: 'Colorado Springs' }, { ...carboy, venue: [] }).venue.city, 'Colorado Springs', 'Venue: + City: keeps the city in the plan');
   eq(planReplyWrites({ city: 'colorado springs' }, { ...carboy, venue: { ...carboy.venue, city: 'Colorado Springs' } }).venue,
     null, 'City: matching the current venue is a no-op');
   eq(planReplyWrites({ city: 'X' }, { ...carboy, venue: [] }).ask, 'no-venue', 'City: on a venue-less event asks for Venue:');
@@ -581,11 +595,42 @@ function selftest() {
     { title: 'Live at Carboy Winery' });
   eq([body.includes('6:00pm–9:00pm Mountain'), body.includes('Solo show'), body.includes('18:00')], [true, true, false],
     'confirm email renders 12-hour times and the lineup');
+  // Venue choice: a named city must match, or the email promises a city the event does not have.
+  const cityless = { id: 1, venue: 'Carboy Winery', city: '' };
+  const springs = { id: 2, venue: 'Carboy winery', city: 'Colorado Springs' };
+  eq(pickVenue([cityless, springs], { venue: 'Carboy Winery', city: 'colorado springs' })?.id, 2, 'name + city picks that city, not the first by name');
+  eq(pickVenue([cityless], { venue: 'Carboy Winery', city: 'Colorado Springs' }), null, 'a cityless venue does not satisfy a named city');
+  eq(pickVenue([springs], { venue: 'Carboy Winery', city: 'Denver' }), null, 'another city does not satisfy a named city');
+  eq(pickVenue([cityless, springs], { venue: 'Carboy Winery' })?.id, 1, 'no city named: first by name');
+  eq(pickVenue([{ id: 9, venue: 'Online', city: '' }], { venue: 'Online', city: 'Denver', online: true })?.id, 9, 'online shows share one venue');
+  // Destination check.
+  const landed = { venue: { id: 2, city: 'Colorado Springs' } };
+  eq(venueWriteProblem(landed, 2, 'Colorado Springs'), null, 'right venue and city passes');
+  eq(venueWriteProblem(landed, undefined, undefined), null, 'no venue write, nothing to check');
+  eq(!!venueWriteProblem(landed, 3, 'Colorado Springs'), true, 'wrong venue id is a problem');
+  eq(!!venueWriteProblem({ venue: { id: 2, city: '' } }, 2, 'Colorado Springs'), true, 'right id, city lost is a problem');
+  // The wrapper executes the plan in order.
+  const calls = [];
+  const io = (read) => ({
+    resolve: async (v) => { calls.push(['resolve', v.city]); return { id: 2 }; },
+    post: async (patch) => { calls.push(['post', patch]); },
+    read: async () => read,
+  });
+  await applyReplyPlan(5, { patch: {}, venue: { venue: 'Carboy', city: 'Colorado Springs' } }, io(landed));
+  eq(calls, [['resolve', 'Colorado Springs'], ['post', { venue: 2 }]], 'a planned venue is resolved and written to the event');
+  calls.length = 0;
+  await applyReplyPlan(5, { patch: {}, venue: null }, io(landed));
+  eq(calls, [], 'an empty plan writes nothing');
+  const threw = await applyReplyPlan(5, { patch: {}, venue: { venue: 'Carboy', city: 'Colorado Springs' } }, io({ venue: { id: 2, city: '' } }))
+    .then(() => false, () => true);
+  eq(threw, true, 'a venue that did not stick throws, so no "Updated!" email goes out');
+  // Asks must not imply the rest of the reply landed.
+  eq([ASK['no-venue'], ASK.online].every((t) => t.includes("didn't change anything")), true, 'an ask says nothing was applied');
   console.log('All parser self-tests passed.');
 }
 
 if (process.env.SELFTEST === '1') {
-  selftest();
+  selftest().catch((err) => { console.error(err.message); process.exit(1); });
 } else {
   main().catch((err) => { console.error(err); process.exit(1); });
 }

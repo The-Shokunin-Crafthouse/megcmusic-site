@@ -2430,3 +2430,17 @@ What is shared is declared once: each section in `src/lib/page-layouts.ts` names
 ## 2026-11-05 — Amends the EPK nav entry: eight items, not nine
 
 The FYC nav entry was removed in #178, so the nav has eight items, not nine. The 768–1023 band stays: it was measured at nine, and eight is narrower. The `previews/pr-173-epk/` snapshots still show the nine-item nav.
+
+## 2026-11-05 — Show Robot: a named city must match the venue; a failed ask says nothing changed
+
+**Context.** An independent grade of merged PR #175 returned FAIL with three failing inputs. `Venue:` + `City:` matched by name and dropped the city, then sent "Updated!". After a repoint, the next show took the cityless venue listed first while the email named the city. `Time:` + `City:` on an online show dropped the time without saying so.
+
+**Decision.**
+1. `pickVenue` matches by name, and by city too when the show names one. No match creates a venue. Online shows share the one Online venue. One path now serves new shows and replies; `venueWithCity` is gone.
+2. The destination re-read checks the city as well as the venue id.
+3. `applyReplyPlan` runs the plan with injected I/O, so the selftest covers the write order.
+4. Both asks say nothing from the reply was applied.
+
+**Consequence.** A new show naming a city at a venue whose record has no city creates a second record, once. The confirm email is then true. Spelling differences between cities also create a record.
+
+**Verification.** `SELFTEST=1 node scripts/show-pipeline/pipeline.mjs` passes, red before the fix. Five planted bugs each go red. `POST /venues` and the repoint against live TEC stay unproven until a real reply.
