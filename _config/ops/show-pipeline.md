@@ -23,8 +23,8 @@ dispatch with a dry-run flag.
    other shows share. Online shows: `Venue: Online` + `Stream: <link>`.
 2. Pipeline parses deterministically (no AI). Missing date/venue or an
    unreadable date → it replies asking, with the template. Never guesses.
-3. Venue matched against existing WP venues by normalized name; created if
-   new. Online shows share the single "Online" venue.
+3. Venue matched against existing WP venues by normalized name, and by city
+   when the email gives one; created if new. Online shows share the single "Online" venue.
 4. Duplicate guard: same day + same venue already in WP (draft or published)
    → reply "already in the system", no write.
 5. Event created as **draft**; verified by reading it back. Confirm email to

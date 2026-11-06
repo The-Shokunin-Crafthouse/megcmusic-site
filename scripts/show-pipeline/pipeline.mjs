@@ -81,9 +81,19 @@ async function allVenues() {
 
 const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
 
+/**
+ * The venue a show means. A record is reused by name, and by city too when the
+ * show names one: otherwise the confirm email promises a city the event does
+ * not have. Online shows share the one Online venue. Null means create it.
+ */
+function pickVenue(venues, { venue, city, online }) {
+  const named = venues.filter((v) => norm(v.venue) === norm(venue));
+  if (!city || online) return named[0] ?? null;
+  return named.find((v) => norm(v.city ?? '') === norm(city)) ?? null;
+}
+
 async function resolveVenue(show) {
-  const venues = await allVenues();
-  const hit = venues.find((v) => norm(v.venue) === norm(show.venue));
+  const hit = pickVenue(await allVenues(), show);
   if (hit) return hit;
   if (DRY) return { id: 0, venue: show.venue, city: show.city ?? '' };
   return wp('/venues', {
@@ -376,16 +386,11 @@ async function handleReply(from, subject, text, eventId) {
       await send(from, `Re: ${subject}`, ASK[plan.ask]);
       return 'reask';
     }
-    if (plan.venue) {
-      plan.patch.venue = (await (plan.venue.matchCity ? venueWithCity(plan.venue) : resolveVenue(plan.venue))).id;
-    }
-    if (Object.keys(plan.patch).length) {
-      await wp(`/events/${eventId}`, { method: 'POST', body: JSON.stringify(plan.patch) });
-    }
-    const fresh = await wp(`/events/${eventId}`); // verify at the destination, not the POST echo
-    if (plan.patch.venue && fresh.venue?.id !== plan.patch.venue) {
-      throw new Error(`Venue change on ${eventId} did not stick (wanted venue ${plan.patch.venue}, got ${fresh.venue?.id})`);
-    }
+    const fresh = await applyReplyPlan(eventId, plan, {
+      resolve: resolveVenue,
+      post: (patch) => wp(`/events/${eventId}`, { method: 'POST', body: JSON.stringify(patch) }),
+      read: () => wp(`/events/${eventId}`),
+    });
     const show = {
       date: fresh.start_date.slice(0, 10), start: fresh.start_date.slice(11, 16),
       end: fresh.end_date?.slice(11, 16), venue: fresh.venue?.venue ?? '',
@@ -417,15 +422,14 @@ function splitDescription(desc = '') {
 }
 
 const ASK = {
-  'no-venue': `That show doesn't have a venue yet, so I can't set a city on its own. Reply with both lines, e.g.\n\nVenue: Carboy Winery\nCity: Colorado Springs`,
-  online: `That's an online show, so there's no city to set. Reply YES to publish, or send other corrections.`,
+  'no-venue': `That show doesn't have a venue yet, so I can't set a city on its own, and I didn't change anything from your reply. Send the whole correction again with both lines, e.g.\n\nVenue: Carboy Winery\nCity: Colorado Springs`,
+  online: `That's an online show, so there's no city to set, and I didn't change anything from your reply. Send any other corrections again without the City: line, or reply YES to publish.`,
 };
 
 /**
  * What a correction reply writes — pure, so the selftest pins it.
  *
- * A venue record is shared by every event that played there (resolveVenue
- * reuses by name), so a reply NEVER edits a venue. "City: X" alone repoints
+ * A venue record is shared by every event that played there, so a reply NEVER edits a venue. "City: X" alone repoints
  * THIS event at a venue with the same name and that city — reusing one if it
  * exists, else creating it. Other events at the old venue are untouched.
  * Notes and Type merge with the existing description instead of replacing it.
@@ -443,26 +447,35 @@ function planReplyWrites(updates, event) {
       description: describe({ type: updates.type ?? old.type, notes: updates.notes ?? old.notes }),
     }),
   };
-  if (updates.venue) return { patch, venue: { ...updates, matchCity: false }, ask: null };
+  if (updates.venue) return { patch, venue: { ...updates }, ask: null };
   if (updates.city) {
     const name = event.venue?.venue;
     if (!name) return { patch: {}, venue: null, ask: 'no-venue' };
     if (norm(name) === 'online') return { patch: {}, venue: null, ask: 'online' };
     if (norm(event.venue.city ?? '') !== norm(updates.city)) {
-      return { patch, venue: { venue: name, city: updates.city, region: event.venue.stateprovince, matchCity: true }, ask: null };
+      return { patch, venue: { venue: name, city: updates.city, region: event.venue.stateprovince }, ask: null };
     }
   }
   return { patch, venue: null, ask: null };
 }
 
-/** Venue with this name AND city — reused if it exists, else created. Never edits one. */
-async function venueWithCity({ venue, city, region }) {
-  const hit = (await allVenues()).find((v) => norm(v.venue) === norm(venue) && norm(v.city ?? '') === norm(city));
-  if (hit) return hit;
-  return wp('/venues', {
-    method: 'POST',
-    body: JSON.stringify({ venue, city, stateprovince: region || 'CO', country: 'United States' }),
-  });
+/** What is wrong with the event as re-read after a venue write, or null. */
+function venueWriteProblem(fresh, venueId, city) {
+  if (!venueId) return null;
+  if (fresh.venue?.id !== venueId) return `wanted venue ${venueId}, got ${fresh.venue?.id}`;
+  if (city && norm(fresh.venue?.city ?? '') !== norm(city)) return `wanted city ${city}, got ${fresh.venue?.city}`;
+  return null;
+}
+
+/** Runs a reply plan and verifies at the destination, not the POST echo. */
+async function applyReplyPlan(eventId, plan, { resolve, post, read }) {
+  const patch = { ...plan.patch };
+  if (plan.venue) patch.venue = (await resolve(plan.venue)).id;
+  if (Object.keys(patch).length) await post(patch);
+  const fresh = await read();
+  const problem = venueWriteProblem(fresh, patch.venue, plan.venue?.city);
+  if (problem) throw new Error(`Venue change on ${eventId} did not stick (${problem})`);
+  return fresh;
 }
 
 // --------------------------------------------------------------------- main
