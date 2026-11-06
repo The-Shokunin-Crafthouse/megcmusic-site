@@ -526,7 +526,7 @@ async function main() {
 // ------------------------------------------------------------- self-test
 // SELFTEST=1 exercises the parser with no network or credentials needed.
 
-function selftest() {
+async function selftest() {
   const eq = (got, want, label) => {
     const g = JSON.stringify(got); const w = JSON.stringify(want);
     if (g !== w) throw new Error(`${label}\n  got  ${g}\n  want ${w}`);
@@ -568,8 +568,9 @@ function selftest() {
   const carboy = { start_date: '2026-12-09 18:00:00', description: '<p>Solo show — Candlelight</p>',
     venue: { id: 7, venue: 'Carboy winery', city: '', stateprovince: 'CO' } };
   const pc = planReplyWrites({ city: 'Colorado Springs' }, carboy);
-  eq([pc.ask, pc.patch, pc.venue && [pc.venue.venue, pc.venue.city, pc.venue.matchCity]],
-    [null, {}, ['Carboy winery', 'Colorado Springs', true]], 'City:-only reply repoints this event to a name+city venue, writes nothing else');
+  eq([pc.ask, pc.patch, pc.venue && [pc.venue.venue, pc.venue.city]],
+    [null, {}, ['Carboy winery', 'Colorado Springs']], 'City:-only reply repoints this event to a name+city venue, writes nothing else');
+  eq(planReplyWrites({ venue: 'Carboy Winery', city: 'Colorado Springs' }, { ...carboy, venue: [] }).venue.city, 'Colorado Springs', 'Venue: + City: keeps the city in the plan');
   eq(planReplyWrites({ city: 'colorado springs' }, { ...carboy, venue: { ...carboy.venue, city: 'Colorado Springs' } }).venue,
     null, 'City: matching the current venue is a no-op');
   eq(planReplyWrites({ city: 'X' }, { ...carboy, venue: [] }).ask, 'no-venue', 'City: on a venue-less event asks for Venue:');
@@ -581,11 +582,42 @@ function selftest() {
     { title: 'Live at Carboy Winery' });
   eq([body.includes('6:00pm–9:00pm Mountain'), body.includes('Solo show'), body.includes('18:00')], [true, true, false],
     'confirm email renders 12-hour times and the lineup');
+  // Venue choice: a named city must match, or the email promises a city the event does not have.
+  const cityless = { id: 1, venue: 'Carboy Winery', city: '' };
+  const springs = { id: 2, venue: 'Carboy winery', city: 'Colorado Springs' };
+  eq(pickVenue([cityless, springs], { venue: 'Carboy Winery', city: 'colorado springs' })?.id, 2, 'name + city picks that city, not the first by name');
+  eq(pickVenue([cityless], { venue: 'Carboy Winery', city: 'Colorado Springs' }), null, 'a cityless venue does not satisfy a named city');
+  eq(pickVenue([springs], { venue: 'Carboy Winery', city: 'Denver' }), null, 'another city does not satisfy a named city');
+  eq(pickVenue([cityless, springs], { venue: 'Carboy Winery' })?.id, 1, 'no city named: first by name');
+  eq(pickVenue([{ id: 9, venue: 'Online', city: '' }], { venue: 'Online', city: 'Denver', online: true })?.id, 9, 'online shows share one venue');
+  // Destination check.
+  const landed = { venue: { id: 2, city: 'Colorado Springs' } };
+  eq(venueWriteProblem(landed, 2, 'Colorado Springs'), null, 'right venue and city passes');
+  eq(venueWriteProblem(landed, undefined, undefined), null, 'no venue write, nothing to check');
+  eq(!!venueWriteProblem(landed, 3, 'Colorado Springs'), true, 'wrong venue id is a problem');
+  eq(!!venueWriteProblem({ venue: { id: 2, city: '' } }, 2, 'Colorado Springs'), true, 'right id, city lost is a problem');
+  // The wrapper executes the plan in order.
+  const calls = [];
+  const io = (read) => ({
+    resolve: async (v) => { calls.push(['resolve', v.city]); return { id: 2 }; },
+    post: async (patch) => { calls.push(['post', patch]); },
+    read: async () => read,
+  });
+  await applyReplyPlan(5, { patch: {}, venue: { venue: 'Carboy', city: 'Colorado Springs' } }, io(landed));
+  eq(calls, [['resolve', 'Colorado Springs'], ['post', { venue: 2 }]], 'a planned venue is resolved and written to the event');
+  calls.length = 0;
+  await applyReplyPlan(5, { patch: {}, venue: null }, io(landed));
+  eq(calls, [], 'an empty plan writes nothing');
+  const threw = await applyReplyPlan(5, { patch: {}, venue: { venue: 'Carboy', city: 'Colorado Springs' } }, io({ venue: { id: 2, city: '' } }))
+    .then(() => false, () => true);
+  eq(threw, true, 'a venue that did not stick throws, so no "Updated!" email goes out');
+  // Asks must not imply the rest of the reply landed.
+  eq([ASK['no-venue'], ASK.online].every((t) => t.includes("didn't change anything")), true, 'an ask says nothing was applied');
   console.log('All parser self-tests passed.');
 }
 
 if (process.env.SELFTEST === '1') {
-  selftest();
+  selftest().catch((err) => { console.error(err.message); process.exit(1); });
 } else {
   main().catch((err) => { console.error(err); process.exit(1); });
 }
