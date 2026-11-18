@@ -291,7 +291,7 @@ Venue: Rock Rest Lodge
 City: Golden   (or "Location: Golden")
 Time: 7pm-9pm
 Type: solo, duo or band (optional)
-Tickets: https://... (optional)
+Tickets: a link, or text like "free" or "$15 at the door" (optional)
 Title: (optional — defaults to "Live at <venue>")
 Notes: (optional)
 

@@ -18,6 +18,9 @@ dispatch with a dry-run flag.
    line): `Date:` `Venue:` `City:` (or `Location:`) `Time:` and optional
    `Type:` (solo / duo / band — written into the event description as
    "Solo show", etc.) `Tickets:` `Title:` `Notes:` `Address:`.
+   `Tickets:` takes a link or text. A link (bare domains gain `https://`)
+   becomes the event website; text ("free", "$15 at the door") is added to
+   the description as "Tickets: …", because TEC rejects a non-URL website.
    Replying `City: X` on its own moves *that* show to a venue with the same
    name and that city (it reuses one or creates it). It never edits a venue
    other shows share. Online shows: `Venue: Online` + `Stream: <link>`.
