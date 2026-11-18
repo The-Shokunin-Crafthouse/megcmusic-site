@@ -20,6 +20,10 @@ import {
 } from "@/lib/shop";
 
 import { WP_ORIGIN } from "@/lib/wp-origin";
+import {
+  fetchProductBrowser,
+  fetchProductsBrowser,
+} from "@/lib/api/woocommerce-browser";
 
 const WC_API_URL =
   process.env.WC_API_URL ?? `${WP_ORIGIN}/wp-json/wc/v3`;
@@ -30,6 +34,27 @@ const WC_API_URL =
 const REQUEST_TIMEOUT_MS = 25_000;
 const MAX_RETRIES = 1;
 const REVALIDATE_S = 86_400; // 24h — products are low-churn (brief).
+
+/** The wc/v3 consumer key pair is not a build secret (GHA holds none), so the
+ *  build reads the public Store API instead — the same catalogue the browser
+ *  gets, no credential. Keys present (local dev) keep the wc/v3 path. */
+function hasKeys(): boolean {
+  return Boolean(process.env.WC_CONSUMER_KEY && process.env.WC_CONSUMER_SECRET);
+}
+
+/** One retry, as wcRequest does: fetch rejects only on network/timeout, and a
+ *  throw here is what drops the caller into its empty state. */
+async function withRetry<T>(read: () => Promise<T>): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await read();
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
 
 function authHeader(): string {
   const key = process.env.WC_CONSUMER_KEY ?? "";
@@ -124,6 +149,7 @@ function normalize(p: WcRawProduct): ShopProduct {
 /** All published products for the listing. Throws on a blocked/failed fetch so
  *  the page's try/catch renders empty and the browser fallback takes over. */
 export async function getProducts(): Promise<ShopProduct[]> {
+  if (!hasKeys()) return withRetry(fetchProductsBrowser);
   const raw = await wcFetch<WcRawProduct[]>(
     "/products?per_page=100&status=publish&orderby=menu_order&order=asc",
   );
@@ -133,6 +159,7 @@ export async function getProducts(): Promise<ShopProduct[]> {
 /** One product by slug, or null when it doesn't exist (a real 404). A blocked
  *  fetch throws — the detail page's try/catch then lets the browser fill in. */
 export async function getProduct(slug: string): Promise<ShopProduct | null> {
+  if (!hasKeys()) return withRetry(() => fetchProductBrowser(slug));
   const raw = await wcFetch<WcRawProduct[]>(
     `/products?slug=${encodeURIComponent(slug)}&status=publish`,
   );

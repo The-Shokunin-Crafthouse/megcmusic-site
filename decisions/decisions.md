@@ -2446,3 +2446,13 @@ The FYC nav entry was removed in #178, so the nav has eight items, not nine. The
 **Verification.** `SELFTEST=1 node scripts/show-pipeline/pipeline.mjs` passes, red before the fix. Five planted bugs each go red. `POST /venues` and the repoint against live TEC stay unproven until a real reply.
 
 **Amendment, 2026-11-17 (Evaluator second pass on #181).** A reply that moves a show online and also carries `City:` (`Venue: Online` or `Stream:` with `City: Denver`) wrote the event, then threw on the destination city check, because the shared Online venue has no city. The email stayed in the inbox and failed every run. The city check now skips the Online venue, and `resolveVenue` takes its venue list as an argument so the selftest drives it. Three planted bugs each go red.
+
+---
+
+## 2026-11-18 — /shop and every product page are built with their products; the build reads the public Store API
+
+**Context.** Sprint 14 Phase 2.1 measured the live site under throttling (Pixel 7 profile, 4x CPU, 1.6 Mbps / 150 ms; three runs, median). `/shop` LCP was 13.3 s on mobile and 2.7 s on desktop against a 2.5 s budget. Cause, read from the build: the deploy workflow holds no `WC_CONSUMER_KEY` / `WC_CONSUMER_SECRET`, so `getProducts()` (wc/v3, Basic auth) threw on every build, `/shop` shipped as "Loading the shop…", and the grid filled only after hydration plus a cross-origin Store API call plus the first image. The same empty read left every `/shop/[slug]` dynamic, so its metadata fell back to "Shop — MegCMusic" (Phase 1.1 defect 4.2). It would also have got worse: `revalidate = 86400` lets the Vercel runtime regenerate the page after a day, and the runtime cannot reach WordPress, so the regeneration would have cached an empty grid over a good one.
+
+**Decision.** With no wc/v3 keys, `getProducts` / `getProduct` read the public Store API (the catalogue the browser already reads, no credential), with one retry. Keys present (local dev) keep the wc/v3 path. `/shop` and `/shop/[slug]` set `revalidate = false`; `/shop/[slug]` gains `generateStaticParams`. Products refresh on the next deploy, which the nightly schedule and every content dispatch already provide. No visual change; the browser fallback stays for a failed build read.
+
+**Consequences.** Easier: the first product image is in the HTML, product pages carry their own title and description, and the empty-over-good regeneration cannot happen. Harder: a product Meg adds appears on the next deploy (up to a day), not on a 24 h ISR tick; an unknown slug rendered at request time falls to the browser fallback and is cached that way until the next deploy. Supersedes the "products ISR 24h" line in the project brief.
