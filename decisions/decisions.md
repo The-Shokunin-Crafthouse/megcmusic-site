@@ -2444,3 +2444,5 @@ The FYC nav entry was removed in #178, so the nav has eight items, not nine. The
 **Consequence.** A new show naming a city at a venue whose record has no city creates a second record, once. The confirm email is then true. Spelling differences between cities also create a record.
 
 **Verification.** `SELFTEST=1 node scripts/show-pipeline/pipeline.mjs` passes, red before the fix. Five planted bugs each go red. `POST /venues` and the repoint against live TEC stay unproven until a real reply.
+
+**Amendment, 2026-11-17 (Evaluator second pass on #181).** A reply that moves a show online and also carries `City:` (`Venue: Online` or `Stream:` with `City: Denver`) wrote the event, then threw on the destination city check, because the shared Online venue has no city. The email stayed in the inbox and failed every run. The city check now skips the Online venue, and `resolveVenue` takes its venue list as an argument so the selftest drives it. Three planted bugs each go red.

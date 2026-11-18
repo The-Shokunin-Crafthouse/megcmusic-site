@@ -86,14 +86,17 @@ const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
  * show names one: otherwise the confirm email promises a city the event does
  * not have. Online shows share the one Online venue. Null means create it.
  */
-function pickVenue(venues, { venue, city, online }) {
+const isOnlineVenue = (show) => !!show.online || norm(show.venue ?? '') === 'online';
+
+function pickVenue(venues, show) {
+  const { venue, city } = show;
   const named = venues.filter((v) => norm(v.venue) === norm(venue));
-  if (!city || online) return named[0] ?? null;
+  if (!city || isOnlineVenue(show)) return named[0] ?? null;
   return named.find((v) => norm(v.city ?? '') === norm(city)) ?? null;
 }
 
-async function resolveVenue(show) {
-  const hit = pickVenue(await allVenues(), show);
+async function resolveVenue(show, list = allVenues) {
+  const hit = pickVenue(await list(), show);
   if (hit) return hit;
   if (DRY) return { id: 0, venue: show.venue, city: show.city ?? '' };
   return wp('/venues', {
@@ -387,7 +390,7 @@ async function handleReply(from, subject, text, eventId) {
       return 'reask';
     }
     const fresh = await applyReplyPlan(eventId, plan, {
-      resolve: resolveVenue,
+      resolve: (v) => resolveVenue(v),
       post: (patch) => wp(`/events/${eventId}`, { method: 'POST', body: JSON.stringify(patch) }),
       read: () => wp(`/events/${eventId}`),
     });
@@ -473,7 +476,9 @@ async function applyReplyPlan(eventId, plan, { resolve, post, read }) {
   if (plan.venue) patch.venue = (await resolve(plan.venue)).id;
   if (Object.keys(patch).length) await post(patch);
   const fresh = await read();
-  const problem = venueWriteProblem(fresh, patch.venue, plan.venue?.city);
+  // The shared Online venue has no city, so a City: line is not checked there.
+  const city = plan.venue && !isOnlineVenue(plan.venue) ? plan.venue.city : undefined;
+  const problem = venueWriteProblem(fresh, patch.venue, city);
   if (problem) throw new Error(`Venue change on ${eventId} did not stick (${problem})`);
   return fresh;
 }
