@@ -172,9 +172,25 @@ function parseTemplate(text, now = Date.now()) {
   }
   if (fields.time) Object.assign(show, parseTime(fields.time));
   if (fields.type) show.type = normType(fields.type);
+  if (fields.tickets) {
+    // TEC's REST `website` accepts only a full URL; one 400 strands the email.
+    // "eventbrite.com/x" gains https://; "$15 at the door" rides in the description.
+    delete show.tickets;
+    const url = ticketLink(fields.tickets);
+    if (url) show.tickets = url; else show.ticketNote = fields.tickets;
+  }
   show.online = !!fields.stream || norm(fields.venue ?? '').match(/^(online|livestream|live stream)$/) != null;
   if (show.online) show.venue = 'Online';
   return show;
+}
+
+/** A ticket line as a URL TEC will take, or null when it is prose ("Free", "$15 at the door"). */
+function ticketLink(raw) {
+  const v = raw.trim().replace(/^<(.+)>$/, '$1');
+  const candidate = /^https?:\/\//i.test(v) ? v
+    : /^(www\.)?[a-z0-9-]+(\.[a-z0-9-]+)*\.[a-z]{2,}(\/\S*)?$/i.test(v) ? `https://${v}` : null;
+  if (!candidate || /\s/.test(candidate)) return null;
+  try { return new URL(candidate).href; } catch { return null; }
 }
 
 /** "Solo" / "duo w/ Jeff" / "full band" → solo | duo | band; anything else kept as written. */
@@ -190,7 +206,8 @@ const TYPE_LABEL = { solo: 'Solo show', duo: 'Duo show', band: 'Full band show' 
 const typeLabel = (type) => (type ? TYPE_LABEL[type] ?? type : '');
 
 /** Event description: the lineup line, then her notes. */
-const describe = (show) => [typeLabel(show.type), show.notes].filter(Boolean).join(' — ');
+const describe = (show) => [typeLabel(show.type), joinNotes(show.notes, show.ticketNote)].filter(Boolean).join(' — ');
+const joinNotes = (notes, ticketNote) => [notes, ticketNote && `Tickets: ${ticketNote}`].filter(Boolean).join(' · ');
 
 /** "18:00" → "6:00pm" for the emails she reads. */
 function to12h(hhmm) {
@@ -287,7 +304,7 @@ function confirmBody(show, event) {
 
   ${event.title}
   ${show.date}${when}
-  ${show.venue}${show.city ? `, ${show.city}` : ''}${show.online ? ' (online show)' : ''}${lineup ? `\n  ${lineup}` : ''}${show.tickets ? `\n  Tickets: ${show.tickets}` : ''}
+  ${show.venue}${show.city ? `, ${show.city}` : ''}${show.online ? ' (online show)' : ''}${lineup ? `\n  ${lineup}` : ''}${show.tickets || show.ticketNote ? `\n  Tickets: ${show.tickets ?? show.ticketNote}` : ''}
 
 Reply YES to publish it. If anything's wrong, reply with the corrected lines
 (e.g. "Time: 8pm-10pm") and I'll update it and check again.`;
@@ -403,7 +420,7 @@ async function handleReply(from, subject, text, eventId) {
 
 // ------------------------------------------------------- correction replies
 
-const UPDATABLE = ['date', 'venue', 'start', 'end', 'title', 'tickets', 'city', 'notes', 'type'];
+const UPDATABLE = ['date', 'venue', 'start', 'end', 'title', 'tickets', 'ticketNote', 'city', 'notes', 'type'];
 const isUpdate = (u) => !!u && !u.error && Object.keys(u).some((k) => UPDATABLE.includes(k));
 
 /** "<p>Solo show — Candlelight</p>" → { type: 'solo', notes: 'Candlelight' }. Inverse of describe(). */
@@ -439,8 +456,8 @@ function planReplyWrites(updates, event) {
     ...(!updates.date && updates.start && { start_date: `${day} ${updates.start}:00` }),
     ...(updates.end && { end_date: `${day} ${updates.end}:00` }),
     ...(updates.tickets && { website: updates.tickets }),
-    ...((updates.notes || updates.type) && {
-      description: describe({ type: updates.type ?? old.type, notes: updates.notes ?? old.notes }),
+    ...((updates.notes || updates.type || updates.ticketNote) && {
+      description: describe({ type: updates.type ?? old.type, notes: updates.ticketNote ? (updates.notes ?? old.notes).replace(/(^| · )Tickets: .*$/, '') : updates.notes ?? old.notes, ticketNote: updates.ticketNote }),
     }),
   };
   if (updates.venue) return { patch, venue: { ...updates, matchCity: false }, ask: null };
@@ -581,6 +598,17 @@ function selftest() {
     { title: 'Live at Carboy Winery' });
   eq([body.includes('6:00pm–9:00pm Mountain'), body.includes('Solo show'), body.includes('18:00')], [true, true, false],
     'confirm email renders 12-hour times and the lineup');
+  // Ticket lines: TEC 400s a non-URL `website`, which stranded six emails on 2026-11-17.
+  eq(['https://t.co/x', 'eventbrite.com/e/123', 'www.x.org', '<https://a.b/c>', 'Free', '$15 at the door', 'tix at x.com'].map(ticketLink),
+    ['https://t.co/x', 'https://eventbrite.com/e/123', 'https://www.x.org/', 'https://a.b/c', null, null, null], 'ticket line → URL or prose');
+  const t7 = parseTemplate('Date: Dec 9\nVenue: X\nTickets: $15 at the door\nNotes: Candlelight', NOW);
+  eq([t7.tickets, t7.ticketNote, describe(t7)], [undefined, '$15 at the door', 'Candlelight · Tickets: $15 at the door'],
+    'prose tickets go to the description, never to website');
+  eq(parseTemplate('Date: Dec 9\nVenue: X\nTickets: eventbrite.com/e/1', NOW).tickets, 'https://eventbrite.com/e/1', 'bare domain gains https');
+  eq([isUpdate({ ticketNote: 'Free' }), planReplyWrites({ ticketNote: 'Free' }, carboy).patch],
+    [true, { description: 'Solo show — Candlelight · Tickets: Free' }], 'prose Tickets: reply keeps lineup and notes');
+  eq(planReplyWrites({ ticketNote: '$10' }, { ...carboy, description: '<p>Solo show — Candlelight · Tickets: Free</p>' }).patch.description,
+    'Solo show — Candlelight · Tickets: $10', 'a second prose Tickets: reply replaces the first');
   console.log('All parser self-tests passed.');
 }
 
