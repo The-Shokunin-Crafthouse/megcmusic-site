@@ -23,7 +23,10 @@ import { WP_ORIGIN } from "@/lib/wp-origin";
 import {
   fetchProductBrowser,
   fetchProductsBrowser,
+  normalizeStoreProduct,
+  type StoreProduct,
 } from "@/lib/api/woocommerce-browser";
+import snapshot from "@/generated/wp-content/products.json";
 
 const WC_API_URL =
   process.env.WC_API_URL ?? `${WP_ORIGIN}/wp-json/wc/v3`;
@@ -37,7 +40,10 @@ const REVALIDATE_S = 86_400; // 24h — products are low-churn (brief).
 
 /** The wc/v3 consumer key pair is not a build secret (GHA holds none), so the
  *  build reads the public Store API instead — the same catalogue the browser
- *  gets, no credential. Keys present (local dev) keep the wc/v3 path. */
+ *  gets, no credential. The prebuild step (scripts/fetch-products.mjs) writes
+ *  it to products.json from the runner, which can reach WordPress; the Vercel
+ *  runtime cannot, so the page never depends on a request-time read. Keys
+ *  present (local dev) keep the wc/v3 path. */
 function hasKeys(): boolean {
   return Boolean(process.env.WC_CONSUMER_KEY && process.env.WC_CONSUMER_SECRET);
 }
@@ -149,7 +155,10 @@ function normalize(p: WcRawProduct): ShopProduct {
 /** All published products for the listing. Throws on a blocked/failed fetch so
  *  the page's try/catch renders empty and the browser fallback takes over. */
 export async function getProducts(): Promise<ShopProduct[]> {
-  if (!hasKeys()) return withRetry(fetchProductsBrowser);
+  if (!hasKeys()) {
+    const built = (snapshot as StoreProduct[]).map(normalizeStoreProduct);
+    return built.length ? built : withRetry(fetchProductsBrowser);
+  }
   const raw = await wcFetch<WcRawProduct[]>(
     "/products?per_page=100&status=publish&orderby=menu_order&order=asc",
   );
@@ -159,7 +168,14 @@ export async function getProducts(): Promise<ShopProduct[]> {
 /** One product by slug, or null when it doesn't exist (a real 404). A blocked
  *  fetch throws — the detail page's try/catch then lets the browser fill in. */
 export async function getProduct(slug: string): Promise<ShopProduct | null> {
-  if (!hasKeys()) return withRetry(() => fetchProductBrowser(slug));
+  if (!hasKeys()) {
+    const built = (snapshot as StoreProduct[]).find((p) => p.slug === slug);
+    // Not in the snapshot: a product added since the last deploy. Ask the live
+    // API rather than answer 404; at runtime that throws and the browser fills in.
+    return built
+      ? normalizeStoreProduct(built)
+      : withRetry(() => fetchProductBrowser(slug));
+  }
   const raw = await wcFetch<WcRawProduct[]>(
     `/products?slug=${encodeURIComponent(slug)}&status=publish`,
   );
