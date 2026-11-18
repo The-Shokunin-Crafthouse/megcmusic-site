@@ -38,9 +38,11 @@ const REQUEST_TIMEOUT_MS = 25_000;
 const MAX_RETRIES = 1;
 const REVALIDATE_S = 86_400; // 24h — products are low-churn (brief).
 
-/** The wc/v3 consumer key pair is not a build secret (GHA holds none), so the
- *  build reads the public Store API instead — the same catalogue the browser
- *  gets, no credential. The prebuild step (scripts/fetch-products.mjs) writes
+/** The build reads the public Store API instead of wc/v3 — the same catalogue
+ *  the browser gets, no credential. (`vercel pull` hands the build the wc/v3
+ *  keys, but the runner's IP is blocked from wc/v3, so the keys cannot be what
+ *  the build relies on: the preview run threw and built no product page.) The
+ *  snapshot wins whenever it holds products. The prebuild step (scripts/fetch-products.mjs) writes
  *  it to products.json from the runner, which can reach WordPress; the Vercel
  *  runtime cannot, so the page never depends on a request-time read. Keys
  *  present (local dev) keep the wc/v3 path. */
@@ -155,10 +157,9 @@ function normalize(p: WcRawProduct): ShopProduct {
 /** All published products for the listing. Throws on a blocked/failed fetch so
  *  the page's try/catch renders empty and the browser fallback takes over. */
 export async function getProducts(): Promise<ShopProduct[]> {
-  if (!hasKeys()) {
-    const built = (snapshot as StoreProduct[]).map(normalizeStoreProduct);
-    return built.length ? built : withRetry(fetchProductsBrowser);
-  }
+  const built = (snapshot as StoreProduct[]).map(normalizeStoreProduct);
+  if (built.length) return built;
+  if (!hasKeys()) return withRetry(fetchProductsBrowser);
   const raw = await wcFetch<WcRawProduct[]>(
     "/products?per_page=100&status=publish&orderby=menu_order&order=asc",
   );
@@ -168,14 +169,11 @@ export async function getProducts(): Promise<ShopProduct[]> {
 /** One product by slug, or null when it doesn't exist (a real 404). A blocked
  *  fetch throws — the detail page's try/catch then lets the browser fill in. */
 export async function getProduct(slug: string): Promise<ShopProduct | null> {
-  if (!hasKeys()) {
-    const built = (snapshot as StoreProduct[]).find((p) => p.slug === slug);
-    // Not in the snapshot: a product added since the last deploy. Ask the live
-    // API rather than answer 404; at runtime that throws and the browser fills in.
-    return built
-      ? normalizeStoreProduct(built)
-      : withRetry(() => fetchProductBrowser(slug));
-  }
+  const built = (snapshot as StoreProduct[]).find((p) => p.slug === slug);
+  if (built) return normalizeStoreProduct(built);
+  // Not in the snapshot: a product added since the last deploy. Ask the live
+  // API rather than answer 404; at runtime that throws and the browser fills in.
+  if (!hasKeys()) return withRetry(() => fetchProductBrowser(slug));
   const raw = await wcFetch<WcRawProduct[]>(
     `/products?slug=${encodeURIComponent(slug)}&status=publish`,
   );
