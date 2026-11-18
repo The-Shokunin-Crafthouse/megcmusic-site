@@ -624,6 +624,18 @@ async function selftest() {
   const threw = await applyReplyPlan(5, { patch: {}, venue: { venue: 'Carboy', city: 'Colorado Springs' } }, io({ venue: { id: 2, city: '' } }))
     .then(() => false, () => true);
   eq(threw, true, 'a venue that did not stick throws, so no "Updated!" email goes out');
+  // A reply that moves a show online also may carry City:. The shared Online venue has no city.
+  const onlineLanded = { venue: { id: 9, venue: 'Online', city: '' } };
+  const onlineIo = { resolve: async () => ({ id: 9 }), post: async () => {}, read: async () => onlineLanded };
+  for (const v of [{ venue: 'Online', city: 'Denver', online: true }, { venue: 'Online', city: 'Denver' }]) {
+    const ok = await applyReplyPlan(5, { patch: {}, venue: v }, onlineIo).then(() => true, () => false);
+    eq(ok, true, `online venue + City: does not throw (online flag ${!!v.online})`);
+  }
+  // resolveVenue goes through pickVenue, so a reused venue keeps the named city.
+  const listed = async () => [cityless, springs];
+  eq((await resolveVenue({ venue: 'Carboy Winery', city: 'Colorado Springs' }, listed)).id, 2, 'resolveVenue reuses the name + city record');
+  eq((await resolveVenue({ venue: 'Online', city: 'Denver', online: true }, async () => [{ id: 9, venue: 'Online', city: '' }])).id, 9,
+    'resolveVenue reuses the Online venue whatever the City: line says');
   // Asks must not imply the rest of the reply landed.
   eq([ASK['no-venue'], ASK.online].every((t) => t.includes("didn't change anything")), true, 'an ask says nothing was applied');
   console.log('All parser self-tests passed.');
