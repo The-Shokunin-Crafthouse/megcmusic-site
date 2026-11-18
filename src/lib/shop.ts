@@ -120,6 +120,9 @@ export function photonWidth(src: string, width: number): string {
     if (!/(^|\.)wp\.com$/.test(url.hostname)) return src;
     for (const p of ["fit", "resize", "w", "h", "crop"]) url.searchParams.delete(p);
     url.searchParams.set("w", String(width));
+    // Without `quality` Photon serves a PNG source at full weight (1.46 MB for
+    // one tile at w=1200, 84 KB with it). Same value as media-photos.ts.
+    url.searchParams.set("quality", "82");
     url.searchParams.set("ssl", "1");
     return url.toString();
   } catch {

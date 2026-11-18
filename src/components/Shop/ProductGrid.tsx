@@ -109,9 +109,9 @@ export function ProductGrid({ initial }: { initial: ShopProduct[] }) {
 
   return (
     <ul className={styles.grid}>
-      {products.map((product) => (
+      {products.map((product, i) => (
         <li key={product.id} className={styles.cell}>
-          <ProductCard product={product} />
+          <ProductCard product={product} priority={i < 2} />
         </li>
       ))}
     </ul>
