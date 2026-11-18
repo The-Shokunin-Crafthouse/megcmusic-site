@@ -1,5 +1,7 @@
 /**
- * Re-renders the nav snapshots in this folder from a running site.
+ * Re-renders every snapshot in this folder from a running site: the nav at
+ * each width, the open mobile menu, and the one-sheet block, whose frame also
+ * holds the pinned nav at 768 and up.
  * Reduced motion makes the reveal settle; a wait for document.fonts means the
  * shots use the real Open Sans.
  *
@@ -8,7 +10,7 @@
  * The origin defaults to production.
  */
 import path from "node:path";
-import { chromium } from "playwright";
+import { chromium } from "@playwright/test";
 
 const ORIGIN = process.argv[2] || "https://megcmusic.com";
 const OUT = path.dirname(new URL(import.meta.url).pathname);
@@ -32,6 +34,13 @@ async function open(width, height) {
 for (const width of [390, 768, 1024, 1440, 1920]) {
   const { context, page } = await open(width, HEIGHT);
   await page.screenshot({ path: path.join(OUT, `nav-${width}.png`) });
+  await context.close();
+}
+
+for (const width of [390, 768, 1024, 1440, 1920]) {
+  const { context, page } = await open(width, 900);
+  // The Press Kit section's inner column, as the original shots framed it.
+  await page.locator('section[aria-labelledby="epk-kit"] > div').first().screenshot({ path: path.join(OUT, `one-sheet-${width}.png`) });
   await context.close();
 }
 
