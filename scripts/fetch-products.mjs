@@ -3,7 +3,8 @@
  * src/generated/wp-content/products.json (the public Store API's own shape), so
  * /shop and every /shop/[slug] ship their products in the HTML.
  *
- * Why a prebuild step: the deploy holds no wc/v3 keys, and the Vercel runtime
+ * Why a prebuild step: the build does see the wc/v3 keys (via `vercel pull`),
+ * but the runner's IP is blocked from wc/v3, and the Vercel runtime
  * cannot reach admin.megcmusic.com (decisions.md, 2026-09-06), so the pages'
  * own read came back empty and every visitor waited on hydration plus a
  * cross-origin fetch before the first product image (Sprint 14 Phase 2.1:
