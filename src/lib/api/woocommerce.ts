@@ -20,6 +20,13 @@ import {
 } from "@/lib/shop";
 
 import { WP_ORIGIN } from "@/lib/wp-origin";
+import {
+  fetchProductBrowser,
+  fetchProductsBrowser,
+  normalizeStoreProduct,
+  type StoreProduct,
+} from "@/lib/api/woocommerce-browser";
+import snapshot from "@/generated/wp-content/products.json";
 
 const WC_API_URL =
   process.env.WC_API_URL ?? `${WP_ORIGIN}/wp-json/wc/v3`;
@@ -30,6 +37,32 @@ const WC_API_URL =
 const REQUEST_TIMEOUT_MS = 25_000;
 const MAX_RETRIES = 1;
 const REVALIDATE_S = 86_400; // 24h — products are low-churn (brief).
+
+/** The build reads the public Store API instead of wc/v3 — the same catalogue
+ *  the browser gets, no credential. (`vercel pull` hands the build the wc/v3
+ *  keys, but the runner's IP is blocked from wc/v3, so the keys cannot be what
+ *  the build relies on: the preview run threw and built no product page.) The
+ *  snapshot wins whenever it holds products. The prebuild step (scripts/fetch-products.mjs) writes
+ *  it to products.json from the runner, which can reach WordPress; the Vercel
+ *  runtime cannot, so the page never depends on a request-time read. Keys
+ *  present (local dev) keep the wc/v3 path. */
+function hasKeys(): boolean {
+  return Boolean(process.env.WC_CONSUMER_KEY && process.env.WC_CONSUMER_SECRET);
+}
+
+/** One retry, as wcRequest does: fetch rejects only on network/timeout, and a
+ *  throw here is what drops the caller into its empty state. */
+async function withRetry<T>(read: () => Promise<T>): Promise<T> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt <= MAX_RETRIES; attempt++) {
+    try {
+      return await read();
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw lastError;
+}
 
 function authHeader(): string {
   const key = process.env.WC_CONSUMER_KEY ?? "";
@@ -124,6 +157,9 @@ function normalize(p: WcRawProduct): ShopProduct {
 /** All published products for the listing. Throws on a blocked/failed fetch so
  *  the page's try/catch renders empty and the browser fallback takes over. */
 export async function getProducts(): Promise<ShopProduct[]> {
+  const built = (snapshot as StoreProduct[]).map(normalizeStoreProduct);
+  if (built.length) return built;
+  if (!hasKeys()) return withRetry(fetchProductsBrowser);
   const raw = await wcFetch<WcRawProduct[]>(
     "/products?per_page=100&status=publish&orderby=menu_order&order=asc",
   );
@@ -133,6 +169,11 @@ export async function getProducts(): Promise<ShopProduct[]> {
 /** One product by slug, or null when it doesn't exist (a real 404). A blocked
  *  fetch throws — the detail page's try/catch then lets the browser fill in. */
 export async function getProduct(slug: string): Promise<ShopProduct | null> {
+  const built = (snapshot as StoreProduct[]).find((p) => p.slug === slug);
+  if (built) return normalizeStoreProduct(built);
+  // Not in the snapshot: a product added since the last deploy. Ask the live
+  // API rather than answer 404; at runtime that throws and the browser fills in.
+  if (!hasKeys()) return withRetry(() => fetchProductBrowser(slug));
   const raw = await wcFetch<WcRawProduct[]>(
     `/products?slug=${encodeURIComponent(slug)}&status=publish`,
   );
