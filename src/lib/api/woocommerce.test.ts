@@ -2,7 +2,7 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { getProduct, getProducts } from "./woocommerce";
 
-// The build holds no wc/v3 keys, so the server read must come from the
+// The runner's IP is blocked from wc/v3, so the server read must come from the
 // prebuild Store API snapshot (no credential, no request-time network). Without
 // this the /shop grid is empty in the built HTML and LCP waits on a browser fetch.
 
