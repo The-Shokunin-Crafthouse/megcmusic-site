@@ -6,9 +6,11 @@ import { heroImage } from "@/lib/hero-images";
 import { SHOP_PAGE, SHOP_LAYOUT } from "@/lib/page-basics";
 import { PageLayout } from "@/components/Blocks/PageLayout";
 
-// Products are low-churn — refresh daily. A new item Meg adds in WooCommerce
-// appears on the next ISR cycle (brief: products ISR 24h).
-export const revalidate = 86400;
+// Products are read at build and never at request time: the Vercel runtime
+// cannot reach WordPress, so an ISR regeneration would cache an empty grid over
+// the good one. A new item Meg adds appears on the next deploy (nightly
+// schedule, or any content-updated dispatch). Sprint 14 Phase 2.1.
+export const revalidate = false;
 
 // Lede and metadata from the Shop page in Meg's dashboard (WP page 1847,
 // "Page Basics" field group) — Sprint 16 Phase 2.

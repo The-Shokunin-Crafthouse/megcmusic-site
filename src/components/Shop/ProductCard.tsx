@@ -6,7 +6,15 @@ import styles from "./ProductCard.module.css";
 // detail page; the image sits in a fixed-aspect frame so the grid never shifts
 // as tiles lazy-load (CLS 0). Price shows a struck regular price only when the
 // item is genuinely on sale.
-export function ProductCard({ product }: { product: ShopProduct }) {
+export function ProductCard({
+  product,
+  priority = false,
+}: {
+  product: ShopProduct;
+  /** The first row: loaded eagerly and at high priority, since one of these is
+   *  the page's LCP element; the rest stay lazy. */
+  priority?: boolean;
+}) {
   const image = product.images[0];
   const soldOut = !product.inStock;
   const onSale =
@@ -19,9 +27,13 @@ export function ProductCard({ product }: { product: ShopProduct }) {
           <img
             className={styles.image}
             src={photonWidth(image.src, 600)}
-            srcSet={`${photonWidth(image.src, 600)} 1x, ${photonWidth(image.src, 1200)} 2x`}
+            srcSet={[400, 600, 800, 1200]
+              .map((w) => `${photonWidth(image.src, w)} ${w}w`)
+              .join(", ")}
+            sizes="(min-width: 1024px) 25vw, (min-width: 768px) 33vw, 50vw"
             alt={image.alt}
-            loading="lazy"
+            loading={priority ? "eager" : "lazy"}
+            fetchPriority={priority ? "high" : undefined}
             decoding="async"
             width={600}
             height={600}

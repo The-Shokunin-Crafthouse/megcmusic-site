@@ -1,11 +1,22 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { getProduct } from "@/lib/api/woocommerce";
+import { getProduct, getProducts } from "@/lib/api/woocommerce";
 import { ProductDetail } from "@/components/Shop/ProductDetail";
 import styles from "./product.module.css";
 import { heroImage } from "@/lib/hero-images";
 
-export const revalidate = 86400;
+// Built once per deploy, never regenerated at request time: the Vercel runtime
+// cannot reach WordPress, so a regeneration would cache the nameless fallback
+// over the real page (Phase 1.1 walk, defect 4.2). The nightly deploy refreshes.
+export const revalidate = false;
+
+export async function generateStaticParams() {
+  try {
+    return (await getProducts()).map((p) => ({ slug: p.slug }));
+  } catch {
+    return [];
+  }
+}
 
 // Fetch once, distinguishing a real 404 (auth OK, no such product → getProduct
 // returns null) from a datacenter-IP block (the fetch throws). Only the block

@@ -33,7 +33,7 @@ interface StorePrices {
   currency_suffix: string;
 }
 
-interface StoreProduct {
+export interface StoreProduct {
   id: number;
   slug: string;
   name: string;
@@ -61,7 +61,7 @@ function currencyOf(prices: StorePrices): ShopCurrency {
   };
 }
 
-function normalize(p: StoreProduct): ShopProduct {
+export function normalizeStoreProduct(p: StoreProduct): ShopProduct {
   const currency = currencyOf(p.prices);
   const images: ShopImage[] = (p.images ?? []).map((img) => ({
     src: img.src,
@@ -101,7 +101,7 @@ export async function fetchProductsBrowser(): Promise<ShopProduct[]> {
   });
   if (!res.ok) throw new Error(`Store API products → ${res.status}`);
   const data = (await res.json()) as StoreProduct[];
-  return data.map(normalize);
+  return data.map(normalizeStoreProduct);
 }
 
 /** One product by slug, from the browser. Returns null for a real 404 (no such
@@ -116,5 +116,5 @@ export async function fetchProductBrowser(
   );
   if (!res.ok) throw new Error(`Store API product ${slug} → ${res.status}`);
   const data = (await res.json()) as StoreProduct[];
-  return data[0] ? normalize(data[0]) : null;
+  return data[0] ? normalizeStoreProduct(data[0]) : null;
 }
