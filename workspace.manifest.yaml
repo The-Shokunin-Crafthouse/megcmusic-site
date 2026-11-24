@@ -16,6 +16,10 @@ template_version: "1.2.0"
 # ADR-105 D3 amended 2026-09-25). Process learnings load globally.
 surface: "web"        # web | physical | process -- must match the CLAUDE.md import
 
+# Repo visibility, recorded with the reason (studio-memory ADR-131). Levi, 2026-11-23: public on purpose.
+visibility: "public"   # private | public
+visibility_reason: "Public website; the source is meant to be seen."
+
 project:
   name: "MegCMusic"
   client: "Meghan Clarisse Cave"
